@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,6 +27,7 @@ abstract class BaseActivity : AppCompatActivity() {
         initHandleBackEvent()
         initEdgeToEdge()
         initStatusBar()
+        initNavigationBar()
     }
 
     private fun initHandleBackEvent() {
@@ -49,6 +51,25 @@ abstract class BaseActivity : AppCompatActivity() {
         val decorView = window.decorView
         val controller = WindowCompat.getInsetsController(window, decorView)
         controller.isAppearanceLightStatusBars = false
+    }
+
+    private fun initNavigationBar() {
+        val background = TypedValue()
+        theme.resolveAttribute(android.R.attr.colorBackground, background, true)
+        val backgroundColor = if (background.resourceId != 0) {
+            ContextCompat.getColor(this, background.resourceId)
+        } else {
+            background.data
+        }
+        window.navigationBarColor = backgroundColor
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+        window.decorView.setBackgroundColor(backgroundColor)
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        controller.isAppearanceLightNavigationBars =
+            (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) !=
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
     }
 
     private fun initEdgeToEdge() {
