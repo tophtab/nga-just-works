@@ -975,3 +975,24 @@ Optimized Android workflow checkout with tag shallow clones and blobless partial
 ### Status
 
 [OK] **Completed**
+
+
+## Session 42: Fix Android 15 navigation bar theme
+
+**Date**: 2026-08-15
+**Task**: Fix Android 15 navigation bar theme
+**Branch**: `main`
+
+### Summary
+
+Traced issue2 to night-only and Compose-excluded navigation bar handling, replaced it with day/night themed system bar configuration for Java, shared UI, and Compose paths, added regression tests, linted, and documented the Android 15 edge-to-edge contract.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `43520b6d` | (see git log) |
+
+### Status
+
+[OK] **Completed**
