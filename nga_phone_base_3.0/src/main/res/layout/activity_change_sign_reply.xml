@@ -33,15 +33,16 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:background="@color/white"
+            android:background="@color/editor_background"
             android:cursorVisible="true"
             android:gravity="top|left"
             android:hint="@string/changesignhint"
+            android:textColorHint="@color/editor_hint_color"
             android:imeOptions="actionDone"
             android:inputType="textMultiLine|textNoSuggestions"
             android:layerType="software"
             android:scrollbars="vertical"
-            android:textColor="@color/black"
+            android:textColor="@color/editor_text_color"
             android:textCursorDrawable="@null">
 
             <requestFocus />

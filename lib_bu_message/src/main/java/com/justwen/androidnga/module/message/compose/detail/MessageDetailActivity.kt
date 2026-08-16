@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -81,6 +83,7 @@ class MessageDetailActivity : BaseComposeActivity() {
     @Preview
     @Composable
     fun MessageListItem(messageInfo: MessageArticlePageInfo = MessageArticlePageInfo()) {
+        val metadataColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
 
         val annotatedText = buildAnnotatedString {
             messageInfo.contentSections.forEach(action = {
@@ -138,17 +141,16 @@ class MessageDetailActivity : BaseComposeActivity() {
             ) {
                 Text(
                     modifier = Modifier.align(alignment = Alignment.CenterStart),
-                    text = userName, fontSize = 14.sp, color = Color(0xFF294563),
+                    text = userName, fontSize = 14.sp, color = metadataColor,
                 )
                 Text(
                     modifier = Modifier.align(alignment = Alignment.CenterEnd),
                     text = messageInfo.time,
                     fontSize = 14.sp,
-                    color = Color(0xFF294563)
+                    color = metadataColor
                 )
             }
 
         }
     }
 }
-

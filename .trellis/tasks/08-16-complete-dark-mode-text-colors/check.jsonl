@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Verify semantic Compose colors remain within the Material 2 boundary and preserve intentional helper/icon colors."}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Use project quality and test conventions when adding contract coverage."}

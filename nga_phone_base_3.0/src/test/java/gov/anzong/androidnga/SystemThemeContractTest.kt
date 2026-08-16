@@ -51,4 +51,41 @@ class SystemThemeContractTest {
         assertTrue(kotlinSource.contains("val initialPaddingBottom = contentView.paddingBottom"))
         assertTrue(kotlinSource.contains("initialPaddingBottom + navaBars.bottom"))
     }
+
+    @Test
+    fun remainingComposeAndLegacyEditorsUseThemeAwareContentColors() {
+        val drawerSource = source(
+            "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/drawer/NavigationDrawerFragment.kt"
+        )
+        assertFalse(drawerSource.contains("color = Color.DarkGray"))
+        assertFalse(drawerSource.contains("tint = Color.DarkGray"))
+        assertTrue(drawerSource.contains("MaterialTheme.colors.onBackground"))
+
+        val messageSource = source(
+            "lib_bu_message/src/main/java/com/justwen/androidnga/module/message/compose/detail/MessageDetailActivity.kt"
+        )
+        assertFalse(messageSource.contains("0xFF294563"))
+        assertTrue(messageSource.contains("MaterialTheme.colors.onSurface"))
+
+        val searchSource = source(
+            "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/SearchActivity.kt"
+        )
+        assertFalse(searchSource.contains("Color.White"))
+        assertFalse(searchSource.contains("Color.Gray"))
+        assertTrue(searchSource.contains("MaterialTheme.colors.surface"))
+        assertTrue(searchSource.contains("TextStyle.Default.copy(color = fieldContent)"))
+
+        val avatarLayout = source("nga_phone_base_3.0/src/main/res/layout/activity_change_avatar.xml")
+        val signLayout = source("nga_phone_base_3.0/src/main/res/layout/activity_change_sign_reply.xml")
+        assertTrue(avatarLayout.contains("@color/editor_background"))
+        assertTrue(avatarLayout.contains("@color/editor_text_color"))
+        assertTrue(signLayout.contains("@color/editor_background"))
+        assertTrue(signLayout.contains("@color/editor_text_color"))
+
+        val lightColors = source("nga_phone_base_3.0/src/main/res/values/colors.xml")
+        val nightColors = source("nga_phone_base_3.0/src/main/res/values-night/colors.xml")
+        assertTrue(lightColors.contains("<color name=\"editor_background\">"))
+        assertTrue(nightColors.contains("<color name=\"editor_background\">"))
+        assertTrue(nightColors.contains("<color name=\"editor_text_color\">"))
+    }
 }

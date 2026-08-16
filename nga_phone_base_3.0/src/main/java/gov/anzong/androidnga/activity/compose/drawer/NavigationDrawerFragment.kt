@@ -250,7 +250,7 @@ class NavigationDrawerFragment : BaseComposeFragment() {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = label,
-                        color = Color.DarkGray,
+                        color = MaterialTheme.colors.onBackground,
                         fontWeight = FontWeight.Medium,
                         fontSize = 16.sp,
                         modifier = Modifier.alignByBaseline()
@@ -276,7 +276,7 @@ class NavigationDrawerFragment : BaseComposeFragment() {
                         Icon(
                             modifier = Modifier.size(26.dp),
                             painter = painterResource(iconId),
-                            tint = Color.DarkGray,
+                            tint = MaterialTheme.colors.onBackground,
                             contentDescription = ""
                         )
                     }

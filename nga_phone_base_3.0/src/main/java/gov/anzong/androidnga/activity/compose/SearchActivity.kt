@@ -25,8 +25,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Checkbox
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -84,6 +86,9 @@ class SearchActivity : BaseComposeActivity() {
     fun SearchEditView() {
         var searchText by remember { mutableStateOf("") }
         val focusRequester = remember { FocusRequester() }
+        val fieldBackground = MaterialTheme.colors.surface
+        val fieldContent = MaterialTheme.colors.onSurface
+        val fieldSecondaryContent = fieldContent.copy(alpha = ContentAlpha.medium)
 
         Box(
             modifier = Modifier
@@ -99,8 +104,9 @@ class SearchActivity : BaseComposeActivity() {
                     viewModel.query(this@SearchActivity, searchText)
                 }),
                 singleLine = true,
+                textStyle = TextStyle.Default.copy(color = fieldContent),
                 modifier = Modifier
-                    .background(Color.White, shape = CutCornerShape(2.dp))
+                    .background(fieldBackground, shape = CutCornerShape(2.dp))
                     .padding(start = 8.dp, end = 8.dp)
                     .fillMaxSize()
                     .focusRequester(focusRequester)
@@ -114,7 +120,7 @@ class SearchActivity : BaseComposeActivity() {
                             val searchMode by viewModel.searchMode.observeAsState()
                             Text(
                                 text = viewModel.getSearchTintText(searchMode!!),
-                                color = Color.Gray,
+                                color = fieldSecondaryContent,
                                 style = TextStyle.Default
                             )
                         }
@@ -127,7 +133,7 @@ class SearchActivity : BaseComposeActivity() {
                                 modifier = Modifier
                                     .clickable(onClick = { searchText = "" })
                                     .fillMaxHeight(),
-                                tint = Color.Gray,
+                                tint = fieldSecondaryContent,
                                 imageVector = Icons.Default.Clear,
                                 contentDescription = ""
                             )
@@ -201,10 +207,12 @@ class SearchActivity : BaseComposeActivity() {
     @Preview
     @Composable
     fun SearchHistoryItemView(text: String = "强撸灰飞烟灭", deleteMode: Boolean = false) {
+        val chipContent = MaterialTheme.colors.onSurface
+        val chipSecondaryContent = chipContent.copy(alpha = ContentAlpha.medium)
         Box(modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, end = 4.dp)) {
             Row(
                 Modifier
-                    .background(Color.White, shape = RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(8.dp))
                     .height(30.dp)
                     .clickable(onClick = { viewModel.query(this@SearchActivity, text) })
                     .padding(all = 4.dp),
@@ -213,22 +221,22 @@ class SearchActivity : BaseComposeActivity() {
                 Text(
                     text = text,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                    color = Color.Gray
+                    color = chipContent
                 )
                 Divider(
                     modifier = Modifier
                         .width(1.dp)
-                        .fillMaxHeight(), color = Color.Gray
+                        .fillMaxHeight(), color = chipSecondaryContent
                 )
                 Spacer(modifier = Modifier
                     .width(8.dp)
-                    .background(Color.Gray))
+                    .background(chipSecondaryContent))
                 Icon(
                     modifier = Modifier
                         .size(14.dp)
-                        .background(Color.Gray, shape = RoundedCornerShape(7.dp))
+                        .background(chipSecondaryContent, shape = RoundedCornerShape(7.dp))
                         .clickable(onClick = { viewModel.deleteHistory(text) }),
-                    tint = Color.White,
+                    tint = MaterialTheme.colors.surface,
                     imageVector = Icons.Default.Close,
                     contentDescription = ""
                 )

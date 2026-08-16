@@ -19,7 +19,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:text="@string/avataradd"
-            android:textColor="@color/black"
+            android:textColor="@color/editor_text_color"
             android:textStyle="bold" />
 
         <EditText
@@ -30,11 +30,12 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="15dp"
             android:layout_toRightOf="@id/add_title"
-            android:background="@color/white"
+            android:background="@color/editor_background"
             android:cursorVisible="true"
             android:hint="@string/avataraddtitle"
+            android:textColorHint="@color/editor_hint_color"
             android:inputType="textNoSuggestions"
-            android:textColor="@color/black"
+            android:textColor="@color/editor_text_color"
             android:textCursorDrawable="@null" />
         
         <TextView
@@ -45,7 +46,7 @@
         	android:layout_below="@id/add_title"
         	android:layout_marginTop="15dp"
             android:text="@string/avatarpreview"
-            android:textColor="@color/black"
+            android:textColor="@color/editor_text_color"
             android:textSize="16dp"
             android:textStyle="bold" />
     <ImageView

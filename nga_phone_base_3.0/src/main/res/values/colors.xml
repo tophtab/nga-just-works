@@ -9,6 +9,10 @@
     <color name="background_color2">@color/shit1</color>
     <color name="foreground_color">@color/black</color>
 
+    <color name="editor_background">@color/white</color>
+    <color name="editor_text_color">@color/black</color>
+    <color name="editor_hint_color">#8A000000</color>
+
     <color name="web_text_color">#FF000000</color>
     <color name="web_quote_background_color">#FFE8E8E8</color>
 

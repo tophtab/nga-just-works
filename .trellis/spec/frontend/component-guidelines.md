@@ -86,6 +86,22 @@ for the remaining track. The night resources therefore resolve to a light
 completed segment and a gray remaining segment without hard-coding a
 night-only layout.
 
+### Semantic colors at mixed Material boundaries
+
+Some legacy Compose surfaces, such as the home drawer gesture shell, still
+use Material 3 container primitives while the application theme is Material 2.
+That is a compatibility boundary, not a second theme. Any label, icon, input,
+or metadata content rendered inside that surface must receive an explicit
+Material 2 semantic color (`MaterialTheme.colors.onBackground`,
+`onSurface`, or a derived alpha). Do not rely on Material 3 defaults, because
+they do not inherit the shared Material 2 palette.
+
+Legacy text editors follow the same rule through Android resources: define a
+semantic background, text, and hint color in both `values/` and
+`values-night/`, then reference those names from the layout. Do not use global
+`@color/black` or `@color/white` for an editor that can be shown on a themed
+surface.
+
 ## Home navigation drawer
 
 ### 1. Scope / Trigger
