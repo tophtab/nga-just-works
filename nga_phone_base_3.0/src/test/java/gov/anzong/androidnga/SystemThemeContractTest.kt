@@ -88,4 +88,31 @@ class SystemThemeContractTest {
         assertTrue(nightColors.contains("<color name=\"editor_background\">"))
         assertTrue(nightColors.contains("<color name=\"editor_text_color\">"))
     }
+
+    @Test
+    fun profileLayoutUsesSemanticDayAndNightColors() {
+        val profileLayout = source(
+            "nga_phone_base_3.0/src/main/res/layout/activity_user_profile_content.xml"
+        )
+        val lightColors = source("nga_phone_base_3.0/src/main/res/values/colors.xml")
+        val nightColors = source("nga_phone_base_3.0/src/main/res/values-night/colors.xml")
+
+        listOf(
+            "profile_card_background",
+            "profile_title",
+            "profile_label",
+            "profile_value",
+            "profile_action",
+        ).forEach { colorName ->
+            assertTrue(lightColors.contains("<color name=\"$colorName\">"))
+            assertTrue(nightColors.contains("<color name=\"$colorName\">"))
+            assertTrue(profileLayout.contains("@color/$colorName"))
+        }
+
+        assertFalse(profileLayout.contains("#fff5d7"))
+        assertFalse(profileLayout.contains("#712d08"))
+        assertFalse(profileLayout.contains("#121c46"))
+        assertFalse(profileLayout.contains("#551200"))
+        assertFalse(profileLayout.contains("#808080"))
+    }
 }

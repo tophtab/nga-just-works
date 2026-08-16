@@ -13,6 +13,12 @@
     <color name="editor_text_color">@color/black</color>
     <color name="editor_hint_color">#8A000000</color>
 
+    <color name="profile_card_background">#FFF5D7</color>
+    <color name="profile_title">#FF712D08</color>
+    <color name="profile_label">#FF121C46</color>
+    <color name="profile_value">#FF808080</color>
+    <color name="profile_action">#FF551200</color>
+
     <color name="web_text_color">#FF000000</color>
     <color name="web_quote_background_color">#FFE8E8E8</color>
 

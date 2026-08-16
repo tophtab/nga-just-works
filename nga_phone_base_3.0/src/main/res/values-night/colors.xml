@@ -16,6 +16,12 @@
     <color name="editor_text_color">#FFF5F5F5</color>
     <color name="editor_hint_color">#FF9EA4AA</color>
 
+    <color name="profile_card_background">#FF2B3035</color>
+    <color name="profile_title">#FFFFD7A3</color>
+    <color name="profile_label">#FFE6EAF0</color>
+    <color name="profile_value">#FFB8C0C8</color>
+    <color name="profile_action">#FFFFC27A</color>
+
     <color name="colorAccentBrown">#FF128F80</color>
     <color name="colorPrimaryBrown">#FF1F2021</color>
     <color name="colorPrimaryDarkBrown">#FF1F2021</color>
