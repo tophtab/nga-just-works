@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,6 +27,7 @@ abstract class BaseActivity : AppCompatActivity() {
         initHandleBackEvent()
         initEdgeToEdge()
         initStatusBar()
+        initNavigationBar()
     }
 
     private fun initHandleBackEvent() {
@@ -51,31 +53,59 @@ abstract class BaseActivity : AppCompatActivity() {
         controller.isAppearanceLightStatusBars = false
     }
 
+    private fun initNavigationBar() {
+        val background = TypedValue()
+        theme.resolveAttribute(android.R.attr.colorBackground, background, true)
+        val backgroundColor = if (background.resourceId != 0) {
+            ContextCompat.getColor(this, background.resourceId)
+        } else {
+            background.data
+        }
+        window.navigationBarColor = backgroundColor
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+        window.decorView.setBackgroundColor(backgroundColor)
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        controller.isAppearanceLightNavigationBars =
+            (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) !=
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+    }
+
     private fun initEdgeToEdge() {
         enableEdgeToEdge()
         val contentView = findViewById<View>(android.R.id.content)
         if (contentView != null) {
+            val initialPaddingLeft = contentView.paddingLeft
+            val initialPaddingTop = contentView.paddingTop
+            val initialPaddingRight = contentView.paddingRight
+            val initialPaddingBottom = contentView.paddingBottom
             ViewCompat.setOnApplyWindowInsetsListener(
                 contentView
             ) { _, insets ->
-                if (window.decorView.findViewById<View?>(R.id.status_bar) == null) {
-                    val stateBars =
-                        insets.getInsets(WindowInsetsCompat.Type.statusBars())
-                    val parent = contentView.parent as ViewGroup
-                    val statusView = View(contentView.context)
-                    statusView.id = R.id.status_bar
-                    statusView.layoutParams =
-                        ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, stateBars.top)
-                    statusView.setBackgroundColor(
-                        getPrimaryColor()
-                    )
-                    parent.addView(statusView, 0)
+                val stateBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+                val statusView = window.decorView.findViewById<View?>(R.id.status_bar)
+                    ?: View(contentView.context).also { created ->
+                        created.id = R.id.status_bar
+                        val parent = contentView.parent as ViewGroup
+                        parent.addView(created, 0)
+                    }
+                statusView.layoutParams = statusView.layoutParams?.apply {
+                    height = stateBars.top
+                } ?: ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    stateBars.top
+                )
+                statusView.setBackgroundColor(getPrimaryColor())
 
-                    val navaBars =
-                        insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-                    mNaviBarHeight = navaBars.bottom
-                    contentView.setPadding(0, 0, 0, navaBars.bottom)
-                }
+                val navaBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+                mNaviBarHeight = navaBars.bottom
+                contentView.setPadding(
+                    initialPaddingLeft,
+                    initialPaddingTop,
+                    initialPaddingRight,
+                    initialPaddingBottom + navaBars.bottom
+                )
                 insets
             }
         }

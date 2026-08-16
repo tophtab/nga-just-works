@@ -39,6 +39,53 @@ icons while Compose and project-base screens look correct.
 **Fix**: Apply the local app-bar inset after the third-party layout is inflated,
 and add a source contract test for ordering and idempotent padding.
 
+## System navigation bar and Android 15 edge-to-edge
+
+The application targets SDK 35, so Android 15 enforces edge-to-edge and may
+make the system navigation region transparent. A window's default white
+navigation area is not a reliable theme background.
+
+- Configure navigation-bar color and icon appearance for both day and night
+  themes. Do not gate this behavior on `isNightMode()` or on whether a screen
+  uses Compose; the home Activity enables Compose before its base `onCreate`.
+- Disable the Android Q+ navigation contrast scrim when the app provides its
+  own themed background, and set the decor background to the active surface.
+- Compose screens must set the navigation-bar color from
+  `MaterialTheme.colors.background` and use `MaterialTheme.colors.isLight` for
+  icon appearance. Setting only the status bar color is incomplete.
+- Inset listeners must capture the original padding and recompute from it on
+  every dispatch. Update navigation-bar height each time, and mutate an
+  existing status placeholder's layout params instead of replacing its parent-
+  specific `LayoutParams` subtype.
+
+Required regression coverage must assert that the old
+`isNightMode() && !mComposeEnabled` gate is absent and that Java, Kotlin, and
+Compose paths configure the navigation background and icon appearance.
+
+## Compose Material theme generation boundaries
+
+The shared `AppTheme` is a Material 2 theme (`androidx.compose.material`). A
+screen hosted under it must use Material 2 content components when it expects
+default text/icon colors:
+
+```kotlin
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+```
+
+Do not import `androidx.compose.material3.Text` or `Icon` into such a screen
+without an explicit Material 3 theme boundary or explicit content colors.
+Material 3 composition locals do not inherit the Material 2 palette; the
+result can be black default content on the dark NGA background. Explicit gray
+helper copy is a separate visual hierarchy and should not be recolored merely
+to mask this theme-generation mismatch.
+
+For the legacy font/avatar size screen, `SeekBarEx` uses
+`@color/text_color` for the completed track and `@color/text_color_disabled`
+for the remaining track. The night resources therefore resolve to a light
+completed segment and a gray remaining segment without hard-coding a
+night-only layout.
+
 ## Home navigation drawer
 
 ### 1. Scope / Trigger

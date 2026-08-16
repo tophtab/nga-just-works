@@ -161,6 +161,9 @@ fun ScaffoldApp(
 ) {
     rememberSystemUiController().run {
         setStatusBarColor(MaterialTheme.colors.primary, false)
+        // Android 15 makes the navigation bar transparent for edge-to-edge
+        // apps. Paint it with the active surface color and use readable icons.
+        setNavigationBarColor(MaterialTheme.colors.background, MaterialTheme.colors.isLight)
     }
     Scaffold(
         topBar = {

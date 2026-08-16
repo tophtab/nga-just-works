@@ -20,6 +20,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.justwen.androidnga.cloud.CloudServerManager;
@@ -54,13 +56,29 @@ public abstract class BaseActivity extends AppCompatActivity {
         ThemeManager.getInstance().initializeWebTheme(this);
 
         try {
-            if (ThemeManager.getInstance().isNightMode() && !mComposeEnabled) {
-                getWindow().setNavigationBarColor(ContextUtils.getColor(R.color.background_color));
-            }
+            configureSystemBars();
         } catch (Exception e) {
-            NLog.e("set navigation bar color exception occur: " + e);
+            NLog.e("configure system bars exception occur: " + e);
         }
         enableEdge2Edge();
+    }
+
+    /**
+     * Android 15 enforces edge-to-edge for targetSdk 35. Configure both the
+     * legacy window color and the decor background so transparent gesture/IME
+     * navigation areas still use the active NGA theme instead of white.
+     */
+    private void configureSystemBars() {
+        int backgroundColor = ContextUtils.getColor(R.color.background_color);
+        getWindow().setNavigationBarColor(backgroundColor);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().setNavigationBarContrastEnforced(false);
+        }
+        getWindow().getDecorView().setBackgroundColor(backgroundColor);
+
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        controller.setAppearanceLightNavigationBars(!ThemeManager.getInstance().isNightMode());
     }
 
     public void setComposeEnabled(boolean composeEnabled) {
@@ -70,23 +88,40 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void enableEdge2Edge() {
         View contentView = findViewById(android.R.id.content);
         if (mToolbarEnabled && !mComposeEnabled && contentView != null) {
+            final int initialPaddingLeft = contentView.getPaddingLeft();
+            final int initialPaddingTop = contentView.getPaddingTop();
+            final int initialPaddingRight = contentView.getPaddingRight();
+            final int initialPaddingBottom = contentView.getPaddingBottom();
             ViewCompat.setOnApplyWindowInsetsListener(contentView, new OnApplyWindowInsetsListener() {
                 @NonNull
                 @Override
                 public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
-                    if (getWindow().getDecorView().findViewById(R.id.status_bar) == null) {
-                        Insets stateBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+                    Insets stateBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+                    View statusView = getWindow().getDecorView().findViewById(R.id.status_bar);
+                    if (statusView == null) {
                         ViewGroup parent = (ViewGroup) contentView.getParent();
-                        View statusView = new View(contentView.getContext());
+                        statusView = new View(contentView.getContext());
                         statusView.setId(R.id.status_bar);
-                        statusView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, stateBars.top));
-                        statusView.setBackgroundColor(ThemeManager.getInstance().getPrimaryColor(contentView.getContext()));
                         parent.addView(statusView, 0);
-
-                        Insets navaBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
-                        mNaviBarHeight = navaBars.bottom;
-                        contentView.setPadding(0, 0, 0, navaBars.bottom);
                     }
+                    ViewGroup.LayoutParams statusLayoutParams = statusView.getLayoutParams();
+                    if (statusLayoutParams == null) {
+                        statusLayoutParams = new ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, stateBars.top);
+                    } else {
+                        statusLayoutParams.height = stateBars.top;
+                    }
+                    statusView.setLayoutParams(statusLayoutParams);
+                    statusView.setBackgroundColor(
+                            ThemeManager.getInstance().getPrimaryColor(contentView.getContext()));
+
+                    Insets navaBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+                    mNaviBarHeight = navaBars.bottom;
+                    contentView.setPadding(
+                            initialPaddingLeft,
+                            initialPaddingTop,
+                            initialPaddingRight,
+                            initialPaddingBottom + navaBars.bottom);
                     return insets;
                 }
             });
