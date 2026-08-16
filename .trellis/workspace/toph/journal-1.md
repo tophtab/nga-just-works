@@ -1017,3 +1017,24 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
+
+
+## Session 44: 完成个人资料页深色模式配色
+
+**Date**: 2026-08-16
+**Task**: 完成个人资料页深色模式配色
+**Branch**: `main`
+
+### Summary
+
+为个人资料页卡片、标题、标签、数值和操作链接增加日夜语义颜色资源，替换布局硬编码颜色，新增 SystemThemeContractTest 契约覆盖；通过目标单元测试与 lintDebug。归档 08-16-profile-dark-mode-colors。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `06d77a96` | (see git log) |
+
+### Status
+
+[OK] **Completed**
