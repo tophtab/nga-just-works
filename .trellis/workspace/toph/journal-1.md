@@ -975,3 +975,24 @@ Optimized Android workflow checkout with tag shallow clones and blobless partial
 ### Status
 
 [OK] **Completed**
+
+
+## Session 42: 修复系统导航栏与深色模式显示
+
+**Date**: 2026-08-16
+**Task**: 修复系统导航栏与深色模式显示
+**Branch**: `main`
+
+### Summary
+
+修复 Android 15 系统导航栏主题背景，统一屏蔽规则页 Material 2 内容色，并调整字体头像滑条为白色/灰色；补充契约测试、规范和回归分析。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d19f6fdc` | (see git log) |
+
+### Status
+
+[OK] **Completed**
