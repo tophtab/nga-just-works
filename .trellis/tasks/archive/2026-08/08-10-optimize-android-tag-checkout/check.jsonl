@@ -1,3 +1,0 @@
-{"file": ".trellis/spec/backend/index.md", "reason": "Routes verification to the Android quality contract"}
-{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Defines required Android validation and no-ADB boundary"}
-{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Checks that versionCode logic has one tested source of truth"}

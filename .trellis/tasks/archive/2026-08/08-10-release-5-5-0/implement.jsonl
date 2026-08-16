@@ -1,2 +1,0 @@
-{"file":".trellis/spec/backend/index.md","reason":"Locate and read the authoritative signed-release scenario in the Android quality contract before changing or publishing release inputs."}
-{"file":".trellis/tasks/08-10-release-5-5-0/research/release-evidence.md","reason":"Use the task-scoped snapshot of tags, Releases, CI, permissions, secrets, commit range, and dirty-worktree boundaries."}

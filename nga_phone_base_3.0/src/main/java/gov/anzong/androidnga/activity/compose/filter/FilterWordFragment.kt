@@ -22,14 +22,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.justwen.androidnga.ui.compose.BaseComposeFragment
 import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
-import gov.anzong.androidnga.R
 import sp.phone.common.User
 
 class FilterWordFragment : BaseComposeFragment() {
@@ -60,8 +58,6 @@ class FilterWordFragment : BaseComposeFragment() {
     @Composable
     fun FilterView(filterState: FilterState<*> = FilterState<String>(title = "屏蔽词")) {
         val userFilters = filterState.filterData.observeAsState()
-        val context = LocalContext.current
-        val secondaryTextColor = Color(context.resources.getColor(R.color.text_color, null))
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -86,13 +82,13 @@ class FilterWordFragment : BaseComposeFragment() {
                         }
                     }
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        Text(text = "长按子项可删除", fontSize = 14.sp, color = secondaryTextColor)
+                        Text(text = "长按子项可删除", fontSize = 14.sp, color = Color.Gray)
                     }
                 }
             }
             Row(modifier = Modifier.padding(bottom = 16.dp)) {
                 if (!filterState.tips.isNullOrEmpty()) {
-                    Text(text = filterState.tips!!, color = secondaryTextColor)
+                    Text(text = filterState.tips!!, color = Color.Gray)
                 }
             }
             LazyColumn {

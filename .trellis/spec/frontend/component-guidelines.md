@@ -39,30 +39,6 @@ icons while Compose and project-base screens look correct.
 **Fix**: Apply the local app-bar inset after the third-party layout is inflated,
 and add a source contract test for ordering and idempotent padding.
 
-## System navigation bar and Android 15 edge-to-edge
-
-The application targets SDK 35, so Android 15 enforces edge-to-edge and may
-make the system navigation region transparent. A window's default white
-navigation area is therefore not a reliable theme background.
-
-- Configure navigation-bar color and icon appearance for **both** day and
-  night themes. Do not gate this on `isNightMode()` or on whether a screen uses
-  Compose; those conditions caused the home Compose screen to skip the only
-  existing color assignment.
-- Disable the Android Q+ navigation contrast scrim when the app supplies its
-  own themed background, and set the decor background to the active surface so
-  transparent gesture navigation still paints the app color.
-- Compose screens must call the system UI controller's navigation-bar color
-  API with `MaterialTheme.colors.background` and match its light/dark icon
-  appearance. Setting only the status bar color is incomplete.
-- Legacy inset listeners must update navigation-bar height and bottom padding
-  on every dispatch; navigation mode and orientation can change while the
-  Activity remains alive.
-
-Required regression coverage: source-contract tests must assert the absence of
-the old `isNightMode() && !mComposeEnabled` gate and the presence of navigation
-bar color, contrast, icon, and inset handling in both Java and Compose paths.
-
 ## Home navigation drawer
 
 ### 1. Scope / Trigger

@@ -1,3 +1,0 @@
-{"file": ".trellis/spec/backend/index.md", "reason": "Routes Android release workflow changes to the active quality contract"}
-{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Defines Android release validation and prohibited device operations"}
-{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Requires searching existing script/test patterns before adding a versionCode utility"}

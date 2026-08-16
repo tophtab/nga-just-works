@@ -415,7 +415,6 @@ GITHUB_SHA=<triggering commit SHA>
 GITHUB_REF=<refs/heads/main or refs/tags/X.Y.Z>
 GITHUB_REF_NAME=<main or X.Y.Z>
 GITHUB_RUN_NUMBER=<long-lived build.yml workflow sequence>
-python3 scripts/derive_android_version_code.py <stable X.Y.Z base> <build slot 0..999>
 ```
 
 The publication identities are:
@@ -424,20 +423,17 @@ The publication identities are:
 debug tag       = debug-<first 12 characters of GITHUB_SHA>
 debug version   = <newest reachable stable X.Y.Z tag>-debug.<GITHUB_RUN_NUMBER>
 stable version  = <exact X.Y.Z trigger tag>
-versionCode     = major*10_000_000 + minor*100_000 + patch*1_000 + build_slot
-stable slot     = 0
-debug slot      = first-parent commit distance from stable tag to GITHUB_SHA + 1
+versionCode     = 4043 + GITHUB_RUN_NUMBER
 APK             = NGA-Just-Works-<CI_VERSION_NAME>.apk
 checksum        = <APK filename>.sha256
 ```
 
-The decimal layout is `Mmmppbbb`: minor and patch are `0..99`, and the final
-three digits reserve `0` for a stable tag and `1..999` for Debug previews. The
-already-published `5.5.0` APK keeps legacy versionCode `4069`; the new semantic
-base for `5.5.0` is `50,500,000`, so every new Debug preview remains an upgrade.
-`5.5.1` starts at `50,501,000`, exactly one above the largest possible
-`5.5.0` preview. Reject a field/slot overflow or a final value outside Android's
-`1..2,100,000,000` range instead of spilling into another semantic version.
+The `4043` migration offset maps workflow run 8 to versionCode `4051`, one
+greater than the published `4.5.0` APK. The first Debug-named run after
+`4.5.0-preview.8` therefore remains upgrade-compatible. The workflow path must
+remain the long-lived publication workflow. If its GitHub workflow identity is
+recreated and the run sequence resets, recalculate the offset from the highest
+published versionCode before publishing again.
 
 The release applicationId is `com.github.tophtab.ngajustworks`; the source and
 resource namespace remains `gov.anzong.androidnga` until a separately scoped
@@ -457,10 +453,6 @@ package migration is approved.
   `X.Y.Z` tag reachable from `GITHUB_SHA`, builds and signs one `preview`
   variant APK, verifies it, then publishes a `debug-<sha12>` GitHub
   prerelease titled with `(Debug)`.
-- Main checkout keeps the complete commit/tag graph (`fetch-depth: 0`) required
-  by `git tag --merged` and first-parent distance, but uses partial clone
-  `filter: blob:none` so historical file contents are not prefetched. Checkout
-  still materializes every file in the current worktree before the build.
 - Pushes containing only `.trellis/**` and Markdown files do not publish.
   `workflow_dispatch` is disabled so arbitrary refs cannot manufacture a
   preview or stable release. That prohibition governs the publication
@@ -468,18 +460,9 @@ package migration is approved.
   question, but it must not sign, package, publish, or read repository
   secrets, and it is deleted once its question is answered.
 - A stable tag must match `X.Y.Z` exactly. The same workflow checks out that
-  tag with `fetch-depth: 1` and `filter: blob:none`, uses it as
-  `CI_VERSION_NAME`, builds and signs once, verifies the APK, and creates a
-  normal GitHub Release directly from the current job's `dist/`. It must not
-  query or download an earlier Actions artifact.
-- Stable tags pass build slot `0` to
-  `scripts/derive_android_version_code.py`. Main previews compute
-  `git rev-list --first-parent --count <stable>..<sha>` and add one before
-  invoking the same script. The same commit therefore keeps the same
-  versionCode on rerun, while an append-only main history increases it. More
-  precisely, a first-parent distance of 999 or greater makes the `+1` Debug
-  slot exceed `999` and must fail; force-pushing/replacing main history is not
-  a supported publication action.
+  tag, uses it as `CI_VERSION_NAME`, builds and signs once, verifies the APK,
+  and creates a normal GitHub Release directly from the current job's `dist/`.
+  It must not query or download an earlier Actions artifact.
 - Each publication job starts Gradle exactly once. The identity step emits one
   controlled task list — `:nga_phone_base_3.0:assemblePreview` for Debug,
   `verifyReleaseTag` plus `:nga_phone_base_3.0:assembleRelease` for stable —
@@ -509,8 +492,8 @@ package migration is approved.
 - Stable tag builds use the same production applicationId and signing key,
   remain `debuggable=false`, and keep release minification enabled. A Debug
   prerelease therefore upgrades the stable app without clearing login,
-  settings, or data. The next stable patch/minor semantic base must be higher
-  than every reserved Debug slot so it can upgrade the prerelease in place.
+  settings, or data; the later stable run must receive a higher run number and
+  versionCode so it can upgrade the Debug prerelease in place.
 - Before replacing a same-SHA Debug prerelease, an existing matching tag must resolve to
   `GITHUB_SHA` and any existing Release must be a prerelease. A rerun keeps the
   same run number and asset names, so `gh release upload --clobber` may replace
@@ -563,10 +546,8 @@ package migration is approved.
 | Any signing environment value is absent or blank | `assembleRelease` fails; no unsigned fallback |
 | Only one of `CI_VERSION_NAME` / `CI_VERSION_CODE` is present | Gradle configuration fails |
 | CI versionName is not stable or `X.Y.Z-debug.N` | Gradle configuration fails |
-| CI versionCode is nonnumeric, outside Android's range, or not greater than the installed build | Fail before publication; correct the semantic base/build-slot derivation |
-| version minor/patch exceeds 99, stable slot is not 0, or Debug slot is outside 1..999 | Fail identity derivation before Gradle starts |
+| CI versionCode is nonnumeric, outside Android's range, or not greater than the installed build | Fail before publication; correct the derivation/offset |
 | Main commit has no reachable stable `X.Y.Z` tag | Fail during preview identity derivation |
-| Main checkout lacks the complete commit/tag graph needed by tag lookup or first-parent distance | Restore `fetch-depth: 0`; do not guess the base/slot |
 | Trigger tag is not exactly `X.Y.Z` | Fail before build/publication |
 | Stable `RELEASE_TAG` differs from effective Gradle versionName | Tag verification fails before publication |
 | Matching stable notes are missing, duplicated, out of order, malformed, or contain an empty required section | Fail before `gh release create`; do not fall back to generated notes |
@@ -586,12 +567,11 @@ package migration is approved.
 
 ### 5. Good/Base/Bad Cases
 
-- **Good**: A main commit two first-parent steps after reachable `5.5.0` uses
-  Debug slot `3`, builds a signed, production-ID, debuggable preview with
-  versionCode `50,500,003`, publishes `debug-<sha12>` as a prerelease, then
-  removes only older `preview-*`/`debug-*` prereleases and tags. A later
-  `5.5.1` tag builds a non-debuggable, minified stable APK with versionCode
-  `50,501,000`.
+- **Good**: Run 9 on `main` resolves reachable `4.5.0`, builds a signed,
+  production-ID, debuggable `4.5.0-debug.9` preview variant with versionCode
+  `4052`, publishes `debug-<sha12>` as a prerelease, then removes only older
+  `preview-*`/`debug-*` prereleases and tags. A later `4.6.0` tag run builds a
+  non-debuggable, minified stable `4.6.0` directly with a higher versionCode.
 - **Base**: Rerunning the same Debug run validates its existing tag and
   prerelease, retains the same version values, and replaces the same-named APK
   and checksum. No additional Debug Release is created.
@@ -617,18 +597,13 @@ package migration is approved.
   alone retains `--generate-notes`.
 - Exercise identity derivation for a main commit with a reachable stable tag,
   an exact stable tag, an invalid tag, and a main commit without a stable base.
-- Run `scripts/test_derive_android_version_code.py`. Assert `5.5.0/slot 0`
-  gives `50,500,000`, slot `999` is exactly one below `5.5.1/slot 0`, two-digit
-  minor/patch fields work, and malformed fields, field overflow, slot overflow,
-  a zero final versionCode, and Android-limit overflow fail.
 - Assert local Gradle defaults, valid Debug/stable CI overrides, a partial
   override pair, malformed versionName, out-of-range versionCode, matching
   stable `RELEASE_TAG`, mismatched/invalid tags, and rejection of the legacy
   `X.Y.Z-preview.N` naming form.
-- Assert the first new `5.5.0` preview is greater than legacy published code
-  `4069`, same-commit reruns keep their code, a stable patch orders after all
-  preceding preview slots, and a later preview derives its versionName/code
-  base from the newly reachable stable tag.
+- Assert `4043 + run_number` gives a versionCode greater than the published
+  build, a stable run orders after its preceding preview, and a later preview
+  derives its versionName base from the newly reachable stable tag.
 - Assert missing signing values fail release packaging. In CI with signing
   values, run `apksigner verify --print-certs` and inspect APK applicationId,
   versionName, versionCode, `debuggable`, app label, static shortcuts, and
@@ -693,26 +668,4 @@ gh release create "$NEW_DEBUG" dist/* --prerelease
 gh release create "$NEW_DEBUG" dist/* --target "$GITHUB_SHA" --prerelease
 # Only after creation succeeds:
 gh release delete "$OLD_DEBUG" --cleanup-tag --yes
-```
-
-#### Wrong
-
-```yaml
-- uses: actions/checkout@v4
-  with:
-    fetch-depth: 0
-- run: echo "CI_VERSION_CODE=$((4043 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
-```
-
-#### Correct
-
-```yaml
-- uses: actions/checkout@v4
-  with:
-    fetch-depth: ${{ startsWith(github.ref, 'refs/tags/') && 1 || 0 }}
-    filter: blob:none
-- run: |
-    version_code="$(python3 scripts/derive_android_version_code.py \
-      "$version_base" "$build_slot")"
-    echo "CI_VERSION_CODE=$version_code" >> "$GITHUB_ENV"
 ```
