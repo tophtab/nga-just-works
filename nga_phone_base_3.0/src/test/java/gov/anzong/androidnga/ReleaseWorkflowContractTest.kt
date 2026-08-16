@@ -42,6 +42,62 @@ class ReleaseWorkflowContractTest {
     }
 
     @Test
+    fun checkoutKeepsMainHistoryAndUsesShallowTagsWithBloblessPartialClone() {
+        val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
+        val checkout = stepBody(workflow, "Checkout project sources", "Derive release identity")
+        val depthExpression = Regex(
+            "fetch-depth:\\s*\\$\\{\\{\\s*startsWith\\(github\\.ref, 'refs/tags/'\\)\\s*&&\\s*(\\d+)\\s*\\|\\|\\s*(\\d+)\\s*\\}\\}",
+        ).find(checkout)
+
+        assertEquals(1, Regex("(?m)^\\s*uses: actions/checkout@v4\\s*$").findAll(checkout).count())
+        requireNotNull(depthExpression) { "Checkout depth must branch on stable tag refs" }
+        assertEquals("Stable tag checkout must fetch only the tagged commit", 1, depthExpression.groupValues[1].toInt())
+        assertEquals("Main preview checkout must retain complete history", 0, depthExpression.groupValues[2].toInt())
+        assertEquals(1, Regex("(?m)^\\s*filter: blob:none\\s*$").findAll(checkout).count())
+
+        val identity = stepBody(workflow, "Derive release identity", "Setup Java")
+        assertTrue(identity.contains("git tag --merged \"\$GITHUB_SHA\" --sort=-version:refname"))
+    }
+
+    @Test
+    fun workflowDerivesVersionCodeFromSemanticBaseAndPreviewCommitDistance() {
+        val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
+        val identity = stepBody(workflow, "Derive release identity", "Setup Java")
+        val previewBranchMarker = "\n          else\n            stable_base=\"\""
+        val previewBranchStart = identity.indexOf(previewBranchMarker)
+        assertTrue("Missing preview identity branch", previewBranchStart >= 0)
+        val branchEndMarker = "\n          fi\n\n          version_code="
+        val branchEnd = identity.indexOf(branchEndMarker, previewBranchStart)
+        assertTrue("Missing versionCode derivation after identity branches", branchEnd > previewBranchStart)
+        val stableBranch = identity.substring(0, previewBranchStart)
+        val previewBranch = identity.substring(previewBranchStart, branchEnd)
+        val versionCodeExport = identity.substring(branchEnd)
+
+        assertTrue(File(repositoryRoot, "scripts/derive_android_version_code.py").isFile)
+        assertTrue(stableBranch.contains("version_base=\"\$GITHUB_REF_NAME\""))
+        assertTrue(stableBranch.contains("build_slot=0"))
+        assertFalse(stableBranch.contains("commit_distance="))
+        assertTrue(previewBranch.contains("version_base=\"\$stable_base\""))
+        assertTrue(
+            previewBranch.contains(
+                "git rev-list --first-parent --count \"\${stable_base}..\${GITHUB_SHA}\"",
+            ),
+        )
+        assertTrue(previewBranch.contains("build_slot=\$((commit_distance + 1))"))
+        assertFalse(previewBranch.contains("build_slot=0"))
+        assertTrue(
+            versionCodeExport.contains(
+                "python3 scripts/derive_android_version_code.py \"\$version_base\" \"\$build_slot\"",
+            ),
+        )
+        val derivation = versionCodeExport.indexOf("python3 scripts/derive_android_version_code.py")
+        val export = versionCodeExport.indexOf("echo \"CI_VERSION_CODE=\$version_code\"")
+        assertTrue("versionCode must be derived before it is exported", derivation >= 0 && export > derivation)
+        assertFalse(identity.contains("4043 + GITHUB_RUN_NUMBER"))
+        assertEquals(1, "derive_android_version_code.py".toRegex().findAll(identity).count())
+    }
+
+    @Test
     fun sharedSdkAndPublishedApkChecksStayPinnedToApi29And35() {
         val rootGradle = File(repositoryRoot, "build.gradle").readText()
         val appGradle = File(repositoryRoot, "nga_phone_base_3.0/build.gradle").readText()
@@ -95,7 +151,6 @@ class ReleaseWorkflowContractTest {
     fun workflowVerifiesUpgradeIdentityAndCleansLegacyAndCurrentDebugTags() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
 
-        assertTrue(workflow.contains("version_code=\$((4043 + GITHUB_RUN_NUMBER))"))
         assertTrue(workflow.contains("manifest application-id"))
         assertTrue(workflow.contains("com.github.tophtab.ngajustworks"))
         assertTrue(workflow.contains("manifest version-name"))

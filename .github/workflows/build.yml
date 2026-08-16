@@ -22,24 +22,21 @@ jobs:
       - name: Checkout project sources
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: ${{ startsWith(github.ref, 'refs/tags/') && 1 || 0 }}
+          filter: blob:none
 
       - name: Derive release identity
         id: release
         run: |
           set -euo pipefail
 
-          version_code=$((4043 + GITHUB_RUN_NUMBER))
-          if ((version_code > 2100000000)); then
-            echo "Derived versionCode exceeds Android's supported range: $version_code" >&2
-            exit 1
-          fi
-
           if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == refs/tags/* ]]; then
             if [[ ! "$GITHUB_REF_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
               echo "Stable release tags must match X.Y.Z exactly: $GITHUB_REF_NAME" >&2
               exit 1
             fi
+            version_base="$GITHUB_REF_NAME"
+            build_slot=0
             version_name="$GITHUB_REF_NAME"
             release_tag="$GITHUB_REF_NAME"
             release_title="NGA Just Works $GITHUB_REF_NAME"
@@ -60,6 +57,9 @@ jobs:
               exit 1
             fi
 
+            version_base="$stable_base"
+            commit_distance="$(git rev-list --first-parent --count "${stable_base}..${GITHUB_SHA}")"
+            build_slot=$((commit_distance + 1))
             short_sha="${GITHUB_SHA:0:12}"
             version_name="${stable_base}-debug.${GITHUB_RUN_NUMBER}"
             release_tag="debug-${short_sha}"
@@ -70,6 +70,7 @@ jobs:
             expected_debuggable=true
           fi
 
+          version_code="$(python3 scripts/derive_android_version_code.py "$version_base" "$build_slot")"
           {
             echo "CI_VERSION_NAME=$version_name"
             echo "CI_VERSION_CODE=$version_code"
