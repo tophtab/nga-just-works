@@ -1,0 +1,1 @@
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"检查发布前置门禁未绕过签名、版本、checksum 和 release notes 校验。"}
