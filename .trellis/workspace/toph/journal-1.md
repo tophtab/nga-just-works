@@ -996,3 +996,24 @@ Optimized Android workflow checkout with tag shallow clones and blobless partial
 ### Status
 
 [OK] **Completed**
+
+
+## Session 43: Complete dark mode text color adaptation
+
+**Date**: 2026-08-16
+**Task**: Complete dark mode text color adaptation
+**Branch**: `main`
+
+### Summary
+
+Replaced remaining hard-coded dark-mode content colors in the Compose drawer, message detail metadata, search controls, and legacy avatar/signature editors. Added day/night editor resources, theme contract tests, and documented the Material 2 semantic-color boundary. Targeted tests, lint, and assembleDebug passed; repository-wide tests still have unrelated baseline failures in lib_bu_statistics and lib_core.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1bd133e0` | (see git log) |
+
+### Status
+
+[OK] **Completed**
