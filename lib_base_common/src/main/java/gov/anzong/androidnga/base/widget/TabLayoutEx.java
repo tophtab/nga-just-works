@@ -11,34 +11,24 @@ import com.nshmura.recyclertablayout.RecyclerTabLayout;
 
 public class TabLayoutEx extends RecyclerTabLayout {
 
+    /**
+     * 占位间隔，真正的间隔由 {@link #setOnCurrentTabLongPressListener} 传入。
+     */
+    private static final long DEFAULT_CURRENT_TAB_LONG_PRESS_REPEAT_INTERVAL_MS = 5_000L;
+
     private OnTabReselectedListener mOnTabReselectedListener;
 
     private OnCurrentTabLongPressListener mOnCurrentTabLongPressListener;
 
-    private long mCurrentTabLongPressRepeatIntervalMillis;
+    private final LongPressRepeater mCurrentTabLongPressRepeater = createCurrentTabLongPressRepeater();
 
-    private View mLongPressedTabView;
-
-    private int mLongPressedTabPosition = NO_POSITION;
-
-    private final Runnable mRepeatCurrentTabLongPressRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mLongPressedTabView == null
-                    || !mLongPressedTabView.isAttachedToWindow()
-                    || !mLongPressedTabView.isPressed()
-                    || mViewPager == null
-                    || mLongPressedTabPosition != mViewPager.getCurrentItem()
-                    || mOnCurrentTabLongPressListener == null) {
-                stopCurrentTabLongPress();
-                return;
-            }
-
-            mOnCurrentTabLongPressListener.onCurrentTabLongPress(mLongPressedTabPosition);
-            mLongPressedTabView.postDelayed(
-                    this, mCurrentTabLongPressRepeatIntervalMillis);
-        }
-    };
+    private LongPressRepeater createCurrentTabLongPressRepeater() {
+        LongPressRepeater repeater = new LongPressRepeater(
+                DEFAULT_CURRENT_TAB_LONG_PRESS_REPEAT_INTERVAL_MS,
+                this::dispatchCurrentTabLongPress);
+        repeater.setRepeatCondition(this::isCurrentTab);
+        return repeater;
+    }
 
     public TabLayoutEx(Context context) {
         super(context);
@@ -82,9 +72,11 @@ public class TabLayoutEx extends RecyclerTabLayout {
         if (listener != null && repeatIntervalMillis <= 0) {
             throw new IllegalArgumentException("repeatIntervalMillis must be positive");
         }
-        stopCurrentTabLongPress();
+        mCurrentTabLongPressRepeater.stop();
         mOnCurrentTabLongPressListener = listener;
-        mCurrentTabLongPressRepeatIntervalMillis = repeatIntervalMillis;
+        if (listener != null) {
+            mCurrentTabLongPressRepeater.setRepeatIntervalMillis(repeatIntervalMillis);
+        }
     }
 
     public interface OnTabReselectedListener {
@@ -95,37 +87,24 @@ public class TabLayoutEx extends RecyclerTabLayout {
         void onCurrentTabLongPress(int position);
     }
 
-    private boolean startCurrentTabLongPress(View tabView, int position) {
-        if (mOnCurrentTabLongPressListener == null
-                || position == NO_POSITION
-                || mViewPager == null
-                || position != mViewPager.getCurrentItem()) {
-            return false;
-        }
-
-        stopCurrentTabLongPress();
-        mLongPressedTabView = tabView;
-        mLongPressedTabPosition = position;
-        mOnCurrentTabLongPressListener.onCurrentTabLongPress(position);
-        if (tabView.isAttachedToWindow() && tabView.isPressed()) {
-            tabView.postDelayed(
-                    mRepeatCurrentTabLongPressRunnable,
-                    mCurrentTabLongPressRepeatIntervalMillis);
-        }
-        return true;
+    /**
+     * 只有长按当前选中的页码才刷新。位置每次实时解析，按住期间 tab 被重新绑定也不会拿到过期下标。
+     */
+    private boolean isCurrentTab(View tabView) {
+        int position = getChildAdapterPosition(tabView);
+        return mOnCurrentTabLongPressListener != null
+                && mViewPager != null
+                && position != NO_POSITION
+                && position == mViewPager.getCurrentItem();
     }
 
-    private void stopCurrentTabLongPress() {
-        if (mLongPressedTabView != null) {
-            mLongPressedTabView.removeCallbacks(mRepeatCurrentTabLongPressRunnable);
-        }
-        mLongPressedTabView = null;
-        mLongPressedTabPosition = NO_POSITION;
+    private void dispatchCurrentTabLongPress(View tabView) {
+        mOnCurrentTabLongPressListener.onCurrentTabLongPress(getChildAdapterPosition(tabView));
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        stopCurrentTabLongPress();
+        mCurrentTabLongPressRepeater.stop();
         super.onDetachedFromWindow();
     }
 
@@ -150,16 +129,13 @@ public class TabLayoutEx extends RecyclerTabLayout {
                     }
                 }
             });
-            holder.itemView.setOnLongClickListener(v ->
-                    startCurrentTabLongPress(v, holder.getAdapterPosition()));
+            mCurrentTabLongPressRepeater.attach(holder.itemView);
             return holder;
         }
 
         @Override
         public void onViewRecycled(ViewHolder holder) {
-            if (holder.itemView == mLongPressedTabView) {
-                stopCurrentTabLongPress();
-            }
+            mCurrentTabLongPressRepeater.stop(holder.itemView);
             super.onViewRecycled(holder);
         }
 

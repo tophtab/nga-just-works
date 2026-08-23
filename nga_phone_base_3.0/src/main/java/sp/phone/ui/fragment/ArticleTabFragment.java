@@ -32,6 +32,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.activity.fragment.ForumWebFragment;
 import gov.anzong.androidnga.base.util.ShareUtils;
+import gov.anzong.androidnga.base.widget.LongPressRepeater;
 import gov.anzong.androidnga.base.widget.TabLayoutEx;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
@@ -75,6 +76,8 @@ public class ArticleTabFragment extends BaseRxFragment {
 
     @BindView(R.id.fab_post)
     public FloatingActionButton mFab;
+
+    private LongPressRepeater mFabRefreshRepeater;
 
     private int mReplyCount;
 
@@ -132,6 +135,9 @@ public class ArticleTabFragment extends BaseRxFragment {
         mTabLayout.setOnCurrentTabLongPressListener(
                 position -> refreshCurrentPage(),
                 CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS);
+        mFabRefreshRepeater = new LongPressRepeater(
+                CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS, v -> refreshCurrentPage());
+        mFabRefreshRepeater.attach(mFab);
         publishPrefetchPages();
         super.onViewCreated(view, savedInstanceState);
     }
@@ -221,6 +227,10 @@ public class ArticleTabFragment extends BaseRxFragment {
     @Override
     public void onDestroyView() {
         mTabLayout.setOnCurrentTabLongPressListener(null, 0L);
+        if (mFabRefreshRepeater != null) {
+            mFabRefreshRepeater.detach(mFab);
+            mFabRefreshRepeater = null;
+        }
         super.onDestroyView();
     }
 

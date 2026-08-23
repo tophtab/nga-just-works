@@ -34,6 +34,10 @@ class ArticlePageRefreshContractTest {
         source("lib_base_common/src/main/java/gov/anzong/androidnga/base/widget/TabLayoutEx.java")
     private val topicListSource =
         source("nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicListFragment.java")
+    private val topicSearchSource =
+        source("nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java")
+    private val longPressRepeaterSource =
+        source("lib_base_common/src/main/java/gov/anzong/androidnga/base/widget/LongPressRepeater.java")
     private val cacheActivitySource =
         source("nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/ArticleCacheActivity.java")
     private val dimensSource = source("nga_phone_base_3.0/src/main/res/values/dimens.xml")
@@ -48,7 +52,6 @@ class ArticlePageRefreshContractTest {
         assertTrue(topicListSource.contains("public void startPostActivity()"))
         assertTrue(articleTabSource.contains("@OnClick(R.id.fab_post)"))
         assertTrue(articleTabSource.contains("public void reply()"))
-        assertFalse(articleTabSource.contains("@OnLongClick(R.id.fab_post)"))
         assertTrue(cacheActivitySource.contains("findViewById(R.id.fab_post).setVisibility(View.GONE);"))
     }
 
@@ -123,12 +126,96 @@ class ArticlePageRefreshContractTest {
 
     @Test
     fun tabLongPressRepeatsOnlyWhileTheSelectedTabRemainsPressed() {
-        assertTrue(tabLayoutSource.contains("position != mViewPager.getCurrentItem()"))
-        assertTrue(tabLayoutSource.contains("mOnCurrentTabLongPressListener.onCurrentTabLongPress(position);"))
-        assertTrue(tabLayoutSource.contains("mLongPressedTabView.isPressed()"))
-        assertTrue(tabLayoutSource.contains("postDelayed("))
-        assertTrue(tabLayoutSource.contains("removeCallbacks(mRepeatCurrentTabLongPressRunnable)"))
+        // The scheduling itself now lives in LongPressRepeater; TabLayoutEx keeps only the
+        // current-tab guard, the dispatch, and its teardown hooks.
+        assertTrue(tabLayoutSource.contains("position == mViewPager.getCurrentItem()"))
+        assertTrue(tabLayoutSource.contains("mOnCurrentTabLongPressListener != null"))
+        assertTrue(
+            tabLayoutSource.contains(
+                "mOnCurrentTabLongPressListener.onCurrentTabLongPress(getChildAdapterPosition(tabView));",
+            ),
+        )
+        assertTrue(tabLayoutSource.contains("repeater.setRepeatCondition(this::isCurrentTab);"))
+        assertTrue(tabLayoutSource.contains("mCurrentTabLongPressRepeater.attach(holder.itemView);"))
+        assertTrue(tabLayoutSource.contains("mCurrentTabLongPressRepeater.stop(holder.itemView);"))
         assertTrue(tabLayoutSource.contains("protected void onDetachedFromWindow()"))
         assertTrue(tabLayoutSource.contains("public void onViewRecycled(ViewHolder holder)"))
+
+        // The public wiring ArticleTabFragment depends on must not drift.
+        assertTrue(
+            tabLayoutSource.contains(
+                "public void setOnCurrentTabLongPressListener(\n" +
+                    "            OnCurrentTabLongPressListener listener, long repeatIntervalMillis) {",
+            ),
+        )
+        assertTrue(
+            tabLayoutSource.contains(
+                "throw new IllegalArgumentException(\"repeatIntervalMillis must be positive\");",
+            ),
+        )
+    }
+
+    @Test
+    fun longPressRepeaterIsTheOnlyPressAndRepeatLoop() {
+        assertTrue(longPressRepeaterSource.contains("view.setOnLongClickListener(this);"))
+        assertTrue(longPressRepeaterSource.contains("!view.isAttachedToWindow()"))
+        assertTrue(longPressRepeaterSource.contains("!view.isPressed()"))
+        assertTrue(longPressRepeaterSource.contains("view.postDelayed(this, mRepeatIntervalMillis);"))
+        assertTrue(longPressRepeaterSource.contains("mPressedView.removeCallbacks(mRepeatRunnable);"))
+
+        // Rejecting the press must leave the event unconsumed so the caller's click path survives.
+        val onLongClick = longPressRepeaterSource
+            .substringAfter("public boolean onLongClick(View view)")
+            .substringBefore("private boolean canRepeat(View view)")
+        assertTrue(onLongClick.contains("if (!canRepeat(view)) {\n            return false;\n        }"))
+        assertTrue(onLongClick.contains("return true;"))
+
+        // TabLayoutEx must not keep a second copy of the loop.
+        assertFalse(tabLayoutSource.contains("mRepeatCurrentTabLongPressRunnable"))
+        assertFalse(tabLayoutSource.contains("mLongPressedTabView"))
+        assertFalse(tabLayoutSource.contains("postDelayed("))
+        assertTrue(tabLayoutSource.contains("new LongPressRepeater("))
+    }
+
+    @Test
+    fun postFabLongPressRefreshesTheCurrentPageAndRepeatsWhileHeld() {
+        // Board: scroll back to the top and reload page one, every cycle.
+        assertTrue(
+            topicListSource.contains(
+                "private static final long CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS = 5_000L;",
+            ),
+        )
+        assertTrue(
+            topicListSource.contains(
+                "mFabRefreshRepeater = new LongPressRepeater(\n" +
+                    "                CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS, v -> scrollToTopAndRefresh());",
+            ),
+        )
+        assertTrue(topicListSource.contains("mFabRefreshRepeater.attach(mFab);"))
+        assertTrue(topicListSource.contains("mFabRefreshRepeater.detach(mFab);"))
+        assertTrue(topicListSource.contains("public void onDestroyView()"))
+
+        // The board action stays the one the toolbar title tap already used.
+        assertTrue(topicSearchSource.contains("protected void onTitleClick() {\n        scrollToTopAndRefresh();\n    }"))
+        val scrollToTopAndRefresh = topicSearchSource
+            .substringAfter("protected void scrollToTopAndRefresh()")
+            .substringBefore("public void scrollTo(int position)")
+        assertTrue(scrollToTopAndRefresh.contains("scrollTo(0);"))
+        assertTrue(scrollToTopAndRefresh.contains("mPresenter.loadPage(1, mRequestParam);"))
+        assertTrue(scrollToTopAndRefresh.contains("mSwipeRefreshLayout.isEnabled() && !isRefreshing()"))
+
+        // Article: refresh only; no scroll, no page change, no composition.
+        assertTrue(
+            articleTabSource.contains(
+                "mFabRefreshRepeater = new LongPressRepeater(\n" +
+                    "                CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS, v -> refreshCurrentPage());",
+            ),
+        )
+        assertTrue(articleTabSource.contains("mFabRefreshRepeater.attach(mFab);"))
+        assertTrue(articleTabSource.contains("mFabRefreshRepeater.detach(mFab);"))
+
+        // No cross-screen refresh abstraction was introduced.
+        assertFalse(topicListSource.contains("refreshCurrentPage"))
+        assertFalse(articleTabSource.contains("scrollToTopAndRefresh"))
     }
 }

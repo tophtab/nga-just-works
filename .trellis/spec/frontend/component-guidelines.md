@@ -423,6 +423,9 @@ reorderableTabRange = 1..tabs.lastIndex
 - An article view contains one Material `FloatingActionButton` that directly
   opens reply composition. It also remains visible while scrolling and never
   changes semantics. The cached article activity hides that button.
+- Both FABs additionally carry a hold-to-refresh gesture; see
+  *Post/reply FAB long-press refresh*. That gesture never alters the tap action,
+  the icon, or the label.
 - Do not restore `FloatingActionsMenu`, `fab_refresh`,
   `ScrollAwareFamBehavior`, or the bundled `floatingactionmenu.aar`.
 - Do not attach `ScrollAwareFabBehavior` or another nested-scroll hide/show or
@@ -441,6 +444,33 @@ reorderableTabRange = 1..tabs.lastIndex
   top. Do not add a bottom-tab preference or a second bottom-tab layout.
 - Retain the existing pull-to-refresh behavior.
 
+## Press-and-repeat long press
+
+`LongPressRepeater`
+(`lib_base_common/src/main/java/gov/anzong/androidnga/base/widget/LongPressRepeater.java`)
+is the project's **only** implementation of "long press, fire immediately, then
+repeat on an interval while held". Never write a second `postDelayed` repeat
+loop of this shape; attach this one instead.
+
+- The helper owns *when* to fire. The caller owns *what* fires. A widget's own
+  precondition goes in as a `RepeatCondition`, never inside the helper.
+- Repetition stops when the view loses its pressed state (release, cancel,
+  drag-out, parent interception), when it detaches from the window, or when the
+  condition stops holding. `View.postDelayed` is not cancelled on detach, so the
+  runnable re-checks `isAttachedToWindow()` on every tick — keep that check.
+- `onLongClick` returns `true` when it accepts the press, which is what stops
+  `performClick()` from also firing and suppresses the platform tooltip. It
+  returns `false` when the `RepeatCondition` rejects, leaving the caller's normal
+  click path intact.
+- Use `stop(View)` when cancelling from a recycler callback so an unrelated
+  recycled view cannot cancel an active hold elsewhere; `stop()` is the
+  unconditional form.
+- Callers that attach for a fragment view's lifetime must `detach(view)` in
+  `onDestroyView`.
+
+Current consumers: `TabLayoutEx` (page tabs), `TopicListFragment` and
+`ArticleTabFragment` (post/reply FAB).
+
 ## Article current-page refresh
 
 - Do not expose refresh in `article_list_option_menu.xml`; the article overflow
@@ -452,15 +482,52 @@ reorderableTabRange = 1..tabs.lastIndex
   repeat the refresh attempt every 5 seconds. Losing the pressed state through
   release or cancellation, changing pages, tab recycling, view detachment, or
   fragment view destruction must prevent any further refresh.
+- `TabLayoutEx` delegates that scheduling to `LongPressRepeater` and supplies
+  "the pressed view is still the selected tab" as its `RepeatCondition`. It
+  resolves the tab position live through `getChildAdapterPosition(view)`; do not
+  reintroduce a cached pressed-view or pressed-position field.
+- Long-pressing a tab that is not the selected one must stay unconsumed, so the
+  existing tap-to-switch behavior still runs.
 - Each refresh attempt resolves `mPagerAdapter.getCurrentFragment()` at call
   time, skips while that fragment is already refreshing, and otherwise reuses
   its existing `loadPage()` path. Do not change the selected page, scroll to the
   top, or invoke reply composition.
-- Keep the post/reply FAB single-purpose. Do not attach refresh to its click or
-  long-press behavior.
 - The gesture inherits the existing article loading, error, fallback, and
   reading-position behavior. Changes such as retaining stale content on failure
   or restoring by `pid` plus pixel offset require a separate task.
+
+## Post/reply FAB long-press refresh
+
+The single direct-action FAB carries two gestures. A **short tap** stays
+composition-only — new topic on a board, reply in an article — and must never
+refresh. A **long press** refreshes what is currently on screen, repeating every
+5 seconds while held, via `LongPressRepeater`.
+
+- Board (`TopicListFragment`): each cycle runs the full
+  `TopicSearchFragment.scrollToTopAndRefresh()` — scroll to the top **and**
+  reload page 1 — so the list stays pinned at the top for the whole hold. Its
+  existing `isEnabled()` / `isRefreshing()` guards are the throttle; do not add
+  another.
+- Article (`ArticleTabFragment`): each cycle runs `refreshCurrentPage()` only.
+  Do not scroll, expand the app bar, change the selected page, or open reply
+  composition.
+- `onTitleClick()` remains a delegate to `scrollToTopAndRefresh()`, so the
+  toolbar title tap and the FAB hold cannot drift apart.
+- Reuse the mechanism, not the action. There is no cross-screen `RefreshHelper`
+  or `Refreshable` abstraction, and the FAB gesture does not call into the tab
+  gesture's code. Each trigger lands on the `loadPage` entry point its own screen
+  already owns — the two refreshes differ in host, parameters, and lifecycle, and
+  unifying them would produce a class that branches on screen type.
+- This reverses an earlier rule that kept the FAB single-purpose. The legacy
+  `FloatingActionsMenu` 「刷新」 button (`fab_refresh`) stays deleted; the hold
+  gesture is not a route to bringing that menu back.
+
+**Known duplication, deferred:** the article screen has two refresh routes that
+both end at `ArticleListFragment.loadPage()` — the
+`ArticleShareViewModel.setRefreshPage()` LiveData broadcast used after posting a
+reply, and the direct `getCurrentFragment().loadPage()` used by both long-press
+gestures. Converging them is a separate task; do not fold it into a feature
+change.
 
 ## Topic list title tap
 
@@ -630,6 +697,8 @@ rg -n "left_hand|bottom_tab|isLeftHandMode|isShowBottomTab|fragment_article_tab_
   lib_base_common nga_phone_base_3.0/src/main
 rg -n "EMOTICON_URL|EMOTICON_LABEL" lib_base_common nga_phone_base_3.0/src/main
 rg -n "setOnTitleClickListener|onTitleClick" nga_phone_base_3.0/src/main
+rg -n "postDelayed" lib_base_common/src/main nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment
+rg -n "LongPressRepeater" lib_base_common/src/main nga_phone_base_3.0/src/main
 ```
 
 The first scan must have no active matches. The second scan must have no
@@ -640,4 +709,8 @@ current-page long-press refresh wiring. The fourth scan must have no matches.
 The fifth scan must have no matches. The sixth scan must show reads only — no
 assignment into the emoticon tables outside `EmoticonUtils` itself. The seventh
 scan must show one binding per topic-list toolbar and the matching handler, and
-no listener attached to a `Toolbar` rather than its title view.
+no listener attached to a `Toolbar` rather than its title view. The eighth scan
+must show no press-and-repeat loop outside `LongPressRepeater` — other
+`postDelayed` hits are fine as long as none of them re-post themselves on a
+press. The ninth scan must show the single helper plus its three consumers:
+`TabLayoutEx`, `TopicListFragment`, `ArticleTabFragment`.

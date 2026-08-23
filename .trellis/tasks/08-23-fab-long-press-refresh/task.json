@@ -1,0 +1,28 @@
+{
+  "id": "fab-long-press-refresh",
+  "name": "fab-long-press-refresh",
+  "title": "长按发帖按钮刷新当前页",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": "frontend",
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-08-23",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "description": "板块页/主题页长按发帖按钮触发刷新，按住期间每5秒重复；把长按重复机制从 TabLayoutEx 抽成共享的 LongPressRepeater"
+  }
+}

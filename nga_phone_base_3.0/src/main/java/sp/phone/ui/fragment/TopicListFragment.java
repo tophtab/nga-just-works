@@ -23,6 +23,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.LauncherSubActivity;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.util.ToastUtils;
+import gov.anzong.androidnga.base.widget.LongPressRepeater;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.ParamKey;
 import sp.phone.util.ActivityUtils;
@@ -33,7 +34,14 @@ import sp.phone.util.ActivityUtils;
 
 public class TopicListFragment extends TopicSearchFragment {
 
+    /**
+     * 长按发帖按钮不松手时，每隔这么久回顶并刷新一次。
+     */
+    private static final long CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS = 5_000L;
+
     private Menu mOptionMenu;
+
+    private LongPressRepeater mFabRefreshRepeater;
 
     @BindView(R.id.fab_post)
     public FloatingActionButton mFab;
@@ -69,6 +77,18 @@ public class TopicListFragment extends TopicSearchFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mFabRefreshRepeater = new LongPressRepeater(
+                CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS, v -> scrollToTopAndRefresh());
+        mFabRefreshRepeater.attach(mFab);
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (mFabRefreshRepeater != null) {
+            mFabRefreshRepeater.detach(mFab);
+            mFabRefreshRepeater = null;
+        }
+        super.onDestroyView();
     }
 
     @Override

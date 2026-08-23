@@ -188,9 +188,16 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
     }
 
     /**
-     * 点标题回到顶部并刷新。缓存列表加载完会关掉下拉刷新，这里跟着一起停，只回顶部。
+     * 点标题回到顶部并刷新。
      */
     protected void onTitleClick() {
+        scrollToTopAndRefresh();
+    }
+
+    /**
+     * 回到顶部并重新加载第一页。缓存列表加载完会关掉下拉刷新，这里跟着一起停，只回顶部。
+     */
+    protected void scrollToTopAndRefresh() {
         scrollTo(0);
         if (mSwipeRefreshLayout.isEnabled() && !isRefreshing()) {
             mPresenter.loadPage(1, mRequestParam);

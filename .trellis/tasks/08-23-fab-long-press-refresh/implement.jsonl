@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "FAB and current-page refresh contracts; the long-press prohibition reversed by this task"}
+{"file": "lib_base_common/src/main/java/gov/anzong/androidnga/base/widget/TabLayoutEx.java", "reason": "Reference implementation of the long-press repeat loop"}
+{"file": "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleTabFragment.java", "reason": "Article FAB wiring target; owns refreshCurrentPage and the 5s constant"}
+{"file": "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicListFragment.java", "reason": "Board FAB wiring target"}
+{"file": "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java", "reason": "Owns onTitleClick, the scroll-to-top + reload path to extract"}
