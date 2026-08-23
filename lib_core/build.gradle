@@ -37,6 +37,8 @@ dependencies {
 
     implementation "androidx.annotation:annotation:1.1.0"
     compileOnly project(':lib_base_common')
+    // compileOnly 不进入单元测试运行时 classpath，ForumBasicDecoder 依赖的 StringUtils 会 NoClassDefFoundError
+    testImplementation project(':lib_base_common')
 
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
 
