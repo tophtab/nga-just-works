@@ -527,7 +527,11 @@ both end at `ArticleListFragment.loadPage()` — the
 `ArticleShareViewModel.setRefreshPage()` LiveData broadcast used after posting a
 reply, and the direct `getCurrentFragment().loadPage()` used by both long-press
 gestures. Converging them is a separate task; do not fold it into a feature
-change.
+change. Neither call site is the re-entrancy barrier: every refresh funnels
+through `ArticlePageRequestState` in `ArticleListPresenter`, which drops a
+foreground load while one is already in flight. The `isRefreshing()` check on
+the long-press path is a redundant second guard, and the broadcast path's lack
+of one causes no duplicate request. The asymmetry is cosmetic, not a defect.
 
 ## Topic list title tap
 
