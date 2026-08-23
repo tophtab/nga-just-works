@@ -1059,3 +1059,25 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
+
+
+## Session 46: 修复侧滑返回黑屏并发布 5.5.3
+
+**Date**: 2026-08-23
+**Task**: 修复侧滑返回黑屏并发布 5.5.3
+**Branch**: `main`
+
+### Summary
+
+上一轮交付的侧滑返回在真机上拖动时露出纯黑而非下层页面。真机诊断（小米 24129PN74C / Android 15 / HyperOS / 三键导航）定位根因：me.imid.swipebacklayout 靠反射隐藏 API Activity#convertToTranslucent 让下层 Activity 保持绘制，该成员自 Android 9 起被封禁且库用自己的 try/catch 吞掉失败。排查中反编译 APK 确认 SettingsActivity 的 ActivityRecord 主题为 0x7f13000e=AppThemeDayNight，确实带 android:windowIsTranslucent=true —— 实测证明该标志必要但不充分，缺少显式调用下层依旧不画。修法：SwipeBackHelper 注册自有 SwipeListener，在 onEdgeTouch 调公开 API Activity#setTranslucent(true)（API 30，minSdk 29 加版本守卫）；滑动结束不转回不透明，否则下次拖动从已停止的 Activity 开始会重新闪黑。真机复验左右两侧边缘均能露出下层板块列表并完成返回，深色模式与 ViewPager 抢手势由维护者确认无问题。契约测试增至 5 项、全模块 134 单测通过，全仓 lintDebug 13 模块零 Error/Fatal。发布 5.5.3：新增 release-notes/5.5.3.md 并通过 validate_release_notes.py 校验。教训已写入 spec 与跨会话记忆：Android 可见行为变更不能仅凭 JVM 门交付。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `04bae018` | (see git log) |
+| `7146a697` | (see git log) |
+
+### Status
+
+[OK] **Completed**
