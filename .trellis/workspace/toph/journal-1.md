@@ -1081,3 +1081,24 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
+
+
+## Session 47: 长按发帖按钮刷新当前页
+
+**Date**: 2026-08-23
+**Task**: 长按发帖按钮刷新当前页
+**Branch**: `main`
+
+### Summary
+
+板块页与主题页的发帖 FAB 新增长按刷新：板块页每轮回顶并重载第一页，主题页只刷新当前页，按住期间每 5 秒重复。把长按重复调度从 TabLayoutEx 抽成 lib_base_common 的 LongPressRepeater 作为项目唯一实现，TabLayoutEx 迁移过去并用 RepeatCondition 提供「仍是当前选中页」约束，位置改为 getChildAdapterPosition 实时解析。刻意只复用机制不复用动作，未引入跨页面刷新抽象。主题页 setRefreshPage 广播与 getCurrentFragment().loadPage() 两条路径的收敛另开任务。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `825d0038` | (see git log) |
+
+### Status
+
+[OK] **Completed**
