@@ -28,6 +28,9 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setToolbarEnabled(true);
         setComposeEnabled(true);
+        // The home screen has no previous page and already uses a horizontal swipe to open the
+        // navigation drawer, so swipe back stays off here as it did in the original project.
+        setSwipeBackEnable(false);
         EdgeToEdge.enable((ComponentActivity) this);
         super.onCreate(savedInstanceState);
         ThemeUtils.init(this);

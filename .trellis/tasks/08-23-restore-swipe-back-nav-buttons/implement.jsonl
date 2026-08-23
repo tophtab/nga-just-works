@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Device/ADB operations are opt-in and unauthorized here; defines the JVM-only validation gate this task must use."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Restored-Justwen UI conventions the BaseActivity change must stay consistent with."}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "hasNavigationButtons is a new utility; the guide requires searching for an existing helper first (DeviceUtils was chosen for that reason)."}

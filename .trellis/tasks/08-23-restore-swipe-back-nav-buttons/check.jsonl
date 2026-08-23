@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Validation gate and the rule that an unrun device test is reported as 'not run per project policy', not a blocker."}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Change spans lib_base_common (helper + detection) and nga_phone_base_3.0 (activity wiring); check the boundary."}

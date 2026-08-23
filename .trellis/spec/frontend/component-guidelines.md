@@ -62,6 +62,31 @@ Required regression coverage must assert that the old
 `isNightMode() && !mComposeEnabled` gate is absent and that Java, Kotlin, and
 Compose paths configure the navigation background and icon appearance.
 
+### Swipe back owns the decor background when it is active
+
+`SwipeBackActivityHelper.onActivityCreate()` clears the window and decor
+backgrounds so the activity underneath shows through while dragging. That
+directly contradicts the decor-background rule above, so the two must not both
+run on the same Activity.
+
+- Legacy `BaseActivity` attaches swipe back only when
+  `DeviceUtils.hasNavigationButtons()` is true. Gesture-navigation devices keep
+  the unmodified decor path, so their rendering must stay byte-identical.
+- When swipe back is attached, skip `decorView.setBackgroundColor(...)` and
+  paint `R.color.background_color` on the content root after
+  `attachToActivity` instead. Do not fall back to the theme
+  `android:windowBackground`: it resolves to `#FF202020` at night while the
+  app-wide surface is `background_color` (`#080C10`).
+- `SystemThemeContractTest` asserts on the literal source text
+  `getWindow().getDecorView().setBackgroundColor(backgroundColor)`. Wrapping
+  that call in a condition is fine; rewriting it (for example extracting a
+  `decorView` local) silently breaks the contract.
+- Navigation-mode detection must stay synchronous. The swipe-back layout is
+  attached during `onCreate`, before window insets are dispatched, so an
+  insets-based check (`tappableElement().bottom == 0`) cannot drive it.
+- Swipe back has no user-facing preference. Navigation mode alone decides it,
+  so the app never carries two parallel interaction models at once.
+
 ## Compose Material theme generation boundaries
 
 The shared `AppTheme` is a Material 2 theme (`androidx.compose.material`). A

@@ -27,7 +27,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.justwen.androidnga.cloud.CloudServerManager;
 
 import gov.anzong.androidnga.R;
+import gov.anzong.androidnga.base.common.SwipeBackHelper;
 import gov.anzong.androidnga.base.util.ContextUtils;
+import gov.anzong.androidnga.base.util.DeviceUtils;
 import gov.anzong.androidnga.base.util.PreferenceUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
 import sp.phone.common.NotificationController;
@@ -48,6 +50,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private int mNaviBarHeight;
 
+    private boolean mSwipeBackEnabled = true;
+
+    /**
+     * Non null only when swipe back is actually running for this activity, which requires both
+     * a subclass opt in and a device with on screen navigation buttons.
+     */
+    private SwipeBackHelper mSwipeBackHelper;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mConfig = PhoneConfiguration.getInstance();
@@ -55,12 +65,58 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ThemeManager.getInstance().initializeWebTheme(this);
 
+        setupSwipeBack();
+
         try {
             configureSystemBars();
         } catch (Exception e) {
             NLog.e("configure system bars exception occur: " + e);
         }
         enableEdge2Edge();
+    }
+
+    /**
+     * Gesture navigation already provides a screen edge back swipe, so the in app one would
+     * only duplicate it. Restore it exclusively for devices driven by navigation buttons.
+     * Subclasses opt out by calling {@link #setSwipeBackEnable(boolean)} before super.onCreate.
+     */
+    private void setupSwipeBack() {
+        if (!mSwipeBackEnabled || !DeviceUtils.hasNavigationButtons(this)) {
+            return;
+        }
+        try {
+            SwipeBackHelper helper = new SwipeBackHelper();
+            helper.onCreate(this);
+            mSwipeBackHelper = helper;
+        } catch (Exception e) {
+            // Degrade to the plain activity rather than taking down every navigation button
+            // device. Leaving the field null also lets configureSystemBars below repaint the
+            // decor background the helper may already have cleared.
+            mSwipeBackHelper = null;
+            NLog.e("setup swipe back exception occur: " + e);
+        }
+    }
+
+    protected void setSwipeBackEnable(boolean enable) {
+        mSwipeBackEnabled = enable;
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (mSwipeBackHelper != null) {
+            mSwipeBackHelper.onPostCreate();
+            mSwipeBackHelper.setContentBackgroundColor(ContextUtils.getColor(R.color.background_color));
+        }
+    }
+
+    @Override
+    public <T extends View> T findViewById(int id) {
+        T view = super.findViewById(id);
+        if (view == null && mSwipeBackHelper != null) {
+            view = mSwipeBackHelper.findViewById(id);
+        }
+        return view;
     }
 
     /**
@@ -74,7 +130,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             getWindow().setNavigationBarContrastEnforced(false);
         }
-        getWindow().getDecorView().setBackgroundColor(backgroundColor);
+        if (mSwipeBackHelper == null) {
+            // SwipeBackLayout needs an empty decor background to reveal the activity underneath
+            // while dragging, so the swipe back path paints the same color on the content root
+            // in onPostCreate instead. Keep this call written exactly as is, SystemThemeContractTest
+            // asserts on the literal source text.
+            getWindow().getDecorView().setBackgroundColor(backgroundColor);
+        }
 
         WindowInsetsControllerCompat controller =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
