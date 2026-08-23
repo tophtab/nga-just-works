@@ -87,6 +87,23 @@ run on the same Activity.
 - Swipe back has no user-facing preference. Navigation mode alone decides it,
   so the app never carries two parallel interaction models at once.
 
+#### Revealing the page below needs `Activity#setTranslucent`
+
+`me.imid.swipebacklayout` reveals the previous screen by reflecting on the
+hidden `Activity#convertToTranslucent`. That member has been blocked since
+Android 9 and the library swallows the failure in its own `try/catch`, so the
+drag silently exposes a black gap instead of the previous page. Verified on a
+Xiaomi API 35 device: `SwipeBackHelper` must register its own
+`SwipeListener` and call the public `Activity#setTranslucent(true)` (API 30) on
+`onEdgeTouch`.
+
+`android:windowIsTranslucent` in the theme is necessary but **not** sufficient
+— the activity below still is not drawn without the explicit call, so do not
+drop the listener on the grounds that the theme already declares translucency.
+Guard the call for API 29, which is the install floor and predates the API.
+Do not convert back to opaque when the drag settles: the next drag would then
+start against a stopped activity and flash black again.
+
 ## Compose Material theme generation boundaries
 
 The shared `AppTheme` is a Material 2 theme (`androidx.compose.material`). A

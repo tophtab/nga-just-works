@@ -62,6 +62,18 @@ class SwipeBackContractTest {
     }
 
     @Test
+    fun swipeBackRevealsTheActivityUnderneath() {
+        val helperSource = source(swipeBackHelper)
+        // The library reveals the page below by reflecting on the hidden
+        // Activity#convertToTranslucent, blocked since Android 9 and swallowed by its own
+        // try/catch. Without the public replacement the drag exposes a black gap.
+        assertTrue(helperSource.contains("addSwipeListener(new TranslucentOnEdgeTouch(activity))"))
+        assertTrue(helperSource.contains("mActivity.setTranslucent(true)"))
+        // setTranslucent is API 30; minSdk is 29.
+        assertTrue(helperSource.contains("Build.VERSION.SDK_INT < Build.VERSION_CODES.R"))
+    }
+
+    @Test
     fun swipeBackKeepsTheThemedBackgroundColor() {
         val activitySource = source(baseActivity)
         // SwipeBackLayout needs an empty decor background, so the decor paint is skipped while
