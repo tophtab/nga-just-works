@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 44
-- **Last Active**: 2026-08-16
+- **Total Sessions**: 45
+- **Last Active**: 2026-08-23
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1040 | Active |
+| `journal-1.md` | ~1061 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 45 | 2026-08-23 | 有导航键时恢复侧滑返回 | `b0403295` | `main` |
 | 44 | 2026-08-16 | 完成个人资料页深色模式配色 | `06d77a96` | `main` |
 | 43 | 2026-08-16 | Complete dark mode text color adaptation | `1bd133e0` | `main` |
 | 42 | 2026-08-16 | 修复系统导航栏与深色模式显示 | `d19f6fdc` | `main` |

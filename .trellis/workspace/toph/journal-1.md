@@ -1038,3 +1038,24 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
+
+
+## Session 45: 有导航键时恢复侧滑返回
+
+**Date**: 2026-08-23
+**Task**: 有导航键时恢复侧滑返回
+**Branch**: `main`
+
+### Summary
+
+恢复 issue #4 要求的侧滑返回，改为由系统导航模式单独决定、不提供开关：新增 DeviceUtils.hasNavigationButtons()（先查 MIUI force_fsg_nav_bar 再查 AOSP navigation_mode，异常 fail-closed），按原路径恢复 SwipeBackHelper（10dp / EDGE_ALL），接入 Java BaseActivity 并对 MainActivity 关闭。关键冲突：SwipeBackActivityHelper 会清空 decor 背景，与 d19f6fdc 的 Android 15 edge-to-edge decor 上色互斥，且回落到主题 windowBackground 会让深色模式退化为 #202020；解法是侧滑生效时跳过 decor 上色、attachToActivity 后把 background_color 刷到内容根。SystemThemeContractTest 用源码字面量断言，decor 那行写法不可重构，已连同规则沉淀进 component-guidelines。新增 SwipeBackContractTest 4 项；nga_phone_base_3.0 全量 133 tests 全绿，lintDebug / assembleDebug 通过，APK 内已核对 swipeback 资源与类。真机验证 not run per project policy。Compose 侧 lib_base_ui/BaseActivity.kt 范围外。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b0403295` | (see git log) |
+
+### Status
+
+[OK] **Completed**
