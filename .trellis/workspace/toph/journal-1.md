@@ -1102,3 +1102,38 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
+
+
+## Session 48: 修复历史缓存旧图床图片失效并完成收尾
+<!-- trellis-session: v=2 fp=4bb4b20b4d704b77 -->
+
+**Date**: 2026-09-05
+**Task**: 修复历史缓存旧图床图片失效并完成收尾
+**Branch**: `main`
+
+### Summary
+
+修复历史缓存中的退役 NGA 图床附件与头像地址，完成回归验证、任务归档和发布准备。
+
+### Main Changes
+
+- 自动模式将已知退役页面级附件主机回退到 img.nga.cn，并保持手动模式与页面隔离语义。
+- 头像解析入口统一归一化遗留图床地址，补充正文/附件/头像回归测试与平台规范。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1e3e1eda` | fix(android): restore legacy cache image hosts |
+
+### Testing
+
+- [OK] 受影响模块单测、Debug 编译和 lint 通过；13 个模块 lint 均无 Error/Fatal。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 创建并推送 5.6.1 修复版本，等待 GitHub Actions 完成正式构建。
