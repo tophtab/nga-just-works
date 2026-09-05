@@ -1,0 +1,4 @@
+{"file":".trellis/tasks/09-05-fix-legacy-cache-image-host/research/cache-export-forensics.md","reason":"复核实现确实修复取证确认的退役页面主机和头像路径，同时保持用户数据不进入 fixture、日志或提交"}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"检查附件与非附件路径族、img9 协议、自动/手动优先级、页面隔离和无新增在线探测约束"}
+{"file":".trellis/spec/backend/index.md","reason":"按后端规范索引进入完整 Android 质量门，执行聚焦单测、Debug 编译与 lint，并区分既有基线和新增回归"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"确认正文相对图、附件、image URL list 和绕过正文 decoder 的头像链路没有半修复或重复解析"}

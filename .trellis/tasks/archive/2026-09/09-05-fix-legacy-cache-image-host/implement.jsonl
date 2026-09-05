@@ -1,0 +1,4 @@
+{"file":".trellis/tasks/09-05-fix-legacy-cache-image-host/research/cache-export-forensics.md","reason":"提供用户归档的脱敏取证结论、精确失败链路和隐私边界；实现不得复制原始 ZIP 内容或重复未授权在线探测"}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"约束 THREAD.PAGE 页面级附件前缀、退役图床路径族、手动模式优先级、WebView/Glide 边界和离线验证要求"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"沿历史 JSON → resolver → HtmlData → decoder/builder 与 avatar → parser → Glide 两条数据流实现并检查完整覆盖"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"保证退役图床判断只在 NgaImageHost 维护，避免 ArticleConvertFactory、导入器和头像调用点复制域名规则"}
