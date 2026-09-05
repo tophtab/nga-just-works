@@ -155,6 +155,23 @@ public class NgaImageHostContractTest {
     }
 
     @Test
+    public void autoModeFallsBackForRetiredImageHosts() {
+        String[] retiredValues = {
+                "img.nga.178.com",
+                "http://img7.nga.178.com/",
+                "https://IMG2.NGACN.CC/attachments/",
+                "//img9.ngacn.cc/attachments"
+        };
+
+        for (String retiredValue : retiredValues) {
+            assertEquals("retired page host: " + retiredValue,
+                    NgaImageHost.DEFAULT_ATTACHMENTS_PREFIX,
+                    NgaImageHost.resolveAttachmentsPrefix(
+                            NgaImageHost.MODE_AUTO, null, retiredValue));
+        }
+    }
+
+    @Test
     public void manualModesIgnoreServerValue() {
         String serverValue = "https://server.example/attachments";
         assertEquals(NgaImageHost.DEFAULT_ATTACHMENTS_PREFIX,
@@ -169,6 +186,17 @@ public class NgaImageHostContractTest {
         assertEquals(NgaImageHost.DEFAULT_ATTACHMENTS_PREFIX,
                 NgaImageHost.resolveAttachmentsPrefix(
                         NgaImageHost.MODE_CUSTOM, "", serverValue));
+
+        String retiredServerValue = "https://img.nga.178.com/attachments";
+        assertEquals(NgaImageHost.DEFAULT_ATTACHMENTS_PREFIX,
+                NgaImageHost.resolveAttachmentsPrefix(
+                        NgaImageHost.MODE_DEFAULT, null, retiredServerValue));
+        assertEquals("http://img9.nga.cn/attachments",
+                NgaImageHost.resolveAttachmentsPrefix(
+                        NgaImageHost.MODE_IMG9, null, retiredServerValue));
+        assertEquals("https://custom.example/attachments",
+                NgaImageHost.resolveAttachmentsPrefix(
+                        NgaImageHost.MODE_CUSTOM, "custom.example", retiredServerValue));
     }
 
     // ---------- sanitizeBaseUrlInput ----------

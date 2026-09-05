@@ -41,6 +41,7 @@ import gov.anzong.androidnga.BuildConfig;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.common.util.NLog;
+import gov.anzong.androidnga.common.util.NgaImageHost;
 import gov.anzong.androidnga.core.data.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 import sp.phone.common.PhoneConfiguration;
@@ -369,19 +370,23 @@ public class FunctionUtils {
         if (null == js_escap_avatar)
             return null;
 
-        int start = js_escap_avatar.indexOf("http");
-        if (start == 0 || start == -1)
-            return js_escap_avatar;
-        int end = js_escap_avatar.indexOf("\"", start);//
-        if (end == -1)
-            end = js_escap_avatar.length();
         String ret = null;
-        try {
-            ret = js_escap_avatar.substring(start, end);
-        } catch (Exception e) {
-            NLog.e("FunctionUtils", "cann't handle avatar url " + js_escap_avatar);
+        int start = js_escap_avatar.indexOf("http");
+        if (start == -1)
+            return js_escap_avatar;
+        else if (start == 0) {
+            ret = js_escap_avatar;
+        } else {
+            int end = js_escap_avatar.indexOf("\"", start);//
+            if (end == -1)
+                end = js_escap_avatar.length();
+            try {
+                ret = js_escap_avatar.substring(start, end);
+            } catch (Exception e) {
+                NLog.e("FunctionUtils", "cann't handle avatar url " + js_escap_avatar);
+            }
         }
-        return ret;
+        return NgaImageHost.normalizeLegacyHosts(ret);
     }
 
 

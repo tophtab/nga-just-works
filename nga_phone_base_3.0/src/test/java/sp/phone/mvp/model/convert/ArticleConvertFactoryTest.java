@@ -26,6 +26,15 @@ public class ArticleConvertFactoryTest {
     }
 
     @Test
+    public void resolvesRetiredPageAttachmentBaseViewToCurrentDefault() {
+        JSONObject data = pageDataWithAttachmentBaseView(
+                "img.nga.178.com/attachments");
+
+        assertEquals(NgaImageHost.DEFAULT_ATTACHMENTS_PREFIX,
+                ArticleConvertFactory.resolveAttachmentsPrefix(data));
+    }
+
+    @Test
     public void missingGlobalFallsBackWithoutChangingOtherPageData() {
         JSONObject data = new JSONObject();
         data.put("__ROWS", 3);

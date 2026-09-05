@@ -151,6 +151,12 @@ upload host and from the non-attachment `img4.nga.cn` path families.
 - Accepted server forms are a bare host, an HTTP/HTTPS URL, or a
   protocol-relative URL with no path, `/`, or `/attachments[/]`. Normalize to
   `scheme://host/attachments`, preserving an explicit HTTP scheme.
+- In auto mode, a syntactically valid server value is still rejected when its
+  host belongs to the known retired image families `img*.nga.178.com` or
+  `img*.ngacn.cc`; those page values deterministically fall back to
+  `https://img.nga.cn/attachments`. Unknown valid hosts remain page-scoped
+  values. This compatibility fallback does not rewrite a host explicitly
+  selected through manual mode.
 - Missing, blank, non-string, unsupported-scheme, userinfo, query/fragment,
   placeholder (`null`/`undefined`), or other-path values resolve to the fixed
   `https://img.nga.cn/attachments` fallback.
@@ -160,12 +166,17 @@ upload host and from the non-attachment `img4.nga.cn` path families.
 - Legacy `/attachments/` URLs may be replaced with the page prefix, while
   legacy non-attachment paths retain their `img` number and migrate only to
   `.nga.cn`. Board icons continue to use their literal `img4.nga.cn` URLs.
+- URLs that bypass the body decoder (for example, cached avatar values loaded
+  directly by Glide) must call the same exact `img`-anchored legacy-host
+  normalizer at their extraction boundary. Do not rewrite `nga.178.com`,
+  `bbs.ngacn.cc`, current `.nga.cn` hosts, or local assets.
 
 ### 4. Validation & Error Matrix
 
 | Condition | Required result |
 | --- | --- |
 | Auto mode + valid server value | Use that response's normalized prefix |
+| Auto mode + syntactically valid retired image host | Use the fixed default prefix; never emit the retired host |
 | Auto mode + missing/invalid server value | Use the fixed default prefix; never emit `null/...` |
 | Manual mode + any server value | Ignore the field and use the selected preference |
 | No `THREAD.PAGE` context | Use the no-context resolver (manual preference or fixed auto fallback) |
@@ -191,6 +202,8 @@ upload host and from the non-attachment `img4.nga.cn` path families.
 - Cross-layer tests/assertions that the same `HtmlData` prefix reaches body
   images, audio/video, vote images, attachments, comments, signatures, and
   collected image URLs.
+- Parser/Glide-entry tests for direct and nested legacy avatar URLs, plus
+  current, non-NGA, null, empty, and unextractable values.
 - Settings migration tests for old `0/1/2 -> 0/2/3` and the one-time marker.
 
 ### 7. Wrong vs Correct

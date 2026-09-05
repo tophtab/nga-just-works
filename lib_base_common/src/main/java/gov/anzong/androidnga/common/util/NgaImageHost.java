@@ -46,13 +46,20 @@ public final class NgaImageHost {
     /** 遗留图床的域名后缀，附带 {@code img} 前缀锚定，避免误伤主站 nga.178.com / bbs.ngacn.cc。 */
     private static final String LEGACY_HOST = "img(\\d*)\\.(?:nga\\.178\\.com|ngacn\\.cc)";
 
+    /** 已知退役图床作为页面级附件主机时，必须回退到当前附件主机。 */
+    private static final Pattern RETIRED_ATTACHMENT_PREFIX = Pattern.compile(
+            "https?://" + LEGACY_HOST + "(?::\\d+)?/attachments$",
+            Pattern.CASE_INSENSITIVE);
+
     /** 规则 1：附件族。消费完整附件前缀，方便直接替换为页面级前缀。 */
     private static final Pattern LEGACY_ATTACHMENT = Pattern.compile(
-            "https?://" + LEGACY_HOST + "/attachments(?=/|[?#]|$)");
+            "https?://" + LEGACY_HOST + "/attachments(?=/|[?#]|$)",
+            Pattern.CASE_INSENSITIVE);
 
     /** 规则 2：其余族（表情等）。保留原编号，只换域名后缀。 */
     private static final Pattern LEGACY_OTHER = Pattern.compile(
-            "https?://" + LEGACY_HOST);
+            "https?://" + LEGACY_HOST + "(?=[/:?#\\s\"'<>]|$)",
+            Pattern.CASE_INSENSITIVE);
 
     private static final Pattern VALID_HOST = Pattern.compile("[A-Za-z0-9.\\-]+(:\\d+)?");
 
@@ -110,8 +117,18 @@ public final class NgaImageHost {
             case MODE_AUTO:
             default:
                 String serverPrefix = sanitizeServerAttachmentBaseView(serverAttachmentBaseView);
-                return serverPrefix == null ? DEFAULT_ATTACHMENTS_PREFIX : serverPrefix;
+                return serverPrefix == null || isRetiredImageHost(serverPrefix)
+                        ? DEFAULT_ATTACHMENTS_PREFIX
+                        : serverPrefix;
         }
+    }
+
+    /**
+     * 页面字段是附件路径族的基址；历史退役图床即使语法合法，也不能继续向下游传播。
+     * 只检查 sanitize 后的完整前缀，避免把用户手动选择或正文里的其他路径误判为页面值。
+     */
+    private static boolean isRetiredImageHost(String attachmentsPrefix) {
+        return RETIRED_ATTACHMENT_PREFIX.matcher(attachmentsPrefix).matches();
     }
 
     private static int normalizeMode(int mode) {

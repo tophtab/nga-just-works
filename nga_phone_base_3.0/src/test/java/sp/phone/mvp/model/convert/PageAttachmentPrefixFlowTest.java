@@ -15,6 +15,8 @@ import java.util.List;
 import gov.anzong.androidnga.core.corebuild.HtmlAttachmentBuilder;
 import gov.anzong.androidnga.core.data.AttachmentData;
 import gov.anzong.androidnga.core.data.HtmlData;
+import gov.anzong.androidnga.common.util.NgaImageHost;
+import gov.anzong.androidnga.core.decode.ForumImageDecoder;
 
 public class PageAttachmentPrefixFlowTest {
 
@@ -60,6 +62,26 @@ public class PageAttachmentPrefixFlowTest {
         assertTrue(html.contains(PAGE_PREFIX + "/mon_202608/a.mp3"));
         assertTrue(html.contains(PAGE_PREFIX + "/mon_202608/v.mp4"));
         assertEquals(Arrays.asList(PAGE_PREFIX + "/mon_202608/a.jpg"), images);
+    }
+
+    @Test
+    public void retiredPagePrefixFeedsBodyAndAttachmentConsumers() {
+        String attachmentsPrefix = NgaImageHost.attachmentsPrefix(
+                "img.nga.178.com/attachments");
+        assertEquals(NgaImageHost.DEFAULT_ATTACHMENTS_PREFIX, attachmentsPrefix);
+
+        HtmlData htmlData = HtmlData.create("[img]./mon_test/body.jpg[/img]", "https://bbs.nga.cn/");
+        htmlData.setAttachmentsPrefix(attachmentsPrefix);
+        List<String> images = new ArrayList<>();
+
+        String body = new ForumImageDecoder().decode(htmlData.getRawData(), htmlData);
+        assertTrue(body.contains(attachmentsPrefix + "/mon_test/body.jpg"));
+
+        AttachmentData attachment = attachment("mon_test/attachment.jpg", "1");
+        htmlData.setAttachmentList(Arrays.asList(attachment));
+        String attachmentHtml = new HtmlAttachmentBuilder().build(htmlData, images).toString();
+        assertTrue(attachmentHtml.contains(attachmentsPrefix + "/mon_test/attachment.jpg"));
+        assertEquals(Arrays.asList(attachmentsPrefix + "/mon_test/attachment.jpg"), images);
     }
 
     private static HtmlData createHtmlData() {
