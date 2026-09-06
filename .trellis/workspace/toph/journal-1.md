@@ -1219,3 +1219,42 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Next Steps
 
 - 本次未创建独立异地备份，也未做备份恢复演练；备份位置和加密介质待维护者选择。
+
+
+## Session 52: AI summary branch prereleases
+<!-- trellis-session: v=2 fp=6d83b5df5261a7bb -->
+
+**Date**: 2026-09-06
+**Task**: AI summary branch prereleases
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Synced the AI summary branch with main and replaced expiring Actions artifacts with branch-labelled GitHub prereleases.
+
+### Main Changes
+
+- Merged the Trellis 0.6.16 main update without rewriting feature history; preserved concurrent signing documentation and journal commits.
+- Published preview metadata now uses branch-specific tags and APK filenames, with successful-publication gating and isolated old-release cleanup.
+- Added offline workflow regression tests and synchronized the download guidance and signed-release contract.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `87e096e2` | Merge main into feature/ai-summary |
+| `3ed2a4d1` | ci(android): publish branch-labelled preview releases |
+
+### Testing
+
+- [OK] 26 Python tests passed, including 15 workflow tests covering actual Bash scripts with local Git/APK fixtures and mocked GitHub API results.
+- [OK] actionlint 1.7.12 with ShellCheck 0.11.0, YAML/Bash syntax, Python compilation, and git diff --check passed; independent Trellis review passed.
+- [OK] All 39 imported Trellis files matched main, and all 22 changed runtime Python files compiled.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- GitHub Actions builds and signs the branch APK after the workflow-change push; download the branch-labelled prerelease from GitHub Releases after publication.
