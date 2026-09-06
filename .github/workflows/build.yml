@@ -2,7 +2,7 @@ name: Build and Publish Android
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/ai-summary]
     tags: ["*.*.*"]
     paths-ignore:
       - ".trellis/**"
@@ -147,7 +147,17 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$release_apk"
           (cd dist && sha256sum "$(basename "$release_apk")" > "$(basename "$release_apk").sha256")
 
+      - name: Upload AI summary APK
+        if: github.ref == 'refs/heads/feature/ai-summary'
+        uses: actions/upload-artifact@v4
+        with:
+          name: NGA-Just-Works-AI-summary-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -195,7 +205,7 @@ jobs:
           fi
 
       - name: Remove older debug prereleases
-        if: steps.release.outputs.prerelease == 'true'
+        if: github.ref == 'refs/heads/main' && steps.release.outputs.prerelease == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           CURRENT_DEBUG_TAG: ${{ steps.release.outputs.tag }}
