@@ -6,13 +6,15 @@
 - Audited source: `references/nga-clients/nga_harmony` local HEAD `8558a15e5a04c12bf6207265ac33493691aa605e`
 - Upstream delta checked: `origin/main=f28dd6024fa3bf39c5a6b84519187f307acbf148`，固定提交之后 6 个提交；AI 客户端文件 SHA-256 与固定提交相同，后续差异集中在通知、排版、链接和 TTS，不改变本报告的 AI 结论。
 
+> **时效说明（2026-09-05）：** 本文主体是旧快照的深度审计，不能再当作当前 LNGA 主线的 provider 清单。最新核验固定在 `origin/main=ea1edc91231bd4b1c50c13bcffc8d710b98fbe21`：上游已删除 `OpenAiCompatibleClient.ets`、多 provider 与 Tavily adapter，改为固定 `https://api.deepseek.com/responses` 的 DeepSeek Responses API；但仍要求用户填写 API Key，并以 `Authorization: Bearer <用户 Key>` 调用，所以经济机制仍是 BYOK，而不是鸿蒙系统模型或项目免费额度。当前对照与其他项目证据见 `research/ai-call-mechanism-comparison.md`。
+
 ## Findings
 
 ### 执行结论
 
 **结论：技术可行，产品与安全前置工作量大，不能直接搬 ArkTS 源码。** `nga_harmony` 已经真实实现了 BYOK 配置、OpenAI-compatible Chat Completions、模型列表、付费式连接测试、非流式/流式聊天、自写 Markdown、单楼层摘要、用户公开活动采样和 Tavily 工具调用；它不是仅有 README 或空 UI。但其“兼容”范围较窄，取消只停 UI 回调而未取消网络，搜索提供商多数是占位，密钥明文进入普通 Preferences 和系统备份，日志会暴露提示词/响应片段，任意 endpoint 缺少 HTTPS/redirect policy，并且没有 AI 专项测试。
 
-根 Android 工程已有 Kotlin/Java、Compose、Lifecycle、Retrofit/RxJava、Room 和 Android 11-15 基线，能够承载独立 AI 模块；但现有 NGA `RetrofitHelper` 自动注入 Cookie、GBK 解码并记录响应，**绝对不能复用于第三方 AI**。建议原创实现一个无 NGA Cookie、UTF-8、HTTPS-only、可取消、默认不记正文的专用 OkHttp client，并先落地 Keystore BYOK + provider/category consent + 可取消流式聊天 + 单楼层摘要。Web Search 与用户画像后置；原“政治光谱 + 辛辣锐评”不建议进入首发。
+根 Android 工程已有 Kotlin/Java、Compose、Lifecycle、Retrofit/RxJava、Room 和 Android 10-15 基线，能够承载独立 AI 模块；但现有 NGA `RetrofitHelper` 自动注入 Cookie、GBK 解码并记录响应，**绝对不能复用于第三方 AI**。建议原创实现一个无 NGA Cookie、UTF-8、HTTPS-only、可取消、默认不记正文的专用 OkHttp client，并先落地 Keystore BYOK + provider/category consent + 可取消流式聊天 + 单楼层摘要。Web Search 与用户画像后置；原“政治光谱 + 辛辣锐评”不建议进入首发。
 
 | 能力/声明 | 源码事实 | Android 判断 |
 |---|---|---|
@@ -152,7 +154,7 @@ README/注释中的“API 密钥（不记录到日志）”只是一条注释（
 
 ### 11. 根 Android 工程的实际可行性
 
-- 工程是 13 模块 Justwen Java/Kotlin/Groovy app，已有 `lib_base_network`、`lib_core_data`、`lib_base_ui_compose` 等合理边界（`settings.gradle:1`）。Kotlin 2.0.21、Compose 1.6.8/UI 1.7.0、Lifecycle 2.6.2、Retrofit 2.6.0、RxJava 2.2.6、Room 2.4.1；`minSdk 30/compileSdk 35/targetSdk 35`（`build.gradle:1`, `:98`）。
+- 工程是 13 模块 Justwen Java/Kotlin/Groovy app，已有 `lib_base_network`、`lib_core_data`、`lib_base_ui_compose` 等合理边界（`settings.gradle:1`）。Kotlin 2.0.21、Compose 1.6.8/UI 1.7.0、Lifecycle 2.6.2、Retrofit 2.6.0、RxJava 2.2.6、Room 2.4.1；当前根工程为 `minSdk 29/compileSdk 35/targetSdk 35`（`build.gradle:121-123`）。
 - App 与 UI library 已启用 Compose，可承载 AI config/chat screen（`nga_phone_base_3.0/build.gradle:153`; `lib_base_ui_compose/build.gradle:32`）。现有业务代码已经使用 coroutine/Flow，`debugRuntimeClasspath` 解析到 coroutines 1.7.3 和 OkHttp 4.12.0（后者由 Coil 间接引入），但尚未为 AI 直接声明并锁定独立 client/SSE 依赖；也未发现 DataStore、Android Security Crypto、CommonMark/Markwon 或 Moshi/Gson。实现时应显式选择并锁定 AI 所需依赖，不能把传递依赖当作稳定契约。
 - `lib_base_network` 的 Retrofit/OkHttp builder 会给缺少 Cookie header 的任何请求注入 active NGA Cookie，并打印 request；converter 将所有 String body 当 GBK 且记录完整 body（`lib_base_network/src/main/java/com/justwen/androidnga/base/network/retrofit/RetrofitHelper.java:103`, `:108`, `:134`; `lib_base_network/src/main/java/com/justwen/androidnga/base/network/retrofit/converter/JsonStringConvertFactory.java:38`）。AI 请求复用它会违反第三方隔离、UTF-8 与日志要求。
 - Android manifest 已有 INTERNET，但 `network_security_config.xml` 的 base config 明确允许 cleartext；custom AI endpoint 必须在业务层强制 HTTPS，不能依赖平台清单兜底。当前也未见 AI secret 的 backup exclusion（`nga_phone_base_3.0/src/main/AndroidManifest.xml:9`, `:19`; `nga_phone_base_3.0/src/main/res/xml/network_security_config.xml:9`）。

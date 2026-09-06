@@ -9,6 +9,7 @@
 | [NGA Platform Access Rules](./nga-platform-access-rules.md) | Any code crosses an NGA host, WebView, redirect, upload/media host, session, encoding, logging, or mutation boundary | Mandatory evidence, security, privacy, retry, and validation rules |
 | [NGA Platform Operation Registry](./nga-platform-operation-registry.md) | Implementing or reviewing a concrete read, post, upload, interaction, account mutation, message, or notification | Operation IDs and pinned Justwen wire/source facts |
 | [THREAD.PAGE Topic Pager Prefetch](./thread-page-prefetch-contract.md) | Changing online topic Pager retention, prefetch planning, request reuse, or foreground/background failure behavior | Current-fork prefetch and final-page freshness contract |
+| [BYOK AI Settings and Summaries](./ai-summary-contract.md) | Changing AI configuration, encrypted keys, model transport, first-page profile inputs, or summary lifecycle | Current-fork BYOK and cancellation contract |
 
 ## Pre-Development Checklist
 

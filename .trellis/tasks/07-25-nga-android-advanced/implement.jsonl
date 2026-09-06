@@ -1,14 +1,9 @@
-{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"过滤、媒体、WebView、TTS、AI provider/consent/key 与 UI/存储的数据流契约。"}
-{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"FilterPolicy、URL policy、provider adapter、redaction 和 throttler 必须单一实现。"}
-{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"API 35 主 instrumentation runner、API 29/36 可选实体设备和质量 gate。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/nga-harmony-feature-matrix.md","reason":"过滤、备注、媒体、TTS、签到、请求控制和 AI 完整能力范围。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/nga-harmony-source-audit.md","reason":"不安全 WebView、明文秘密、日志、域名/限流和媒体缺陷清单。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/justwen-current-android-audit.md","reason":"Justwen Android UI/模块、WebView、媒体/日志/遥测和上游 minSdk 30 与当前 minSdk 29 差异的迁移依据。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/android-architecture-options.md","reason":"Media3/Coil/TTS lifecycle、Keystore、AI BYOK、Room 和安全 URL policy 设计参考。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/nga-ecosystem-and-risks.md","reason":"授权、Cookie/host、媒体、AI 隐私、限流和 API 35-first 平台边界。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/reference-project-comparison.md","reason":"Justwen GPL source/UI fork 基线与观察型高级功能/架构参考层级。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/official-access-probe.md","reason":"签到、域名、媒体和 AI 不得把未授权或挑战页面当成稳定契约。"}
-{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"Preserve the shared WebView, Cookie, transport, and bridge boundaries for advanced platform work."}
-{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"Apply exact URL/media policy, no-Cookie external hosts, privacy, automation, and authorized-access rules."}
-{"file":".trellis/spec/backend/nga-platform-operation-registry.md","reason":"Use filter, check-in, media/WebView, vote, and account-mutation operation evidence and exclusions."}
-{"file": ".trellis/tasks/07-25-nga-android-advanced/research/nga-harmony-ai-context.md", "reason": "nga_harmony AI 源码事实、安全缺口、Android 可行性与分阶段范围摘要；详细证据见同目录 source audit。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"AI 配置从设置、加密存储、独立网络客户端到两个菜单和结果界面，需保持一条清晰数据流。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"两个总结入口必须复用同一配置、客户端、状态和结果界面。"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"遵守当前 Android 构建、测试和实体设备验证基线。"}
+{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"AI 客户端必须与 NGA Cookie、编码、日志及账号 transport 隔离。"}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"资料摘要读取公开主题和回复时仍需遵守现有 NGA 会话、隐私和测试边界。"}
+{"file":".trellis/spec/frontend/android-migration-architecture.md","reason":"沿用现有 Justwen 导航和模块边界，正确管理异步请求生命周期。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"AI 设置、楼层菜单和资料页菜单应保持现有 UI 组件与交互风格。"}
+{"file":".trellis/tasks/07-25-nga-android-advanced/research/nga-harmony-ai-context.md","reason":"本任务已收敛的 BYOK 配置、两个摘要入口、代码锚点和明确排除项。"}
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Current implemented BYOK storage, request, input, UI ownership, and offline validation contracts."}

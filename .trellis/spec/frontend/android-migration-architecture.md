@@ -146,6 +146,14 @@ during migration.
   user analysis waits for the corresponding profile/activity boundary and its
   privacy contract.
 
+**Current-fork exception (2026-09-06):** the explicitly approved
+`07-25-nga-android-advanced` slice adds BYOK settings and floor/profile summaries
+through the existing Java/Preference navigation. It uses a dedicated model
+client, protected configuration store, bounded profile adapter, and testable
+request controller. Follow the [AI summary contract](../backend/ai-summary-contract.md)
+when maintaining that implemented slice; its approval does not certify M1/M2 or
+authorize a broader legacy chat/provider architecture.
+
 ### 4. Validation & Error Matrix
 
 | Condition | Required decision |

@@ -19,6 +19,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
 | [State Management](./state-management.md) | App-wide favorite membership/order and drag transactions | Active |
 | [Android Migration Architecture](./android-migration-architecture.md) | Kotlin + Compose + MVVM target, preservation matrix, migration gates, and branch model | Active |
+| [BYOK AI Settings and Summaries](../backend/ai-summary-contract.md) | AI settings hierarchy, transient secret editors, summary menus/dialog, and request ownership | Active |
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
 | [Type Safety](./type-safety.md) | Type patterns, validation | To fill |
 

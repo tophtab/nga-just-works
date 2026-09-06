@@ -1,14 +1,9 @@
-{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查 filter→model→UI、URL→media/WebView、provider→consent→key→stream 数据链路。"}
-{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"检查共享过滤、host policy、provider adapter、redaction 和 throttling 没有分叉。"}
-{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"检查 API 35 主 runner、API 29/36 可选设备报告、启动失败和零测试分类。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/nga-harmony-feature-matrix.md","reason":"逐项核对过滤、媒体、TTS、签到、限流和 AI，没有静默缺项。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/nga-harmony-source-audit.md","reason":"专项检查 Key/日志/WebView/host/媒体和请求控制安全缺陷未回归。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/justwen-current-android-audit.md","reason":"检查 Justwen 遗留 WebView、全局会话、遥测和 minSdk 风险已隔离。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/android-architecture-options.md","reason":"核对 Keystore、provider/SSE cancel、media lifecycle、TTS、filter consistency 和 tests。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/nga-ecosystem-and-risks.md","reason":"核对 Cookie/URL/redirect、授权、限流、AI consent 和平台风险。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/reference-project-comparison.md","reason":"核对 GPL/第三方来源、无许可证项目和资产权利边界。"}
-{"file":".trellis/tasks/07-25-nga-android-app-research/research/official-access-probe.md","reason":"确认没有挑战绕过、未经授权 provider/host 或自动化签到行为。"}
-{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"Verify WebView, bridge, transport, session, and neutral-identity foundation rules."}
-{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"Check URL/media/Cookie isolation, redaction, bounded automation, errors, and offline validation."}
-{"file":".trellis/spec/backend/nga-platform-operation-registry.md","reason":"Check advanced features against pinned operation IDs and explicit media/dormant exclusions."}
-{"file": ".trellis/tasks/07-25-nga-android-advanced/research/nga-harmony-ai-context.md", "reason": "核对 AI parity、Key/consent/HTTPS/cancel/SSE/privacy 测试与延后范围；详细证据见同目录 source audit。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查设置值、密钥、请求输入、网络响应和 UI 状态是否端到端一致。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"检查两个入口没有各自复制配置、请求或结果处理逻辑。"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"检查构建、全模块 lint 和单元测试；无当前显式设备授权时不探测或运行设备测试，按项目政策记录。"}
+{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"确认 AI 请求不携带 NGA Cookie，不经过 NGA 编解码或正文日志链。"}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"确认资料摘要只读取目标用户的有限公开数据，自动化测试不访问真实站点。"}
+{"file":".trellis/spec/frontend/android-migration-architecture.md","reason":"检查异步请求取消、迟到结果丢弃和现有导航集成。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"检查三个入口和共用结果界面符合当前 App 的交互风格。"}
+{"file":".trellis/tasks/07-25-nga-android-advanced/research/nga-harmony-ai-context.md","reason":"核对最终实现只有一份用户 API 配置和两个 AI 总结入口，没有恢复已排除功能。"}
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Verify current encrypted storage, single-use model requests, bounded profile input, cancellation, and test evidence."}

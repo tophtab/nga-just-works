@@ -1,66 +1,44 @@
-# nga_harmony AI implementation context
+# BYOK AI implementation context
 
-Detailed evidence: `.trellis/tasks/07-25-nga-android-advanced/research/nga-harmony-ai-source-audit.md`
+## Product decision
 
-## Source baseline
+This task implements only three visible capabilities, in this order:
 
-- Audited `references/nga-clients/nga_harmony@8558a15e5a04c12bf6207265ac33493691aa605e`.
-- Checked upstream `origin/main=f28dd6024fa3bf39c5a6b84519187f307acbf148`; the later six commits do not change the AI core or the scenario payload behavior.
-- Source observation only: no real NGA, AI provider, or search-provider request was made.
+1. one AI settings screen;
+2. one-floor AI summary from the floor overflow menu;
+3. viewed-user AI summary from the profile overflow menu.
 
-## What nga_harmony actually implements
+The current release uses only an API configured by the user. System/on-device models, hosted project keys, generic chat, streaming, search, tools, multiple provider profiles, and unrelated advanced features are not part of this task.
 
-- BYOK profiles contain name, endpoint, plaintext API key, model, streaming, temperature, and max tokens. Six provider presets plus custom all use one OpenAI-compatible wire shape; presets are metadata, not six provider-specific adapters.
-- The client uses `Authorization: Bearer`, `GET /models`, and `POST /chat/completions`. It supports non-stream JSON, streamed UTF-8/SSE, tool calls, and a DeepSeek-specific DSML fallback.
-- The connection test sends a real completion and may incur cost. Model listing only understands `data[].id`.
-- Chat history is page-memory-only and resends every completed message on each turn. It has no context budget, persistence, or clear-history contract.
-- Leaving the page only invalidates UI callbacks. The transport exposes no cancellation handle and the UI has no stop button, so the README's interruption claim is not fulfilled.
-- "Post summary" sends one floor only: thread title, floor, author, and plain-text body. It is not a whole-thread summary.
-- "User analysis" fetches the target user's first page of topics/replies, builds forum/time/title/reply-snippet data, then sends it to the AI provider. Its default prompt requests political-spectrum inference and an aggressive verdict.
-- Tool calling works with Tavily only. SerpAPI, Brave, and custom search exist in settings/presets but have no adapter. Search creates a two-provider data flow and feeds untrusted web text back to the model.
-- AI-specific tests, fixtures, privacy consent, backup exclusion, and provider compatibility evidence are absent.
+## Source observations
 
-## Risks that must not be copied
+- The historical `nga_harmony` implementation used an OpenAI-compatible endpoint, a user-entered API Key, and a model name. Its one-floor action sent the thread title, floor number, author, and plain-text body.
+- Its user action collected the target UID's first page of topics and first page of replies. The Android implementation keeps this bounded input but presents it as a summary, not as a sensitive or exhaustive profile.
+- The current LNGA main branch has narrowed its AI path to DeepSeek but still requires the user's Key. It does not provide a free project API or a phone system-model call.
+- No source code or UI assets are copied from the HarmonyOS app. It is behavior evidence only.
 
-- AI/search API keys are ordinary strings inside account settings, serialized to Preferences and eligible for system backup.
-- Custom endpoints are not parsed or restricted to HTTPS; redirects and private/local targets are not revalidated.
-- Error bodies, tool request bodies, DSML fragments, search queries, or result summaries can reach logs.
-- Scenario routes auto-send without provider/category consent or an exact payload preview.
-- Full chat history and unbounded floor text can exceed provider context limits.
-- User political profiling and hostile commentary are sensitive, biased, and unsuitable for the first release.
-- ArkTS/ArkUI/NetworkKit/Preferences code cannot compile on Android. Reuse concepts and behavior only; preserve GPL/source attribution if any concrete code is derived.
+Detailed historical evidence remains in `research/nga-harmony-ai-source-audit.md`. System-model research is intentionally not implementation context for this task.
 
-## Android feasibility and required boundaries
+## Current Android anchors
 
-- Feasibility is high. The root app already has Kotlin, Compose, Lifecycle, coroutine/Flow, OkHttp 4.12 at runtime, Retrofit, and Room on minSdk 30 / targetSdk 35.
-- Do not reuse the existing NGA `RetrofitHelper` for AI: it may inject NGA Cookie, uses NGA-oriented request behavior, and logs requests/responses; the existing string converter assumes GBK.
-- Build a separate UTF-8 AI client with no NGA interceptors, explicit dependency versions, HTTPS-only URI policy, redirect revalidation, size/time limits, typed errors, and coroutine cancellation wired to `OkHttp Call.cancel()`.
-- Store only non-secret provider metadata in normal persistence. Put keys behind an Android-Keystore-wrapped vault, exclude secret material from backup/export, and test create/read/delete/rekey/invalidation.
-- Gate the request builder with versioned provider + data-category consent (`chat`, `post_summary`, `user_analysis`, later `search_query`), payload preview, redaction, context budget, and fail-closed revocation.
-- Render AI output with a maintained/tested Markdown strategy and safe URL handoff; do not port the ArkTS Markdown parser or UI.
+- Settings: `nga_phone_base_3.0/src/main/res/xml/settings.xml` and `sp.phone.ui.fragment.SettingsFragment`. Follow the existing root-level “实验室” `PreferenceScreen` pattern to open a dedicated `SettingsAiFragment` backed by `settings_ai.xml`.
+- Floor menu: both `article_list_context_menu.xml` files; `ArticleListFragment` already binds the clicked `ThreadRowInfo` to the popup menu.
+- Profile menu: `menu_user_profile.xml`; `ProfileActivity` already gates actions on loaded `mProfileData` and exposes its target UID.
+- Network: OkHttp is already available, but the NGA `RetrofitHelper` is not suitable for an AI endpoint because it owns NGA-specific Cookie, encoding, and logging behavior.
 
-## Product decision overlay
+## Minimum implementation boundary
 
-- The Android MVP includes both object-scoped scenarios. One-floor summary is opened from that floor's lower-right overflow menu as “AI 总结”; public-activity analysis is opened from the viewed profile's upper-right menu as “用户行为分析”. Neither scenario uses a standalone AI home as its primary entry.
-- Floor summary must bind the clicked row. User analysis must bind the viewed profile's target UID, never the currently signed-in UID. Preview, consent, transport, and asynchronous result all preserve that frozen object identity.
-- This decision supersedes the source-audit recommendation to defer user analysis or limit it to self-only. The safety boundary remains: factual public-activity sampling only, accurately labeled as partial when applicable, with no political/sensitive-attribute inference or hostile verdict.
-- The activity window is fixed to first-page topics plus first-page replies with no automatic pagination. Preview, loading, and result states label it as a recent public-activity sample; counts describe only the fetched samples, never total history.
+- Persist one config: HTTPS endpoint, model, and an encrypted Key reference.
+- Protect the Key with Android Keystore-backed local encryption; never place plaintext in ordinary preferences, backup, logs, crash output, or resources.
+- Keep endpoint, Key, model, test, and clear controls on the level-two AI settings page. A password-style preference must bypass default plaintext `EditTextPreference` persistence and write only to the secure store.
+- Use a dedicated UTF-8, no-Cookie client for a non-streaming OpenAI-compatible Chat Completions request.
+- Bind every floor request to the clicked row snapshot and every profile request to the viewed `mProfileData.uid`.
+- Cancel in-flight work on exit or replacement and reject late results whose object identity no longer matches.
+- Use fakes and MockWebServer for automated tests; do not use a real user Key or real forum content.
 
-## Revised MVP scope
+## Expected UI behavior
 
-1. P0 (`L`): isolated client, HTTPS/redirect policy, KeyVault, backup exclusion, consent/redaction, typed errors, MockWebServer fixtures.
-2. P1 (`L`): one custom OpenAI-compatible provider, metadata CRUD, bounded model list/connection test, genuinely cancellable streaming chat, memory history, and shared preview/consent/result infrastructure.
-3. P2 (`M-L`): both object-scoped scenarios: current-floor summary and viewed-profile public-activity analysis using topic page 1 plus reply page 1, with immutable row/UID binding, bounded payloads, accurate sample labeling, and stale-result suppression.
-4. P3 (`M-L`): validated provider capability matrix, safe Markdown/links, context budget, history clearing/account scope, and only presets with fixture plus authorized low-frequency evidence.
-5. P4 (`L` per adapter/integration): optional Tavily search with separate consent, query preview, prompt-injection containment, citations, and tool/cost/cancel limits.
-
-The MVP should stop after P0-P2. Six presets, DSML, multi-provider search, and sensitive profiling remain outside the MVP. Full surface parity plus security and tests is `XL`, not a UI-only port.
-
-## Validation contract
-
-- Unit/property: endpoint and redirect policy, request shapes, response/error unions, arbitrary SSE/UTF-8/CRLF fragmentation, malformed/oversize frames, and context budgeting.
-- MockWebServer: model list, bounded connection test, 4xx/429/5xx, slow/disconnected streams, real cancellation, lifecycle/account/provider changes, and proof that NGA Cookie is absent.
-- Secret/privacy: no key or content in Room/DataStore/SharedPreferences, backup/device transfer, exports, APK resources, logs, crash/analytics, screenshots, or recents.
-- Consent: no network before consent; switching provider/category or revocation fails before transport; preview matches the wire fixture.
-- Object binding: both floor-menu variants target the clicked row; profile analysis targets `mProfileData.uid`; rotation/back/refresh/account/provider changes cancel or suppress stale results instead of rebinding them.
-- UI/API 35: stop/retry, streaming recomposition, rotation/back/process death, large output, safe links, and accessibility. API 30/API 36 follow the task's optional physical-device matrix.
+- Missing or cleared configuration routes the user to AI settings without sending a request.
+- Both summary actions stay on their source screen and reuse one scrollable summary dialog with `Idle -> Loading -> Success | Error`, retry, copy, and close-to-cancel behavior.
+- The settings page states that summary text is sent to the configured API service.
+- There is no standalone AI home or chat page.
