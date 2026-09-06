@@ -7,6 +7,14 @@
 
 本项目是 NGA 三方客户端，与 NGA 及原项目作者不存在隶属、授权或背书关系。
 
+## 下载
+
+在 [GitHub Releases](https://github.com/tophtab/nga-just-works/releases) 下载 APK。
+正式版使用 `X.Y.Z` 版本号；`main` 预览版标题带有 `(Debug)`。
+AI 总结分支预览版标题带有 `(Debug, feature/ai-summary)`，APK 文件名以
+`-feature-ai-summary.apk` 结尾。每个预览分支仅保留最近一次成功发布的版本，
+校验文件为同名 `.apk.sha256`。
+
 ## 功能对比
 
 ### 新增

@@ -399,7 +399,8 @@ adb -s REDACTED_SERIAL_MEIZU install --no-streaming -r -t test.apk
 
 Apply this contract whenever a task changes the application identity, version,
 release signing configuration, or GitHub APK publishing workflow. Eligible
-`main` pushes publish previews; exact `X.Y.Z` tag pushes publish stable releases.
+`main` and explicitly enabled `feature/ai-summary` pushes publish previews;
+exact `X.Y.Z` tag pushes publish stable releases.
 
 ### 2. Signatures
 
@@ -410,10 +411,12 @@ ANDROID_SIGNING_KEY_ALIAS=<secret>
 ANDROID_SIGNING_KEY_PASSWORD=<secret>
 CI_VERSION_NAME=<X.Y.Z or X.Y.Z-debug.RUN_NUMBER>
 CI_VERSION_CODE=<1..2100000000>
-RELEASE_TAG=<stable X.Y.Z tag, for Gradle verification>
+RELEASE_TAG=<publication tag; stable X.Y.Z for Gradle verification>
+ASSET_SUFFIX=<empty or -feature-ai-summary>
+PREVIEW_TAG_PREFIX=<debug- or branch-feature-ai-summary-, empty for stable>
 GITHUB_SHA=<triggering commit SHA>
-GITHUB_REF=<refs/heads/main or refs/tags/X.Y.Z>
-GITHUB_REF_NAME=<main or X.Y.Z>
+GITHUB_REF=<refs/heads/main, refs/heads/feature/ai-summary, or refs/tags/X.Y.Z>
+GITHUB_REF_NAME=<main, feature/ai-summary, or X.Y.Z>
 GITHUB_RUN_NUMBER=<long-lived build.yml workflow sequence>
 python3 scripts/derive_android_version_code.py <stable X.Y.Z base> <build slot 0..999>
 ```
@@ -422,14 +425,20 @@ The publication identities are:
 
 ```text
 debug tag       = debug-<first 12 characters of GITHUB_SHA>
+branch tag      = branch-<branch slug>-<first 12 characters of GITHUB_SHA>
 debug version   = <newest reachable stable X.Y.Z tag>-debug.<GITHUB_RUN_NUMBER>
 stable version  = <exact X.Y.Z trigger tag>
 versionCode     = major*10_000_000 + minor*100_000 + patch*1_000 + build_slot
 stable slot     = 0
 debug slot      = first-parent commit distance from stable tag to GITHUB_SHA + 1
 APK             = NGA-Just-Works-<CI_VERSION_NAME>.apk
+branch APK      = NGA-Just-Works-<CI_VERSION_NAME>-<branch slug>.apk
 checksum        = <APK filename>.sha256
 ```
+
+The enabled feature branch uses slug `feature-ai-summary` and Release title
+`NGA Just Works <CI_VERSION_NAME> (Debug, feature/ai-summary)`. The branch label
+is Release/asset metadata; Android `CI_VERSION_NAME` stays `X.Y.Z-debug.N`.
 
 The decimal layout is `Mmmppbbb`: minor and patch are `0..99`, and the final
 three digits reserve `0` for a stable tag and `1..999` for Debug previews. The
@@ -461,7 +470,14 @@ package migration is approved.
   `X.Y.Z` tag reachable from `GITHUB_SHA`, builds and signs one `preview`
   variant APK, verifies it, then publishes a `debug-<sha12>` GitHub
   prerelease titled with `(Debug)`.
-- Main checkout keeps the complete commit/tag graph (`fetch-depth: 0`) required
+- An eligible `feature/ai-summary` push uses the same signed `preview` variant
+  and publishes the APK/checksum directly as a GitHub prerelease. Do not use
+  expiring Actions artifacts as the download channel. Add the branch label to
+  the Release title and asset filenames, and put tags in the separate
+  `branch-feature-ai-summary-<sha12>` namespace. A branch tag must not start
+  with `debug-` or `preview-`, because older main workflows also clean those
+  prefixes. Main and feature publications remain distinct for the same SHA.
+- Branch checkout keeps the complete commit/tag graph (`fetch-depth: 0`) required
   by `git tag --merged` and first-parent distance, but uses partial clone
   `filter: blob:none` so historical file contents are not prefetched. Checkout
   still materializes every file in the current worktree before the build.
@@ -471,13 +487,15 @@ package migration is approved.
   workflow. A separate dispatch-only workflow may exist to answer a build
   question, but it must not sign, package, publish, or read repository
   secrets, and it is deleted once its question is answered.
+- Keep the explicit branch allowlist. Group concurrent builds by workflow and
+  ref, cancel superseded branch runs, and leave stable-tag runs uncancelled.
 - A stable tag must match `X.Y.Z` exactly. The same workflow checks out that
   tag with `fetch-depth: 1` and `filter: blob:none`, uses it as
   `CI_VERSION_NAME`, builds and signs once, verifies the APK, and creates a
   normal GitHub Release directly from the current job's `dist/`. It must not
   query or download an earlier Actions artifact.
 - Stable tags pass build slot `0` to
-  `scripts/derive_android_version_code.py`. Main previews compute
+  `scripts/derive_android_version_code.py`. Main and feature previews compute
   `git rev-list --first-parent --count <stable>..<sha>` and add one before
   invoking the same script. The same commit therefore keeps the same
   versionCode on rerun, while an append-only main history increases it. More
@@ -495,8 +513,9 @@ package migration is approved.
   mismatch fails that one invocation and stops staging and publication before
   anything is released. Moving the check after `gh release create`, or
   replacing it with a shell string comparison, is not equivalent.
-- The staged APK filename comes from the already-validated `CI_VERSION_NAME`.
-  The APK's own `versionName` and `versionCode` are still verified from the
+- The staged APK filename comes from the already-validated `CI_VERSION_NAME`,
+  with a filename-safe branch suffix only for feature previews. The APK's own
+  `versionName` and `versionCode` are still verified from the
   built manifest, so dropping a separate version-printing Gradle invocation
   removes a process start, not a version check.
 - Every stable tag must have a matching `release-notes/<X.Y.Z>.md` in the tagged
@@ -520,11 +539,15 @@ package migration is approved.
   same run number and asset names, so `gh release upload --clobber` may replace
   those Debug assets. Stable Release assets are immutable; a fix requires a
   new stable version and versionCode.
-- Delete old project previews only after the new Debug prerelease is
-  published. During the naming migration, cleanup may delete only prereleases
-  whose tag starts with legacy `preview-` or current `debug-`, must exclude the
-  current tag, and must delete the matching tag with the Release. Stable and
-  unrelated prereleases are outside the cleanup set.
+- Delete old previews only after the new prerelease is published, and only
+  within its channel. Main cleanup selects prereleases whose tag starts with
+  legacy `preview-` or current `debug-`. Feature cleanup selects its exact
+  `branch-<slug>-` prefix followed by exactly twelve hexadecimal SHA characters;
+  a longer branch slug sharing the prefix must not match. Exclude the current
+  tag and delete each selected tag with its Release. Main/other-branch previews,
+  stable releases, and unrelated prereleases stay outside feature cleanup.
+  Lookup or deletion failures must fail visibly; never clean up after a failed
+  publication. Pass dynamic titles/tags to shell scripts as environment data.
 - Build-performance switches are decided from CI measurements, not local ones.
   The local machine's core count and background load differ from the
   `ubuntu-latest` runner, and a contended local A/B can invert the verdict:
@@ -540,7 +563,7 @@ package migration is approved.
   to help until the module graph changes.
 - The job requires `contents: write`; it does not require `actions: read`.
   Gradle caching remains owned by `setup-gradle@v4`, with main allowed to write
-  and tag refs read-only. Do not layer another Gradle User Home cache action.
+  and feature/tag refs read-only. Do not layer another Gradle User Home cache action.
 - APK packaging and release-signing verification default to GitHub Actions CI.
   A request to commit, finish work, push, or wait for CI does not authorize a
   local `assemblePreview` or `assembleRelease`. Run either packaging task
@@ -581,6 +604,9 @@ package migration is approved.
 | APK applicationId, versionName, versionCode, or signer differs | Block publication |
 | Debug build/publication fails | Keep the prior Debug/legacy preview Release and tag available |
 | Cleanup sees a stable, non-prerelease, or unrelated-prefix Release | Leave it untouched |
+| Main cleanup sees `branch-feature-ai-summary-<sha12>` | Leave the branch preview untouched, including from older main workflows |
+| Feature cleanup sees a main preview, another branch, or a longer slug sharing its prefix | Leave it untouched; match the exact branch prefix plus twelve hex characters |
+| A feature preview uses a branch suffix in `CI_VERSION_NAME` | Reject the invalid Android version; put the suffix in asset metadata instead |
 | Preview APK is not debuggable or uses `.debug` applicationId/debug key | Reject before publication |
 | Stable APK is debuggable or release minification is disabled | Reject the stable build |
 | A `.trellis`/Markdown-only main push occurs | Skip the workflow; mixed pushes remain eligible |
@@ -599,6 +625,11 @@ package migration is approved.
 - **Base**: Rerunning the same Debug run validates its existing tag and
   prerelease, retains the same version values, and replaces the same-named APK
   and checksum. No additional Debug Release is created.
+- **Good**: A feature build publishes
+  `NGA-Just-Works-5.6.1-debug.51-feature-ai-summary.apk` under
+  `branch-feature-ai-summary-<sha12>`, retaining Android versionName
+  `5.6.1-debug.51`. It replaces only older previews for that branch; ordinary
+  main previews and stable downloads remain available.
 - **Good**: A stable tag validates `release-notes/<tag>.md` and publishes that
   exact file, including explicit `- 无` items for empty change categories.
 - **Bad**: Publishing the ordinary `.debug` variant, signing the preview with a
@@ -614,13 +645,18 @@ package migration is approved.
 
 - Parse the workflow YAML and all modified Bash blocks, then run
   `git diff --check`.
+- Run `python3 -m unittest discover -s scripts`. `test_release_workflow.py`
+  executes the actual workflow Bash against local Git/APK fixtures and a stub
+  GitHub CLI, including partial output from failed API calls.
 - Run the release-notes validator against committed valid notes and missing,
   duplicate, out-of-order, blank-section, malformed-heading, indented-code,
   and fenced-code pseudo-list cases. Assert stable publication uses the
   validated tag-addressed file with `--notes-file` while Debug publication
   alone retains `--generate-notes`.
-- Exercise identity derivation for a main commit with a reachable stable tag,
-  an exact stable tag, an invalid tag, and a main commit without a stable base.
+- Exercise identity derivation for main and feature commits with a reachable
+  stable tag, an exact stable tag, an invalid tag, and a commit without a stable
+  base. Verify main/feature identities differ even for the same SHA and branch
+  asset names retain one path component without changing Android versionName.
 - Run `scripts/test_derive_android_version_code.py`. Assert `5.5.0/slot 0`
   gives `50,500,000`, slot `999` is exactly one below `5.5.1/slot 0`, two-digit
   minor/patch fields work, and malformed fields, field overflow, slot overflow,
@@ -642,7 +678,10 @@ package migration is approved.
   and a failed API call. Assert reruns replace only current preview assets.
 - Exercise cleanup selection against the current Debug tag, older `debug-*`,
   legacy `preview-*`, a stable Release, an unrelated prerelease, and a partial
-  deletion failure. Cleanup starts only after successful publication.
+  deletion failure. Include current/older feature tags and similarly prefixed
+  branch names; assert main and feature cleanup cannot delete each other's
+  publications. Cleanup starts only after successful publication. Use offline
+  fixtures for these checks; never exercise deletion against live releases.
 - Run focused local unit/static checks and lint before push. Do not run local
   APK packaging unless the maintainer explicitly requests it. Everything that
   gates a release happens before the push: remote ref unmoved, target tag not
@@ -674,8 +713,19 @@ permissions:
 jobs:
   build-and-publish:
     steps:
-      - run: ./gradlew :nga_phone_base_3.0:${{ steps.release.outputs.gradle_task }} --no-daemon
-      - run: |
+      - env:
+          GRADLE_TASKS: ${{ steps.release.outputs.gradle_tasks }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          read -r -a gradle_tasks <<< "$GRADLE_TASKS"
+          test "${#gradle_tasks[@]}" -ge 1
+          ./gradlew "${gradle_tasks[@]}" --no-daemon
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
           (cd dist && sha256sum -c ./*.sha256)
           release_notes="release-notes/${GITHUB_REF_NAME}.md"
           python3 scripts/validate_release_notes.py "$release_notes"
@@ -697,6 +747,20 @@ gh release create "$NEW_DEBUG" dist/* --prerelease
 gh release create "$NEW_DEBUG" dist/* --target "$GITHUB_SHA" --prerelease
 # Only after creation succeeds:
 gh release delete "$OLD_DEBUG" --cleanup-tag --yes
+```
+
+#### Wrong
+
+```bash
+release_tag="debug-feature-ai-summary-${short_sha}"
+# Older main cleanup selects every debug-* prerelease and deletes this too.
+```
+
+#### Correct
+
+```bash
+release_tag="branch-feature-ai-summary-${short_sha}"
+# The branch owns this namespace; cleanup also requires an exact SHA suffix.
 ```
 
 #### Wrong

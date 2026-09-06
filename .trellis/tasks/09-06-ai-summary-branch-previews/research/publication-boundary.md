@@ -50,3 +50,19 @@
   `debug-9e0b59d29933` (`5.6.0-debug.48`).
 - Local `gh` is installed and authenticated with repository/workflow access;
   the earlier assistant's missing-CLI limitation does not apply here.
+
+## Integration verification
+
+- Merge commit `87e096e2` imports the pending Trellis update. All 39 files from
+  `780594bf` match `origin/main` exactly; all 22 changed Python files compile.
+  `git merge-base --is-ancestor origin/main HEAD` passes (zero behind).
+- The existing version-code and release-note suites pass: 11 tests.
+- During this work another session cherry-picked its signing documentation
+  commit into this worktree as `141c7f4f`, then recorded journal commit
+  `7c929117`. Its journal commit also captured this task's planning files.
+  Preserve those commits and the new signing-spec links; they are concurrent
+  work, not part of the publication implementation.
+- The incoming Trellis commit contains `[skip ci]`. Publish the integration
+  commit range first, then push the reviewed workflow change in a separate
+  range so the publication-triggering push contains no skip directive. See
+  GitHub's [skip-workflow documentation](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs).
