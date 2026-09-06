@@ -1137,3 +1137,44 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Next Steps
 
 - 创建并推送 5.6.1 修复版本，等待 GitHub Actions 完成正式构建。
+
+
+## Session 50: 验证本地发布签名并同步双分支知识
+<!-- trellis-session: v=2 fp=0285283ce18d9307 -->
+
+**Date**: 2026-09-06
+**Task**: 验证本地发布签名并同步双分支知识
+**Branch**: `main`
+
+### Summary
+
+完成 AI 分支的签名构建与保留数据覆盖安装，确认本地发布签名备份可用，并将签名定位、迁移恢复和备份约定同步到 main 与 feature/ai-summary。本轮按维护者要求直接处理，未创建 Trellis 任务。
+
+### Main Changes
+
+- 本地签名位于 ~/.config/nga-just-works/signing/：nga-just-works-release.p12 与 credentials.env；记录公开证书指纹和四项环境变量名称，未提交签名文件或密码。
+- feature/ai-summary 的 c52e045c 为该分支增加签名 APK Actions 产物（保留 7 天），限制 Release 发布和旧预览清理只在原发布流程执行；该工作流改动保留在功能分支。
+- 新增 local-android-signing.md 并接入 backend 索引与 Android 质量规范。仅将通用文档提交 cherry-pick 到两个分支，各自追加日志，AI 功能保持分支隔离。
+- 明确 GitHub Actions Secrets 已持有签名材料，但不能通过常规界面/API直接读回原值；建议密码管理器加密附件及独立加密备份，换机后修正本地路径并核对证书。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a8917aaefb002844c106746948122081f60730f0` | docs(android): record local signing and recovery |
+
+### Testing
+
+- [OK] workflow 的 actionlint 语法与表达式检查通过；按维护者要求未等待或监控 GitHub 构建。
+- [OK] keytool 验证本地 PKCS#12 私钥项和存储密码；本地 assemblePreview 成功，apksigner 确认原安装包、签名备份和新 APK 证书一致。
+- [OK] 实际构建源为 feature/ai-summary@c52e045c，生成 5.6.1-debug.6（versionCode 50601006）；经明确授权使用 Windows ADB 在小米 24129PN74C / API 35 覆盖安装成功。
+- [OK] 覆盖安装后版本正确，应用 ID、数据目录、首次安装时间保持不变。此次仅验证签名、构建和安装，未启动 App 或进行真实 NGA/AI 服务联调。
+- [OK] 通用文档的相对链接、空白、Shell 示例语法检查通过，确认未包含实际密码；本次收尾为文档变更，未重新构建 APK 或检查 Trellis 运行时。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 本次未创建独立异地备份，也未做备份恢复演练；备份位置和加密介质待维护者选择。
