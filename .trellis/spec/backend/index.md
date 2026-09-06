@@ -5,6 +5,7 @@
 | Guide | Use it when | Authority |
 | --- | --- | --- |
 | [Android Quality and Instrumentation](./android-quality-guidelines.md) | Building, testing, linting, instrumenting, or releasing Android modules | Project quality gates |
+| [Local Android Signing and Recovery](./local-android-signing.md) | Finding the verified local signing backup, building a signed local APK, preserving installed data, or restoring signing on another computer | Local paths, certificate identity, credential handling, and backup contract |
 | [Justwen Network Foundation](./network-foundation-contract.md) | Changing transport, account Cookie handoff, Web login, shared error handling, or the vote bridge | Pinned transport/session compatibility plus project safety boundary |
 | [NGA Platform Access Rules](./nga-platform-access-rules.md) | Any code crosses an NGA host, WebView, redirect, upload/media host, session, encoding, logging, or mutation boundary | Mandatory evidence, security, privacy, retry, and validation rules |
 | [NGA Platform Operation Registry](./nga-platform-operation-registry.md) | Implementing or reviewing a concrete read, post, upload, interaction, account mutation, message, or notification | Operation IDs and pinned Justwen wire/source facts |
