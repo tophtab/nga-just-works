@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ai_settings_title">AI 设置</string>
+    <string name="ai_settings_privacy_title">使用说明</string>
+    <string name="ai_settings_privacy">使用总结功能时，相关文本会发送到您配置的 API 服务，费用由您的 API 账号承担。仅支持 OpenAI-compatible Chat Completions 接口。</string>
+    <string name="ai_settings_status_title">当前配置</string>
+    <string name="ai_settings_not_configured">尚未配置，请填写后保存</string>
+    <string name="ai_settings_configured">已配置，可使用 AI 总结</string>
+    <string name="ai_settings_unsaved">有修改尚未保存</string>
+    <string name="ai_settings_endpoint_title">API 服务地址</string>
+    <string name="ai_settings_endpoint_hint">填写 HTTPS 服务地址，如 https://api.example.com/v1</string>
+    <string name="ai_settings_endpoint_help">填写服务提供的 HTTPS 接口地址，可包含 /v1 或 /chat/completions 路径。</string>
+    <string name="ai_settings_key_title">API Key</string>
+    <string name="ai_settings_key_empty">尚未填写</string>
+    <string name="ai_settings_key_saved">•••••••• · 已加密保存</string>
+    <string name="ai_settings_key_pending">•••••••• · 保存后生效</string>
+    <string name="ai_settings_key_hint">输入 API Key</string>
+    <string name="ai_settings_key_keep_hint">留空保留当前 Key</string>
+    <string name="ai_settings_key_help">Key 加密保存在本机，不会回显。输入新 Key 可替换；留空保留当前 Key。修改地址或模型时无需重新填写。</string>
+    <string name="ai_settings_model_title">模型名称</string>
+    <string name="ai_settings_model_hint">填写服务提供的模型名称</string>
+    <string name="ai_settings_save_title">保存配置</string>
+    <string name="ai_settings_save_summary">保存当前地址、Key 和模型，供两个总结入口使用</string>
+    <string name="ai_settings_saved">AI 配置已保存</string>
+    <string name="ai_settings_test_title">测试连接</string>
+    <string name="ai_settings_test_summary">使用当前输入发送简短测试文字，不会自动保存配置</string>
+    <string name="ai_settings_testing">正在测试连接…</string>
+    <string name="ai_settings_test_success">连接成功</string>
+    <string name="ai_settings_test_success_unsaved">连接成功，请保存配置后使用总结</string>
+    <string name="ai_settings_test_failed">连接测试失败，请检查配置后重试</string>
+    <string name="ai_settings_clear_title">清除配置</string>
+    <string name="ai_settings_clear_message">清除本机保存的 API 服务地址、Key 和模型？清除后需要重新配置才能使用 AI 总结。</string>
+    <string name="ai_settings_cleared">AI 配置已清除</string>
+</resources>

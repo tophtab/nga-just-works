@@ -1,0 +1,393 @@
+package sp.phone.ai.summary;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
+import java.nio.charset.Charset;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Test;
+
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
+import okio.Buffer;
+
+public class NgaProfilePageSourceTest {
+
+    @Test
+    public void requestsUseTheViewedUidPageOneAndAFrozenSession() {
+        Request topics = NgaProfilePageSource.buildRequest("https://bbs.nga.cn", "synthetic-session",
+                "synthetic-user-agent", "4200", ProfileSummaryLoader.Kind.TOPICS);
+        Request replies = NgaProfilePageSource.buildRequest("https://bbs.nga.cn", "synthetic-session",
+                "synthetic-user-agent", "4200", ProfileSummaryLoader.Kind.REPLIES);
+        assertEquals("/thread.php", topics.url().encodedPath());
+        assertEquals("4200", topics.url().queryParameter("authorid"));
+        assertEquals("4200", replies.url().queryParameter("authorid"));
+        assertEquals("1", topics.url().queryParameter("page"));
+        assertEquals("1", replies.url().queryParameter("page"));
+        assertNull(topics.url().queryParameter("searchpost"));
+        assertEquals("1", replies.url().queryParameter("searchpost"));
+        assertEquals("js", replies.url().queryParameter("lite"));
+        assertEquals("synthetic-session", replies.header("Cookie"));
+        assertEquals("Nga_Official", replies.header("X-User-Agent"));
+        assertNull(replies.header("Authorization"));
+    }
+
+    @Test
+    public void untrustedOriginsAndInvalidTargetsNeverCreateATransportCall() {
+        for (String domain : new String[]{"http://bbs.nga.cn", "https://bbs.nga.cn.evil.example",
+                "https://user@bbs.nga.cn", "https://bbs.nga.cn:8443", "https://127.0.0.1",
+                "https://bbs.nga.cn/unexpected", "https://bbs.nga.cn?token=synthetic"}) {
+            PageResult result = new PageResult();
+            NgaProfilePageSource source = new NgaProfilePageSource(domain, "synthetic-session", "UA",
+                    request -> { throw new AssertionError("Invalid origin created a call"); });
+            source.loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
+            assertNotNull(result.error);
+        }
+        assertThrows(IllegalArgumentException.class, () -> NgaProfilePageSource.buildRequest(
+                "https://bbs.nga.cn", "", "UA", "42&authorid=99", ProfileSummaryLoader.Kind.REPLIES));
+    }
+
+    @Test
+    public void replyContentComesFromTheMatchingPObjectAndNeverFromTopicOwnerOrSessionData()
+            throws Exception {
+        JSONObject row = row("999", false);
+        JSONObject reply = new JSONObject();
+        reply.put("authorid", "42");
+        reply.put("postdate", 1767225600);
+        reply.put("content", "[b]Viewed user's reply[/b]<br/>Second line");
+        row.put("__P", reply);
+        String raw = document(row);
+        ProfileSummaryLoader.Page page = NgaProfilePageSource.parsePage(raw, "42",
+                ProfileSummaryLoader.Kind.REPLIES);
+        ProfileSummaryInput input = new ProfileSummaryInput("42", "Viewed user",
+                Collections.emptyList(), page.entries);
+        String prompt = input.toPrompt();
+        assertTrue(prompt.contains("Viewed user's reply\nSecond line"));
+        assertTrue(prompt.contains("Synthetic board"));
+        assertTrue(prompt.contains(Instant.ofEpochSecond(1767225600).atZone(ZoneId.systemDefault())
+                .toLocalDate().toString()));
+        assertFalse(prompt.contains("COOKIE_SENTINEL"));
+        assertFalse(prompt.contains("TOPIC_BODY_SENTINEL"));
+        assertFalse(prompt.contains("PROFILE_EMAIL_SENTINEL"));
+        assertEquals("42", page.uid);
+    }
+
+    @Test
+    public void matchingTopicsAndWrappedResponsesAreAcceptedButOtherAuthorsAreRejected() throws Exception {
+        ProfileSummaryLoader.Page page = NgaProfilePageSource.parsePage(
+                "window.script_muti_get_var_store=" + document(row("42", false)) + ";", "42",
+                ProfileSummaryLoader.Kind.TOPICS);
+        assertEquals(1, page.entries.size());
+        assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                document(row("99", false)), "42", ProfileSummaryLoader.Kind.TOPICS));
+        assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                document(row("99", true)), "42", ProfileSummaryLoader.Kind.REPLIES));
+    }
+
+    @Test
+    public void missingReplyBodyCannotSilentlyTurnIntoATitleOnlySummary() {
+        JSONObject row = row("42", true);
+        row.getJSONObject("__P").remove("content");
+        assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                document(row), "42", ProfileSummaryLoader.Kind.REPLIES));
+    }
+
+    @Test
+    public void malformedChallengeAndOversizedDocumentsHaveOnlySafeErrors() {
+        String[] invalid = {"[]", "not-json-RAW_SENTINEL", "<html>RAW_SENTINEL</html>",
+                "{\"error\":[\"RAW_SENTINEL\"]}", "{\"data\":{}}",
+                SummaryInputTest.repeat(' ', NgaProfilePageSource.MAX_RESPONSE_BYTES + 1)};
+        for (String raw : invalid) {
+            NgaProfilePageSource.PageException error = assertThrows(NgaProfilePageSource.PageException.class,
+                    () -> NgaProfilePageSource.parsePage(raw, "42", ProfileSummaryLoader.Kind.TOPICS));
+            assertFalse(error.getMessage().contains("RAW_SENTINEL"));
+            assertNull(error.getCause());
+        }
+    }
+
+    @Test
+    public void excessiveNestingInEitherTheDocumentOrStringParentIsRejected() {
+        String deep = SummaryInputTest.repeat('[', 70) + "0" + SummaryInputTest.repeat(']', 70);
+        String raw = "{\"data\":" + deep + "}";
+        assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                raw, "42", ProfileSummaryLoader.Kind.TOPICS));
+        JSONObject row = row("42", false);
+        row.put("parent", "{\"2\":\"Board\",\"extra\":" + deep + "}");
+        assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                document(row), "42", ProfileSummaryLoader.Kind.TOPICS));
+    }
+
+    @Test
+    public void anExplicitEmptyFirstPageIsSuccessfulData() throws Exception {
+        ProfileSummaryLoader.Page page = NgaProfilePageSource.parsePage(
+                "{\"data\":{\"__T\":{},\"__T__ROWS\":0}}", "42", ProfileSummaryLoader.Kind.TOPICS);
+        assertTrue(page.entries.isEmpty());
+    }
+
+    @Test
+    public void activityDatesRespectTheDisplayZoneAcrossMidnight() {
+        long timestamp = Instant.parse("2026-01-01T16:30:00Z").getEpochSecond();
+        assertEquals("2026-01-02", NgaProfilePageSource.date(timestamp, ZoneId.of("Asia/Shanghai")));
+        assertEquals("2026-01-01", NgaProfilePageSource.date(timestamp, ZoneId.of("UTC")));
+    }
+
+    @Test
+    public void typeKeysAreOrdinaryDataAndReferencesCannotSupplyAReplyBody() throws Exception {
+        JSONObject row = row("42", false);
+        row.put("@type", "java.lang.AutoCloseable");
+        assertEquals(1, NgaProfilePageSource.parsePage(document(row), "42",
+                ProfileSummaryLoader.Kind.TOPICS).entries.size());
+        JSONObject ref = new JSONObject();
+        ref.put("$ref", "$.data.__T.0");
+        row.put("__P", ref);
+        assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                document(row), "42", ProfileSummaryLoader.Kind.REPLIES));
+    }
+
+    @Test
+    public void firstPageCollectionUsesTwoOfflineRequestsAndKeepsSessionDataOutOfThePrompt() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            server.enqueue(gbkResponse(document(row("42", false))));
+            server.enqueue(gbkResponse(document(row("42", true))));
+            OkHttpClient client = localClient(server, 5000);
+            try {
+                NgaProfilePageSource source = new NgaProfilePageSource("https://bbs.nga.cn",
+                        "COOKIE_SENTINEL", "Synthetic-UA", client);
+                TextResult result = new TextResult();
+                new ProfileSummaryLoader(source).load("42", "Viewed user", result);
+                assertTrue(result.finished.await(5, TimeUnit.SECONDS));
+                assertNull(result.error);
+                assertTrue(result.prompt.contains("示例回复正文"));
+                assertFalse(result.prompt.contains("COOKIE_SENTINEL"));
+                assertFalse(result.prompt.contains("PROFILE_EMAIL_SENTINEL"));
+                RecordedRequest topics = server.takeRequest(2, TimeUnit.SECONDS);
+                RecordedRequest replies = server.takeRequest(2, TimeUnit.SECONDS);
+                assertNotNull(topics);
+                assertNotNull(replies);
+                assertEquals("COOKIE_SENTINEL", topics.getHeader("Cookie"));
+                assertEquals("COOKIE_SENTINEL", replies.getHeader("Cookie"));
+                assertEquals("42", topics.getRequestUrl().queryParameter("authorid"));
+                assertEquals("42", replies.getRequestUrl().queryParameter("authorid"));
+                assertEquals("1", topics.getRequestUrl().queryParameter("page"));
+                assertEquals("1", replies.getRequestUrl().queryParameter("page"));
+                assertEquals("1", replies.getRequestUrl().queryParameter("searchpost"));
+                assertEquals(2, server.getRequestCount());
+            } finally {
+                close(client);
+            }
+        }
+    }
+
+    @Test
+    public void callDeadlineReportsAnErrorEvenThoughOkHttpMarksTheCallCanceled() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+            OkHttpClient client = localClient(server, 250);
+            try {
+                PageResult result = new PageResult();
+                new NgaProfilePageSource("https://bbs.nga.cn", "", "Synthetic-UA", client)
+                        .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
+                assertTrue("A deadline must leave Loading", result.finished.await(5, TimeUnit.SECONDS));
+                assertNull(result.page);
+                assertTrue(result.error.contains("超时"));
+                assertEquals(1, server.getRequestCount());
+            } finally {
+                close(client);
+            }
+        }
+    }
+
+    @Test
+    public void deliberateCancellationSuppressesTheTransportCallback() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+            OkHttpClient client = localClient(server, 5000);
+            try {
+                PageResult result = new PageResult();
+                SummaryController.Cancelable call = new NgaProfilePageSource("https://bbs.nga.cn", "",
+                        "Synthetic-UA", client).loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
+                assertNotNull(server.takeRequest(2, TimeUnit.SECONDS));
+                call.cancel();
+                assertFalse(result.finished.await(300, TimeUnit.MILLISECONDS));
+                assertNull(result.page);
+                assertNull(result.error);
+                assertEquals(1, server.getRequestCount());
+            } finally {
+                close(client);
+            }
+        }
+    }
+
+    @Test
+    public void httpRejectionsAndRedirectsStopWithoutParsingOrRetryingTheBody() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            OkHttpClient client = localClient(server, 5000);
+            try {
+                int[] codes = {401, 403, 429, 500, 302};
+                String[] messages = {"登录", "拒绝访问", "频繁", "服务暂时不可用", "重定向"};
+                for (int i = 0; i < codes.length; i++) {
+                    server.enqueue(new MockResponse().setResponseCode(codes[i])
+                            .setHeader("Location", "https://untrusted.example/")
+                            .setBody("RAW_ERROR_SENTINEL"));
+                    PageResult result = new PageResult();
+                    new NgaProfilePageSource("https://bbs.nga.cn", "", "Synthetic-UA", client)
+                            .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
+                    assertTrue(result.finished.await(5, TimeUnit.SECONDS));
+                    assertNull(result.page);
+                    assertTrue(result.error.contains(messages[i]));
+                    assertFalse(result.error.contains("RAW_ERROR_SENTINEL"));
+                }
+                assertEquals(codes.length, server.getRequestCount());
+            } finally {
+                close(client);
+            }
+        }
+    }
+
+    @Test
+    public void chunkedOversizeAndUnsupportedCharsetFailBeforeProducingActivity() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            server.enqueue(new MockResponse().setHeader("Content-Type", "application/javascript; charset=UTF-8")
+                    .setChunkedBody(SummaryInputTest.repeat('x', NgaProfilePageSource.MAX_RESPONSE_BYTES + 1), 8192));
+            server.enqueue(new MockResponse().setHeader("Content-Type", "application/javascript; charset=invalid-charset")
+                    .setBody(document(row("42", false))));
+            server.enqueue(new MockResponse().setHeader("Content-Type", "application/javascript; charset = invalid-charset")
+                    .setBody(document(row("42", false))));
+            server.enqueue(new MockResponse().setHeader("Content-Type", "application/javascript; charset=UTF-8")
+                    .setBody(new Buffer().write(new byte[]{(byte) 0xc3, 0x28})));
+            OkHttpClient client = localClient(server, 5000);
+            try {
+                for (int i = 0; i < 4; i++) {
+                    PageResult result = new PageResult();
+                    new NgaProfilePageSource("https://bbs.nga.cn", "", "Synthetic-UA", client)
+                            .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
+                    assertTrue(result.finished.await(5, TimeUnit.SECONDS));
+                    assertNull(result.page);
+                    assertNotNull(result.error);
+                }
+                assertEquals(4, server.getRequestCount());
+            } finally {
+                close(client);
+            }
+        }
+    }
+
+    private static JSONObject row(String uid, boolean reply) {
+        JSONObject row = new JSONObject();
+        row.put("authorid", uid);
+        row.put("subject", "Synthetic topic");
+        row.put("postdate", 1767225600);
+        row.put("fid", 123);
+        row.put("content", "TOPIC_BODY_SENTINEL");
+        JSONObject parent = new JSONObject();
+        parent.put("2", "Synthetic board");
+        row.put("parent", parent);
+        if (reply) {
+            JSONObject post = new JSONObject();
+            post.put("authorid", uid);
+            post.put("postdate", 1767225600);
+            post.put("content", "示例回复正文");
+            row.put("__P", post);
+        }
+        return row;
+    }
+
+    private static String document(JSONObject row) {
+        JSONObject rows = new JSONObject();
+        rows.put("0", row);
+        JSONObject data = new JSONObject();
+        data.put("__T", rows);
+        data.put("__T__ROWS", 1);
+        JSONObject privateData = new JSONObject();
+        privateData.put("cookie", "COOKIE_SENTINEL");
+        privateData.put("email", "PROFILE_EMAIL_SENTINEL");
+        data.put("__CU", privateData);
+        JSONObject root = new JSONObject();
+        root.put("data", data);
+        return JSON.toJSONString(root);
+    }
+
+    private static MockResponse gbkResponse(String json) {
+        return new MockResponse().setHeader("Content-Type", "application/javascript; charset=GBK")
+                .setBody(new Buffer().write(json.getBytes(Charset.forName("GBK"))));
+    }
+
+    private static OkHttpClient localClient(MockWebServer server, long timeoutMillis) {
+        return new OkHttpClient.Builder()
+                .cookieJar(CookieJar.NO_COOKIES)
+                .followRedirects(false)
+                .followSslRedirects(false)
+                .retryOnConnectionFailure(false)
+                .callTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+                .addInterceptor(chain -> {
+                    // Test-only destination override: every socket stays on this loopback server.
+                    HttpUrl local = server.url(chain.request().url().encodedPath()).newBuilder()
+                            .encodedQuery(chain.request().url().encodedQuery()).build();
+                    return chain.proceed(chain.request().newBuilder().url(local).build());
+                }).build();
+    }
+
+    private static void close(OkHttpClient client) {
+        client.dispatcher().executorService().shutdownNow();
+        client.connectionPool().evictAll();
+    }
+
+    private static final class PageResult implements ProfileSummaryLoader.PageCallback {
+        final CountDownLatch finished = new CountDownLatch(1);
+        volatile ProfileSummaryLoader.Page page;
+        volatile String error;
+
+        @Override
+        public void onSuccess(ProfileSummaryLoader.Page page) {
+            this.page = page;
+            finished.countDown();
+        }
+
+        @Override
+        public void onError(String safeMessage) {
+            error = safeMessage;
+            finished.countDown();
+        }
+    }
+
+    private static final class TextResult implements SummaryController.Callback {
+        final CountDownLatch finished = new CountDownLatch(1);
+        volatile String prompt;
+        volatile String error;
+
+        @Override
+        public void onSuccess(String text) {
+            prompt = text;
+            finished.countDown();
+        }
+
+        @Override
+        public void onError(String safeMessage) {
+            error = safeMessage;
+            finished.countDown();
+        }
+    }
+}

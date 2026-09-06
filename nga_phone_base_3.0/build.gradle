@@ -44,6 +44,8 @@ android {
         versionCode project.appVersionCode
         versionName project.appVersionName
 
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [AROUTER_MODULE_NAME: project.getName()]
@@ -163,6 +165,8 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     // retrofit
+    // AI RequestBody.isOneShot() requires the version already resolved by the app runtime.
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation "com.squareup.retrofit2:retrofit-converters:$retrofit_version"
@@ -208,4 +212,7 @@ dependencies {
     implementation "androidx.paging:paging-compose:$paging_version"
 
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.1'
 }

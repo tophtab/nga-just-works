@@ -21,6 +21,7 @@ import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.BaseActivity;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import io.reactivex.annotations.NonNull;
+import sp.phone.ai.summary.FloorSummaryInput;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.User;
 import sp.phone.common.UserManagerImpl;
@@ -35,6 +36,7 @@ import sp.phone.rxjava.RxEvent;
 import sp.phone.task.BookmarkTask;
 import sp.phone.ui.adapter.ArticleListAdapter;
 import sp.phone.ui.fragment.dialog.BaseDialogFragment;
+import sp.phone.ui.fragment.dialog.AiSummaryDialog;
 import sp.phone.ui.fragment.dialog.PostCommentDialogFragment;
 import sp.phone.util.ActivityUtils;
 import sp.phone.util.FunctionUtils;
@@ -62,6 +64,12 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     protected ArticleListParam mRequestParam;
 
+    private AiSummaryDialog mAiSummaryDialog;
+
+    private String mAiThreadTitle;
+
+    private long mAiContentGeneration;
+
     private OnTopicMenuItemClickListener mMenuItemClickListener = new OnTopicMenuItemClickListener() {
 
         private ThreadRowInfo mThreadRowInfo;
@@ -84,6 +92,9 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             int tid = row.getTid();
 
             switch (item.getItemId()) {
+                case R.id.menu_ai_summary:
+                    showAiSummary(row);
+                    break;
                 case R.id.menu_edit:
                     if (FunctionUtils.isComment(row)) {
                         showToast(R.string.cannot_eidt_comment);
@@ -148,7 +159,9 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
         @Override
         public void onClick(View view) {
-            mMenuItemClickListener.setThreadRowInfo((ThreadRowInfo) view.getTag());
+            final ThreadRowInfo clickedRow = (ThreadRowInfo) view.getTag();
+            final long menuContentGeneration = mAiContentGeneration;
+            mMenuItemClickListener.setThreadRowInfo(clickedRow);
             int menuId;
             if (mRequestParam.pid == 0) {
                 menuId = R.menu.article_list_context_menu;
@@ -159,7 +172,14 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             popupMenu.inflate(menuId);
             onPrepareOptionsMenu(popupMenu.getMenu(), (ThreadRowInfo) view.getTag());
             popupMenu.show();
-            popupMenu.setOnMenuItemClickListener(mMenuItemClickListener);
+            popupMenu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.menu_ai_summary
+                        && menuContentGeneration != mAiContentGeneration) {
+                    return true;
+                }
+                mMenuItemClickListener.setThreadRowInfo(clickedRow);
+                return mMenuItemClickListener.onMenuItemClick(item);
+            });
         }
 
         private void onPrepareOptionsMenu(Menu menu, ThreadRowInfo row) {
@@ -300,7 +320,41 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     }
 
     public void loadPage() {
+        dismissAiSummary();
         mPresenter.loadPage(mRequestParam);
+    }
+
+    private void showAiSummary(ThreadRowInfo row) {
+        if (!isResumed() || getContext() == null || row == null) {
+            return;
+        }
+        dismissAiSummary();
+        String title = mAiThreadTitle == null ? mRequestParam.title : mAiThreadTitle;
+        FloorSummaryInput input = FloorSummaryInput.fromRow(title, row);
+        final long contentGeneration = mAiContentGeneration;
+        mAiSummaryDialog = AiSummaryDialog.showFloor(getContext(), input,
+                () -> isResumed() && contentGeneration == mAiContentGeneration
+                        ? input.getTarget() : null);
+    }
+
+    private void dismissAiSummary() {
+        if (mAiSummaryDialog != null) {
+            mAiSummaryDialog.dismiss();
+            mAiSummaryDialog = null;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        // ArticlePagerAdapter keeps adjacent pages STARTED; they leave RESUMED on a page switch.
+        dismissAiSummary();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroyView() {
+        dismissAiSummary();
+        super.onDestroyView();
     }
 
     public void scrollToTop() {
@@ -311,6 +365,10 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     @Override
     public void setData(ThreadData data) {
+        dismissAiSummary();
+        mAiContentGeneration++;
+        mAiThreadTitle = data != null && data.getThreadInfo() != null
+                ? data.getThreadInfo().getSubject() : null;
         ArticleShareViewModel viewModel = getActivityViewModelProvider().get(ArticleShareViewModel.class);
         if (getActivity() != null && data != null) {
             viewModel.setReplyCount(data.get__ROWS());

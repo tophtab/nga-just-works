@@ -4,6 +4,11 @@
     xmlns:androidnga="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_ai_summary"
+        android:title="@string/ai_summary_action"
+        androidnga:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_show_whole_thread"
         android:icon="@drawable/ic_action_storage"
         android:title="@string/show_whole_thread"

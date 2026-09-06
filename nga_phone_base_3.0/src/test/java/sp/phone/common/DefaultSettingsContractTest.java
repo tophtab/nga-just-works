@@ -117,7 +117,8 @@ public class DefaultSettingsContractTest {
                 "PreferenceCategory:主题列表设置",
                 "PreferenceCategory:主题详情设置",
                 "PreferenceCategory:发帖设置",
-                "PreferenceScreen:实验室");
+                "PreferenceScreen:实验室",
+                "PreferenceScreen:@string/ai_settings_title");
         assertCategory(preferenceScreen, "域名与账号",
                 "nga_domain", "pref_image_domain", "pref_user_compose");
         assertCategory(preferenceScreen, "外观设置",
@@ -150,6 +151,8 @@ public class DefaultSettingsContractTest {
                 "sp.phone.ui.fragment.SettingsSizeFragment");
         assertAttribute(document, "pref_black_list_new", "android:fragment",
                 "gov.anzong.androidnga.activity.compose.filter.FilterWordFragment");
+        assertAttribute(document, "pref_ai_settings", "android:fragment",
+                "sp.phone.ui.fragment.SettingsAiFragment");
     }
 
     @Test
