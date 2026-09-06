@@ -456,12 +456,14 @@ package migration is approved.
 
 - Release packaging must read all four signing values from the environment.
   Missing or blank values must fail before an unsigned release APK is emitted.
-- Signing files and credentials stay outside the repository and release
-  assets. GitHub restores the keystore only in runner temporary storage.
-- The maintainer also has a verified local PKCS#12 backup and credential file
+- Signing files and credentials stay outside the public application repository
+  and release assets. GitHub restores the keystore only in runner temporary
+  storage.
+- The maintainer also has a verified local PKCS#12 keystore and credential file
   outside the worktree. Before declaring local signing unavailable, follow
-  [Local Android Signing and Recovery](./local-android-signing.md) for the
-  known paths, certificate fingerprint, and backup/restoration contract.
+  [Local Android Signing](./local-android-signing.md) for the known paths,
+  private storage location, certificate fingerprint, and credential-loading
+  commands.
 - The root Gradle build keeps local fallback values and accepts stable
   `X.Y.Z` or Debug `X.Y.Z-debug.N` names together with `CI_VERSION_CODE` only
   as a complete, validated pair. Legacy `X.Y.Z-preview.N` is not a valid new
