@@ -1188,14 +1188,13 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 ### Summary
 
-完成 AI 分支的签名构建与保留数据覆盖安装，确认本地发布签名备份可用，并将签名定位、迁移恢复和备份约定同步到 main 与 feature/ai-summary。本轮按维护者要求直接处理，未创建 Trellis 任务。
+完成 AI 分支的签名构建与保留数据覆盖安装，确认本地发布签名可用，并将签名位置、使用方法和验证结果同步到 main 与 feature/ai-summary。本轮按维护者要求直接处理，未创建 Trellis 任务。
 
 ### Main Changes
 
 - 本地签名位于 ~/.config/nga-just-works/signing/：nga-just-works-release.p12 与 credentials.env；记录公开证书指纹和四项环境变量名称，未提交签名文件或密码。
 - feature/ai-summary 的 c52e045c 为该分支增加签名 APK Actions 产物（保留 7 天），限制 Release 发布和旧预览清理只在原发布流程执行；该工作流改动保留在功能分支。
 - 新增 local-android-signing.md 并接入 backend 索引与 Android 质量规范。仅将通用文档提交 cherry-pick 到两个分支，各自追加日志，AI 功能保持分支隔离。
-- 明确 GitHub Actions Secrets 已持有签名材料，但不能通过常规界面/API直接读回原值；建议密码管理器加密附件及独立加密备份，换机后修正本地路径并核对证书。
 
 ### Git Commits
 
@@ -1207,7 +1206,7 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Testing
 
 - [OK] workflow 的 actionlint 语法与表达式检查通过；按维护者要求未等待或监控 GitHub 构建。
-- [OK] keytool 验证本地 PKCS#12 私钥项和存储密码；本地 assemblePreview 成功，apksigner 确认原安装包、签名备份和新 APK 证书一致。
+- [OK] keytool 验证本地 PKCS#12 私钥项和存储密码；本地 assemblePreview 成功，apksigner 确认原安装包、本地签名和新 APK 证书一致。
 - [OK] 实际构建源为 feature/ai-summary@c52e045c，生成 5.6.1-debug.6（versionCode 50601006）；经明确授权使用 Windows ADB 在小米 24129PN74C / API 35 覆盖安装成功。
 - [OK] 覆盖安装后版本正确，应用 ID、数据目录、首次安装时间保持不变。此次仅验证签名、构建和安装，未启动 App 或进行真实 NGA/AI 服务联调。
 - [OK] 通用文档的相对链接、空白、Shell 示例语法检查通过，确认未包含实际密码；本次收尾为文档变更，未重新构建 APK 或检查 Trellis 运行时。
@@ -1218,7 +1217,7 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 ### Next Steps
 
-- 本次未创建独立异地备份，也未做备份恢复演练；备份位置和加密介质待维护者选择。
+- 签名验证已完成；私有存储与双分支最终推送状态见后续收尾记录。
 
 
 ## Session 52: AI summary branch prereleases
@@ -1258,3 +1257,43 @@ Synced the AI summary branch with main and replaced expiring Actions artifacts w
 ### Next Steps
 
 - GitHub Actions builds and signs the branch APK after the workflow-change push; download the branch-labelled prerelease from GitHub Releases after publication.
+
+
+## Session 54: 完成私有签名存储与双分支收尾
+<!-- trellis-session: v=2 fp=e7c04116960fcf68 -->
+
+**Date**: 2026-09-06
+**Task**: 完成私有签名存储与双分支收尾
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+完成私有签名存储，更新通用签名规范并保存原会话构建、签名和覆盖安装证据；文档已同步并推送到 main 与 feature/ai-summary。本轮按维护者要求不创建任务，仅完成文档和日志收尾，没有修改应用代码。
+
+### Main Changes
+
+- 已创建并推送私有仓库 https://github.com/tophtab/nga-just-works-signing，签名材料提交 95bcbc08261517c3922f2429e234f5594bdad77e；保存原始 .p12 与配套 credentials.env，仓库 Actions 已关闭。
+- 更新 local-android-signing.md、backend 索引和签名质量约定，记录本地路径、私有存储位置、公开证书和使用方法；按维护者要求移除换电脑迁移及待选择备份介质的说明。
+- 构建与安装证据已整理为 [2026-09-06 签名验证记录](reports/2026-09-06-local-signing.md)，保留实际源提交、APK 版本与哈希、签名和数据保留检查，并区分历史验证与本轮操作。
+- 公共文档提交已分别推送：main@87961c47、feature/ai-summary@f1cdf4b9；通过远端分支读取确认。功能分支原有发布流程提交和日志均保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f1cdf4b96675af3ed470743e0b4a366ba33cab43` | docs(android): finalize signing storage and verification |
+
+### Testing
+
+- [OK] 复核原会话证据：feature/ai-summary@c52e045c 的 assemblePreview 构建成功，APK 为 5.6.1-debug.6 / 50601006，签名与原安装包一致。
+- [OK] 复核原会话安装证据：Windows ADB 覆盖安装返回 Success，版本正确，应用 ID、数据目录和首次安装时间保持不变。
+- [OK] 本轮验证私有仓库 owner/visibility，重新克隆后两个签名文件与原件逐字节一致；克隆的私钥项、存储密码及证书验证通过。
+- [OK] 文档相对链接、Bash 示例语法、空白和公开提交中的签名敏感数据核对通过；远端两个分支的文档提交已确认。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 本次签名存储与文档收尾已完成。本轮没有新增构建、设备操作或 CI 监控；日志随本轮提交推送同步。
