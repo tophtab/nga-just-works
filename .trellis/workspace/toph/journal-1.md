@@ -1137,3 +1137,43 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Next Steps
 
 - 创建并推送 5.6.1 修复版本，等待 GitHub Actions 完成正式构建。
+
+
+## Session 49: 完成 BYOK AI 设置与上下文总结
+<!-- trellis-session: v=2 fp=2dbb23332e5c40ad -->
+
+**Date**: 2026-09-06
+**Task**: 完成 BYOK AI 设置与上下文总结
+**Branch**: `main`
+
+### Summary
+
+接续用户指定会话并完成 07-25-nga-android-advanced：AI 设置、楼层总结、资料页用户总结；经一次性确认后提交代码、规范和继承研究，再归档任务。
+
+### Main Changes
+
+- 实现独立 AI 二级设置、Keystore 加密配置、无 NGA Cookie 的单次 Chat Completions 请求；两个总结入口共用可取消弹窗和对象绑定控制器。
+- 补齐限定首屏资料读取、字符集与输入上限、暂停/刷新取消和超时回归；同步 AI 规范、已批准任务范围、六份继承研究与验收记录。
+- 任务直接在 main 上完成且没有独立 PR 分支，使用脚本的 --skip-branch-validation 本地任务选项归档；39 项无关 Trellis 改动按哈希核对并保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `edd69f219d7a07bf78278eea4f66eb5934dc4fc5` | feat(android): add BYOK AI settings and contextual summaries |
+| `de31004a4db9aae4c75bc5b2c6e4370d62bab050` | docs(ai): record summary contracts and task verification |
+
+### Testing
+
+- [OK] App JVM：228 项通过，0 failure/error/skip；Debug App 与 Android 测试 APK 构建成功。
+- [OK] 13 个 Android 模块 lint XML 均为 0 Error/Fatal。仓库诊断仅保留已记录的 lib_bu_statistics JUnit 和 lib_module_debug KAPT 示例测试失败。
+- [OK] 独立审查通过；AAPT2 两种资源链接模式均生成 SettingsAiFragment 类名与构造保留规则。
+- [OK] 设备测试 not run per project policy；未查询 ADB、安装或运行 instrumentation，未调用真实 NGA/模型服务，也未发布或推送。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 本任务已完成并归档，无本任务待办。

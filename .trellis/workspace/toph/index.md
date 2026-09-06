@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 48
-- **Last Active**: 2026-09-05
+- **Total Sessions**: 49
+- **Last Active**: 2026-09-06
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1139 | Active |
+| `journal-1.md` | ~1179 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 49 | 2026-09-06 | 完成 BYOK AI 设置与上下文总结 | `edd69f219d7a07bf78278eea4f66eb5934dc4fc5`, `de31004a4db9aae4c75bc5b2c6e4370d62bab050` | `main` |
 | 48 | 2026-09-05 | 修复历史缓存旧图床图片失效并完成收尾 | `1e3e1eda` | `main` |
 | 47 | 2026-08-23 | 长按发帖按钮刷新当前页 | `825d0038` | `main` |
 | 46 | 2026-08-23 | 修复侧滑返回黑屏并发布 5.5.3 | `04bae018`, `7146a697` | `main` |
