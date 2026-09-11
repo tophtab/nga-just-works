@@ -1,0 +1,2 @@
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Review profile prompt, evidence identifiers, sample counts, attribution, and unchanged collection/transport boundaries."}
+{"file":".trellis/tasks/09-11-ai-profile-prompt/research/reference-prompt.md","reason":"Check against the user's no-scoring choice and evidence-grounded general black-humor voice; no local builds or CI inspection."}
