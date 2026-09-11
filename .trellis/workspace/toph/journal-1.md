@@ -1319,3 +1319,39 @@ Completed AI settings simplification, HTTP support, automatic model discovery wi
 ### Status
 
 [OK] **Completed**
+
+
+## Session 56: Fix AI profile unavailable activity parsing
+<!-- trellis-session: v=2 fp=a82ab1f8c484fa5b -->
+
+**Date**: 2026-09-11
+**Task**: Fix AI profile unavailable activity parsing
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Fixed repeatable profile author mismatches caused by unavailable NGA activity placeholders.
+
+### Main Changes
+
+- Skip explicit nonblank string denied/error markers on activity rows and nested replies before normal author/content checks; preserve the accepted-item cap and whole-page errors.
+- Add seven parser regressions and one partial-availability loader regression; document the observed wire behavior in the AI summary contract.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1931bc35` | fix(ai): skip unavailable profile activity |
+
+### Testing
+
+- [OK] Four authorized first-page NGA reads established the mixed-availability response shape; bounded offline inspection confirmed valid authors and reply bodies on remaining synthetic rows.
+- [OK] Independent source/spec review and git diff --check passed. No local Gradle, compilation, JVM tests, lint, APK assembly, device work, or model requests were run for this repair.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Push feature/ai-summary and inspect the existing remote preview build; that workflow does not execute the new JVM regressions.
