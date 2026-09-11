@@ -1,0 +1,4 @@
+{"file":".trellis/tasks/09-11-upstream-august-2026-review/prd.md","reason":"Check the requested research outcomes without treating candidate work as approved implementation."}
+{"file":".trellis/tasks/09-11-upstream-august-2026-review/research/overview.md","reason":"Cross-check commit coverage, behavioral summaries and adoption recommendations."}
+{"file":".trellis/tasks/09-11-upstream-august-2026-review/research/json-compatibility.md","reason":"Verified parser differences and limitations that affect whether fixes apply to the current fork."}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"Verify offline-only evidence and avoid unverified protocol or runtime claims."}

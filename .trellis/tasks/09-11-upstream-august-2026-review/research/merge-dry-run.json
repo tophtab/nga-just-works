@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-11",
+  "method": "git merge-tree; object-only simulation, no checkout, index update, or branch update; excludes concurrent uncommitted changes",
+  "results": [
+    {
+      "scenario": "all_august_updates",
+      "local": "8284c703dbde40ab8dcbe0e2dc973d85dc06854a",
+      "incoming": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
+      "base": "5d807617f8058950f7ea81dda405e38fb0cc37ec",
+      "command": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "--name-only",
+        "--no-messages",
+        "8284c703dbde40ab8dcbe0e2dc973d85dc06854a",
+        "22ba3082501bcbb08f52a66d787f970f59c2dda7"
+      ],
+      "exit_code": 1,
+      "candidate_tree": "c4fe6e4436a07c114c479424a3abe6c5edf60f1b",
+      "conflicting_paths": [
+        "build.gradle",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/data/AttachmentData.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/data/HtmlData.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumBasicDecoder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumImageDecoder.java",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/ui/fragment/TopicListSimpleFragment.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/common/ApiConstants.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/contract/ArticleListContract.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/MessageConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/ArticleListPresenter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/viewmodel/ArticleShareViewModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/FunctionUtils.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/HtmlUtils.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/HttpUtil.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/StringUtils.java"
+      ],
+      "stderr": "",
+      "conflicting_path_count": 17
+    },
+    {
+      "scenario": "compatibility_commit_only",
+      "local": "8284c703dbde40ab8dcbe0e2dc973d85dc06854a",
+      "incoming": "2becba2acc3f6c85340424cd09bb03fa7d759db0",
+      "base": "750871b31b533dd74059ade146a084f396020cbe",
+      "command": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "--name-only",
+        "--no-messages",
+        "--merge-base=750871b31b533dd74059ade146a084f396020cbe",
+        "8284c703dbde40ab8dcbe0e2dc973d85dc06854a",
+        "2becba2acc3f6c85340424cd09bb03fa7d759db0"
+      ],
+      "exit_code": 1,
+      "candidate_tree": "947f044b8f76da3d6eeef35afc84ffed74dd12e6",
+      "conflicting_paths": [
+        "gradle/libs.versions.toml",
+        "lib_core/build.gradle",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoParse.kt",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumBasicDecoder.kt",
+        "lib_core/src/test/java/gov/anzong/androidnga/core/ExampleUnitTest.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/ArticleListModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/ArticleListPresenter.java"
+      ],
+      "stderr": "",
+      "conflicting_path_count": 7
+    }
+  ]
+}
