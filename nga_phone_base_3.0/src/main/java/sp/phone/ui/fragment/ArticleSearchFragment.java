@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import gov.anzong.androidnga.R;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.param.ParamKey;
+import sp.phone.param.ArticleListParam;
 
 /**
  * Created by Justwen on 2017/11/22.
@@ -37,10 +38,10 @@ public class ArticleSearchFragment extends ArticleListFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_show_whole_thread) {
+            ArticleListParam full = fullThreadParam();
+            if (full == null) { showToast("尚未确定帖子，请先加载内容"); return true; }
             Intent intentThis = new Intent();
-            intentThis.putExtra("tab", "1");
-            intentThis.putExtra("tid", mRequestParam.tid);
-            intentThis.putExtra(ParamKey.KEY_TITLE,getActivity().getTitle());
+            intentThis.putExtra(ParamKey.KEY_PARAM, full);
             intentThis.setClass(getActivity(), PhoneConfiguration.getInstance().articleActivityClass);
             startActivity(intentThis);
             return true;

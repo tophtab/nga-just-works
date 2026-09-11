@@ -2,6 +2,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
+        android:defaultValue="false"
+        android:title="@string/title_show_with_app_api"
+        android:summary="@string/summary_show_with_app_api"
+        android:key="@string/pref_show_with_app_api"/>
+
+    <SwitchPreference
         android:defaultValue="true"
         android:title="@string/title_show_with_webview"
         android:summary="@string/summary_show_with_webview"

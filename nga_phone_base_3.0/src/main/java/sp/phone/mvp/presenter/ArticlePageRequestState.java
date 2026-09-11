@@ -15,6 +15,7 @@ final class ArticlePageRequestState {
     enum ForegroundLoadDecision {
         START,
         WAIT_FOR_PREFETCH,
+        SHOW_READY_DATA,
         NONE
     }
 
@@ -36,8 +37,11 @@ final class ArticlePageRequestState {
             prefetchPromotedToForeground = true;
             return ForegroundLoadDecision.WAIT_FOR_PREFETCH;
         }
-        if (state == State.FOREGROUND_LOADING || (!explicitRefresh && state == State.READY)) {
+        if (state == State.FOREGROUND_LOADING) {
             return ForegroundLoadDecision.NONE;
+        }
+        if (!explicitRefresh && state == State.READY) {
+            return ForegroundLoadDecision.SHOW_READY_DATA;
         }
         state = State.FOREGROUND_LOADING;
         prefetchPromotedToForeground = false;
@@ -83,6 +87,11 @@ final class ArticlePageRequestState {
         if (state == State.FOREGROUND_LOADING) {
             state = hasData ? State.READY : State.IDLE;
         }
+    }
+
+    void reset() {
+        state = State.IDLE;
+        prefetchPromotedToForeground = false;
     }
 
     State getState() {

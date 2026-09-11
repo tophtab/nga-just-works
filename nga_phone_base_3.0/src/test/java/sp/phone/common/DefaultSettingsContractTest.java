@@ -56,6 +56,25 @@ public class DefaultSettingsContractTest {
         assertMissingPreference(document, "bottom_tab");
     }
 
+    @Test
+    public void appCompatibilityIsAnIndependentDefaultOffLaboratorySetting() throws Exception {
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                .parse(new File("src/main/res/xml/settings_lab.xml"));
+        assertDefault(document, "@string/pref_show_with_app_api", "false");
+        assertDefault(document, "@string/pref_show_with_webview", "true");
+        assertAttribute(document, "@string/pref_show_with_app_api", "android:dependency", "");
+        List<String> keys = new ArrayList<>();
+        NodeList children = document.getDocumentElement().getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            if (children.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                keys.add(((Element) children.item(i)).getAttribute("android:key"));
+            }
+        }
+        assertEquals(Arrays.asList("@string/pref_show_with_app_api", "@string/pref_show_with_webview",
+                "preference_key_ua", "@string/pref_local_debug_switch", "@string/pref_check_in",
+                "@string/pref_auto_check_in"), keys);
+    }
+
     /**
      * 自定义图片域名是「图片域名」选择页内的输入框，不是独立设置行。
      *

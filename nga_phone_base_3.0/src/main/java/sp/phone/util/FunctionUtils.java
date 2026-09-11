@@ -12,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -33,11 +32,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
-import com.justwen.androidnga.core.data.MessageArticlePageInfo;
 
-import java.util.Objects;
 
-import gov.anzong.androidnga.BuildConfig;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.Utils;
 import gov.anzong.androidnga.common.util.NLog;
@@ -45,7 +41,6 @@ import gov.anzong.androidnga.common.util.NgaImageHost;
 import gov.anzong.androidnga.core.data.HtmlData;
 import gov.anzong.androidnga.core.decode.ForumDecoder;
 import sp.phone.common.PhoneConfiguration;
-import sp.phone.common.UserManagerImpl;
 import sp.phone.http.bean.ThreadRowInfo;
 import sp.phone.proxy.ProxyBridge;
 import sp.phone.theme.ThemeManager;
@@ -294,7 +289,7 @@ public class FunctionUtils {
     public static void handleNickName(ThreadRowInfo row, int fgColor,
                                       TextView nickNameTV, String topicOwner, Context context) {
         initStaticStrings(context);
-        String nickName = row.getAuthor();
+        String nickName = StringUtils.isEmpty(row.getAuthor()) ? "未知用户" : row.getAuthor();
         // int now = 0;
         if ("-1".equals(row.getYz()))// nuked
         {
@@ -314,7 +309,7 @@ public class FunctionUtils {
             nickName += "(匿名)";
         }
 
-        if (Objects.equals(row.getAuthor(), topicOwner)) {
+        if (sp.phone.mvp.model.thread.ArticleRowPresentation.isThreadAuthor(row, topicOwner)) {
             nickName += "(楼主)";
         }
 
@@ -391,7 +386,9 @@ public class FunctionUtils {
 
 
     public static boolean isComment(ThreadRowInfo row) {
-
+        if (row.getPresentation() != null) {
+            return row.getPresentation().kind == sp.phone.mvp.model.thread.ArticleRowKind.COMMENT;
+        }
         return row.getAlterinfo() == null && row.getAttachs() == null
                 && row.getComments() == null
                 && row.getJs_escap_avatar() == null && row.getLevel() == null

@@ -29,7 +29,7 @@ public class ArticleListActivity extends BaseActivity {
         Fragment fragment = fm.findFragmentById(android.R.id.content);
 
         if (fragment == null) {
-            if (mRequestParam.searchPost == 0) {
+            if (mRequestParam.searchPost == 0 && mRequestParam.pid == 0) {
                 fragment = new ArticleTabFragment();
             } else {
                 fragment = new ArticleSearchFragment();
@@ -64,10 +64,12 @@ public class ArticleListActivity extends BaseActivity {
                 param.pid = bundle.getInt(ParamKey.KEY_PID, 0);
                 param.authorId = bundle.getInt(ParamKey.KEY_AUTHOR_ID, 0);
                 param.searchPost = bundle.getInt(ParamKey.KEY_SEARCH_POST, 0);
+                param.page = bundle.getInt(ParamKey.KEY_PAGE, 1);
                 param.title = bundle.getString(ParamKey.KEY_TITLE);
             }
         }
 
+        if (param != null) param.page = Math.max(1, param.page);
         return param;
     }
 

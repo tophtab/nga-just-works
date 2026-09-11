@@ -6,76 +6,84 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import gov.anzong.androidnga.R;
-import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.base.widget.TabLayoutEx;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import sp.phone.mvp.model.thread.ArticleAccounts;
+import sp.phone.mvp.model.thread.ArticleCacheEntry;
+import sp.phone.mvp.model.thread.ArticleCacheStore;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
 import sp.phone.ui.adapter.ArticlePagerAdapter;
 
-/**
- * @author yangyihang
- */
+/** Reads one validated cache entry; its tabs always carry actual stored page numbers. */
 public class ArticleCacheActivity extends BaseActivity {
-
-    private ArticlePagerAdapter mPagerAdapter;
-
-    private List<String> mCachePageList = new ArrayList<>();
-
     private ArticleListParam mRequestParam;
+    private ArticleCacheEntry mEntry;
+    private Disposable mCacheLoad;
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         setToolbarEnabled(true);
         mRequestParam = getIntent().getParcelableExtra(ParamKey.KEY_PARAM);
-        setTitle(mRequestParam.title);
         super.onCreate(savedInstanceState);
-        loadCachePageList(String.valueOf(mRequestParam.tid));
-        initViews();
-    }
-
-    private void initViews() {
-        if (mCachePageList.isEmpty()) {
-            ToastUtils.error("加载失败!");
+        if (mRequestParam == null || !mRequestParam.loadCache || mRequestParam.pid != 0
+                || mRequestParam.authorId != 0 || mRequestParam.searchPost != 0) {
+            finish();
             return;
         }
+        try {
+            mEntry = ArticleCacheEntry.from(mRequestParam);
+            if (!ownerMatches()) { finish(); return; }
+        } catch (IllegalArgumentException invalid) { finish(); return; }
+        setTitle(mRequestParam.title);
+        mCacheLoad = Observable.fromCallable(() -> new ArticleCacheStore(getFilesDir())
+                        .pages(mEntry, ArticleAccounts.currentOwner()))
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(pages -> {
+                    if (isFinishing() || isDestroyed() || !ownerMatches()) return;
+                    if (pages.isEmpty()) { failLoad(); return; }
+                    initViews(pages);
+                }, error -> { if (!isFinishing() && !isDestroyed()) failLoad(); });
+    }
 
+    private boolean ownerMatches() {
+        return mEntry != null && (mEntry.owner == null || mEntry.owner.equals(ArticleAccounts.currentOwner()));
+    }
+
+    private void failLoad() { ToastUtils.error("读取缓存失败！"); finish(); }
+
+    private void initViews(List<Integer> pages) {
         setContentView(R.layout.fragment_article_tab);
-
-        mPagerAdapter = new ArticlePagerAdapter(getSupportFragmentManager(), mRequestParam);
-        mPagerAdapter.setPageIndexList(mCachePageList);
-
+        ArticlePagerAdapter adapter = new ArticlePagerAdapter(getSupportFragmentManager(), mRequestParam);
+        List<String> pageNames = new ArrayList<>();
+        for (Integer page : pages) pageNames.add(String.valueOf(page));
+        adapter.setPageIndexList(pageNames);
         findViewById(R.id.fab_post).setVisibility(View.GONE);
         ViewPager viewPager = findViewById(R.id.pager);
-        viewPager.setAdapter(mPagerAdapter);
-
+        viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(2);
+        int selected = adapter.positionOfPage(mRequestParam.page);
+        viewPager.setCurrentItem(Math.max(0, selected), false);
         TabLayoutEx tabLayout = findViewById(R.id.tabs);
-        int count = mCachePageList.size();
+        int count = pages.size();
         tabLayout.setTabOnScreenLimit(count <= 5 ? count : 0);
         tabLayout.setUpWithViewPager(viewPager);
     }
 
-    private void loadCachePageList(String tid) {
-        mCachePageList.clear();
-        String path = ContextUtils.getContext().getFilesDir().getAbsolutePath() + "/cache/" + tid;
-        File[] cacheFiles = new File(path).listFiles();
-        if (cacheFiles != null) {
-            for (File cacheFile : cacheFiles) {
-                if (!cacheFile.getName().contains(tid)) {
-                    String page = cacheFile.getName();
-                    mCachePageList.add(page.replace(".json", ""));
-                }
-            }
-            Collections.sort(mCachePageList);
-        }
-
+    @Override protected void onResume() {
+        super.onResume();
+        if (mEntry != null && !ownerMatches()) finish();
     }
 
-
+    @Override protected void onDestroy() {
+        if (mCacheLoad != null) mCacheLoad.dispose();
+        super.onDestroy();
+    }
 }

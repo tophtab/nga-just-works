@@ -21,7 +21,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,13 +28,14 @@ import gov.anzong.androidnga.BuildConfig;
 import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.base.util.ContextUtils;
-import gov.anzong.androidnga.base.util.DeviceUtils;
 import gov.anzong.androidnga.base.util.PermissionUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
-import gov.anzong.androidnga.common.util.FileUtils;
-import gov.anzong.androidnga.common.util.LogUtils;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import sp.phone.mvp.model.TopicListModel;
+import sp.phone.mvp.model.thread.LegacyArticleCacheArchive;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.ParamKey;
@@ -262,16 +262,27 @@ public class TopicListPresenter extends ViewModel implements LifecycleObserver {
             @Override
             public void onNext(Boolean aBoolean) {
                 if (aBoolean) {
-                    String srcDir = ContextUtils.getContext().getFilesDir().getAbsolutePath() + "/cache/";
-
                     DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
                     String dateStr = dateFormat.format(new Date(System.currentTimeMillis()));
                     String destDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator
                             + BuildConfig.APPLICATION_ID + File.separator + "cache/cache_" + dateStr + ".zip";
 
-                    if (FileUtils.zipFiles(srcDir, destDir)) {
-                        ToastUtils.success("导出成功至" + destDir);
-                    } else {
+                    try {
+                        File archive = new File(destDir);
+                        if (!archive.getParentFile().isDirectory() && !archive.getParentFile().mkdirs()) {
+                            throw new java.io.IOException("Cannot create export directory");
+                        }
+                        int count;
+                        try (java.io.FileOutputStream output = new java.io.FileOutputStream(archive)) {
+                            count = LegacyArticleCacheArchive.exportArchive(ContextUtils.getContext().getFilesDir(), output);
+                        }
+                        if (count == 0) {
+                            archive.delete();
+                            ToastUtils.show("没有旧格式缓存可导出；新格式缓存暂不支持导出");
+                        } else {
+                            ToastUtils.success("旧格式缓存已导出至" + destDir + "；新格式缓存未包含在内");
+                        }
+                    } catch (java.io.IOException error) {
                         ToastUtils.error("导出失败");
                     }
                 } else {
@@ -304,25 +315,20 @@ public class TopicListPresenter extends ViewModel implements LifecycleObserver {
 
     public void importCacheTopic(Uri uri) {
         Context context = ContextUtils.getContext();
-        if (!checkCacheZipFile(context, uri)) {
-            ToastUtils.error("选择非法文件");
+        if (uri == null || !checkCacheZipFile(context, uri)) {
+            ToastUtils.error("请选择旧格式缓存 zip 文件");
             return;
         }
-        ContentResolver cr = context.getContentResolver();
-        String destDir = context.getFilesDir().getAbsolutePath();
-        File tempZipFile = new File(destDir, "temp.zip");
-        try (InputStream is = cr.openInputStream(uri)) {
-            if (is == null) {
-                return;
+        Observable.fromCallable(() -> {
+            try (InputStream input = context.getContentResolver().openInputStream(uri)) {
+                if (input == null) throw new java.io.IOException("Missing archive");
+                return LegacyArticleCacheArchive.importArchive(input, context.getFilesDir());
             }
-            org.apache.commons.io.FileUtils.copyInputStreamToFile(is, tempZipFile);
-            FileUtils.unzip(tempZipFile.getAbsolutePath(), destDir);
-            loadCachePage();
-            ToastUtils.success("导入成功！！");
-        } catch (Exception e) {
-            LogUtils.print(e);
-        }
-        tempZipFile.delete();
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(count -> {
+                    loadCachePage();
+                    ToastUtils.success("旧格式缓存导入成功！");
+                }, error -> ToastUtils.error("导入失败：仅支持旧格式缓存 zip 文件"));
     }
 
     private boolean checkCacheZipFile(Context context, Uri uri) {

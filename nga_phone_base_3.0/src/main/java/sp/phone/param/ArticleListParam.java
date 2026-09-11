@@ -27,6 +27,10 @@ public class ArticleListParam implements Parcelable, Cloneable {
 
     public boolean loadCache;
 
+    public long readerGeneration;
+    public String cacheOwner;
+    public String cacheLayoutId;
+
     public ArticleListParam() {
 
     }
@@ -41,6 +45,9 @@ public class ArticleListParam implements Parcelable, Cloneable {
         content = in.readString();
         topicInfo = in.readString();
         loadCache = in.readInt() == 1;
+        readerGeneration = in.readLong();
+        cacheOwner = in.readString();
+        cacheLayoutId = in.readString();
     }
 
     @Override
@@ -54,6 +61,9 @@ public class ArticleListParam implements Parcelable, Cloneable {
         dest.writeString(content);
         dest.writeString(topicInfo);
         dest.writeInt(loadCache ? 1 : 0);
+        dest.writeLong(readerGeneration);
+        dest.writeString(cacheOwner);
+        dest.writeString(cacheLayoutId);
     }
 
     @Override

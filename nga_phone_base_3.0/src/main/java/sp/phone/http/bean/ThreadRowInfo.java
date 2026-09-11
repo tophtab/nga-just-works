@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import gov.anzong.androidnga.common.base.JavaBean;
+import sp.phone.mvp.model.thread.ArticleRowPresentation;
 
 /**
  * 每一行的内容
@@ -51,6 +52,11 @@ public class ThreadRowInfo implements JavaBean {
     public List<String> mImageUrlList = new ArrayList<>();
 
     public int score;
+
+    private ArticleRowPresentation presentation;
+
+    public ArticleRowPresentation getPresentation() { return presentation; }
+    public void setPresentation(ArticleRowPresentation presentation) { this.presentation = presentation; }
 
     public void addImageUrl(String url) {
         mImageUrlList.add(url);

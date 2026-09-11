@@ -6,6 +6,10 @@ import com.alibaba.fastjson.JSONException;
 import sp.phone.http.bean.ThreadData;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.param.ArticleListParam;
+import sp.phone.mvp.model.thread.ArticleCacheEntry;
+import sp.phone.mvp.model.thread.ArticlePagingInfo;
+import sp.phone.mvp.model.thread.ArticleQuery;
+import sp.phone.mvp.model.thread.ArticleSource;
 
 /** Eligibility and metadata preparation for saving one full online thread page. */
 public final class ArticlePageCache {
@@ -25,9 +29,16 @@ public final class ArticlePageCache {
 
     static ArticleListParam prepare(ArticleListParam param, ThreadData data) {
         if (!isCacheableContext(param) || param.page < 1
-                || data == null || isBlank(data.getRawData())) {
+                || data == null || !data.isContentComplete() || isBlank(data.getRawData())
+                || data.getRowList() == null || data.getRowList().isEmpty()) {
             return null;
         }
+
+        ArticlePagingInfo paging = data.getPagingInfo();
+        if (paging != null && (!paging.query.equals(ArticleQuery.from(param))
+                || paging.resolvedTid != param.tid || paging.effectivePage != param.page
+                || paging.generation != param.readerGeneration
+                || paging.owner == null && paging.source != ArticleSource.READ_PHP)) return null;
 
         ThreadPageInfo loadedInfo = data.getThreadInfo();
         if (loadedInfo != null && loadedInfo.getTid() != param.tid) {
@@ -54,6 +65,12 @@ public final class ArticlePageCache {
         ArticleListParam cacheParam = (ArticleListParam) param.clone();
         if (cacheParam != null) {
             cacheParam.topicInfo = topicInfo;
+            cacheParam.cacheOwner = null;
+            cacheParam.cacheLayoutId = null;
+            if (paging != null && paging.owner != null) {
+                try { ArticleCacheEntry.forPaging(paging).applyTo(cacheParam); }
+                catch (IllegalArgumentException invalid) { return null; }
+            }
         }
         return cacheParam;
     }

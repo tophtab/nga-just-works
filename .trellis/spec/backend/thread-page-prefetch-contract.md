@@ -2,7 +2,9 @@
 
 This contract governs the current-activity, memory-only prefetch path for the
 legacy Android topic pager. It changes when a normal online topic page may be
-requested, but it does not change the `THREAD.PAGE` wire contract.
+requested, while preserving the ordinary `THREAD.PAGE` wire fields. The
+[compatibility reader](./thread-detail-compat-contract.md) adds explicit
+query/source/layout generations; automatic prefetch remains ordinary-only.
 
 ## 1. Scope / Trigger
 
@@ -20,8 +22,18 @@ ADB, installation, or instrumentation.
 ArticlePagePrefetchPlanner.plan(int currentPage, int totalPages)
 ArticleShareViewModel.setPrefetchPages(List<Integer> pages)
 LiveData<List<Integer>> ArticleShareViewModel.getPrefetchPages()
+ArticleReaderSession ArticleShareViewModel.initializeReader(ArticleListParam param)
+LiveData<ArticleReaderState> ArticleShareViewModel.getReaderState()
+int ArticleShareViewModel.adoptPage(ArticleRequestKey key, ThreadData data, boolean foreground)
 void ArticleListContract.Presenter.prefetchPage()
+void ArticlePageRequestState.reset()
+ArticlePageRequestState.ForegroundLoadDecision requestForegroundLoad(boolean explicitRefresh)
 ```
+
+`ForegroundLoadDecision` distinguishes `START`, `WAIT_FOR_PREFETCH`,
+`SHOW_READY_DATA` and `NONE`. Only `SHOW_READY_DATA` permits redisplaying the
+retained response through the success path; `NONE` means a foreground request
+is still active and its loading state must be retained.
 
 Each `ArticleListPresenter` also owns an Android-free page request state with
 these states:
@@ -42,14 +54,25 @@ request.
   `candidatePage < totalPages`. The known final page is never prefetched.
 - Candidate lists are new immutable snapshots published from the
   activity-scoped `ArticleShareViewModel`. Replan both when the selected page
-  changes and when the latest `ThreadData.__ROWS` changes the total page count.
+  changes and when an accepted `ArticleReaderState.paging.totalPages` changes.
+  Ordinary parsing derives that count from its normal page contract; the UI
+  must not reinterpret App or filtered `__ROWS` with a hardcoded divisor.
 - The normal topic `ViewPager` retains two offscreen pages. A child observes
-  candidates only when it is an online, non-search child of
-  `ArticleTabFragment`.
-- Prefetch must call the existing `ArticleListModel.loadPage(...)` path. Do not
-  copy or alter the `/read.php` URL, Cookie/header behavior,
-  `ArticleConvertFactory`, account-aware foreground retry, or
-  `FragmentEvent.DETACH` cancellation.
+  candidates only when it is an online full-query child of
+  `ArticleTabFragment`, its generation matches the reader, its source is
+  `READ_PHP`, and total pages are known. PID, author-filtered, cached, App and
+  unknown-total windows do not publish or consume prefetch candidates.
+- Prefetch calls the ordinary `ArticleListModel.loadPage(...)` entry. With
+  compatibility off this is the legacy Retrofit path. With it on, the
+  `ArticleOperation` overload uses the same scoped ordinary byte/parser path
+  as a foreground ordinary read, with an account/origin snapshot. Preserve
+  `/read.php` fields, normal conversion and `FragmentEvent.DETACH` cancellation;
+  never route a prefetch to `loadScopedPage` with `APP_API`.
+- `ArticleRequestKey` binds query, source, page size, owner, generation and page;
+  a presenter also checks its request sequence and current account/settings.
+  An environment or layout change invalidates READY/in-flight reuse and clears
+  candidates before the new generation publishes work. An offscreen result
+  cannot adopt a changed source, page size or effective page for the reader.
 - A background prefetch does not start refresh UI and its failure does not
   show a Toast, open WebView, rotate accounts, or affect the visible page.
 - Entering a page during prefetch promotes the same request instead of starting
@@ -59,9 +82,15 @@ request.
   and refresh indicator. A later failure is background-only and returns the
   page to idle.
 - A successful prefetched page skips automatic foreground loading. An explicit
-  refresh from `READY` always starts the normal foreground request. An explicit
+  refresh from `READY` always starts a foreground request for the reader's
+  current source. An explicit
   refresh during `PREFETCHING` coalesces with the same in-flight request; if it
   fails while foreground, the normal foreground fallback begins.
+- A repeated load/resume while `FOREGROUND_LOADING` leaves the request and its
+  refresh indicator active. A `NONE` load decision is not proof that retained
+  data is ready: redisplaying it through the success path would move the state
+  to `READY` and allow a duplicate request before the current request finishes.
+  Reuse retained data only when the state actually permits ready-data reuse.
 - Prefetched data lives only in the page Fragment/presenter inside the current
   topic Activity. Do not persist it or share it across topics or activities.
 
@@ -74,13 +103,18 @@ request.
 | Current 3, total 4 | No candidates |
 | Invalid page or total | Empty candidate list |
 | Candidate event reaches cache/search/non-pager page | No prefetch request |
+| Candidate reaches author/App/unknown-total/old-generation page | No prefetch request |
 | Same page is already prefetching or loading | No duplicate request |
+| Old data remains during refresh; another load/resume arrives | Keep foreground loading; do not mark the old data ready |
 | Background prefetch succeeds | Store/render in that offscreen page and enter `READY` |
 | Background prefetch fails | Return to `IDLE`; no user-facing side effect |
 | Page enters during prefetch | Wait for and promote the same request |
 | Promoted prefetch fails while foreground | Start the existing foreground load/error chain |
 | Promoted page pauses before completion | Clear promotion; later failure stays silent |
-| Explicit refresh from ready data | Start a normal foreground request |
+| Explicit refresh from ready ordinary data | Start an ordinary foreground request |
+| Explicit refresh after adopting App source | Start a foreground App request; no prefetch |
+| Environment or source/layout changes | Clear candidates and retire old READY/in-flight identities |
+| Offscreen response reports a different layout/page | Reject adoption; no reader-wide source change |
 | Fragment detaches | Existing RxLifecycle binding cancels the request |
 
 ## 5. Good / Base / Bad Cases
@@ -90,7 +124,7 @@ request.
   that request.
 - **Base**: page 3 of 4 publishes no candidates. Opening page 4 performs the
   ordinary foreground load and receives the newest known replies.
-- **Bad**: prefetch page 5 of 5, create a second Retrofit/parser path, let a
+- **Bad**: prefetch page 5 of 5, duplicate the ordinary model/parser path, let a
   background failure rotate accounts or open WebView, or retain foreground
   promotion after `ON_PAUSE`.
 
@@ -101,11 +135,17 @@ request.
   `currentPage < candidatePage <= currentPage + 2 && candidatePage < totalPages`.
 - Pure request-state tests must cover duplicate suppression, successful reuse,
   background failure, foreground promotion/fallback, pause demotion, ready-data
-  refresh, and explicit refresh coalescing during prefetch.
+  refresh, explicit refresh coalescing during prefetch, and reset on identity
+  retirement. Reader tests must reject old keys after source/page-size/account
+  changes and ensure offscreen results cannot change the layout.
+  Include ready data → explicit refresh → repeated automatic/explicit loads;
+  old retained data cannot complete the refresh or unlock another request.
 - Source-contract tests must pin offscreen limit 2, both replanning triggers,
   immutable LiveData publication, online pager guards, silent prefetch failure,
-  foreground retry/WebView separation, and unchanged model wire/parser/DETACH
-  anchors.
+  foreground retry/WebView separation, ordinary model wire/parser/DETACH
+  anchors and the explicit enabled/scoped transport boundary. Tests should
+  exercise identity invalidation and side-effect budgets rather than merely
+  asserting that a helper name appears in the source.
 - Run `:nga_phone_base_3.0:testDebugUnitTest`,
   `:nga_phone_base_3.0:assembleDebug`, and
   `:nga_phone_base_3.0:lintDebug`; inspect the lint report instead of relying

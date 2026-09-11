@@ -17,6 +17,7 @@ import gov.anzong.androidnga.activity.ArticleCacheActivity;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
+import sp.phone.mvp.model.thread.ArticleAccounts;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
 import sp.phone.util.StringUtils;
@@ -25,6 +26,17 @@ import sp.phone.util.StringUtils;
  * @author Justwen
  */
 public class TopicCacheFragment extends TopicSearchFragment implements View.OnLongClickListener {
+    private String mVisibleOwner;
+
+    @Override public void onResume() {
+        super.onResume();
+        String owner = ArticleAccounts.currentOwner();
+        if (!java.util.Objects.equals(mVisibleOwner, owner)) {
+            mVisibleOwner = owner;
+            if (mAdapter != null) clearData();
+            mPresenter.loadCachePage();
+        }
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -90,7 +102,13 @@ public class TopicCacheFragment extends TopicSearchFragment implements View.OnLo
     public void onClick(View view) {
         ThreadPageInfo info = (ThreadPageInfo) view.getTag();
         ArticleListParam param = new ArticleListParam();
-        param.tid = info.getTid();
+        if (info.getCacheEntry() == null) return;
+        info.getCacheEntry().applyTo(param);
+        if (param.cacheOwner != null && !param.cacheOwner.equals(ArticleAccounts.currentOwner())) {
+            clearData();
+            mPresenter.loadCachePage();
+            return;
+        }
         param.loadCache = true;
         param.title = StringUtils.unEscapeHtml(info.getSubject());
         Intent intent = new Intent();

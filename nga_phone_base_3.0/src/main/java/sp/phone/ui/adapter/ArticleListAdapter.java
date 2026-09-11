@@ -35,6 +35,10 @@ import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.http.bean.ThreadData;
 import sp.phone.http.bean.ThreadRowInfo;
+import sp.phone.mvp.model.thread.ArticleNavigation;
+import sp.phone.mvp.model.thread.ArticleQuote;
+import sp.phone.mvp.model.thread.ArticleSourceText;
+import sp.phone.mvp.model.thread.ArticleRowPresentation;
 import sp.phone.rxjava.BaseSubscriber;
 import sp.phone.rxjava.RxUtils;
 import sp.phone.theme.ThemeManager;
@@ -72,7 +76,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private ThemeManager mThemeManager = ThemeManager.getInstance();
 
-    private LocalWebView[] mLocalWebViews = new LocalWebView[20];
+    private LocalWebView[] mLocalWebViews = new LocalWebView[0];
 
     private String mTopicOwner;
 
@@ -84,7 +88,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             String fromClient = row.getFromClient();
             String clientModel = row.getFromClientModel();
             String deviceInfo;
-            if (!StringUtils.isEmpty(clientModel)) {
+            if (!StringUtils.isEmpty(clientModel) && fromClient != null) {
                 String clientAppCode;
                 if (!fromClient.contains(" ")) {
                     clientAppCode = fromClient;
@@ -192,10 +196,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
             final String quote_regex = "\\[quote\\]([\\s\\S])*\\[/quote\\]";
             final String replay_regex = "\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\] Post by .+?\\[/b\\]";
-            String content = row.getContent();
-            final String name = row.getAuthor();
-            final String uid = String.valueOf(row.getAuthorid());
-            int page = (row.getLou() + 20) / 20;// 以楼数计算page
+            String content = ArticleSourceText.normalizeReplyHeader(row.getContent());
             content = content.replaceAll(quote_regex, "");
             content = content.replaceAll(replay_regex, "");
             final String postTime = row.getPostdate();
@@ -203,31 +204,13 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             content = FunctionUtils.checkContent(content);
             content = StringUtils.unEscapeHtml(content);
             if (row.getPid() != 0 || row.getLou() == 0) {
-                mention = name;
+                mention = ArticleQuote.mention(row);
                 postPrefix.append("[quote][pid=");
-                postPrefix.append(row.getPid());
-                postPrefix.append(',');
-                postPrefix.append(tidStr);
-                postPrefix.append(",");
-                if (page > 0)
-                    postPrefix.append(page);
+                postPrefix.append(ArticleNavigation.quoteAddress(row));
                 postPrefix.append("]");// Topic
                 postPrefix.append("Reply");
-                if (row.getISANONYMOUS()) {// 是匿名的人
-                    postPrefix.append("[/pid] [b]Post by [uid=");
-                    postPrefix.append("-1");
-                    postPrefix.append("]");
-                    postPrefix.append(name);
-                    postPrefix.append("[/uid][color=gray](");
-                    postPrefix.append(row.getLou());
-                    postPrefix.append("楼)[/color] (");
-                } else {
-                    postPrefix.append("[/pid] [b]Post by [uid=");
-                    postPrefix.append(uid);
-                    postPrefix.append("]");
-                    postPrefix.append(name);
-                    postPrefix.append("[/uid] (");
-                }
+                postPrefix.append("[/pid] [b]Post by ")
+                        .append(ArticleQuote.authorMarkup(row)).append(" (");
                 postPrefix.append(postTime);
                 postPrefix.append("):[/b]\n");
                 postPrefix.append(content);
@@ -254,6 +237,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         public void onClick(View view) {
 
             ThreadRowInfo row = (ThreadRowInfo) view.getTag();
+            if (!ArticleRowPresentation.canReply(row)) return;
 
             Observable.create((ObservableOnSubscribe<Intent>) emitter -> {
                 emitter.onNext(getReplyIntent(row));
@@ -281,7 +265,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
             if (row.getISANONYMOUS()) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
-            } else if (row.getAuthor() != null){
+            } else if (ArticleRowPresentation.hasUser(row)) {
                 ARouter.getInstance()
                         .build(ARouterConstants.ACTIVITY_PROFILE)
                         .withString("mode", "uid")
@@ -297,7 +281,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
             ThreadRowInfo row = (ThreadRowInfo) view.getTag();
             if (row.getISANONYMOUS()) {
                 ActivityUtils.showToast("这白痴匿名了,神马都看不到");
-            } else {
+            } else if (ArticleRowPresentation.hasUser(row)) {
                 Bundle bundle = new Bundle();
                 bundle.putString("name", row.getAuthor());
                 bundle.putString("url", FunctionUtils.parseAvatarUrl(row.getJs_escap_avatar()));
@@ -380,7 +364,23 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     public void setData(ThreadData data) {
+        if (mData != data) {
+            releaseWebViews();
+            mLocalWebViews = new LocalWebView[data == null ? 0 : data.getRowList().size()];
+        }
         mData = data;
+    }
+
+    public void releaseWebViews() {
+        for (LocalWebView webView : mLocalWebViews) {
+            if (webView == null) continue;
+            if (webView.getParent() instanceof ViewGroup) {
+                ((ViewGroup) webView.getParent()).removeView(webView);
+            }
+            webView.stopLoading();
+            webView.destroy();
+        }
+        mLocalWebViews = new LocalWebView[0];
     }
 
     public void setSupportListener(View.OnClickListener listener) {
@@ -453,9 +453,23 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         int fgColor = mThemeManager.getAccentColor(mContext);
         FunctionUtils.handleNickName(row, fgColor, holder.nickNameTV, mTopicOwner, mContext);
 
-        holder.floorTv.setText(MessageFormat.format("[{0} 楼]", String.valueOf(row.getLou())));
+        boolean hasFloor = ArticleRowPresentation.hasFloor(row);
+        holder.floorTv.setVisibility(hasFloor ? View.VISIBLE : View.GONE);
+        holder.floorTv.setText(hasFloor ? MessageFormat.format("[{0} 楼]", String.valueOf(row.getLou())) : "");
         holder.postTimeTv.setText(row.getPostdate());
-        holder.scoreTv.setText(MessageFormat.format("{0}", row.getScore()));
+        boolean scoreKnown = row.getPresentation() == null || row.getPresentation().scoreKnown;
+        holder.scoreTv.setVisibility(scoreKnown ? View.VISIBLE : View.GONE);
+        holder.scoreTv.setText(scoreKnown ? String.valueOf(row.getScore()) : "");
+
+        boolean post = ArticleRowPresentation.isPost(row) && !FunctionUtils.isComment(row);
+        boolean addressable = row.getTid() > 0 && (row.getPid() > 0 || hasFloor && row.getLou() == 0);
+        holder.supportBtn.setVisibility(post && addressable ? View.VISIBLE : View.GONE);
+        holder.opposeBtn.setVisibility(post && addressable ? View.VISIBLE : View.GONE);
+        holder.replyBtn.setVisibility(ArticleRowPresentation.canReply(row) ? View.VISIBLE : View.GONE);
+        boolean userKnown = ArticleRowPresentation.hasUser(row);
+        holder.nickNameTV.setEnabled(userKnown);
+        holder.avatarPanel.setEnabled(userKnown);
+        holder.detailTv.setVisibility(userKnown ? View.VISIBLE : View.GONE);
 
         holder.detailTv.setText(String.format("级别：%s   威望：%s   发帖：%s", row.getMemberGroup(), row.getReputation(), row.getPostCount()));
 
@@ -472,7 +486,10 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private void onBindContentView(ArticleViewHolder holder, ThreadRowInfo row, int position) {
         String html = row.getFormattedHtmlData();
-        if (html != null) {
+        boolean hasHtml = !TextUtils.isEmpty(html);
+        holder.contentTextView.setVisibility(hasHtml ? View.GONE : View.VISIBLE);
+        holder.contentContainer.setVisibility(hasHtml ? View.VISIBLE : View.GONE);
+        if (hasHtml) {
             if (mLocalWebViews != null) {
                 LocalWebView localWebView = mLocalWebViews[position];
                 if (localWebView == null) {
@@ -530,7 +547,7 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     @Override
     public int getItemCount() {
-        return mData == null ? 0 : mData.getRowNum();
+        return mData == null ? 0 : mData.getRowList().size();
     }
 
     private void onBindAvatarView(ImageView avatarIv, ThreadRowInfo row) {

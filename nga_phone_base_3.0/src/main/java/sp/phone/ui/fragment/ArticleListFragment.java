@@ -20,7 +20,6 @@ import butterknife.ButterKnife;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.BaseActivity;
 import gov.anzong.androidnga.arouter.ARouterConstants;
-import io.reactivex.annotations.NonNull;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.User;
 import sp.phone.common.UserManagerImpl;
@@ -29,9 +28,9 @@ import sp.phone.http.bean.ThreadRowInfo;
 import sp.phone.mvp.contract.ArticleListContract;
 import sp.phone.mvp.presenter.ArticleListPresenter;
 import sp.phone.mvp.viewmodel.ArticleShareViewModel;
+import sp.phone.mvp.model.thread.*;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
-import sp.phone.rxjava.RxEvent;
 import sp.phone.ui.adapter.ArticleListAdapter;
 import sp.phone.ui.fragment.dialog.BaseDialogFragment;
 import sp.phone.ui.fragment.dialog.PostCommentDialogFragment;
@@ -60,6 +59,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     private ArticleListAdapter mArticleAdapter;
 
     protected ArticleListParam mRequestParam;
+    private ThreadData mDisplayedData;
 
     private OnTopicMenuItemClickListener mMenuItemClickListener = new OnTopicMenuItemClickListener() {
 
@@ -84,7 +84,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
             switch (item.getItemId()) {
                 case R.id.menu_edit:
-                    if (FunctionUtils.isComment(row)) {
+                    if (FunctionUtils.isComment(row) || !ArticleRowPresentation.isPost(row) || !ArticleRowPresentation.hasSource(row)) {
                         showToast(R.string.cannot_eidt_comment);
                         break;
                     } else {
@@ -102,7 +102,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                     mPresenter.postComment(mRequestParam, row);
                     break;
                 case R.id.menu_report:
-                    FunctionUtils.handleReport(row, mRequestParam.tid, getFragmentManager());
+                    FunctionUtils.handleReport(row, row.getTid(), getFragmentManager());
                     break;
                 case R.id.menu_vote:
                     FunctionUtils.createVoteDialog(row, getActivity(), mListView, mToast);
@@ -145,8 +145,15 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         }
 
         private void onPrepareOptionsMenu(Menu menu, ThreadRowInfo row) {
+            boolean userKnown = ArticleRowPresentation.hasUser(row);
+            boolean ordinary = ArticleRowPresentation.isPost(row) && !FunctionUtils.isComment(row);
+            MenuItem commentItem = menu.findItem(R.id.menu_post_comment);
+            if (commentItem != null) commentItem.setVisible(ordinary && ArticleRowPresentation.hasSource(row));
+            MenuItem authorItem = menu.findItem(R.id.menu_show_this_person_only);
+            if (authorItem != null) authorItem.setVisible(ordinary && userKnown);
             MenuItem item = menu.findItem(R.id.menu_ban_this_one);
             if (item != null) {
+                item.setVisible(userKnown);
                 item.setTitle(row.get_isInBlackList() ? R.string.cancel_ban_thisone : R.string.ban_thisone);
             }
 
@@ -158,7 +165,8 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             item = menu.findItem(R.id.menu_edit);
             if (item != null) {
                 User user = UserManagerImpl.getInstance().getActiveUser();
-                if (user == null || !user.getUserId().equals(String.valueOf(row.getAuthorid()))) {
+                if (!ordinary || !userKnown || !ArticleRowPresentation.hasSource(row)
+                        || user == null || !user.getUserId().equals(String.valueOf(row.getAuthorid()))) {
                     item.setVisible(false);
                 }
             }
@@ -186,6 +194,11 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     public void onCreate(Bundle savedInstanceState) {
         NLog.d(TAG, "onCreate");
         mRequestParam = getArguments().getParcelable(ParamKey.KEY_PARAM);
+        mRequestParam.page = Math.max(1, mRequestParam.page);
+        if (!mRequestParam.loadCache) {
+            ArticleReaderSession session = getReaderViewModel().initializeReader(mRequestParam);
+            if (mRequestParam.readerGeneration == 0 || session.isUnbound()) mRequestParam.readerGeneration = session.state().generation;
+        }
         registerRxBus();
 
         initData();
@@ -206,9 +219,26 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             }
         });
 
+        if (!mRequestParam.loadCache) {
+            viewModel.getReaderState().observe(this, state -> {
+                if (getParentFragment() == null && mRequestParam.readerGeneration != state.generation) {
+                    mRequestParam.readerGeneration = state.generation;
+                    mRequestParam.page = state.currentPage;
+                    mDisplayedData = null;
+                    if (mArticleAdapter != null) {
+                        mArticleAdapter.setData(null);
+                        mArticleAdapter.notifyDataSetChanged();
+                    }
+                    if (mPresenter != null) mPresenter.onReaderChanged();
+                }
+                consumePendingAnchor();
+            });
+        }
         if (isOnlineTopicPagerPage()) {
             viewModel.getPrefetchPages().observe(this, pages -> {
-                if (pages != null && pages.contains(mRequestParam.page)) {
+                if (pages != null && pages.contains(mRequestParam.page)
+                        && mRequestParam.readerGeneration == viewModel.getReaderSession().state().generation
+                        && viewModel.getReaderSession().state().canPrefetch()) {
                     mPresenter.prefetchPage();
                 }
             });
@@ -218,16 +248,62 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     private boolean isOnlineTopicPagerPage() {
         return !mRequestParam.loadCache
                 && mRequestParam.searchPost == 0
+                && mRequestParam.pid == 0 && mRequestParam.authorId == 0
                 && getParentFragment() instanceof ArticleTabFragment;
     }
 
-    @Override
-    protected void accept(@NonNull RxEvent rxEvent) {
-        if (rxEvent.what == RxEvent.EVENT_ARTICLE_GO_FLOOR
-                && rxEvent.arg + 1 == mRequestParam.page
-                && rxEvent.obj != null) {
-            mListView.scrollToPosition((Integer) rxEvent.obj);
+    public ArticleShareViewModel getReaderViewModel() {
+        return getActivityViewModelProvider().get(ArticleShareViewModel.class);
+    }
+
+    public int getRequestPage() { return mRequestParam.page; }
+    public long getReaderGeneration() { return mRequestParam.readerGeneration; }
+    public ArticleListParam fullThreadParam() { return ArticleNavigation.showAll(mRequestParam, mDisplayedData); }
+    public boolean hasCompletePage() { return mDisplayedData != null && mDisplayedData.isContentComplete(); }
+    public boolean containsFloor(int floor) {
+        return mDisplayedData != null && new ArticleAnchor(mRequestParam.readerGeneration,
+                mRequestParam.page, null, floor).find(mDisplayedData.getRowList()) >= 0;
+    }
+    public Integer maxKnownFloor() {
+        Integer maximum = null;
+        if (mDisplayedData != null) for (ThreadRowInfo row : mDisplayedData.getRowList()) {
+            if (ArticleRowPresentation.hasFloor(row) && (maximum == null || row.getLou() > maximum)) maximum = row.getLou();
         }
+        return maximum;
+    }
+
+    public ArticleAnchor captureAnchor(long generation, int page) {
+        if (mDisplayedData == null || mDisplayedData.getPagingInfo() == null
+                || mDisplayedData.getPagingInfo().generation != generation || mListView == null
+                || !(mListView.getLayoutManager() instanceof LinearLayoutManager)) return null;
+        int index = ((LinearLayoutManager) mListView.getLayoutManager()).findFirstVisibleItemPosition();
+        if (index < 0 || index >= mDisplayedData.getRowList().size()) return null;
+        ThreadRowInfo row = mDisplayedData.getRowList().get(index);
+        return new ArticleAnchor(generation, page, row.getPid() > 0 ? row.getPid() : null,
+                ArticleRowPresentation.hasFloor(row) ? row.getLou() : null);
+    }
+
+    private void consumePendingAnchor() {
+        if (mRequestParam.loadCache || mDisplayedData == null || mListView == null || !isResumed()) return;
+        ArticleReaderSession reader = getReaderViewModel().getReaderSession();
+        if (mDisplayedData.getPagingInfo() == null || mDisplayedData.getPagingInfo().generation != reader.state().generation) return;
+        ArticleAnchor anchor = reader.consumeAnchor(mRequestParam.readerGeneration, mRequestParam.page);
+        if (anchor == null) return;
+        int index = anchor.find(mDisplayedData.getRowList());
+        if (index >= 0) {
+            ThreadData displayed = mDisplayedData;
+            mListView.post(() -> {
+                if (mListView != null && isResumed() && mDisplayedData == displayed
+                        && mRequestParam.readerGeneration == reader.state().generation
+                        && anchor.find(displayed.getRowList()) == index) mListView.scrollToPosition(index);
+            });
+        } else showToast("未找到目标回复或楼层，阅读位置未能保留");
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        consumePendingAnchor();
+        if (getActivity() != null) getActivity().invalidateOptionsMenu();
     }
 
     @Override
@@ -264,6 +340,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                 loadPage();
             }
         });
+        if (mRequestParam.loadCache) mSwipeRefreshLayout.setEnabled(false);
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -293,26 +370,43 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     @Override
     public void setData(ThreadData data) {
-        ArticleShareViewModel viewModel = getActivityViewModelProvider().get(ArticleShareViewModel.class);
-        if (getActivity() != null && data != null) {
-            viewModel.setReplyCount(data.get__ROWS());
+        if (data == null || mArticleAdapter == null || getActivity() == null) return;
+        ArticleShareViewModel viewModel = getReaderViewModel();
+        if (!mRequestParam.loadCache) {
+            ArticlePagingInfo paging = data.getPagingInfo();
+            if (paging == null || paging.generation != mRequestParam.readerGeneration
+                    || paging.generation != viewModel.getReaderSession().state().generation
+                    || paging.effectivePage != mRequestParam.page) return;
         }
-        if (data != null && getActivity() != null && mRequestParam.title == null) {
+        mDisplayedData = data;
+        if (isResumed() && mRequestParam.title == null && data.getThreadInfo() != null) {
             getActivity().setTitle(data.getThreadInfo().getSubject());
         }
-
-        if (data != null && data.getRowList() != null && !data.getRowList().isEmpty()) {
-            ThreadRowInfo rowInfo = data.getRowList().get(0);
-            if (rowInfo != null && rowInfo.getLou() == 0) {
-                viewModel.setTopicOwner(rowInfo.getAuthor());
-            }
+        if (data.getRowList() != null && !data.getRowList().isEmpty()) {
+            ThreadRowInfo first = data.getRowList().get(0);
+            if (first.getLou() == 0 && ArticleRowPresentation.hasFloor(first)
+                    && ArticleRowPresentation.hasUser(first)) viewModel.setTopicOwner(first.getAuthor());
         }
-        if (mRequestParam.authorId == 0 && mRequestParam.searchPost == 0) {
-            mArticleAdapter.setTopicOwner(viewModel.getTopicOwner().getValue());
-        }
+        mArticleAdapter.setTopicOwner(viewModel.getTopicOwner().getValue());
         mArticleAdapter.setData(data);
         mArticleAdapter.notifyDataSetChanged();
+        if (isResumed()) getActivity().invalidateOptionsMenu();
+        if (mRequestParam.pid > 0 && !mRequestParam.loadCache
+                && viewModel.getReaderSession().state().pendingAnchor == null) {
+            viewModel.getReaderSession().setAnchor(new ArticleAnchor(mRequestParam.readerGeneration,
+                    mRequestParam.page, mRequestParam.pid, null));
+        }
+        consumePendingAnchor();
+    }
 
+    @Override public void onDestroyView() {
+        if (mArticleAdapter != null) mArticleAdapter.releaseWebViews();
+        mDisplayedData = null;
+        mArticleAdapter = null;
+        mListView = null;
+        mLoadingView = null;
+        mSwipeRefreshLayout = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -335,20 +429,19 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     @Override
     public void setRefreshing(boolean refreshing) {
-        if (mSwipeRefreshLayout.isShown()) {
-            mSwipeRefreshLayout.setRefreshing(refreshing);
-        }
+        if (mSwipeRefreshLayout != null) mSwipeRefreshLayout.setRefreshing(refreshing);
     }
 
     @Override
     public boolean isRefreshing() {
-        return mSwipeRefreshLayout.isShown() ? mSwipeRefreshLayout.isRefreshing() : mLoadingView.isShown();
+        return mSwipeRefreshLayout != null && (mSwipeRefreshLayout.isShown()
+                ? mSwipeRefreshLayout.isRefreshing() : mLoadingView != null && mLoadingView.isShown());
     }
 
     @Override
     public void hideLoadingView() {
-        mLoadingView.setVisibility(View.GONE);
-        mSwipeRefreshLayout.setVisibility(View.VISIBLE);
+        if (mLoadingView != null) mLoadingView.setVisibility(View.GONE);
+        if (mSwipeRefreshLayout != null) mSwipeRefreshLayout.setVisibility(View.VISIBLE);
     }
 
     interface OnTopicMenuItemClickListener extends PopupMenu.OnMenuItemClickListener {

@@ -1,0 +1,19 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Active Android/backend contracts and checklist"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Active UI and migration guideline routing"}
+{"file": ".trellis/spec/backend/network-foundation-contract.md", "reason": "Selected identity, new transport boundary, and original versus new operation evidence"}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "NGA origins, charset, account-scoped cache, page image context, no live validation"}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "Keep July THREAD.PAGE facts separate from August App compatibility operation"}
+{"file": ".trellis/spec/backend/thread-page-prefetch-contract.md", "reason": "Preserve background normal-only requests, promotion/demotion, READY, final-page exclusion"}
+{"file": ".trellis/spec/backend/thread-page-cache-contract.md", "reason": "Preserve repaired full-thread eligibility, metadata verbatim/fallback, child snapshot and old raw cache"}
+{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "Executable current-fork App operation, query/source generations, exact navigation and field-wise row contract; maintained alongside implementation"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "JVM/debug gate, every module lint XML, known diagnostic baselines and no default devices; exceeds injection byte cap: read the original file with tools before implementation/review; truncated injection alone is insufficient"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Current floor menu, native body path, cached-page sizing and UI behavior; exceeds injection byte cap: read the original file with tools before implementation/review; truncated injection alone is insufficient"}
+{"file": ".trellis/spec/frontend/android-migration-architecture.md", "reason": "Kotlin new adapters, retained Java/Rx interop boundary and data/source preservation"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Reuse renderer and parsing leaf functions rather than duplicate model/render chains"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Trace byte/DTO/model/cache/UI format and ownership contracts end to end"}
+{"file": ".trellis/tasks/09-11-thread-detail-compat-mode/research/foreground-network-adaptation.md", "reason": "Foreground-only same-account fallback, terminal errors and endpoint-specific byte transport"}
+{"file": ".trellis/tasks/09-11-thread-detail-compat-mode/research/content-reuse-revision.md", "reason": "Selected field-wise upstream reuse evidence: optional opaque fields do not reject readable data; known comments, UID badge, source preservation and incomplete-content behavior"}
+{"file": ".trellis/tasks/09-11-thread-detail-compat-mode/research/query-pagination-revision.md", "reason": "Selected full/PID/author query and variable-pagination evidence; source generation, exact anchors and owner/layout cache identities; read original file with tools if injection truncates it"}
+{"file": ".trellis/tasks/09-11-thread-detail-compat-mode/research/upstream-source.md", "reason": "Pinned reusable Justwen DTO/parser/helper source with full SHA and attribution"}
+{"file": ".trellis/tasks/09-11-thread-detail-compat-mode/scope-revision.md", "reason": "Latest user direction: reuse completed upstream capabilities plus necessary integration; supersedes old exclusions and does not invent undeveloped sidecar protocols"}
+{"file": ".trellis/tasks/09-11-upstream-august-2026-review/research/adoption-map.md", "reason": "Complete August adoption ledger including board icons/media/maintenance so the broader request is not reduced to compatibility mode"}

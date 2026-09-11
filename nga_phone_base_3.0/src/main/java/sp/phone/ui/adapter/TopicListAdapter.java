@@ -64,7 +64,8 @@ public class TopicListAdapter extends BaseAppendableAdapter<ThreadPageInfo, Topi
             return;
         }
         holder.author.setText(entry.getAuthor());
-        holder.lastReply.setText(entry.getLastPoster());
+        holder.lastReply.setText(entry.getCacheSummary() == null ? entry.getLastPoster() : entry.getCacheSummary());
+        holder.num.setVisibility(entry.getCacheEntry() == null ? View.VISIBLE : View.GONE);
         holder.num.setText(String.valueOf(entry.getReplies()));
         holder.title.setText(TopicTitleHelper.handleTitleFormat(entry));
     }

@@ -1,6 +1,9 @@
 package sp.phone.mvp.model.entity;
 
 import androidx.annotation.NonNull;
+import com.alibaba.fastjson.annotation.JSONField;
+import java.util.Objects;
+import sp.phone.mvp.model.thread.ArticleCacheEntry;
 
 import gov.anzong.androidnga.common.base.JavaBean;
 
@@ -39,6 +42,17 @@ public class ThreadPageInfo implements JavaBean {
     private ReplyInfo mReplyInfo;
 
     private String mBoard;
+    private transient ArticleCacheEntry mCacheEntry;
+    private transient String mCacheSummary;
+
+    @JSONField(serialize = false, deserialize = false)
+    public ArticleCacheEntry getCacheEntry() { return mCacheEntry; }
+    @JSONField(serialize = false, deserialize = false)
+    public void setCacheEntry(ArticleCacheEntry entry) { mCacheEntry = entry; }
+    @JSONField(serialize = false, deserialize = false)
+    public String getCacheSummary() { return mCacheSummary; }
+    @JSONField(serialize = false, deserialize = false)
+    public void setCacheSummary(String summary) { mCacheSummary = summary; }
 
     /**
      * 是否是版面镜像
@@ -253,8 +267,11 @@ public class ThreadPageInfo implements JavaBean {
     public boolean equals(Object obj) {
         return obj instanceof ThreadPageInfo
                 && mTid == ((ThreadPageInfo) obj).getTid()
-                && mPid == ((ThreadPageInfo) obj).getPid();
+                && mPid == ((ThreadPageInfo) obj).getPid()
+                && Objects.equals(mCacheEntry, ((ThreadPageInfo) obj).mCacheEntry);
     }
+
+    @Override public int hashCode() { return Objects.hash(mTid, mPid, mCacheEntry); }
 
     @NonNull
     @Override
