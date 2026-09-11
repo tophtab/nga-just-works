@@ -12,7 +12,7 @@
 
 ## 2026-09-12 适配进度
 
-用户批准修订后的兼容模式批次，代码已在独立 worktree `/home/toph/nga-just-works-compat-mode`、分支 `feature/thread-detail-compat-mode` 接入，独立审查与本地验证已完成，等待提交确认。主项目 `main` 不是本批实施位置。
+用户批准修订后的兼容模式批次，代码已在独立 worktree `/home/toph/nga-just-works-compat-mode`、分支 `feature/thread-detail-compat-mode` 接入，独立审查、本地验证与工作提交已完成，本轮归档调研和适配记录。主项目 `main` 不是本批实施位置。
 
 - 本批接入 A03、A06、A07、A08、A09、A10：UID 楼主、HTML 回复引用头、默认关闭的兼容模式（含完整帖、PID、只看某人）、缓存页缺参保护、账号重试保护、明确评论的菜单行为。
 - 兼容模式同时补齐本项目所需的不同页大小、真实楼层定位、来源切换和缓存隔离；继续使用现有原生正文、图床和普通接口预取。

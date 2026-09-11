@@ -64,7 +64,7 @@ fastjson 1 加过滤的 6 种输入也全部成功。原始明细见 [probes/res
 在仓库根目录，将 `PROBE_JARS` 设为上述两个缓存 JAR 的冒号分隔路径、`PROBE_CLASSES` 设为一个临时输出目录后，可运行：
 
 ```bash
-PROBE_DIR=.trellis/tasks/09-11-upstream-august-2026-review/research/probes
+PROBE_DIR=.trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review/research/probes
 javac -cp "$PROBE_JARS" -d "$PROBE_CLASSES" \
   lib_base_common/src/main/java/gov/anzong/androidnga/common/base/JavaBean.java \
   nga_phone_base_3.0/src/main/java/sp/phone/http/bean/TopicListBean.java \

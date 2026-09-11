@@ -16,14 +16,14 @@
 | 上传语法对照 | 2 合成输入 × 3 模式 = 6 组合；5 个解析成功、1 个预期 JSON 拒绝，与报告表格一致 |
 | 研究交叉核对 | `research/cross-check-json-board.md` 未发现图标/JSON 报告的具体事实错误；该轮复核未重复执行 Git/实验 |
 | 文档/结果完整性 | 本任务 Markdown 本地链接全部存在、无尾空格或 TBD；探针结果数量与异常分布符合结论；没有复制 class/JAR 产物 |
-| Trellis 上下文 | `python3 .trellis/scripts/task.py validate .trellis/tasks/09-11-upstream-august-2026-review` 通过；implement 5 条、check 4 条真实规范/研究条目 |
+| Trellis 上下文 | `python3 .trellis/scripts/task.py validate .trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review` 通过；implement 5 条、check 4 条真实规范/研究条目 |
 
 ## Limits and workspace ownership
 
 - 本次没有执行 Android 构建、安装、设备测试或真实 NGA 请求。JSON 实验只证明列出的库与合成输入，不是整个网络或上传功能验证。
 - 新 API 可用性、服务端字段实际含义、具体 UI 故障触发率和性能未验证；报告已区分源码事实与静态风险。
 - 本轮源码检查结束时，另一并行任务已切换到 `fix/thread-menu-cache` 并修改 Activity、Presenter、Fragment、菜单等文件。它们不是本任务改动；本报告没有把这些未提交状态当作 `8284c703` 的内容，也不对它们做清理或提交。
-- 本任务仅写 `.trellis/tasks/09-11-upstream-august-2026-review/`，并在 `/tmp/nga-upstream-august-2026-review` 保存临时参考源码与实验编译产物；没有修改产品源码或共享规范。
+- 本任务仅写 `.trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review/`，并在 `/tmp/nga-upstream-august-2026-review` 保存临时参考源码与实验编译产物；没有修改产品源码或共享规范。
 - PRD 已做最终收敛：确认事实归入 Background，R1—R5 与 AC1—AC5 一一对应，没有阻塞本轮调研的未决问题。后续产品范围属于另一次选择。
 
 ## Follow-up: upstream synchronization feasibility

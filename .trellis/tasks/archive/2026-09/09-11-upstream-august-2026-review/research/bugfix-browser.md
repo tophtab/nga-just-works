@@ -74,7 +74,7 @@
 | 标准、有引号 JSON | 通过 | 通过 | 通过 |
 | `{data:{url:"https://example.invalid/a"}}` | 通过 | `JSONException` | 通过 |
 
-因此，这项是 fastjson2 迁移后的兼容性修补，当前 fork 对这类输入已兼容。若未来升级 JSON 库，必须把这个行为作为迁移夹具，而非此刻单独改上传库或上传流程。实验只证明特定语法容忍，不能证明真实上传可用或所有异常响应可安全处理。复现证据见同任务 [json-compatibility.md](./json-compatibility.md) 和 `research/probes/`，由主会话保存。
+因此，这项是 fastjson2 迁移后的兼容性修补，当前 fork 对这类输入已兼容。若未来升级 JSON 库，必须把这个行为作为迁移夹具，而非此刻单独改上传库或上传流程。实验只证明特定语法容忍，不能证明真实上传可用或所有异常响应可安全处理。复现证据见同任务 [json-compatibility.md](json-compatibility.md) 和 `research/probes/`，由主会话保存。
 
 ### `2becba2a`：增加另一个帖子响应适配器，降低自动转 WebView 的机会
 
@@ -188,7 +188,7 @@
 - [Justwen `2becba2a` 完整提交](https://github.com/Justwen/NGA-CLIENT-VER-OPEN-SOURCE/commit/2becba2acc3f6c85340424cd09bb03fa7d759db0)。本轮读取主会话已导出的完整补丁。
 - [最终上游源码树](https://github.com/Justwen/NGA-CLIENT-VER-OPEN-SOURCE/tree/22ba3082501bcbb08f52a66d787f970f59c2dda7)。上文 `U:` 引用均固定在此 SHA；当前文件引用固定为 `8284c703`，不是移动中的远端分支。
 - [Android Activity.onCreate 契约](https://developer.android.com/reference/android/app/Activity#onCreate(android.os.Bundle))：子类必须调用父类实现；本次未进行设备验证。
-- JSON 行为比较使用缓存的 `com.alibaba:fastjson:1.1.71.android` 与 `com.alibaba.fastjson2:fastjson2:2.0.59.android8`；合成探针和结果见 [json-compatibility.md](./json-compatibility.md) 与 `research/probes/`。未将 NGA 真实响应、账号或上传数据用于夹具。
+- JSON 行为比较使用缓存的 `com.alibaba:fastjson:1.1.71.android` 与 `com.alibaba.fastjson2:fastjson2:2.0.59.android8`；合成探针和结果见 [json-compatibility.md](json-compatibility.md) 与 `research/probes/`。未将 NGA 真实响应、账号或上传数据用于夹具。
 
 ### Related specs
 
