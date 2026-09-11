@@ -19,7 +19,7 @@ The PRD convergence pass is complete: R1–R7 and AC1–AC6 retain the seeded re
 
 ## Checks performed
 
-- `python3 .trellis/scripts/task.py validate .trellis/tasks/09-11-thread-detail-compat-mode`: passed; 16 real entries in each manifest.
+- `python3 .trellis/scripts/task.py validate .trellis/tasks/archive/2026-09/09-11-thread-detail-compat-mode`: passed; 16 real entries in each manifest.
 - Two source specs exceed the automatic per-file injection cap: Android quality and UI component guidelines. Both manifest reasons and implement.md explicitly require implement/check agents to read the original files with tools before working. These warnings are not treated as full context having been injected.
 - Artifact checks: prd.md/design.md/implement.md exist and contain no TBD/planning placeholders; code fences are balanced; local links resolve; all R1–R8/AC1–AC8 entries exist; manifests reference unique existing files.
 - `git diff --check`: passed for tracked changes. All work in this planning continuation is under this task directory; no product diff was created.

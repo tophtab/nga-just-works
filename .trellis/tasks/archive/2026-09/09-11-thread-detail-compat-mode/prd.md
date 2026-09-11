@@ -9,7 +9,7 @@
 - 用户已选择「复用他的代码，再适配到我们现有项目。按你推荐的来」，并明确批准「建立适配任务并继续」。2026-09-12 在修订范围和术语说明后回复「行」，已批准当前兼容模式批次实施。
 - 最新方向为「尽可能能使用上游的，就尽可能使用上游」。此前直接排除 PID/作者查询、非 20 楼分页和所有非空特殊字段的方案已被取代；变更理由见 [scope-revision.md](scope-revision.md)，全月采用目录见 [adoption-map.md](../09-11-upstream-august-2026-review/research/adoption-map.md)。
 - 本轮以源码中已实现的能力为基础，补必要接入适配；不从零扩建上游只有字段声明、没有实现的独立功能。已有主链路、未消费字段和未做真实可用性验证分别表述。
-- 上游来源为 Justwen `2becba2acc3f6c85340424cd09bb03fa7d759db0`；沿用 `.trellis/tasks/09-11-upstream-august-2026-review/research/bugfix-browser.md` 与 `sync-strategy.md`。待复用 DTO/parser/helper 源文已保存到 [upstream-source.md](research/upstream-source.md)。
+- 上游来源为 Justwen `2becba2acc3f6c85340424cd09bb03fa7d759db0`；沿用 `.trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review/research/bugfix-browser.md` 与 `sync-strategy.md`。待复用 DTO/parser/helper 源文已保存到 [upstream-source.md](research/upstream-source.md)。
 - 实现基线为 `5bb92cf033aa32d749d10e1a497bc05173cd2955`，包含 `6203dad5` 菜单/缓存修复。规划开始时位于 fix/thread-menu-cache，核对结束时工作区已位于相同提交的 main，产品树无差异；不能退回缺少修复的旧 main@8284c703。
 - 当前使用 `ArticleConvertFactory → ThreadData/ThreadRowInfo`；共享渲染 seam 位于 `ArticleConvertFactory.java:145`、`:162`，详见 [parser-render-adaptation.md](research/parser-render-adaptation.md)。
 - `ArticleTabFragment.java:98`、`:303` 和 `ArticleListAdapter.java:198` 的分页/引用固定 20 楼；缓存消费者不止 page parser，详见 [pagination-cache-adaptation.md](research/pagination-cache-adaptation.md)。
@@ -98,4 +98,4 @@
 
 - 本功能的请求、渲染、分页、UI 和缓存需共同验收，仍使用已有任务；不重复征询任务创建。
 - 新版 [design.md](design.md) 与 [implement.md](implement.md) 已覆盖查询、分页/定位、逐字段降级与缓存布局；旧方案移到 history/，不再作为实施依据。详细源证据见 [query-pagination-revision.md](research/query-pagination-revision.md) 和 [content-reuse-revision.md](research/content-reuse-revision.md)。
-- 当前为 in_progress，功能、独立审查及本地检查已完成，等待具体提交清单确认；实现位于 `/home/toph/nga-just-works-compat-mode` 的 `feature/thread-detail-compat-mode` 分支。最终范围与 278 项测试、13 模块 lint 结果见 [delivery.md](delivery.md) 和 [独立审查](independent-check.md)。离线验收只能证明本地行为，真实接口覆盖率尚未验证。
+- 功能、独立审查、本地检查与工作提交已完成，本记录随任务归档；实现位于 `/home/toph/nga-just-works-compat-mode` 的 `feature/thread-detail-compat-mode` 分支。最终范围与 278 项测试、13 模块 lint 结果见 [delivery.md](delivery.md) 和 [独立审查](independent-check.md)。离线验收只能证明本地行为，真实接口覆盖率尚未验证。

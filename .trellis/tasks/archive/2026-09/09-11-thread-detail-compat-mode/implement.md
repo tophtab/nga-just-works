@@ -6,7 +6,7 @@
 
 以 `main@5bb92cf033aa32d749d10e1a497bc05173cd2955` 或包含它的更新基线工作，保留 `6203dad5`。本轮开始时分支名为fix/thread-menu-cache，结束核对时由外部工作切到相同提交的main，没有产品树变化。计划分支 `feature/thread-detail-compat-mode`；启动前检查并行WIP，需要时隔离worktree，不动已有AI summary及其他任务。
 
-用户已在修订摘要及术语说明后回复「行」，task start 已完成。auto模式按workflow派发trellis-implement，完成后独立trellis-check；主会话协调、审查和规范更新。每次prompt以`Active task: .trellis/tasks/09-11-thread-detail-compat-mode`开头，明确文件责任、共享工作区与不得覆盖他人修改；子agent不递归派发。
+用户已在修订摘要及术语说明后回复「行」，task start 已完成。auto模式按workflow派发trellis-implement，完成后独立trellis-check；主会话协调、审查和规范更新。每次prompt以`Active task: .trellis/tasks/archive/2026-09/09-11-thread-detail-compat-mode`开头，明确文件责任、共享工作区与不得覆盖他人修改；子agent不递归派发。
 
 manifest中的android-quality-guidelines.md、component-guidelines.md和query-pagination-revision.md超过自动注入上限：implement/check必须用工具分段读取这三份原文件，不能把截断注入当完整上下文。新研究优先于旧研究的范围建议，最终选择以prd/design为准。
 

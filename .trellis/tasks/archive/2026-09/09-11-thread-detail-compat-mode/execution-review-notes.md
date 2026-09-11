@@ -132,3 +132,10 @@ No check result is asserted by this note. The code gate and independent check ar
   [independent-check.md](independent-check.md). The concrete work-commit plan
   is [commit-plan.md](commit-plan.md); user confirmation is still required for
   execution. No commit, push, merge, task archive or journal update has run.
+
+## Authorized completion
+
+- User explicitly approved commit, finish-work and push on 2026-09-12.
+- Work commits: `ade2fd2ea8b7298c5ba6a0f6937073dc659d0bed` (research), `7acc4e23c6ddc07ba4d03a1c3a9ac7f9a3a41adf` (feature).
+- Archive and journal bookkeeping follow those work commits; push targets only the feature branch on origin.
+- Existing feature pushes run Gradle Wrapper validation. The APK workflow is limited to main/version-tag pushes; CI triggers were not changed.

@@ -1,6 +1,6 @@
-# Proposed work commits
+# Completed work commit plan
 
-Implementation, independent review and required local checks are complete. The user approved these work commits, finish-work and pushing the feature branch on 2026-09-12. The two file groups below are unchanged from the presented plan.
+Implementation, independent review and required local checks are complete. The user approved these work commits, finish-work and pushing the feature branch on 2026-09-12. The two file groups below are unchanged from the presented plan. Executed commits: `ade2fd2e` and `7acc4e23`; the file lists preserve their paths at commit time.
 
 - Worktree: `/home/toph/nga-just-works-compat-mode`
 - Branch: `feature/thread-detail-compat-mode`

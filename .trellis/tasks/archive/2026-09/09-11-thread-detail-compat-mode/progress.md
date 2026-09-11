@@ -4,7 +4,7 @@ Final result: implementation and independent review are complete; app/common/cor
 278 tests, debug build and all 13 lint XML checks passed. See
 [delivery.md](delivery.md) and [independent-check.md](independent-check.md).
 The checkpoints below are the implementer's historical progress log. The task
-now awaits the concrete commit plan confirmation.
+has completed both approved work commits and is being archived.
 
 ## Change boundary (before product edits)
 

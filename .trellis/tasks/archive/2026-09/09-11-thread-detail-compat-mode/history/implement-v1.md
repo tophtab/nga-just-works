@@ -9,7 +9,7 @@
 - 启动前复查 dirty paths，保留本任务与先前 August review 文档。干净 root 可建功能分支；出现别的产品 WIP 则用隔离 worktree。现有 AI summary worktree 不动。
 - 本任务是一个端到端功能，以下步骤有依赖，不拆成并行修改 Presenter 的多个任务。
 - Context 校验提示 android-quality-guidelines.md 与 component-guidelines.md 超过单文件注入上限。implement/check agent 都必须用读取工具读原文件（可分段），不能只依赖截断后的自动注入；其他角色上下文照 manifest 加载。
-- auto 模式按 workflow 派发 `trellis-implement`，随后独立 `trellis-check`。prompt 必须以 `Active task: .trellis/tasks/09-11-thread-detail-compat-mode` 开始，声明子 agent 直接实现/检查，不再递归派发；清楚分配文件，提醒保留其他人的修改。
+- auto 模式按 workflow 派发 `trellis-implement`，随后独立 `trellis-check`。prompt 必须以 `Active task: .trellis/tasks/archive/2026-09/09-11-thread-detail-compat-mode` 开始，声明子 agent 直接实现/检查，不再递归派发；清楚分配文件，提醒保留其他人的修改。
 
 ## Ordered checklist
 

@@ -37,7 +37,7 @@ Paths below are relative to the repository. `app/` in the tables means `nga_phon
 
 - `U:lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadAppBean.kt:5` declares nullable `currentPage`, integer `perPage`, `totalPage`, `vrows`, and a result list. Result rows declare `lou`, `pid`, `tid`, `author`, and `isTieTiao` at `:100` onward. Declarations alone do not prove missing-field behavior or all wire semantics.
 - `U:lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoAppParse.kt:25` copies `vrows` into `totalRows`; `:45` copies row IDs and floor unchanged; `:90` derives thread tid from `result[0]`. It never applies `currentPage`, `perPage`, or `totalPage` to navigation and does not guard an empty result before indexing it.
-- There is no supplied real App response fixture. The previous audit, `.trellis/tasks/09-11-upstream-august-2026-review/research/bugfix-browser.md`, already records the upstream test's missing `tem.json` and lack of assertions. Requiring fixtures does not authorize a live request.
+- There is no supplied real App response fixture. The previous audit, `.trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review/research/bugfix-browser.md`, already records the upstream test's missing `tem.json` and lack of assertions. Requiring fixtures does not authorize a live request.
 
 ### 3. Recommended minimal native pagination contract
 
