@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_ai_settings_save"
+        android:icon="@drawable/btn_ic_save"
+        android:title="@string/ai_settings_save_title"
+        app:showAsAction="always" />
+
+</menu>

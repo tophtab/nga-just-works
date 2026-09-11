@@ -33,15 +33,34 @@ public class AiSettingsContractTest {
 
         Document aiSettings = readXml("xml/settings_ai.xml");
         for (String key : new String[]{"ai_settings_endpoint", "ai_settings_api_key",
-                "ai_settings_model", "ai_settings_save", "ai_settings_test", "ai_settings_clear"}) {
+                "ai_settings_model", "ai_settings_test"}) {
             assertNull("AI details must not be expanded on the root page", findPreference(rootSettings, key));
             assertNotNull("Missing AI setting: " + key, findPreference(aiSettings, key));
         }
+        assertEquals(4, aiSettings.getElementsByTagName("Preference").getLength());
+        for (String removed : new String[]{"ai_settings_privacy", "ai_settings_status",
+                "ai_settings_save", "ai_settings_clear"}) {
+            assertNull("Removed AI row: " + removed, findPreference(aiSettings, removed));
+        }
+    }
 
-        Element disclosure = findPreference(aiSettings, "ai_settings_privacy");
-        assertNotNull(disclosure);
-        assertEquals("false", disclosure.getAttribute("android:selectable"));
-        assertEquals("@string/ai_settings_privacy", disclosure.getAttribute("android:summary"));
+    @Test
+    public void saveIsAnAccessibleToolbarActionUsingTheExistingIcon() throws Exception {
+        Document menu = readXml("menu/settings_ai_option_menu.xml");
+        NodeList items = menu.getElementsByTagName("item");
+        assertEquals(1, items.getLength());
+        Element save = (Element) items.item(0);
+        assertEquals("@+id/menu_ai_settings_save", save.getAttribute("android:id"));
+        assertEquals("@drawable/btn_ic_save", save.getAttribute("android:icon"));
+        assertEquals("@string/ai_settings_save_title", save.getAttribute("android:title"));
+        assertEquals("always", save.getAttribute("app:showAsAction"));
+
+        String source = readSource("sp/phone/ui/fragment/SettingsAiFragment.java");
+        assertTrue(source.contains("setHasOptionsMenu(true)"));
+        assertTrue(source.contains("inflater.inflate(R.menu.settings_ai_option_menu, menu)"));
+        assertTrue(source.contains("item.getItemId() == R.id.menu_ai_settings_save"));
+        assertTrue(source.contains("new AiConfig(mEndpoint, currentApiKey(), mModel)"));
+        assertTrue(source.contains("mConfigStore.save(config)"));
     }
 
     @Test
@@ -84,6 +103,33 @@ public class AiSettingsContractTest {
         assertTrue(source.contains("IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS"));
         assertTrue(source.contains("IMPORTANT_FOR_CONTENT_CAPTURE_NO_EXCLUDE_DESCENDANTS"));
         assertTrue(source.contains("IME_FLAG_NO_PERSONALIZED_LEARNING"));
+        assertTrue(source.contains("WindowManager.LayoutParams.FLAG_SECURE"));
+        assertTrue(source.contains("input.setText(\"\")"));
+        assertTrue(source.contains("if (!value.trim().isEmpty())"));
+        assertFalse(source.contains("builder.setMessage("));
+    }
+
+    @Test
+    public void discoveryUsesTheDraftServiceAndDoesNotRewriteTheTextEditor() throws Exception {
+        String source = readSource("sp/phone/ui/fragment/SettingsAiFragment.java");
+        String modelEditor = source.substring(source.indexOf("private void showModelEditor()"),
+                source.indexOf("private void renderModelEditor("));
+        assertTrue(modelEditor.contains("mClient.listModels(mEndpoint, currentApiKey(),"));
+        assertFalse(modelEditor.contains("currentConfiguration()"));
+        assertFalse(modelEditor.contains("mConfigStore.save("));
+        assertTrue(modelEditor.contains("mMainHandler.post("));
+        assertTrue(modelEditor.contains("ListView.CHOICE_MODE_SINGLE"));
+
+        String rendering = source.substring(source.indexOf("private void renderModelEditor("),
+                source.indexOf("private void finishModelDiscovery("));
+        assertFalse("Discovery must preserve the input's text and cursor", rendering.contains("input.setText("));
+        assertFalse("Discovery must preserve the input's text and cursor", rendering.contains("input.setSelection("));
+
+        String completion = source.substring(source.indexOf("private void finishModelDiscovery("),
+                source.indexOf("private void invalidateModelDiscovery()"));
+        assertTrue(completion.contains("mDialog != dialog || !isAdded() || !isResumed()"));
+        assertTrue(completion.contains("mModelEditorState.modelsLoaded(generation, models)"));
+        assertTrue(source.contains("mModelsCall.cancel()"));
     }
 
     private static Document readXml(String path) throws Exception {

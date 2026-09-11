@@ -2,7 +2,7 @@
 <resources>
     <string name="ai_summary_action">AI 总结</string>
     <string name="ai_summary_floor_title">第 %1$d 楼 · AI 总结</string>
-    <string name="ai_summary_profile_title">用户 AI 总结</string>
+    <string name="ai_summary_profile_title">AI查成分</string>
     <string name="ai_summary_loading">正在整理内容并生成总结…</string>
     <string name="ai_summary_close">关闭</string>
     <string name="ai_summary_retry">重试</string>

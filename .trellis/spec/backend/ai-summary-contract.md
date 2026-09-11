@@ -29,6 +29,9 @@ void AiConfigStore.clear() throws AiConfigStore.StorageException;
 Call AiSummaryClient.summarize(AiConfig config, String prompt, AiSummaryClient.Callback callback);
 Call AiSummaryClient.testConnection(AiConfig config, AiSummaryClient.Callback callback);
 // AiSummaryClient.Callback: onSuccess(String text) / onError(AiError error).
+Call AiSummaryClient.listModels(String endpoint, String apiKey,
+        AiSummaryClient.ModelsCallback callback);
+// ModelsCallback: onSuccess(List<String> models) / onError(AiError error).
 // Asynchronous transport callbacks run on the transport thread.
 
 JSONObject SafeJsonParser.parseObject(String json);
@@ -49,8 +52,9 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 
 ### Configuration and secret storage
 
-- Normalize HTTPS endpoints with OkHttp `HttpUrl`. Reject credentials in the
-  URL, query/fragment components, control characters, and non-HTTPS schemes.
+- Normalize HTTP or HTTPS endpoints with OkHttp `HttpUrl`, including LAN hosts
+  and custom ports. Reject credentials in the URL, query/fragment components,
+  control characters, and other schemes.
   Remove trailing slashes and append `/chat/completions` only when absent.
   Preserve the supplied version/custom prefix; never invent `/v1` for a bare
   host. An endpoint ending in `/v1` and its complete `/v1/chat/completions`
@@ -74,8 +78,42 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   learning. It never pre-fills a saved Key or writes it into a `Bundle`.
   Dismiss clears editor text; a successful save or destroying the view clears
   the pending replacement. A blank Key edit retains the current Key.
-- Settings tests use the current draft and do not save it. Edits, saves,
-  clears, and page pause cancel the test and invalidate its callback generation.
+- Connection tests use the current draft and do not save it. Edits, saves,
+  and page pause cancel the test and invalidate its callback generation.
+
+### Settings interaction and model discovery
+
+- There is one AI configuration. The child settings screen contains only API
+  address, API Key, model, and connection-test rows. Do not add instruction,
+  current-configuration, Save, or Clear preferences. The top-right toolbar Save
+  action reuses `btn_ic_save` and has an accessible Save title; it persists the
+  complete draft through the existing store transaction.
+- Keep endpoint copy to a short example. The Key dialog is a direct password
+  input; do not add encryption/local-storage explanations or echo a saved Key.
+  Retain the secret-handling safeguards above. Load/save errors use fixed concise
+  feedback, not a second configuration-status panel.
+- Opening the model editor starts `listModels` with the draft endpoint and
+  pending Key (falling back to the saved Key). It must work before a model is
+  chosen or configuration is saved. Share field validators with `AiConfig`;
+  never create a placeholder model solely to issue the request.
+- Derive the model URL by replacing the normalized endpoint's final
+  `/chat/completions` with `/models`. Preserve custom/version paths, host, and
+  port. Send GET with the configured Bearer Key through the isolated transport.
+  Decode only the compatible `data[].id` shape through the shared bounded JSON
+  decoder. Return validated, trimmed model IDs in provider order with duplicates
+  removed, using an immutable list and a maximum of 1,024 response rows.
+  A wrong `data` shape or any invalid row/ID fails the whole response; do not
+  publish a partial list. An empty `data` array is a successful empty result.
+- Offer a scrollable model list plus `自定义`. Empty or failed discovery keeps
+  manual entry available. Keep a previous successful list only in the current
+  view/session and only while endpoint/Key are unchanged; failed refresh must
+  not discard it. Changing endpoint or Key clears this cache. Do not persist the
+  model list or make opening the editor save any field.
+- Results must not overwrite a model selected or custom text entered while
+  discovery was loading. Discovery has a separate Call and generation from
+  connection tests. Dismissal, another editor, Save, pause, or view destruction
+  cancels it and invalidates callbacks. Only the active resumed dialog may
+  consume the matching generation on the main thread.
 
 ### Model transport
 
@@ -83,6 +121,8 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   provider, encoding converter, interceptors, or body logger. Use
   `CookieJar.NO_COOKIES`, `Authenticator.NONE` for both origin and proxy,
   no cache, and no redirects. Ordinary system proxy routing remains available.
+  Its connection specs include `MODERN_TLS` and `CLEARTEXT`; configured HTTP
+  services use the same isolated path as HTTPS services.
 - Send UTF-8 JSON with `model`, one user `messages` entry, `stream: false`,
   and `max_tokens` (1,024 for summaries; 8 for connection tests). Only the
   configured API receives `Authorization: Bearer <key>`.
@@ -141,6 +181,9 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 
 ### Dialog and cancellation
 
+- Floor menus retain `AI 总结`; the profile menu entry and profile result-dialog
+  title use `AI查成分`. These labels share the existing summary dialog and do not
+  alter either prompt or its bounded input scope.
 - Both floor menus and the profile overflow menu use `AiSummaryDialog` at
   their source page. Provide scrolling, loading/result/error states, retry,
   copy, and close. The result and prompt do not go into saved instance state.
@@ -162,7 +205,12 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 
 | Condition | Required outcome |
 | --- | --- |
-| No saved config | Open AI settings; no input/model network requests |
+| Summary action with no saved config | Open AI settings; no input/model network requests |
+| Model editor opened with draft address/Key and no model | GET the derived `/models` endpoint; no save or summary request |
+| HTTP LAN endpoint or HTTPS endpoint | Normalize and use the configured scheme and port |
+| Model list is empty or discovery fails | Manual entry stays available; retain same-service cached choices |
+| Custom text/selection changes while discovery runs | Preserve the user's draft when results arrive |
+| Model editor dismissed or draft service changes | Cancel/invalidate discovery; stale results cannot reach another editor |
 | Lost key, corrupt record, failed atomic write | Fixed storage error; no plaintext/cache fallback |
 | 401/403 from model | Authentication error |
 | 3xx/404 from model | Address error; do not follow the redirect |
@@ -181,9 +229,15 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   the model prompt. Switching pages cancels the old operation.
 - Base: an unconfigured floor action opens settings and sends no request;
   settings can test a draft before saving it.
+- Good: a user enters `http://192.168.1.10:1234/v1` and a Key, opens the model
+  editor, and selects a fetched ID or a custom one before saving from the toolbar.
+- Base: a compatible service without `/models` still supports a manually entered
+  model, including after a failed refresh of a previously available list.
 - Bad: reading all rows to summarize one floor, carrying the global NGA
   Cookie into a model request, or relying on `persistent=false` alone to keep
   an `EditTextPreference` secret out of Fragment saved state.
+- Bad: requiring a configured model to list models, showing choices from a
+  different endpoint/Key, or replacing custom text with an asynchronous result.
 
 ## 6. Tests Required
 
@@ -193,6 +247,9 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 - `AiResponseParserTest` and `AiSummaryClientTest`: bounded/type-safe parsing,
   special keys, UTF-8, request JSON, auth/Cookie isolation, status errors,
   redirects, 503 request count, explicit cancellation, and transport deadlines.
+  `AiModelsClientTest` additionally covers HTTP production transport, base/full/custom
+  URL derivation, draft-only validation, model ID types/bounds/deduplication,
+  immutable and empty results, and malformed/oversized list responses.
 - `SummaryInputTest`, `SummaryControllerTest`, `ProfileSummaryLoaderTest`,
   and `NgaProfilePageSourceTest`: frozen rows, correct UID, two first-page
   operations, reply text, limited content, date boundaries, charset errors,
@@ -201,6 +258,10 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   `AiSummaryUiContractTest`: settings hierarchy/navigation, Key state-saving
   precautions, both floor menus, loaded-profile visibility, shared dialog,
   and pause/refresh cleanup.
+  Settings coverage also asserts the toolbar save icon and model-editor wiring.
+  `AiModelEditorStateTest` covers model list/custom/error interaction, same-service
+  cache retention/invalidation, late callback rejection, and user-edit preservation
+  during discovery.
 - Follow the Android quality gate for app JVM/build and all-module lint.
   `AiConfigStoreInstrumentedTest` exercises real Keystore/AtomicFile with
   isolated test aliases/files. Build its APK by default, but run it only with
@@ -222,3 +283,12 @@ if (!userCanceled.get()) {
 
 The controller still rejects stale generations after either path. Network
 cancellation alone is not a substitute for UI ownership checks.
+
+```java
+// Wrong: first-time model discovery would fail because no model is selected.
+AiConfig config = currentConfiguration();
+client.listModels(config.getEndpoint(), config.getApiKey(), callback);
+
+// Correct: discovery validates only the fields the operation needs.
+client.listModels(draftEndpoint, currentApiKey(), callback);
+```

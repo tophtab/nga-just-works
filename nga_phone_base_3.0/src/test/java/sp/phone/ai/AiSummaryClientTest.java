@@ -19,6 +19,7 @@ import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +80,29 @@ public class AiSummaryClientTest {
         assertEquals(Boolean.FALSE, body.get("stream"));
         assertEquals(prompt, body.getJSONArray("messages").getJSONObject(0).get("content"));
         assertEquals(1, body.getJSONArray("messages").size());
+        assertTrue(call.request().body().isOneShot());
+        assertEquals(1, server.getRequestCount());
+    }
+
+    @Test
+    public void productionTransportSendsHttpSummariesToTheConfiguredCustomEndpoint() throws Exception {
+        server.enqueue(success("HTTP summary"));
+        AiSummaryClient client = new AiSummaryClient();
+        clients.add(client);
+        AiConfig httpConfig = new AiConfig(server.url("/custom/v2/").toString(), "synthetic-http-key", "http-model");
+        Result result = new Result();
+        Call call = client.summarize(httpConfig, "synthetic floor", result);
+        result.await();
+        assertEquals("HTTP summary", result.text);
+        assertNull(result.error);
+        RecordedRequest request = takeRequest();
+        assertEquals("POST", request.getMethod());
+        assertEquals("/custom/v2/chat/completions", request.getPath());
+        assertEquals(server.getPort(), call.request().url().port());
+        assertEquals("Bearer synthetic-http-key", request.getHeader("Authorization"));
+        JSONObject body = SafeJsonParser.parseObject(request.getBody().readUtf8());
+        assertEquals("http-model", body.get("model"));
+        assertEquals(1024, body.getIntValue("max_tokens"));
         assertTrue(call.request().body().isOneShot());
         assertEquals(1, server.getRequestCount());
     }
@@ -286,7 +310,7 @@ public class AiSummaryClientTest {
     }
 
     @Test
-    public void productionClientHasTlsAndNoCookieAuthenticationLoggingOrRetryHooks() {
+    public void productionClientHasHttpAndTlsWithoutCookieAuthenticationLoggingOrRetryHooks() {
         AiSummaryClient client = new AiSummaryClient();
         clients.add(client);
         OkHttpClient transport = client.transportForTest();
@@ -299,13 +323,11 @@ public class AiSummaryClientTest {
         assertFalse(transport.followSslRedirects());
         assertFalse(transport.retryOnConnectionFailure());
         assertNull(transport.cache());
-        for (ConnectionSpec spec : transport.connectionSpecs()) {
-            assertTrue(spec.isTls());
-        }
-        assertTrue(transport.callTimeoutMillis() > 0);
-        assertTrue(transport.connectTimeoutMillis() > 0);
-        assertTrue(transport.readTimeoutMillis() > 0);
-        assertTrue(transport.writeTimeoutMillis() > 0);
+        assertEquals(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT), transport.connectionSpecs());
+        assertEquals(60_000, transport.callTimeoutMillis());
+        assertEquals(15_000, transport.connectTimeoutMillis());
+        assertEquals(45_000, transport.readTimeoutMillis());
+        assertEquals(15_000, transport.writeTimeoutMillis());
         assertThrows(IllegalArgumentException.class,
                 () -> new AiSummaryClient(HttpUrl.get("http://remote.example.test/v1"), 500));
     }

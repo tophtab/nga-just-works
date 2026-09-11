@@ -2,20 +2,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
-        android:key="ai_settings_privacy"
-        android:persistent="false"
-        android:selectable="false"
-        android:summary="@string/ai_settings_privacy"
-        android:title="@string/ai_settings_privacy_title" />
-
-    <Preference
-        android:key="ai_settings_status"
-        android:persistent="false"
-        android:selectable="false"
-        android:summary="@string/ai_settings_not_configured"
-        android:title="@string/ai_settings_status_title" />
-
-    <Preference
         android:key="ai_settings_endpoint"
         android:persistent="false"
         android:summary="@string/ai_settings_endpoint_hint"
@@ -36,20 +22,9 @@
         android:title="@string/ai_settings_model_title" />
 
     <Preference
-        android:key="ai_settings_save"
-        android:persistent="false"
-        android:summary="@string/ai_settings_save_summary"
-        android:title="@string/ai_settings_save_title" />
-
-    <Preference
         android:key="ai_settings_test"
         android:persistent="false"
         android:summary="@string/ai_settings_test_summary"
         android:title="@string/ai_settings_test_title" />
-
-    <Preference
-        android:key="ai_settings_clear"
-        android:persistent="false"
-        android:title="@string/ai_settings_clear_title" />
 
 </PreferenceScreen>

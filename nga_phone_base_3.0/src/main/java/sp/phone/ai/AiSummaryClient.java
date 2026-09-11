@@ -11,8 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import okhttp3.Authenticator;
 import okhttp3.Call;
@@ -43,12 +45,18 @@ public final class AiSummaryClient {
         void onError(AiError error);
     }
 
-    public AiSummaryClient() {
-        testEndpoint = null;
-        http = createTransport(CALL_TIMEOUT_MILLIS, false);
+    public interface ModelsCallback {
+        /** Runs on the transport thread; UI callers must dispatch to the main thread. */
+        void onSuccess(List<String> models);
+        void onError(AiError error);
     }
 
-    /** Local fake-server seam only. Production configuration always remains HTTPS-only. */
+    public AiSummaryClient() {
+        testEndpoint = null;
+        http = createTransport(CALL_TIMEOUT_MILLIS);
+    }
+
+    /** Local fake-server endpoint and deadline seam only. */
     AiSummaryClient(HttpUrl loopbackEndpoint, long timeoutMillis) {
         if (loopbackEndpoint == null || timeoutMillis <= 0 || timeoutMillis > CALL_TIMEOUT_MILLIS
                 || !("localhost".equals(loopbackEndpoint.host())
@@ -57,7 +65,7 @@ public final class AiSummaryClient {
             throw new IllegalArgumentException("Only a local test endpoint is allowed");
         }
         testEndpoint = loopbackEndpoint;
-        http = createTransport(timeoutMillis, true);
+        http = createTransport(timeoutMillis);
     }
 
     public Call summarize(AiConfig config, String prompt, Callback callback) {
@@ -66,6 +74,31 @@ public final class AiSummaryClient {
 
     public Call testConnection(AiConfig config, Callback callback) {
         return send(config, "请只回复：连接成功", 8, callback);
+    }
+
+    /** Fetches service metadata using the current draft, before a model has been chosen. */
+    public Call listModels(String endpoint, String apiKey, ModelsCallback callback) {
+        HttpUrl completionUrl = HttpUrl.get(AiConfig.normalizeEndpoint(endpoint));
+        String key = AiConfig.normalizeApiKey(apiKey);
+        if (callback == null) {
+            throw new IllegalArgumentException("缺少 AI 请求回调");
+        }
+        if (testEndpoint != null) {
+            completionUrl = HttpUrl.get(AiConfig.normalizeEndpoint(testEndpoint.toString()));
+        }
+        // The normalized URL ends in /chat/completions. Keep the prefix, encoding, and port.
+        int lastSegment = completionUrl.pathSize() - 1;
+        HttpUrl modelsUrl = completionUrl.newBuilder()
+                .removePathSegment(lastSegment)
+                .setPathSegment(lastSegment - 1, "models")
+                .build();
+        Request request = new Request.Builder()
+                .url(modelsUrl)
+                .header("Authorization", "Bearer " + key)
+                .header("Accept", "application/json")
+                .get()
+                .build();
+        return enqueue(request, AiResponseParser::modelIds, callback::onSuccess, callback::onError);
     }
 
     private Call send(AiConfig config, String prompt, int maxTokens, Callback callback) {
@@ -93,23 +126,28 @@ public final class AiSummaryClient {
                 .header("Accept", "application/json")
                 .post(singleUseBody(JSON.toJSONString(payload)))
                 .build();
+        return enqueue(request, AiResponseParser::firstText, callback::onSuccess, callback::onError);
+    }
+
+    private <T> Call enqueue(Request request, ResponseParser<T> parser,
+                             Consumer<T> onSuccess, Consumer<AiError> onError) {
         Call call = http.newCall(request);
         call.enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call failedCall, IOException failure) {
-                callback.onError(classifyFailure(failedCall, failure));
+                onError.accept(classifyFailure(failedCall, failure));
             }
 
             @Override
             public void onResponse(Call responseCall, Response response) {
-                String text = null;
+                T result = null;
                 AiError error = null;
                 try (Response ignored = response) {
                     if (!response.isSuccessful()) {
                         // Error bodies are deliberately neither parsed nor exposed.
                         error = AiError.forHttpStatus(response.code());
                     } else {
-                        text = AiResponseParser.firstText(readBoundedUtf8(response.body()));
+                        result = parser.parse(readBoundedUtf8(response.body()));
                     }
                 } catch (AiResponseParser.InvalidResponseException invalid) {
                     error = invalid.error;
@@ -127,9 +165,9 @@ public final class AiSummaryClient {
                     error = AiError.CANCELLED;
                 }
                 if (error == null) {
-                    callback.onSuccess(text);
+                    onSuccess.accept(result);
                 } else {
-                    callback.onError(error);
+                    onError.accept(error);
                 }
             }
         });
@@ -190,7 +228,7 @@ public final class AiSummaryClient {
         };
     }
 
-    private static OkHttpClient createTransport(long timeoutMillis, boolean allowLoopbackHttp) {
+    private static OkHttpClient createTransport(long timeoutMillis) {
         return new OkHttpClient.Builder()
                 .cookieJar(CookieJar.NO_COOKIES)
                 .authenticator(Authenticator.NONE)
@@ -200,9 +238,7 @@ public final class AiSummaryClient {
                 .followRedirects(false)
                 .followSslRedirects(false)
                 .retryOnConnectionFailure(false)
-                .connectionSpecs(allowLoopbackHttp
-                        ? Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT)
-                        : Collections.singletonList(ConnectionSpec.MODERN_TLS))
+                .connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT))
                 .connectTimeout(Math.min(timeoutMillis, 15_000), TimeUnit.MILLISECONDS)
                 .readTimeout(Math.min(timeoutMillis, 45_000), TimeUnit.MILLISECONDS)
                 .writeTimeout(Math.min(timeoutMillis, 15_000), TimeUnit.MILLISECONDS)
@@ -212,6 +248,10 @@ public final class AiSummaryClient {
 
     OkHttpClient transportForTest() {
         return http;
+    }
+
+    private interface ResponseParser<T> {
+        T parse(String json) throws AiResponseParser.InvalidResponseException;
     }
 
     private static final class ResponseTooLargeException extends IOException {

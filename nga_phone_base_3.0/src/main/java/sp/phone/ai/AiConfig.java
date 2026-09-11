@@ -18,17 +18,11 @@ public final class AiConfig {
 
     public AiConfig(String endpoint, String apiKey, String model) {
         this.endpoint = normalizeEndpoint(endpoint);
-        this.apiKey = requiredText(apiKey, MAX_KEY_LENGTH, "请输入有效的 API Key");
-        for (int i = 0; i < this.apiKey.length(); i++) {
-            char character = this.apiKey.charAt(i);
-            if (character <= 0x20 || character >= 0x7f) {
-                throw new IllegalArgumentException("API Key 不能包含空白或非 ASCII 字符");
-            }
-        }
-        this.model = requiredText(model, MAX_MODEL_LENGTH, "请输入有效的模型名称");
+        this.apiKey = normalizeApiKey(apiKey);
+        this.model = normalizeModel(model);
     }
 
-    /** The complete HTTPS Chat Completions URL, including any user-supplied version prefix. */
+    /** The complete HTTP(S) Chat Completions URL, including any user-supplied version prefix. */
     public String getEndpoint() {
         return endpoint;
     }
@@ -46,23 +40,24 @@ public final class AiConfig {
         return "AiConfig{configured}";
     }
 
-    private static String normalizeEndpoint(String value) {
-        String candidate = requiredText(value, MAX_ENDPOINT_LENGTH, "请输入有效的 HTTPS API 服务地址");
+    static String normalizeEndpoint(String value) {
+        String candidate = requiredText(value, MAX_ENDPOINT_LENGTH, "请输入有效的 API 服务地址");
         final URI uri;
         try {
             uri = new URI(candidate);
         } catch (URISyntaxException ignored) {
             // URI exceptions include their input. Never retain one as a cause.
-            throw new IllegalArgumentException("请输入有效的 HTTPS API 服务地址");
+            throw new IllegalArgumentException("请输入有效的 API 服务地址");
         }
-        if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.isOpaque()
+        if (!("https".equalsIgnoreCase(uri.getScheme()) || "http".equalsIgnoreCase(uri.getScheme()))
+                || uri.isOpaque()
                 || uri.getRawAuthority() == null || uri.getRawUserInfo() != null
                 || uri.getRawQuery() != null || uri.getRawFragment() != null) {
-            throw new IllegalArgumentException("API 地址必须使用 HTTPS，且不能包含账号、查询参数或片段");
+            throw new IllegalArgumentException("API 地址必须使用 HTTP 或 HTTPS，且不能包含账号、查询参数或片段");
         }
         HttpUrl url = HttpUrl.parse(candidate);
-        if (url == null || !url.isHttps() || !url.username().isEmpty() || !url.password().isEmpty()) {
-            throw new IllegalArgumentException("请输入有效的 HTTPS API 服务地址");
+        if (url == null || !url.username().isEmpty() || !url.password().isEmpty()) {
+            throw new IllegalArgumentException("请输入有效的 API 服务地址");
         }
         String path = url.encodedPath();
         while (path.endsWith("/")) {
@@ -76,6 +71,21 @@ public final class AiConfig {
             throw new IllegalArgumentException("API 服务地址过长");
         }
         return normalized;
+    }
+
+    static String normalizeApiKey(String value) {
+        String normalized = requiredText(value, MAX_KEY_LENGTH, "请输入有效的 API Key");
+        for (int i = 0; i < normalized.length(); i++) {
+            char character = normalized.charAt(i);
+            if (character <= 0x20 || character >= 0x7f) {
+                throw new IllegalArgumentException("API Key 不能包含空白或非 ASCII 字符");
+            }
+        }
+        return normalized;
+    }
+
+    static String normalizeModel(String value) {
+        return requiredText(value, MAX_MODEL_LENGTH, "请输入有效的模型名称");
     }
 
     private static String requiredText(String value, int maxLength, String error) {

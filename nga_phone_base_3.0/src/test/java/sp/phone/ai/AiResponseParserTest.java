@@ -10,6 +10,10 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class AiResponseParserTest {
     @Test
     public void takesOnlyTheFirstTextChoice() throws Exception {
@@ -74,6 +78,75 @@ public class AiResponseParserTest {
         assertEquals(AiError.RESPONSE_TOO_LARGE, error.error);
         assertThrows(IllegalArgumentException.class,
                 () -> SafeJsonParser.parseObject("{\"value\":\"" + "x".repeat(512 * 1024) + "\"}"));
+    }
+
+    @Test
+    public void modelIdsUseConfigurationRulesAndPreserveProviderOrderWithoutDuplicates() throws Exception {
+        String body = "{\"object\":\"list\",\"data\":[{\"id\":\" vendor/model-v2 \"},"
+                + "{\"id\":\"示例模型\"},{\"id\":\"vendor/model-v2\"},{\"id\":\"a:model\"}]}";
+        List<String> models = AiResponseParser.modelIds(body);
+        assertEquals(Arrays.asList("vendor/model-v2", "示例模型", "a:model"), models);
+        for (String model : models) {
+            assertEquals(model, new AiConfig("http://localhost/v1", "synthetic-key", model).getModel());
+        }
+        assertThrows(UnsupportedOperationException.class, () -> models.add("extra"));
+        assertThrows(UnsupportedOperationException.class, () -> models.set(0, "replacement"));
+    }
+
+    @Test
+    public void emptyModelListsAreValidAndImmutable() throws Exception {
+        List<String> models = AiResponseParser.modelIds("{\"data\":[]}");
+        assertEquals(Collections.emptyList(), models);
+        assertThrows(UnsupportedOperationException.class, () -> models.add("extra"));
+    }
+
+    @Test
+    public void malformedModelListsAndInvalidIdsFailAsAWholeWithoutLeakingValues() {
+        String[] invalid = {null, "", "{}", "[]", "null", "{\"data\":null}", "{\"data\":{}}",
+                "{\"data\":\"[]\"}", "{\"data\":[null]}", "{\"data\":[\"model\"]}",
+                "{\"data\":[{}]}", "{\"data\":[{\"id\":null}]}", "{\"data\":[{\"id\":3}]}",
+                "{\"data\":[{\"id\":true}]}", "{\"data\":[{\"id\":[\"model\"]}]}",
+                "{\"data\":[{\"id\":{\"name\":\"model\"}}]}", modelResponse(""), modelResponse("   "),
+                modelResponse("synthetic-private-model\n"), modelResponse("model\u007f"),
+                modelResponse("model\u0085"), modelResponse("x".repeat(257)),
+                "{\"data\":[{\"id\":\"valid-first-model\"},{\"id\":false}]}"};
+        for (String body : invalid) {
+            AiResponseParser.InvalidResponseException error = assertThrows(AiResponseParser.InvalidResponseException.class,
+                    () -> AiResponseParser.modelIds(body));
+            assertEquals(AiError.INVALID_RESPONSE, error.error);
+            assertEquals("Invalid AI response", error.getMessage());
+            assertNull(error.getCause());
+            assertFalse(error.toString().contains("synthetic-private-model"));
+        }
+    }
+
+    @Test
+    public void modelListsUseTheSharedBoundedDecoderAndIgnoreSpecialKeys() throws Exception {
+        String compatible = "{data:[{id:\"safe\",\"@type\":\"not.a.LoadableClass\",\"$ref\":\"$\"}],"
+                + "\"@type\":\"not.a.LoadableClass\",\"$ref\":\"$\"}";
+        assertEquals(Collections.singletonList("safe"), AiResponseParser.modelIds(compatible));
+        String[] invalid = {"{", "<html>synthetic-private-value</html>", "{} {}",
+                "{'data':[]}", "{/* comment */\"data\":[]}",
+                "{\"data\":[],\"ignored\":" + "[".repeat(60) + "0" + "]".repeat(60) + "}",
+                "{\"data\":[],\"ignored\":\"" + "x".repeat(512 * 1024) + "\"}"};
+        for (String body : invalid) {
+            assertEquals(AiError.INVALID_RESPONSE, assertThrows(AiResponseParser.InvalidResponseException.class,
+                    () -> AiResponseParser.modelIds(body)).error);
+        }
+    }
+
+    @Test
+    public void modelRowCountIsBoundedBeforeDeduplication() throws Exception {
+        String row = "{\"id\":\"same-model\"}";
+        String accepted = "{\"data\":[" + (row + ",").repeat(AiResponseParser.MAX_MODELS - 1) + row + "]}";
+        assertEquals(Collections.singletonList("same-model"), AiResponseParser.modelIds(accepted));
+        String oversized = "{\"data\":[" + (row + ",").repeat(AiResponseParser.MAX_MODELS) + row + "]}";
+        assertEquals(AiError.RESPONSE_TOO_LARGE, assertThrows(AiResponseParser.InvalidResponseException.class,
+                () -> AiResponseParser.modelIds(oversized)).error);
+    }
+
+    static String modelResponse(String model) {
+        return "{\"data\":[{\"id\":" + JSON.toJSONString(model) + "}]}";
     }
 
     static String response(String content) {
