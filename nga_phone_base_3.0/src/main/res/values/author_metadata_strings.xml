@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="article_author_posts">发帖：%1$s</string>
+    <string name="article_author_location_posts">"IP 属地：%1$s   发帖：%2$s"</string>
+</resources>

@@ -55,6 +55,22 @@ class TopicPagePrefetchContractTest {
     }
 
     @Test
+    fun retainedPageLoadingTipsUseThePageViewLifecycle() {
+        assertTrue(listFragmentSource.contains("public LoadingLayout mLoadingView;"))
+        val viewCreation = listFragmentSource
+            .substringAfter("public void onViewCreated(View view, Bundle savedInstanceState)")
+            .substringBefore("public void onDestroyView()")
+        val viewBinding = viewCreation.indexOf("ButterKnife.bind(this, view)")
+        val tipBinding = viewCreation.indexOf(
+            "mLoadingView.bindToLifecycle(getViewLifecycleOwner())",
+        )
+
+        // Retained prefetch pages are attached too; the widget needs this owner's RESUMED state.
+        assertTrue(viewBinding >= 0)
+        assertTrue(tipBinding > viewBinding)
+    }
+
+    @Test
     fun onlyNormalOnlinePagerChildrenObserveCandidates() {
         assertTrue(listFragmentSource.contains("getParentFragment() instanceof ArticleTabFragment"))
         assertTrue(listFragmentSource.contains("!mRequestParam.loadCache"))

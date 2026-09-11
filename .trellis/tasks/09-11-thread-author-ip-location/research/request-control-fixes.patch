@@ -1,0 +1,89 @@
+diff --git a/nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationRepositoryTest.java b/nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationRepositoryTest.java
+--- a/nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationRepositoryTest.java
++++ b/nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationRepositoryTest.java
+@@ -256,6 +256,44 @@
+     }
+
+     @Test
++    public void queuedRateLimitPauseIsPersistedAfterConsumerInvalidation() {
++        Harness h = new Harness();
++        h.deliver(page(41), true);
++        long retry = h.now + 2 * AuthorLocationCache.RATE_LIMIT_MILLIS;
++        h.networkCompleted(ProfileLocationResult.rateLimit(retry));
++        h.repository.invalidateSession();
++        h.drainCompletions();
++
++        Harness recreated = new Harness(h.persisted);
++        recreated.now = retry - 1;
++        recreated.deliver(page(42), true);
++        assertTrue(recreated.transport.authors().isEmpty());
++        recreated.now++;
++        assertTrue(recreated.transport.authors().isEmpty());
++        recreated.deliver(page(43), true);
++        assertEquals(Collections.singletonList(42), recreated.transport.authors());
++    }
++
++    @Test
++    public void queuedRejectionIsBoundToTheOriginalCredentialsForTheSameUid() {
++        Harness h = new Harness();
++        ProfileSession original = h.session;
++        h.deliver(page(41), true);
++        h.networkCompleted(ProfileLocationResult.rejected());
++        h.repository.invalidateSession();
++        h.session = ProfileSession.create("https://bbs.nga.cn", "7", "replacement-fixture", "Fixture UA");
++        h.deliver(page(42), true);
++        h.drainCompletions();
++        assertEquals(Arrays.asList(41, 42), h.transport.authors());
++        assertEquals(h.session, h.transport.active.session);
++        h.complete(ProfileLocationResult.success("上海"));
++
++        h.session = original;
++        h.deliver(page(43), true);
++        assertEquals(Arrays.asList(41, 42), h.transport.authors());
++    }
++
++    @Test
+     public void sharedConsumersDetachIndependentlyAndUnsentOrphanAuthorsAreRemoved() {
+         Harness h = new Harness();
+         Page destroyed = h.deliver(page(41, 42), true);
+diff --git a/nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationTransportTest.java b/nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationTransportTest.java
+--- a/nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationTransportTest.java
++++ b/nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationTransportTest.java
+@@ -53,6 +53,7 @@
+     public void actualClientDoesNotRepeat503WithZeroRetryAfterAndPreserves429Metadata() throws Exception {
+         for (int status : new int[]{503, 429}) {
+             AtomicInteger requests = new AtomicInteger();
++            String retryAfter = status == 429 ? "3600" : "0";
+             try (ServerSocket server = new ServerSocket(0, 2, InetAddress.getByAddress(new byte[]{127, 0, 0, 1}))) {
+                 Thread responder = new Thread(() -> {
+                     try {
+@@ -66,9 +67,13 @@
+                                     // Consume the local fixture's request without retaining/logging headers.
+                                 }
+                                 int code = requests.incrementAndGet() == 1 ? status : 200;
++                                byte[] body = (code == 503 ? "/*$js$*/<html>验证</html>" : "")
++                                        .getBytes(Charset.forName("GBK"));
+                                 String wire = "HTTP/1.1 " + code + " Offline fixture\r\n"
+-                                        + "Retry-After: 0\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
++                                        + "Retry-After: " + retryAfter + "\r\n"
++                                        + "Content-Length: " + body.length + "\r\nConnection: close\r\n\r\n";
+                                 socket.getOutputStream().write(wire.getBytes(StandardCharsets.US_ASCII));
++                                socket.getOutputStream().write(body);
+                             }
+                         }
+                     } catch (IOException ignored) {
+@@ -84,9 +89,12 @@
+                     assertEquals(status, response.code());
+                     assertEquals(1, requests.get());
+                     if (status == 429) {
+-                        assertEquals("0", response.header("Retry-After"));
+-                        assertEquals(now + AuthorLocationCache.RATE_LIMIT_MILLIS,
++                        assertEquals("3600", response.header("Retry-After"));
++                        assertEquals(now + 3_600_000L,
+                                 ProfileLocationTransport.readResponse(response, 42, now).retryAt);
++                    } else {
++                        assertEquals(ProfileLocationResult.Kind.SESSION_REJECTED,
++                                ProfileLocationTransport.readResponse(response, 42, now).kind);
+                     }
+                 } finally {
+                     client.connectionPool().evictAll();

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loading_tip_thread_page_top">在线帖子中，点击当前页码可回到本页顶部。</string>
+    <string name="loading_tip_thread_page_refresh">在线帖子中，长按当前页码可刷新本页。</string>
+    <string name="loading_tip_thread_reply_refresh">在线帖子中，长按右下角的回复按钮可刷新本页。</string>
+    <string name="loading_tip_board_compose_refresh">板块主题列表中，长按右下角的发帖按钮可回到顶部并刷新列表。</string>
+    <string name="loading_tip_topic_title_refresh">在线主题列表中，点击顶部标题可回到顶部并刷新列表。</string>
+    <string name="loading_tip_favorite_board_reorder">首页“收藏板块”里，长按板块卡片即可拖动排序。</string>
+    <string name="loading_tip_home_tab_reorder">首页顶部的分类标签可以长按拖动；“收藏板块”固定在最前。</string>
+    <string name="loading_tip_emoticon_reorder">表情面板中，长按表情即可在当前分类内拖动排序。</string>
+    <string name="loading_tip_ai_settings">AI 的服务地址、API Key 和模型可在“设置 → AI 设置”中配置。</string>
+</resources>

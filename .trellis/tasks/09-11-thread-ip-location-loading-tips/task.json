@@ -1,0 +1,35 @@
+{
+  "id": "thread-ip-location-loading-tips",
+  "name": "thread-ip-location-loading-tips",
+  "title": "帖子 IP 属地与加载使用提示",
+  "description": "在帖子作者信息中用 IP 属地替代级别和威望，并在加载界面展示真实可用的功能提示",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-11",
+  "completedAt": null,
+  "branch": "feature/thread-ip-location-loading-tips",
+  "base_branch": "main",
+  "worktree_path": "/home/toph/nga-just-works-thread-ip-location-loading-tips",
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "09-11-thread-author-ip-location",
+    "09-11-loading-usage-tips"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "implementation_approval": {
+      "date": "2026-09-12",
+      "user_message": "确认吧。开干吧。",
+      "scope": "Reviewed mechanism-driven IP enrichment and loading usage tips; no fixed request interval."
+    }
+  }
+}

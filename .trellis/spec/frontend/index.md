@@ -15,7 +15,8 @@ This directory contains guidelines for frontend development. Fill in each file w
 | Guide | Description | Status |
 |-------|-------------|--------|
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Component Guidelines](./component-guidelines.md) | Restored Justwen UI, favorite/home-tab drag order, emoticons, direct FABs, floor menus, and cached-page tabs | Active |
+| [Component Guidelines](./component-guidelines.md) | Restored Justwen UI, favorite/home-tab drag order, emoticons, direct FABs, floor metadata/menus, and cached-page tabs | Active |
+| [Loading Usage Tips](./loading-usage-tips-contract.md) | Foreground initial-loading occasions, accurate local copy, view lifecycle, and conditional AI settings guidance | Active |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
 | [State Management](./state-management.md) | App-wide favorite membership/order and drag transactions | Active |
 | [Android Migration Architecture](./android-migration-architecture.md) | Kotlin + Compose + MVVM target, preservation matrix, migration gates, and branch model | Active |

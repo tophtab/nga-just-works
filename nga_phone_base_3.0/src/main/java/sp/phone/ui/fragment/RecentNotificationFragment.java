@@ -78,6 +78,7 @@ public class RecentNotificationFragment extends BaseRxFragment implements OnHttp
         mRefreshLayout.setVisibility(View.GONE);
 
         mLoadingLayout = view.findViewById(R.id.loading_view);
+        mLoadingLayout.bindToLifecycle(getViewLifecycleOwner());
         mEmptyLayout = view.findViewById(R.id.empty_view);
 
         RecyclerViewEx listView = view.findViewById(R.id.list);

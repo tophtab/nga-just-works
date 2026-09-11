@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.android.arouter.launcher.ARouter;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,6 +36,7 @@ import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.http.bean.ThreadData;
 import sp.phone.http.bean.ThreadRowInfo;
+import sp.phone.profile.AuthorLocationRepository;
 import sp.phone.rxjava.BaseSubscriber;
 import sp.phone.rxjava.RxUtils;
 import sp.phone.theme.ThemeManager;
@@ -67,6 +69,20 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     private FragmentManager mFragmentManager;
 
     private ThreadData mData;
+
+    private long mDataGeneration;
+
+    private AuthorLocationRepository.Snapshot mAuthorLocations = AuthorLocationRepository.Snapshot.empty();
+
+    private static final class AuthorMetadataPayload {
+        final long generation;
+        final int author;
+
+        AuthorMetadataPayload(long generation, int author) {
+            this.generation = generation;
+            this.author = author;
+        }
+    }
 
     private LayoutInflater mLayoutInflater;
 
@@ -381,6 +397,23 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     public void setData(ThreadData data) {
         mData = data;
+        mDataGeneration++;
+        mAuthorLocations = AuthorLocationRepository.Snapshot.empty();
+    }
+
+    public void setAuthorLocations(AuthorLocationRepository.Snapshot locations) {
+        mAuthorLocations = locations;
+        if (mData == null || mData.getRowList() == null) {
+            return;
+        }
+        for (int position = 0; position < mData.getRowList().size(); position++) {
+            ThreadRowInfo row = mData.getRowList().get(position);
+            if (row != null) {
+                // Also bind clears after session invalidation. An old snapshot's epoch may
+                // already be invalid, so comparing its value would miss text still on screen.
+                notifyItemChanged(position, new AuthorMetadataPayload(mDataGeneration, row.getAuthorid()));
+            }
+        }
     }
 
     public void setSupportListener(View.OnClickListener listener) {
@@ -427,6 +460,24 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     @Override
+    public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position,
+                                 @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty() && payloads.stream().allMatch(AuthorMetadataPayload.class::isInstance)) {
+            ThreadRowInfo row = mData.getRowList().get(position);
+            for (Object item : payloads) {
+                AuthorMetadataPayload payload = (AuthorMetadataPayload) item;
+                if (row != null && payload.generation == mDataGeneration
+                        && payload.author == row.getAuthorid() && holder.nickNameTV.getTag() == row) {
+                    onBindAuthorDetail(holder, row);
+                    break;
+                }
+            }
+            return;
+        }
+        onBindViewHolder(holder, position);
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull final ArticleViewHolder holder, final int position) {
 
         final ThreadRowInfo row = mData.getRowList().get(position);
@@ -457,7 +508,17 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         holder.postTimeTv.setText(row.getPostdate());
         holder.scoreTv.setText(MessageFormat.format("{0}", row.getScore()));
 
-        holder.detailTv.setText(String.format("级别：%s   威望：%s   发帖：%s", row.getMemberGroup(), row.getReputation(), row.getPostCount()));
+        onBindAuthorDetail(holder, row);
+
+    }
+
+    private void onBindAuthorDetail(ArticleViewHolder holder, ThreadRowInfo row) {
+        String location = row.getISANONYMOUS() ? null
+                : mAuthorLocations.location(row.getAuthorid(), System.currentTimeMillis());
+        String posts = TextUtils.isEmpty(row.getPostCount()) ? "N/A" : row.getPostCount();
+        holder.detailTv.setText(location == null
+                ? mContext.getString(R.string.article_author_posts, posts)
+                : mContext.getString(R.string.article_author_location_posts, location, posts));
 
     }
 

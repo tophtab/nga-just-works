@@ -39,6 +39,7 @@ import sp.phone.ui.adapter.ReplyListAdapter;
 import sp.phone.ui.adapter.TopicListAdapter;
 import sp.phone.util.ARouterUtils;
 import sp.phone.util.StringUtils;
+import sp.phone.view.LoadingLayout;
 import sp.phone.view.RecyclerViewEx;
 
 public class TopicSearchFragment extends BaseFragment implements View.OnClickListener {
@@ -60,7 +61,7 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
     public RecyclerViewEx mListView;
 
     @BindView(R.id.loading_view)
-    public View mLoadingView;
+    public LoadingLayout mLoadingView;
 
     protected TopicListPresenter mPresenter;
 
@@ -123,6 +124,7 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
+        mLoadingView.bindToLifecycle(getViewLifecycleOwner());
         ((BaseActivity) getActivity()).setupToolbar();
 
         if (mRequestParam.searchPost > 0) {

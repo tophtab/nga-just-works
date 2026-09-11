@@ -1,0 +1,32 @@
+{
+  "id": "thread-author-ip-location",
+  "name": "thread-author-ip-location",
+  "title": "帖子作者 IP 属地与请求控制",
+  "description": "移除帖子楼层中的级别和威望，展示站方公开 IP 属地并限制新增查询频率",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-11",
+  "completedAt": null,
+  "branch": "feature/thread-ip-location-loading-tips",
+  "base_branch": "main",
+  "worktree_path": "/home/toph/nga-just-works-thread-ip-location-loading-tips",
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "09-11-thread-ip-location-loading-tips",
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "implementation_approval": {
+      "date": "2026-09-12",
+      "user_message": "确认吧。开干吧。",
+      "scope": "Reviewed mechanism-driven IP enrichment and loading usage tips; no fixed request interval."
+    }
+  }
+}

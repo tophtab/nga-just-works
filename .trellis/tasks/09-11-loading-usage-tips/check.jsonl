@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Existing author/body rendering, themes, direct FABs, and current-page gestures"}
+{"file": ".trellis/spec/backend/thread-page-prefetch-contract.md", "reason": "Resumed current page versus retained/background prefetch behavior"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Offline Android validation gate and lint report requirements"}
+{"file": ".trellis/tasks/09-11-loading-usage-tips/research/loading-surfaces-and-copy.md", "reason": "Verified surfaces, lifecycle rules, Chinese strings, and conditional AI availability"}

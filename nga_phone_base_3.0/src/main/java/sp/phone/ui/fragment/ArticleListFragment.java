@@ -17,6 +17,7 @@ import com.alibaba.android.arouter.launcher.ARouter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import gov.anzong.androidnga.R;
 import gov.anzong.androidnga.activity.BaseActivity;
 import gov.anzong.androidnga.arouter.ARouterConstants;
@@ -31,6 +32,7 @@ import sp.phone.mvp.presenter.ArticleListPresenter;
 import sp.phone.mvp.viewmodel.ArticleShareViewModel;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
+import sp.phone.profile.AuthorLocationService;
 import sp.phone.rxjava.RxEvent;
 import sp.phone.ui.adapter.ArticleListAdapter;
 import sp.phone.ui.fragment.dialog.BaseDialogFragment;
@@ -39,6 +41,7 @@ import sp.phone.util.ActivityUtils;
 import sp.phone.util.FunctionUtils;
 import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.util.StringUtils;
+import sp.phone.view.LoadingLayout;
 import sp.phone.view.RecyclerViewEx;
 
 /*
@@ -52,12 +55,18 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     public RecyclerViewEx mListView;
 
     @BindView(R.id.loading_view)
-    public View mLoadingView;
+    public LoadingLayout mLoadingView;
 
     @BindView(R.id.swipe_refresh)
     public SwipeRefreshLayout mSwipeRefreshLayout;
 
     private ArticleListAdapter mArticleAdapter;
+
+    private AuthorLocationService.Page mAuthorLocations;
+
+    private Unbinder mViewBindings;
+
+    private ThreadData mDeliveredData;
 
     protected ArticleListParam mRequestParam;
 
@@ -225,7 +234,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     protected void accept(@NonNull RxEvent rxEvent) {
         if (rxEvent.what == RxEvent.EVENT_ARTICLE_GO_FLOOR
                 && rxEvent.arg + 1 == mRequestParam.page
-                && rxEvent.obj != null) {
+                && rxEvent.obj != null && mListView != null) {
             mListView.scrollToPosition((Integer) rxEvent.obj);
         }
     }
@@ -243,7 +252,8 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ButterKnife.bind(this, view);
+        mViewBindings = ButterKnife.bind(this, view);
+        mLoadingView.bindToLifecycle(getViewLifecycleOwner());
         ((BaseActivity) getActivity()).setupToolbar();
         mArticleAdapter = new ArticleListAdapter(getContext(),getActivity().getSupportFragmentManager());
         mArticleAdapter.setSupportListener(mSupportListener);
@@ -252,6 +262,8 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         mListView.setLayoutManager(new LinearLayoutManager(getContext()));
         mListView.setItemViewCacheSize(20);
         mListView.setAdapter(mArticleAdapter);
+        mAuthorLocations = AuthorLocationService.bind(getContext(), getViewLifecycleOwner(),
+                mArticleAdapter::setAuthorLocations);
         mListView.setEmptyView(view.findViewById(R.id.empty_view));
         applyReplyFabClearance();
         if (PhoneConfiguration.getInstance().useSolidColorBackground()) {
@@ -264,7 +276,26 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                 loadPage();
             }
         });
+        if (mDeliveredData != null) {
+            renderData(mDeliveredData);
+            // Recreating a retained view reuses location cache only; it is not page delivery.
+            mAuthorLocations.deliver(mDeliveredData, false);
+            hideLoadingView();
+        }
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (mAuthorLocations != null) {
+            mAuthorLocations.close();
+            mAuthorLocations = null;
+        }
+        mListView.setAdapter(null);
+        mArticleAdapter = null;
+        mViewBindings.unbind();
+        mViewBindings = null;
+        super.onDestroyView();
     }
 
     private void applyReplyFabClearance() {
@@ -293,11 +324,22 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     @Override
     public void setData(ThreadData data) {
+        mDeliveredData = data;
+        if (getView() == null || mArticleAdapter == null || mAuthorLocations == null) {
+            return;
+        }
+        renderData(data);
+        // Both normal and offscreen-prefetched success reach this seam independently.
+        mAuthorLocations.deliver(data, !mRequestParam.loadCache);
+    }
+
+    private void renderData(ThreadData data) {
         ArticleShareViewModel viewModel = getActivityViewModelProvider().get(ArticleShareViewModel.class);
         if (getActivity() != null && data != null) {
             viewModel.setReplyCount(data.get__ROWS());
         }
-        if (data != null && getActivity() != null && mRequestParam.title == null) {
+        if (data != null && data.getThreadInfo() != null
+                && getActivity() != null && mRequestParam.title == null) {
             getActivity().setTitle(data.getThreadInfo().getSubject());
         }
 
@@ -335,20 +377,23 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     @Override
     public void setRefreshing(boolean refreshing) {
-        if (mSwipeRefreshLayout.isShown()) {
+        if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isShown()) {
             mSwipeRefreshLayout.setRefreshing(refreshing);
         }
     }
 
     @Override
     public boolean isRefreshing() {
-        return mSwipeRefreshLayout.isShown() ? mSwipeRefreshLayout.isRefreshing() : mLoadingView.isShown();
+        return mSwipeRefreshLayout != null && (mSwipeRefreshLayout.isShown()
+                ? mSwipeRefreshLayout.isRefreshing() : mLoadingView.isShown());
     }
 
     @Override
     public void hideLoadingView() {
-        mLoadingView.setVisibility(View.GONE);
-        mSwipeRefreshLayout.setVisibility(View.VISIBLE);
+        if (mLoadingView != null && mSwipeRefreshLayout != null) {
+            mLoadingView.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     interface OnTopicMenuItemClickListener extends PopupMenu.OnMenuItemClickListener {

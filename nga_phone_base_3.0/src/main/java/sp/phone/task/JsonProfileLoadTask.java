@@ -1,6 +1,5 @@
 package sp.phone.task;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import org.reactivestreams.Subscription;
@@ -21,16 +20,14 @@ import io.reactivex.schedulers.Schedulers;
 import sp.phone.http.bean.AdminForumsData;
 import sp.phone.http.bean.ProfileData;
 import sp.phone.http.bean.ReputationData;
+import sp.phone.profile.ProfileEnvelopeParser;
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 import com.justwen.androidnga.base.network.retrofit.RetrofitService;
 import sp.phone.rxjava.BaseSubscriber;
 import sp.phone.util.ActivityUtils;
-import gov.anzong.androidnga.common.util.NLog;
 import sp.phone.util.StringUtils;
 
 public class JsonProfileLoadTask {
-
-    private static final String TAG = JsonProfileLoadTask.class.getSimpleName();
 
     private OnHttpCallBack<ProfileData> mCallback;
 
@@ -88,14 +85,7 @@ public class JsonProfileLoadTask {
             mErrorMsg = ContextUtils.getString(R.string.network_error);
             throw new IllegalStateException();
         }
-        js = js.replaceAll("window.script_muti_get_var_store=", "");
-        if (js.contains("/*error fill content")) {
-            js = js.substring(0, js.indexOf("/*error fill content"))
-                    .replaceAll("\"content\":\\+(\\d+),", "\"content\":\"+$1\",");
-        }
-        js = js.replaceAll("\"subject\":\\+(\\d+),", "\"subject\":\"+$1\",")
-                .replaceAll("/\\*\\$js\\$\\*/", "");
-        JSONObject obj = JSON.parseObject(js);
+        JSONObject obj = ProfileEnvelopeParser.parse(js);
         if (obj.containsKey("data")) {
             JSONObject dataObj = obj.getJSONObject("data");
             try {
@@ -105,8 +95,8 @@ public class JsonProfileLoadTask {
                 buildReputation(ret, dataObj.getJSONObject("reputation"));
                 buildAdminForums(ret, dataObj.getJSONObject("adminForums"));
                 return ret;
-            } catch (Exception e) {
-                NLog.e(TAG, "can not parse :\n" + js);
+            } catch (Exception ignored) {
+                // A failed profile parse must not expose the raw profile in logs.
             }
         }
         obj = obj.getJSONObject("error");

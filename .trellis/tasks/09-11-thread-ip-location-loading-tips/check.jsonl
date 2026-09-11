@@ -1,0 +1,10 @@
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Offline Android validation gate and lint report requirements"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Existing author/body rendering, themes, direct FABs, and current-page gestures"}
+{"file": ".trellis/spec/backend/thread-page-prefetch-contract.md", "reason": "Resumed current page versus retained/background prefetch behavior"}
+{"file": ".trellis/spec/backend/thread-page-cache-contract.md", "reason": "Saved-page format and offline eligibility remain compatible"}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Origin/account boundaries, bounded responses, failure stops, privacy, and offline validation"}
+{"file": ".trellis/tasks/09-11-thread-author-ip-location/research/ip-location-source-and-cache.md", "reason": "Source evidence and bounded location-query adaptation"}
+{"file": ".trellis/tasks/09-11-loading-usage-tips/research/loading-surfaces-and-copy.md", "reason": "Loading surfaces, verified copy, and AI feature dependency"}
+{"file": ".trellis/tasks/09-11-thread-author-ip-location/research/prefetch-request-volume.md", "reason": "Mechanism-driven request counts; no fixed page batch or ordinary-request interval"}
+{"file": ".trellis/tasks/09-11-thread-ip-location-loading-tips/research/author-location-prefetch-integration.md", "reason": "Common normal/prefetch delivery seam and page/view/account lifetime guards"}
+{"file": ".trellis/tasks/09-11-thread-author-ip-location/research/implementation-review.md", "reason": "Verify all reproduced supplemental-request findings remain fixed in the final integration"}
