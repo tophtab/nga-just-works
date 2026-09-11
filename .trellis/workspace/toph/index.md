@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 57
-- **Last Active**: 2026-09-11
+- **Total Sessions**: 61
+- **Last Active**: 2026-09-12
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1253 | Active |
+| `journal-1.md` | ~1295 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 61 | 2026-09-12 | 上游八月调研与帖子详情兼容模式适配 | `ade2fd2ea8b7298c5ba6a0f6937073dc659d0bed`, `7acc4e23c6ddc07ba4d03a1c3a9ac7f9a3a41adf` | `feature/thread-detail-compat-mode` |
 | 57 | 2026-09-11 | 帖子楼层菜单与缓存交互修复 | `6203dad5a9d02891cc7a554f11a18fc4ed9251d8` | `fix/thread-menu-cache` |
 | 53 | 2026-09-06 | 完成私有签名存储与双分支收尾 | `87961c47072ef8d60ba67de747c8a2ebc1f0e884` | `main` |
 | 50 | 2026-09-06 | 验证本地发布签名并同步双分支知识 | `a8917aaefb002844c106746948122081f60730f0` | `main` |
