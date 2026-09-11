@@ -1297,3 +1297,25 @@ Synced the AI summary branch with main and replaced expiring Actions artifacts w
 ### Next Steps
 
 - 本次签名存储与文档收尾已完成。本轮没有新增构建、设备操作或 CI 监控；日志随本轮提交推送同步。
+
+
+## Session 55: 精简 AI 设置并更新个人资料入口
+<!-- trellis-session: v=2 fp=35619367c263b361 -->
+
+**Date**: 2026-09-11
+**Task**: 精简 AI 设置并更新个人资料入口
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Completed AI settings simplification, HTTP support, automatic model discovery with custom fallback, toolbar Save, and the profile-only AI查成分 label. Final source/resource review and 122 focused tests passed. The app unit run passed 259 of 263 tests; four unchanged release-workflow assertions remain baseline failures. Authorized LAN model discovery returned 149 models and the short connection test succeeded; credentials were not persisted. User stopped further local builds and authorized commit, finish-work, and feature-branch push. Full evidence is in the archived task validation.md.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `39b27d49` | feat(ai): simplify settings and discover models |
+
+### Status
+
+[OK] **Completed**
