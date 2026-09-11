@@ -1355,3 +1355,39 @@ Fixed repeatable profile author mismatches caused by unavailable NGA activity pl
 ### Next Steps
 
 - Push feature/ai-summary and inspect the existing remote preview build; that workflow does not execute the new JVM regressions.
+
+
+## Session 58: Refine profile composition prompt and evidence
+<!-- trellis-session: v=2 fp=69f4a250acecd887 -->
+
+**Date**: 2026-09-11
+**Task**: Refine profile composition prompt and evidence
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Changed AI profile analysis to qualitative interests, expressed views, discussion style, evidence, synthesis, and tags with general deadpan black humor.
+
+### Main Changes
+
+- Adapted the user-supplied analyzer reference to five concise plain-text sections without scoring, using evidence-grounded humor and explicit quote/context attribution.
+- Added retained sample counts and independent topic/reply evidence identifiers; extended existing tests for capped immutable inputs, null entries, partial samples, and content isolation.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9cf43a82` | feat(ai): improve profile composition prompt |
+
+### Testing
+
+- [OK] Independent source/spec review and git diff --check passed. Updated JVM tests were not executed; model output and tone adherence were not evaluated.
+- [OK] No local builds, Gradle, compilation, lint, APK/device work, credential access, model/NGA calls, or remote CI queries were performed.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Push feature/ai-summary without querying or waiting for remote build results, per the user instruction.

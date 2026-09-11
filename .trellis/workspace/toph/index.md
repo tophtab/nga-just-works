@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 56
+- **Total Sessions**: 58
 - **Last Active**: 2026-09-11
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1357 | Active |
+| `journal-1.md` | ~1393 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 58 | 2026-09-11 | Refine profile composition prompt and evidence | `9cf43a82` | `feature/ai-summary` |
 | 56 | 2026-09-11 | Fix AI profile unavailable activity parsing | `1931bc35` | `feature/ai-summary` |
 | 55 | 2026-09-11 | 精简 AI 设置并更新个人资料入口 | `39b27d49` | `feature/ai-summary` |
 | 54 | 2026-09-06 | 完成私有签名存储与双分支收尾 | `f1cdf4b96675af3ed470743e0b4a366ba33cab43` | `feature/ai-summary` |
