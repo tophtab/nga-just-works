@@ -1217,3 +1217,37 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Next Steps
 
 - 本次签名存储与文档收尾已完成。本轮没有新增构建、设备操作或 CI 监控；日志随本轮提交推送同步。
+
+
+## Session 57: 帖子楼层菜单与缓存交互修复
+<!-- trellis-session: v=2 fp=099a334debb29d87 -->
+
+**Date**: 2026-09-11
+**Task**: 帖子楼层菜单与缓存交互修复
+**Branch**: `fix/thread-menu-cache`
+
+### Summary
+
+精简楼层更多菜单，对齐缓存帖页码布局，修复从最近被喷显示全部后无法缓存的问题；完成独立复核与离线验证。
+
+### Main Changes
+
+- 删除楼层菜单的支持、反对、收藏、查看签名；保留独立投票和整帖收藏。
+- 缓存页码按实际缓存数在 1 至 5 页时等分；完整帖子从已加载数据补齐缓存描述，保存当前页参数快照。
+- 复核修正全角空格和不换行空格的空白判定，并更新前端规范与 THREAD.PAGE 缓存契约。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6203dad5a9d02891cc7a554f11a18fc4ed9251d8` | fix(android): simplify floor menus and repair thread caching |
+
+### Testing
+
+- [OK] 应用 assembleDebug、155 项 JVM 单测和 lint 全部通过，其中 14 项缓存回归覆盖描述读回、页码快照及 Unicode 空白。
+- [OK] 13 个模块的 lint XML 均为零 Error/Fatal；全仓单测诊断仅有 lib_bu_statistics 缺 JUnit 与 lib_module_debug KAPT 示例这两项已记录的历史失败。
+- [OK] 未运行设备或真实 NGA 测试，符合项目策略；代码与任务已分别提交，用户已授权推送修复分支。
+
+### Status
+
+[OK] **Completed**
