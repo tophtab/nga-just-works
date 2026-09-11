@@ -56,6 +56,8 @@ public class ArticleCacheActivity extends BaseActivity {
         viewPager.setAdapter(mPagerAdapter);
 
         TabLayoutEx tabLayout = findViewById(R.id.tabs);
+        int count = mCachePageList.size();
+        tabLayout.setTabOnScreenLimit(count <= 5 ? count : 0);
         tabLayout.setUpWithViewPager(viewPager);
     }
 

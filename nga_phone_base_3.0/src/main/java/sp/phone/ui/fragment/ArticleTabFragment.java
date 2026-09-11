@@ -36,6 +36,7 @@ import gov.anzong.androidnga.base.widget.LongPressRepeater;
 import gov.anzong.androidnga.base.widget.TabLayoutEx;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.UserManagerImpl;
+import sp.phone.mvp.presenter.ArticlePageCache;
 import sp.phone.mvp.viewmodel.ArticlePagePrefetchPlanner;
 import sp.phone.mvp.viewmodel.ArticleShareViewModel;
 import sp.phone.param.ArticleListParam;
@@ -294,9 +295,8 @@ public class ArticleTabFragment extends BaseRxFragment {
             menu.findItem(R.id.menu_daymode).setVisible(false);
         }
 
-        if (mRequestParam.pid != 0 || mRequestParam.topicInfo == null) {
-            menu.findItem(R.id.menu_download).setVisible(false);
-        }
+        menu.findItem(R.id.menu_download)
+                .setVisible(ArticlePageCache.isCacheableContext(mRequestParam));
         super.onPrepareOptionsMenu(menu);
     }
 

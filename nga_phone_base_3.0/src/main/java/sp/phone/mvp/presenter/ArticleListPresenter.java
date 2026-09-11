@@ -368,7 +368,12 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
     @Override
     public void cachePage() {
         if (mThreadData != null) {
-            mBaseModel.cachePage(mRequestParam, mThreadData.getRawData());
+            ArticleListParam cacheParam = ArticlePageCache.prepare(mRequestParam, mThreadData);
+            if (cacheParam == null) {
+                ToastUtils.error("缓存失败！");
+                return;
+            }
+            mBaseModel.cachePage(cacheParam, mThreadData.getRawData());
         }
     }
 

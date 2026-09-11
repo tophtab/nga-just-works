@@ -32,7 +32,6 @@ import sp.phone.mvp.viewmodel.ArticleShareViewModel;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
 import sp.phone.rxjava.RxEvent;
-import sp.phone.task.BookmarkTask;
 import sp.phone.ui.adapter.ArticleListAdapter;
 import sp.phone.ui.fragment.dialog.BaseDialogFragment;
 import sp.phone.ui.fragment.dialog.PostCommentDialogFragment;
@@ -105,14 +104,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                 case R.id.menu_report:
                     FunctionUtils.handleReport(row, mRequestParam.tid, getFragmentManager());
                     break;
-                case R.id.menu_signature:
-                    if (row.getISANONYMOUS()) {
-                        ActivityUtils.showToast("这白痴匿名了,神马都看不到");
-                    } else {
-                        FunctionUtils.Create_Signature_Dialog(row, getActivity(),
-                                mListView);
-                    }
-                    break;
                 case R.id.menu_vote:
                     FunctionUtils.createVoteDialog(row, getActivity(), mListView, mToast);
                     break;
@@ -127,15 +118,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                             .withInt(ParamKey.KEY_AUTHOR_ID, row.getAuthorid())
                             .withInt("fromreplyactivity", 1)
                             .navigation();
-                    break;
-                case R.id.menu_support:
-                    mPresenter.postSupportTask(tid, row.getPid());
-                    break;
-                case R.id.menu_oppose:
-                    mPresenter.postOpposeTask(tid, row.getPid());
-                    break;
-                case R.id.menu_favorite:
-                    BookmarkTask.execute(tidStr, pidStr);
                     break;
                 default:
                     break;

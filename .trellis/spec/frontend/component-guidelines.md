@@ -444,6 +444,37 @@ reorderableTabRange = 1..tabs.lastIndex
   top. Do not add a bottom-tab preference or a second bottom-tab layout.
 - Retain the existing pull-to-refresh behavior.
 
+## Article floor overflow menus
+
+- Neither `article_list_context_menu.xml` nor
+  `article_list_context_menu_with_tid.xml` exposes support, oppose, floor
+  favorite, or signature actions (`支持`, `反对`, `收藏`, `查看签名`). Keep
+  the remaining entries in their current relative order.
+- The row adapter's standalone support/oppose listeners remain active. The poll
+  dialog (`menu_vote`) is a separate action and stays in both menus.
+- Remove a deleted floor action's local handler together with its menu entry,
+  but search for shared IDs first: `menu_favorite` still belongs to the topic
+  list menu, and `menu_add_bookmark` still bookmarks the whole thread.
+
+## Cached article page tabs and cache action
+
+- Online and cached article tabs use the same sizing rule: one through five
+  available pages divide the strip equally; more pages use the existing
+  scrollable min/max widths.
+- In `ArticleCacheActivity`, call
+  `setTabOnScreenLimit(count <= 5 ? count : 0)` before `setUpWithViewPager`.
+  Derive `count` from the number of cached entries, not the highest page number
+  or the server's total replies. Two cached pages such as `[2, 7]` still take
+  half the strip each and retain their actual file/page labels.
+- The full-thread toolbar's `缓存本页` action depends on
+  `ArticlePageCache.isCacheableContext`, not on launch-time `topicInfo`.
+  Notification → reply → `显示全部` is a valid full-thread entry path even
+  though it never passed through a topic list. The parent pager's initial page
+  may be zero; cache saves use its selected, 1-based child page.
+- Follow the [thread-page cache contract](../backend/thread-page-cache-contract.md)
+  for metadata preparation, filtered-view exclusions, and compatibility with
+  existing cache files.
+
 ## Press-and-repeat long press
 
 `LongPressRepeater`
