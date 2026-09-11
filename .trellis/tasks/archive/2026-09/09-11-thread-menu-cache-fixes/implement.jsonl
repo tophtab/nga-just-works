@@ -1,0 +1,7 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Preserve the legacy reader, floor controls, page refresh, and cached-reader FAB behavior."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Run the Android build/JVM/lint gate and observe the device-operation scope."}
+{"file":".trellis/spec/backend/thread-page-prefetch-contract.md","reason":"Preserve normal-reader paging, cloned page parameters, prefetch, and foreground load behavior."}
+{"file":".trellis/spec/backend/thread-page-cache-contract.md","reason":"Preserve full-thread cache eligibility, Unicode blank handling, metadata compatibility, and selected-page snapshots."}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"Reuse typed loaded THREAD.PAGE data without new requests or raw-response parsing in the UI."}
+{"file":".trellis/spec/backend/nga-platform-operation-registry.md","reason":"THREAD.PAGE is the existing operation; no transport or wire changes are needed."}
+{"file":".trellis/tasks/archive/2026-09/09-11-thread-menu-cache-fixes/research/thread-reader-paths.md","reason":"Current-fork root causes, shared menu IDs, and cache serialization/read-back evidence."}

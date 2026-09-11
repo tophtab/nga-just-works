@@ -1,0 +1,6 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Check that the three fixes preserve existing reader and remaining menu interactions."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Verify required builds/tests and all-module lint XML without device operations."}
+{"file":".trellis/spec/backend/thread-page-prefetch-contract.md","reason":"Catch accidental changes to current-page dispatch, cache/search exclusions, or prefetch."}
+{"file":".trellis/spec/backend/thread-page-cache-contract.md","reason":"Verify cache menu eligibility, valid same-thread metadata, Unicode blank handling, and async write snapshots."}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"Review metadata ownership, existing cache format, offline fixtures, and absence of new wire behavior."}
+{"file":".trellis/tasks/archive/2026-09/09-11-thread-menu-cache-fixes/research/thread-reader-paths.md","reason":"Verify both menu variants, 1-5/6+ cached tabs, and notification-to-full-thread cache behavior."}
