@@ -2,7 +2,9 @@ package sp.phone.ai;
 
 import com.alibaba.fastjson.JSON;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -34,13 +36,18 @@ import okio.BufferedSink;
 public final class AiSummaryClient {
     static final int MAX_PROMPT_CHARS = 64 * 1024;
     static final int MAX_RESPONSE_BYTES = 256 * 1024;
+    static final int MAX_SUMMARY_RESPONSE_BYTES = 8 * 1024 * 1024;
+    private static final int COMPLETION_TOKEN_LIMIT = 10_000;
     private static final MediaType JSON_TYPE = MediaType.parse("application/json; charset=utf-8");
     private static final long CALL_TIMEOUT_MILLIS = 60_000;
+    private static final long SUMMARY_TIMEOUT_MILLIS = 180_000;
     private final OkHttpClient http;
+    private final OkHttpClient summaryHttp;
     private final HttpUrl testEndpoint;
 
     public interface Callback {
-        /** Runs on the transport thread; UI callers must dispatch to the main thread. */
+        /** Cumulative snapshots on the transport thread; UI callers dispatch to the main thread. */
+        default void onProgress(String answer, String reasoning) { }
         void onSuccess(String text);
         void onError(AiError error);
     }
@@ -54,6 +61,7 @@ public final class AiSummaryClient {
     public AiSummaryClient() {
         testEndpoint = null;
         http = createTransport(CALL_TIMEOUT_MILLIS);
+        summaryHttp = createSummaryTransport(http, SUMMARY_TIMEOUT_MILLIS);
     }
 
     /** Local fake-server endpoint and deadline seam only. */
@@ -66,14 +74,15 @@ public final class AiSummaryClient {
         }
         testEndpoint = loopbackEndpoint;
         http = createTransport(timeoutMillis);
+        summaryHttp = createSummaryTransport(http, timeoutMillis);
     }
 
     public Call summarize(AiConfig config, String prompt, Callback callback) {
-        return send(config, prompt, 1024, callback);
+        return send(config, prompt, true, callback);
     }
 
     public Call testConnection(AiConfig config, Callback callback) {
-        return send(config, "请只回复：连接成功", 8, callback);
+        return send(config, "请只回复：连接成功", false, callback);
     }
 
     /** Fetches service metadata using the current draft, before a model has been chosen. */
@@ -98,10 +107,12 @@ public final class AiSummaryClient {
                 .header("Accept", "application/json")
                 .get()
                 .build();
-        return enqueue(request, AiResponseParser::modelIds, callback::onSuccess, callback::onError);
+        return enqueue(http, request,
+                (response, call) -> AiResponseParser.modelIds(readBoundedUtf8(response.body(), MAX_RESPONSE_BYTES)),
+                callback::onSuccess, callback::onError);
     }
 
-    private Call send(AiConfig config, String prompt, int maxTokens, Callback callback) {
+    private Call send(AiConfig config, String prompt, boolean streaming, Callback callback) {
         if (config == null) {
             throw new IllegalArgumentException("请先配置 AI");
         }
@@ -117,21 +128,23 @@ public final class AiSummaryClient {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("model", config.getModel());
         payload.put("messages", Collections.singletonList(message));
-        payload.put("stream", false);
-        payload.put("max_tokens", maxTokens);
+        payload.put("stream", streaming);
+        payload.put("max_tokens", COMPLETION_TOKEN_LIMIT);
 
         Request request = new Request.Builder()
                 .url(testEndpoint == null ? HttpUrl.get(config.getEndpoint()) : testEndpoint)
                 .header("Authorization", "Bearer " + config.getApiKey())
-                .header("Accept", "application/json")
+                .header("Accept", streaming ? "text/event-stream, application/json" : "application/json")
                 .post(singleUseBody(JSON.toJSONString(payload)))
                 .build();
-        return enqueue(request, AiResponseParser::firstText, callback::onSuccess, callback::onError);
+        return enqueue(streaming ? summaryHttp : http, request,
+                (response, call) -> readCompletion(response, call, callback, streaming),
+                callback::onSuccess, callback::onError);
     }
 
-    private <T> Call enqueue(Request request, ResponseParser<T> parser,
+    private <T> Call enqueue(OkHttpClient transport, Request request, ResponseParser<T> parser,
                              Consumer<T> onSuccess, Consumer<AiError> onError) {
-        Call call = http.newCall(request);
+        Call call = transport.newCall(request);
         call.enqueue(new okhttp3.Callback() {
             @Override
             public void onFailure(Call failedCall, IOException failure) {
@@ -147,7 +160,7 @@ public final class AiSummaryClient {
                         // Error bodies are deliberately neither parsed nor exposed.
                         error = AiError.forHttpStatus(response.code());
                     } else {
-                        result = parser.parse(readBoundedUtf8(response.body()));
+                        result = parser.parse(response, responseCall);
                     }
                 } catch (AiResponseParser.InvalidResponseException invalid) {
                     error = invalid.error;
@@ -174,12 +187,39 @@ public final class AiSummaryClient {
         return call;
     }
 
-    private static String readBoundedUtf8(ResponseBody body) throws IOException {
+    private static String readCompletion(Response response, Call call, Callback callback, boolean summary)
+            throws IOException, AiResponseParser.InvalidResponseException {
+        ResponseBody body = response.body();
+        int limit = summary ? MAX_SUMMARY_RESPONSE_BYTES : MAX_RESPONSE_BYTES;
+        // A call deadline also sets isCanceled(). Always flush received text; the controller
+        // rejects obsolete generations after deliberate cancellation, retry, or target change.
+        AiResponseParser.ProgressListener progress = callback::onProgress;
+        MediaType type = body == null ? null : body.contentType();
+        if (summary && type != null && "text".equalsIgnoreCase(type.type())
+                && "event-stream".equalsIgnoreCase(type.subtype())) {
+            if (body.contentLength() > limit) {
+                throw new ResponseTooLargeException();
+            }
+            try {
+                return AiStreamParser.read(new BoundedInputStream(body.byteStream(), limit), progress);
+            } catch (CharacterCodingException | ResponseTooLargeException failure) {
+                throw failure;
+            } catch (IOException failure) {
+                if (classifyFailure(call, failure) == AiError.NETWORK) {
+                    throw new AiResponseParser.InvalidResponseException(AiError.INTERRUPTED_RESPONSE);
+                }
+                throw failure;
+            }
+        }
+        return AiResponseParser.completionText(readBoundedUtf8(body, limit), progress);
+    }
+
+    private static String readBoundedUtf8(ResponseBody body, int limit) throws IOException {
         if (body == null) {
             return "";
         }
-        if (body.contentLength() > MAX_RESPONSE_BYTES
-                || body.source().request(MAX_RESPONSE_BYTES + 1L)) {
+        if (body.contentLength() > limit
+                || body.source().request(limit + 1L)) {
             throw new ResponseTooLargeException();
         }
         // request(limit + 1) returned false, so EOF was reached with at most limit bytes buffered.
@@ -246,12 +286,56 @@ public final class AiSummaryClient {
                 .build();
     }
 
+    private static OkHttpClient createSummaryTransport(OkHttpClient base, long timeoutMillis) {
+        // newBuilder shares the isolated dispatcher/pool; discovery and connection-test
+        // deadlines remain unchanged. Summaries allow more time for the model's default thinking.
+        return base.newBuilder()
+                .readTimeout(Math.min(timeoutMillis, 60_000), TimeUnit.MILLISECONDS)
+                .callTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+                .build();
+    }
+
     OkHttpClient transportForTest() {
         return http;
     }
 
+    OkHttpClient summaryTransportForTest() {
+        return summaryHttp;
+    }
+
     private interface ResponseParser<T> {
-        T parse(String json) throws AiResponseParser.InvalidResponseException;
+        T parse(Response response, Call call) throws IOException, AiResponseParser.InvalidResponseException;
+    }
+
+    private static final class BoundedInputStream extends FilterInputStream {
+        private final int limit;
+        private int count;
+
+        BoundedInputStream(InputStream input, int limit) {
+            super(input);
+            this.limit = limit;
+        }
+
+        @Override
+        public int read() throws IOException {
+            int value = in.read();
+            if (value != -1 && ++count > limit) {
+                throw new ResponseTooLargeException();
+            }
+            return value;
+        }
+
+        @Override
+        public int read(byte[] bytes, int offset, int length) throws IOException {
+            int read = in.read(bytes, offset, Math.min(length, limit - count + 1));
+            if (read != -1) {
+                count += read;
+                if (count > limit) {
+                    throw new ResponseTooLargeException();
+                }
+            }
+            return read;
+        }
     }
 
     private static final class ResponseTooLargeException extends IOException {

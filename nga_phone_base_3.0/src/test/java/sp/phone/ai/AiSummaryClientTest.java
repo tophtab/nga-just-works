@@ -18,8 +18,10 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.PasswordAuthentication;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +38,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import okhttp3.mockwebserver.SocketPolicy;
 import okio.Buffer;
+import okio.GzipSink;
 
 public class AiSummaryClientTest {
     private final AiConfig config = new AiConfig("https://unused.example.test/v1", "synthetic-test-key", "synthetic-model");
@@ -59,7 +62,7 @@ public class AiSummaryClientTest {
     }
 
     @Test
-    public void sendsOneUtf8NonStreamingRequestWithoutNgaHeaders() throws Exception {
+    public void requestsOneUtf8StreamWithTheSharedTokenBudgetAndWithoutNgaHeaders() throws Exception {
         server.enqueue(success("测试总结"));
         Result result = new Result();
         String prompt = "测试楼层：只有当前行\n包含\"引号\"与表情🙂";
@@ -72,12 +75,14 @@ public class AiSummaryClientTest {
         assertEquals("/v1/chat/completions", request.getPath());
         assertEquals("Bearer synthetic-test-key", request.getHeader("Authorization"));
         assertEquals("application/json; charset=utf-8", request.getHeader("Content-Type"));
+        assertEquals("text/event-stream, application/json", request.getHeader("Accept"));
         assertNull(request.getHeader("Cookie"));
         assertNull(request.getHeader("X-User-Agent"));
         assertNull(request.getHeader("Proxy-Authorization"));
         JSONObject body = SafeJsonParser.parseObject(request.getBody().readUtf8());
         assertEquals("synthetic-model", body.get("model"));
-        assertEquals(Boolean.FALSE, body.get("stream"));
+        assertEquals(Boolean.TRUE, body.get("stream"));
+        assertGenerationOptions(body);
         assertEquals(prompt, body.getJSONArray("messages").getJSONObject(0).get("content"));
         assertEquals(1, body.getJSONArray("messages").size());
         assertTrue(call.request().body().isOneShot());
@@ -102,13 +107,14 @@ public class AiSummaryClientTest {
         assertEquals("Bearer synthetic-http-key", request.getHeader("Authorization"));
         JSONObject body = SafeJsonParser.parseObject(request.getBody().readUtf8());
         assertEquals("http-model", body.get("model"));
-        assertEquals(1024, body.getIntValue("max_tokens"));
+        assertEquals(Boolean.TRUE, body.get("stream"));
+        assertGenerationOptions(body);
         assertTrue(call.request().body().isOneShot());
         assertEquals(1, server.getRequestCount());
     }
 
     @Test
-    public void connectionTestHasOnlyAShortFixedInput() throws Exception {
+    public void connectionTestKeepsTheShortFixedInputAndSharedTokenBudget() throws Exception {
         server.enqueue(success("连接成功"));
         Result result = new Result();
         client(5_000).testConnection(config, result);
@@ -117,8 +123,134 @@ public class AiSummaryClientTest {
         String json = takeRequest().getBody().readUtf8();
         JSONObject body = SafeJsonParser.parseObject(json);
         assertEquals("请只回复：连接成功", body.getJSONArray("messages").getJSONObject(0).get("content"));
-        assertEquals(8, body.getIntValue("max_tokens"));
+        assertEquals(Boolean.FALSE, body.get("stream"));
+        assertGenerationOptions(body);
         assertFalse(json.contains(config.getApiKey()));
+    }
+
+    @Test
+    public void streamsCumulativeProgressBeforeCompletionAndKeepsReasoningSeparate() throws Exception {
+        String first = AiStreamParserTest.event(AiStreamParserTest.chunk("first ", "synthetic thought", null));
+        String last = AiStreamParserTest.event(AiStreamParserTest.chunk("answer", null, "stop"));
+        server.enqueue(stream(first + last).throttleBody(first.getBytes(StandardCharsets.UTF_8).length,
+                2, TimeUnit.SECONDS));
+        Result result = new Result();
+        client(5_000).summarize(config, "synthetic floor", result);
+        result.awaitProgress();
+        assertEquals("first ", result.firstAnswer);
+        assertEquals("synthetic thought", result.firstReasoning);
+        assertTrue(result.firstProgressBeforeCompletion);
+        result.await();
+        assertEquals("first answer", result.text);
+        assertEquals(result.text, result.answer);
+        assertEquals("synthetic thought", result.reasoning);
+        assertNull(result.error);
+        assertEquals(1, server.getRequestCount());
+    }
+
+    @Test
+    public void longStreamExceedsTheFormerTransportCapWithoutLosingTheCompleteReply() throws Exception {
+        String answer = "完整回复🙂".repeat(500);
+        String metadata = AiStreamParserTest.event("{\"choices\":[],\"usage\":{\"completion_tokens\":5},"
+                + "\"padding\":\"" + "x".repeat(4096) + "\"}");
+        String body = AiStreamParserTest.event(AiStreamParserTest.chunk(answer, null, null))
+                + metadata.repeat(70) + AiStreamParserTest.event("[DONE]");
+        assertTrue(body.getBytes(StandardCharsets.UTF_8).length > AiSummaryClient.MAX_RESPONSE_BYTES);
+        server.enqueue(stream(body));
+        Result result = new Result();
+        client(5_000).summarize(config, "synthetic floor", result);
+        result.await();
+        assertEquals(answer, result.text);
+        assertEquals(answer, result.answer);
+        assertNull(result.error);
+    }
+
+    @Test
+    public void jsonFallbackPublishesReasoningAndRetainsTheEntireAnswer() throws Exception {
+        String answer = " " + "完整回答".repeat(500) + "\n";
+        String body = "{\"choices\":[{\"message\":{\"content\":"
+                + com.alibaba.fastjson.JSON.toJSONString(answer)
+                + ",\"reasoning\":\"synthetic thought\"}}]}";
+        server.enqueue(new MockResponse().addHeader("Content-Type", "application/json").setBody(body));
+        Result result = new Result();
+        client(5_000).summarize(config, "synthetic floor", result);
+        result.await();
+        assertEquals(answer, result.text);
+        assertEquals(answer, result.answer);
+        assertEquals("synthetic thought", result.reasoning);
+        assertNull(result.error);
+    }
+
+    @Test
+    public void incompleteExhaustedAndMalformedStreamsRetainEarlierProgress() throws Exception {
+        String first = AiStreamParserTest.event(AiStreamParserTest.chunk("partial answer", "synthetic thought", null));
+        String[] tails = {"", AiStreamParserTest.event(AiStreamParserTest.chunk(null, null, "length")),
+                AiStreamParserTest.event("{malformed synthetic-private-value")};
+        AiError[] expected = {AiError.INTERRUPTED_RESPONSE, AiError.OUTPUT_EXHAUSTED, AiError.INVALID_RESPONSE};
+        AiSummaryClient client = client(5_000);
+        for (int i = 0; i < tails.length; i++) {
+            server.enqueue(stream(first + tails[i]));
+            Result result = new Result();
+            client.summarize(config, "synthetic floor", result);
+            result.await();
+            assertEquals(expected[i], result.error);
+            assertNull(result.text);
+            assertEquals("partial answer", result.answer);
+            assertEquals("synthetic thought", result.reasoning);
+        }
+        assertEquals(tails.length, server.getRequestCount());
+    }
+
+    @Test
+    public void streamingTimeoutFlushesTheLastCoalescedSnapshotAndNeverBecomesCancellation() throws Exception {
+        String first = AiStreamParserTest.event(AiStreamParserTest.chunk("partial answer", null, null));
+        String pending = first + AiStreamParserTest.event(AiStreamParserTest.chunk("; final delta", "reasoning tail", null));
+        server.enqueue(stream(pending + AiStreamParserTest.event("[DONE]"))
+                .throttleBody(pending.getBytes(StandardCharsets.UTF_8).length, 2, TimeUnit.SECONDS));
+        Result result = new Result();
+        client(500).summarize(config, "synthetic floor", result);
+        result.await();
+        assertEquals(AiError.TIMEOUT, result.error);
+        assertEquals("partial answer; final delta", result.answer);
+        assertEquals("reasoning tail", result.reasoning);
+        assertNull(result.text);
+        assertEquals(1, server.getRequestCount());
+    }
+
+    @Test
+    public void cancellingAStreamAfterProgressCannotPublishSuccess() throws Exception {
+        String first = AiStreamParserTest.event(AiStreamParserTest.chunk("partial answer", null, null));
+        server.enqueue(stream(first + AiStreamParserTest.event("[DONE]"))
+                .throttleBody(first.getBytes(StandardCharsets.UTF_8).length, 2, TimeUnit.SECONDS));
+        Result result = new Result();
+        Call call = client(5_000).summarize(config, "synthetic floor", result);
+        result.awaitProgress();
+        call.cancel();
+        result.await();
+        assertEquals(AiError.CANCELLED, result.error);
+        assertEquals("partial answer", result.answer);
+        assertNull(result.text);
+        assertEquals(1, server.getRequestCount());
+    }
+
+    @Test
+    public void decompressedStreamBytesHaveAnIndependentOperationalLimit() throws Exception {
+        String frame = ":" + "x".repeat(1022) + "\n\n";
+        String oversized = frame.repeat(AiSummaryClient.MAX_SUMMARY_RESPONSE_BYTES / frame.length() + 1);
+        Buffer bytes = new Buffer().writeUtf8(oversized);
+        Buffer compressed = new Buffer();
+        try (GzipSink gzip = new GzipSink(compressed)) {
+            gzip.write(bytes, bytes.size());
+        }
+        assertTrue(compressed.size() < AiSummaryClient.MAX_RESPONSE_BYTES);
+        server.enqueue(new MockResponse().addHeader("Content-Type", "text/event-stream")
+                .addHeader("Content-Encoding", "gzip").setBody(compressed));
+        Result result = new Result();
+        client(5_000).summarize(config, "synthetic floor", result);
+        result.await();
+        assertEquals(AiError.RESPONSE_TOO_LARGE, result.error);
+        assertNull(result.text);
+        assertEquals(1, server.getRequestCount());
     }
 
     @Test
@@ -194,13 +326,13 @@ public class AiSummaryClientTest {
         server.enqueue(success("explicit retry"));
         AiSummaryClient client = client(5_000);
         Result first = new Result();
-        client.testConnection(config, first);
+        client.summarize(config, "synthetic floor", first);
         first.await();
         assertEquals(AiError.SERVER, first.error);
         assertEquals(1, server.getRequestCount());
 
         Result second = new Result();
-        client.testConnection(config, second);
+        client.summarize(config, "synthetic floor", second);
         second.await();
         assertEquals("explicit retry", second.text);
         assertEquals(2, server.getRequestCount());
@@ -328,6 +460,21 @@ public class AiSummaryClientTest {
         assertEquals(15_000, transport.connectTimeoutMillis());
         assertEquals(45_000, transport.readTimeoutMillis());
         assertEquals(15_000, transport.writeTimeoutMillis());
+        OkHttpClient summaries = client.summaryTransportForTest();
+        assertEquals(180_000, summaries.callTimeoutMillis());
+        assertEquals(60_000, summaries.readTimeoutMillis());
+        assertEquals(15_000, summaries.connectTimeoutMillis());
+        assertEquals(15_000, summaries.writeTimeoutMillis());
+        assertSame(transport.dispatcher(), summaries.dispatcher());
+        assertSame(transport.connectionPool(), summaries.connectionPool());
+        assertSame(CookieJar.NO_COOKIES, summaries.cookieJar());
+        assertSame(Authenticator.NONE, summaries.authenticator());
+        assertSame(Authenticator.NONE, summaries.proxyAuthenticator());
+        assertTrue(summaries.interceptors().isEmpty());
+        assertTrue(summaries.networkInterceptors().isEmpty());
+        assertFalse(summaries.followRedirects());
+        assertFalse(summaries.followSslRedirects());
+        assertFalse(summaries.retryOnConnectionFailure());
         assertThrows(IllegalArgumentException.class,
                 () -> new AiSummaryClient(HttpUrl.get("http://remote.example.test/v1"), 500));
     }
@@ -359,11 +506,44 @@ public class AiSummaryClientTest {
                 .setBody(AiResponseParserTest.response(text));
     }
 
+    private static MockResponse stream(String body) {
+        return new MockResponse().addHeader("Content-Type", "text/event-stream; charset=utf-8")
+                .setBody(body);
+    }
+
+    private static void assertGenerationOptions(JSONObject body) {
+        assertEquals(new HashSet<>(Arrays.asList("model", "messages", "stream", "max_tokens")), body.keySet());
+        assertEquals(10_000, body.get("max_tokens"));
+        for (String field : new String[]{"max_completion_tokens", "max_output_tokens",
+                "thinking", "enable_thinking", "reasoning", "reasoning_effort"}) {
+            assertFalse(body.containsKey(field));
+        }
+    }
+
     private static final class Result implements AiSummaryClient.Callback {
         private final CountDownLatch completed = new CountDownLatch(1);
+        private final CountDownLatch progressed = new CountDownLatch(1);
         private final AtomicInteger callbacks = new AtomicInteger();
         volatile String text;
         volatile AiError error;
+        volatile String answer = "";
+        volatile String reasoning = "";
+        volatile String firstAnswer;
+        volatile String firstReasoning;
+        volatile boolean firstProgressBeforeCompletion;
+
+        @Override
+        public void onProgress(String answer, String reasoning) {
+            this.answer = answer;
+            this.reasoning = reasoning;
+            if (progressed.getCount() != 0) {
+                // Capture on the callback thread; later chunks must not race test assertions.
+                firstAnswer = answer;
+                firstReasoning = reasoning;
+                firstProgressBeforeCompletion = completed.getCount() != 0;
+            }
+            progressed.countDown();
+        }
 
         @Override
         public void onSuccess(String value) {
@@ -382,6 +562,10 @@ public class AiSummaryClientTest {
         void await() throws Exception {
             assertTrue("Expected a bounded AI callback", completed.await(5, TimeUnit.SECONDS));
             assertEquals(1, callbacks.get());
+        }
+
+        void awaitProgress() throws Exception {
+            assertTrue("Expected progress before completion", progressed.await(5, TimeUnit.SECONDS));
         }
     }
 }

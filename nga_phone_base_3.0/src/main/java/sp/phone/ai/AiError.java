@@ -10,6 +10,9 @@ public enum AiError {
     TIMEOUT("请求超时，请稍后重试"),
     INVALID_REQUEST("请求未被接受，请检查模型和配置"),
     INVALID_RESPONSE("AI 服务返回了无法识别的结果"),
+    EMPTY_RESPONSE("AI 服务未返回回复正文，请重试"),
+    OUTPUT_EXHAUSTED("AI 服务达到输出上限，回复未完成，请重试"),
+    INTERRUPTED_RESPONSE("AI 回复中断，内容可能不完整，请重试"),
     RESPONSE_TOO_LARGE("AI 服务返回的内容过长，请重试"),
     CANCELLED("请求已取消");
 

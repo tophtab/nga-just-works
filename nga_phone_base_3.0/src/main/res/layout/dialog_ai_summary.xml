@@ -16,18 +16,69 @@
         android:layout_marginBottom="12dp"
         android:contentDescription="@string/ai_summary_loading" />
 
+    <TextView
+        android:id="@+id/ai_summary_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/ai_summary_loading"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
     <ScrollView
         android:id="@+id/ai_summary_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fillViewport="true">
 
-        <TextView
-            android:id="@+id/ai_summary_content"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:accessibilityLiveRegion="polite"
-            android:textColor="@color/text_color"
-            android:textSize="16sp" />
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/ai_summary_reasoning_toggle"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start|center_vertical"
+                android:minHeight="48dp"
+                android:text="@string/ai_summary_show_reasoning"
+                android:textAllCaps="false"
+                android:textColor="@color/text_color"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/ai_summary_reasoning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:accessibilityLiveRegion="none"
+                android:saveEnabled="false"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/ai_summary_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="none"
+                android:saveEnabled="false"
+                android:textColor="@color/text_color"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/ai_summary_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:saveEnabled="false"
+                android:textColor="@color/text_color"
+                android:textSize="16sp"
+                android:visibility="gone" />
+        </LinearLayout>
     </ScrollView>
 </LinearLayout>

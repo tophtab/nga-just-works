@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +20,7 @@ public class AiResponseParserTest {
     public void takesOnlyTheFirstTextChoice() throws Exception {
         String body = "{\"choices\":[{\"message\":{\"content\":\"  第一条总结  \"}},"
                 + "{\"message\":{\"content\":\"不会选择这条\"}}]}";
-        assertEquals("第一条总结", AiResponseParser.firstText(body));
+        assertEquals("  第一条总结  ", AiResponseParser.firstText(body));
     }
 
     @Test
@@ -29,14 +30,118 @@ public class AiResponseParserTest {
     }
 
     @Test
-    public void missingNullOrNonTextResultsAreErrors() {
+    public void missingShapesAndNonTextResultsAreErrors() {
         String[] invalid = {"{}", "[]", "null", "{\"choices\":[]}", "{\"choices\":[null]}",
                 "{\"choices\":[{\"message\":null}]}", "{\"choices\":[{\"message\":{\"content\":3}}]}",
-                "{\"choices\":[{\"message\":{\"content\":null}}]}", response("   "),
-                "{\"choices\":[{\"message\":{\"content\":null}},{\"message\":{\"content\":\"later\"}}]}"};
+                "{\"choices\":[{\"message\":{\"content\":\"ignored\"}},{\"index\":1,\"message\":{}}]}",
+                "{\"choices\":[{\"message\":{\"content\":\"text\",\"reasoning_content\":3}}]}",
+                "{\"choices\":[{\"message\":{\"content\":\"text\"},\"finish_reason\":3}]}"};
         for (String body : invalid) {
             assertEquals(AiError.INVALID_RESPONSE, assertThrows(AiResponseParser.InvalidResponseException.class,
                     () -> AiResponseParser.firstText(body)).error);
+        }
+    }
+
+    @Test
+    public void emptyReasoningOnlyAndUsageOnlyResponsesNeverBecomeAnswers() {
+        String[] empty = {response(null), response("   \u3000\u00a0"),
+                "{\"choices\":[{\"message\":{\"reasoning_content\":\"synthetic thought\"}}]}",
+                "{\"choices\":[],\"usage\":{\"completion_tokens\":5}}",
+                "{\"choices\":[{\"message\":{\"content\":null}},{\"message\":{\"content\":\"later\"}}]}"};
+        for (String body : empty) {
+            assertEquals(AiError.EMPTY_RESPONSE, assertThrows(AiResponseParser.InvalidResponseException.class,
+                    () -> AiResponseParser.firstText(body)).error);
+        }
+    }
+
+    @Test
+    public void reasoningAndTheCompleteAnswerAreSeparateIncludingInlineThinking() throws Exception {
+        String answer = "\n  " + "完整回复🙂".repeat(400) + "\n ";
+        List<String[]> snapshots = new ArrayList<>();
+        String json = "{\"choices\":[{\"message\":{\"content\":"
+                + JSON.toJSONString("<thinking>inline thought</thinking>" + answer)
+                + ",\"reasoning_content\":\"native thought;\"},\"finish_reason\":\"stop\"}]}";
+        assertEquals(answer, AiResponseParser.completionText(json,
+                (text, reasoning) -> snapshots.add(new String[]{text, reasoning})));
+        String[] last = snapshots.get(snapshots.size() - 1);
+        assertEquals(answer, last[0]);
+        assertEquals("native thought;inline thought", last[1]);
+    }
+
+    @Test
+    public void exhaustionIsDistinctAndPublishesOnlyThePartialAnswer() {
+        List<String[]> snapshots = new ArrayList<>();
+        String json = "{\"choices\":[{\"message\":{\"content\":\"partial answer\","
+                + "\"reasoning\":\"synthetic thought\"},\"finish_reason\":\"length\"}]}";
+        assertEquals(AiError.OUTPUT_EXHAUSTED, assertThrows(AiResponseParser.InvalidResponseException.class,
+                () -> AiResponseParser.completionText(json,
+                        (answer, reasoning) -> snapshots.add(new String[]{answer, reasoning}))).error);
+        String[] last = snapshots.get(snapshots.size() - 1);
+        assertEquals("partial answer", last[0]);
+        assertEquals("synthetic thought", last[1]);
+        assertEquals(AiError.OUTPUT_EXHAUSTED, assertThrows(AiResponseParser.InvalidResponseException.class,
+                () -> AiResponseParser.firstText(json.replace("partial answer", ""))).error);
+    }
+
+    @Test
+    public void unclosedThinkingCannotBeCopiedAsAnAnswer() {
+        List<String[]> snapshots = new ArrayList<>();
+        assertEquals(AiError.EMPTY_RESPONSE, assertThrows(AiResponseParser.InvalidResponseException.class,
+                () -> AiResponseParser.completionText(response("<think>synthetic thought"),
+                        (answer, reasoning) -> snapshots.add(new String[]{answer, reasoning}))).error);
+        for (String[] snapshot : snapshots) {
+            assertEquals("", snapshot[0]);
+        }
+        assertEquals("synthetic thought", snapshots.get(snapshots.size() - 1)[1]);
+    }
+
+    @Test
+    public void serializedEnvelopesNeverReachProgressOrSuccessfulAnswer() {
+        String[] protocol = {response("nested answer"),
+                "{\"role\":\"assistant\",\"content\":\"\",\"reasoning_content\":\"synthetic thought\"}",
+                "data: {\"choices\":[],\"usage\":{\"completion_tokens\":7}}\n\ndata: [DONE]\n\n",
+                "{\"object\":\"chat.completion.chunk\",\"choices\":[",
+                "{\"usage\":{\"total_tokens\":7}}", "\u3000\ufeff{\"choices\":[]}", "[DONE]"};
+        for (String content : protocol) {
+            List<String> answers = new ArrayList<>();
+            assertEquals(AiError.INVALID_RESPONSE, assertThrows(AiResponseParser.InvalidResponseException.class,
+                    () -> AiResponseParser.completionText(response(content),
+                            (answer, reasoning) -> answers.add(answer))).error);
+            for (String answer : answers) {
+                assertEquals("", answer);
+            }
+        }
+    }
+
+    @Test
+    public void ordinaryBracesDataLabelsAndTagsAfterProseStayLiteral() throws Exception {
+        String[] prose = {"Use data: {value} in the example", "{ordinary braces}",
+                "{\"answer\":\"ordinary JSON code\"}", "data: a regular label",
+                "Example: <think>literal tag</think>", "```xml\n<think>code</think>\n```"};
+        for (String text : prose) {
+            assertEquals(text, AiResponseParser.firstText(response(text)));
+        }
+    }
+
+    @Test
+    public void explicitlyIndexedFirstChoiceCanArriveAfterAnotherChoice() throws Exception {
+        for (String otherIndex : new String[]{"\"index\":1,", ""}) {
+            String json = "{\"choices\":[{" + otherIndex + "\"message\":{\"content\":\"ignored\"}},"
+                    + "{\"index\":0,\"message\":{\"content\":\"selected\"}}]}";
+            assertEquals("selected", AiResponseParser.firstText(json));
+        }
+    }
+
+    @Test
+    public void reasoningAliasIsUsedWhenTheNativeFieldIsEmptyWithoutDuplicatingBoth() throws Exception {
+        for (String nativeText : new String[]{"", "preferred thought"}) {
+            List<String[]> snapshots = new ArrayList<>();
+            String json = "{\"choices\":[{\"message\":{\"content\":\"answer\",\"reasoning_content\":"
+                    + JSON.toJSONString(nativeText) + ",\"reasoning\":\"alias thought\"}}]}";
+            assertEquals("answer", AiResponseParser.completionText(json,
+                    (answer, reasoning) -> snapshots.add(new String[]{answer, reasoning})));
+            assertEquals(nativeText.isEmpty() ? "alias thought" : nativeText,
+                    snapshots.get(snapshots.size() - 1)[1]);
         }
     }
 

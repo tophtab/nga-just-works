@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/ai-summary-contract.md", "reason": "Existing isolation, sampling, and lifecycle; task design updates streaming and limits."}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Quality rules subject to the task no-local-build instruction."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Preserve the existing legacy UI and theme conventions."}
+{"file": ".trellis/tasks/09-11-ai-profile-empty-response/research/model-response-evidence.md", "reason": "Redacted protocol evidence and required regression cases."}
+{"file": ".trellis/tasks/09-11-ai-profile-empty-response/research/cherry-studio-streaming.md", "reason": "User-requested pinned Cherry Studio reference for stream accumulation, typed content, folding, copy, and reasoning extraction."}

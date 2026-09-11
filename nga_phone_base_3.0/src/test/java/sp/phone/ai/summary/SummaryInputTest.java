@@ -37,6 +37,7 @@ public class SummaryInputTest {
         assertTrue(prompt.contains("楼层：7"));
         assertTrue(prompt.contains("Selected author"));
         assertTrue(prompt.contains("Selected floor\nOnly this body"));
+        assertTrue(prompt.contains("回复正文在1000字以内"));
         assertEquals("floor:123:456:7", snapshot.getTarget());
         assertFalse(prompt.contains("SENTINEL"));
         assertFalse(prompt.contains("[b]"));
@@ -87,6 +88,8 @@ public class SummaryInputTest {
         assertEvidenceNumbers(prompt, "主题", 20);
         assertEvidenceNumbers(prompt, "回复", 20);
         assertTrue(prompt.contains("当前资料页 UID：4200"));
+        assertTrue(prompt.contains("回复正文在1000字以内"));
+        assertFalse(prompt.contains("全文不超过 500 字"));
         assertTrue(prompt.contains("Viewed user"));
         assertTrue(prompt.contains("Topic 19"));
         assertFalse(prompt.contains("Topic 20"));

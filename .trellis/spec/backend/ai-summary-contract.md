@@ -4,8 +4,9 @@
 
 Apply this contract to `sp.phone.ai`, the AI settings page, the floor/profile
 summary menus, and their shared dialog. The implemented boundary is one
-user-configured OpenAI-compatible Chat Completions service. There is no hosted
-project key, system model, local model, chat page, streaming, or pagination.
+user-configured OpenAI-compatible Chat Completions service, with streamed floor
+and profile summaries. There is no hosted project key, system model, local model,
+chat page, or pagination.
 
 The approved `07-25-nga-android-advanced` design explicitly keeps the existing
 Java/Preference/XML navigation for this slice. Its Java-callable configuration,
@@ -28,7 +29,8 @@ void AiConfigStore.clear() throws AiConfigStore.StorageException;
 
 Call AiSummaryClient.summarize(AiConfig config, String prompt, AiSummaryClient.Callback callback);
 Call AiSummaryClient.testConnection(AiConfig config, AiSummaryClient.Callback callback);
-// AiSummaryClient.Callback: onSuccess(String text) / onError(AiError error).
+// AiSummaryClient.Callback: default onProgress(String answer, String reasoning),
+// onSuccess(String answer), and onError(AiError error).
 Call AiSummaryClient.listModels(String endpoint, String apiKey,
         AiSummaryClient.ModelsCallback callback);
 // ModelsCallback: onSuccess(List<String> models) / onError(AiError error).
@@ -38,7 +40,9 @@ JSONObject SafeJsonParser.parseObject(String json);
 FloorSummaryInput FloorSummaryInput.fromRow(String title, ThreadRowInfo row);
 SummaryController.Cancelable ProfileSummaryLoader.load(
         String uid, String userName, SummaryController.Callback callback);
-// SummaryController.Callback: onSuccess(String text) / onError(String message).
+// SummaryController.Callback: default onProgress(String answer, String reasoning),
+// onSuccess(String text), and onError(String message).
+// Progress carries cumulative model-message projections; input sources do not emit it.
 void SummaryController.start(String target, SummaryController.InputSource source);
 void SummaryController.cancel();
 void SettingsAiFragment.open(Context context);
@@ -46,7 +50,11 @@ void SettingsAiFragment.open(Context context);
 
 `SummaryController` receives `ConfigSource`, `Model`, a UI `Executor`, a
 `Supplier<String>` for the current target, and a `Listener`. Its immutable
-state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
+state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR`, `getAnswer()`,
+`getReasoning()`, `getErrorMessage()`, and `getCopyText()`. `getText()` remains
+the compatibility projection (error message in ERROR, answer otherwise).
+`getCopyText()` returns the complete received answer only after success/error;
+loading and answerless states return an empty string.
 
 ## 3. Contracts
 
@@ -123,17 +131,57 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   no cache, and no redirects. Ordinary system proxy routing remains available.
   Its connection specs include `MODERN_TLS` and `CLEARTEXT`; configured HTTP
   services use the same isolated path as HTTPS services.
-- Send UTF-8 JSON with `model`, one user `messages` entry, `stream: false`,
-  and `max_tokens` (1,024 for summaries; 8 for connection tests). Only the
-  configured API receives `Authorization: Bearer <key>`.
+- Send UTF-8 JSON containing only `model`, one user `messages` entry, `stream`,
+  and `max_tokens: 10000`. Summaries use `stream: true` and accept
+  `text/event-stream` with ordinary JSON completion compatibility; the short
+  connection test uses `stream: false` with the same 10,000-token ceiling.
+  Thinking and body generation share this ceiling; input tokens are separate.
+  Omit `max_completion_tokens`, `max_output_tokens`, and thinking/reasoning
+  overrides. Only the configured API receives `Authorization: Bearer <key>`.
+  The user explicitly selected 10,000 after comparing the reference userscript.
+  Report exhaustion rather than disabling thinking or silently changing the cap.
 - Disable connection retries **and** mark the POST body `isOneShot() == true`.
   Disabling connection retries alone does not stop an OkHttp follow-up for
   `503` with `Retry-After: 0`. Preserve the first HTTP failure, without a second
   billed send. Match MockWebServer to the resolved production OkHttp version.
-- Limit prompts to 64 Ki characters, decompressed responses to 256 KiB, and
-  result text to 32 Ki characters. Total/connect/read/write deadlines are
-  60/15/45/15 seconds. Decode response bytes strictly as UTF-8 and consume only
-  the first choice's nonblank string `message.content`.
+- Limit prompts to 64 Ki characters, decompressed summary transport to 8 MiB,
+  and each answer/reasoning projection to 256 Ki characters. A single SSE event
+  or fallback JSON object is bounded at 512 Ki characters by the shared decoder.
+  Resource overflow is an explicit failure, never substring clipping or false
+  success. The 1,000-character prompt instruction is not a transport/UI limit.
+  Summary total/connect/read/write deadlines are 180/15/60/15 seconds. Model
+  discovery and the connection test retain their 256 KiB response bound and
+  60/15/45/15-second deadlines. Keep the local fake-server timeout seam.
+- `AiStreamParser` decodes strict incremental UTF-8 and frames CR/LF/CRLF SSE
+  lines, blank delimiters, multiline `data`, comments, and optional event/id
+  metadata. Usage-only chunks contribute no message text. Select choice index
+  zero; when no indexes are supplied, retain ordinary first-choice compatibility.
+  Never substitute a later choice, tool arguments, or usage metadata for text.
+- `AiMessageAccumulator` owns one transient message with answer/reasoning
+  projections. Read body deltas from `delta.content` and reasoning from
+  `delta.reasoning_content` (or the compatible `reasoning` string). The JSON
+  fallback uses the corresponding `message` fields. Extract leading `<think>`
+  and `<thinking>` sections across chunk boundaries before publishing answer
+  progress; unclosed matched sections never become copyable text. Literal tags
+  inside already-started prose/code remain text.
+- An SSE completion needs a valid first-choice finish event or `[DONE]`.
+  `length` means `OUTPUT_EXHAUSTED`, a completed answerless message means
+  `EMPTY_RESPONSE`, and EOF or a network break before completion means
+  `INTERRUPTED_RESPONSE`. Ordinary JSON responses remain compatible without
+  `finish_reason`. Preserve already received text on error and flush the final
+  cumulative snapshot before terminal delivery. A call-timeout cancellation
+  must not suppress that final snapshot; the controller rejects user-cancelled
+  generations. Keep timeout distinct from a generic interrupted stream.
+- Process valid decoded event prefixes before reporting a later UTF-8 error.
+  A bulk reader must not discard an earlier complete event when malformed bytes
+  follow it in the same read. On failure, also screen and release buffered
+  ordinary text such as a reply beginning with `{` or `data:`; only recognized
+  serialized envelopes remain withheld.
+- Recognized serialized Chat Completions/SSE envelopes inside `content` are
+  protocol errors, even if nonblank. Hold potential protocol prefixes until
+  classified, so raw envelopes cannot flash in progress or enter clipboard text.
+  Ordinary prose/code containing braces or `data:` stays text. Never display raw
+  protocol or replace an empty answer with reasoning.
 - Never log configurations, authorization, prompts, response bodies, or raw
   parser/network exception messages. Fixed `AiError` values cross into the UI;
   HTTP error bodies are not displayed or decoded as model results.
@@ -217,10 +265,12 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   contradictions for a punchline.
 - Request at most two observations in each of the first three sections, a one-
   or two-sentence synthesis, and 3–5 supported interest/style tags (fewer when
-  evidence is sparse). Keep the full response within 500 Chinese characters and
-  use plain text, without BBCode, Markdown tables, or code fences. This fits the
-  existing dialog and summary token budget; it adds no renderer or transport
-  setting. The floor-summary prompt keeps its independent single-floor scope.
+  evidence is sparse). Use plain text, without BBCode, Markdown tables, or code
+  fences. Both profile and floor prompts contain exactly `回复正文在1000字以内`.
+  This constrains the requested reply body, not thinking, and is prompt guidance
+  only. Receive, display, and copy answers above 1,000 characters completely
+  within the independent operational resource bounds. The floor-summary prompt
+  keeps its independent single-floor scope.
 
 ### Dialog and cancellation
 
@@ -230,6 +280,21 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 - Both floor menus and the profile overflow menu use `AiSummaryDialog` at
   their source page. Provide scrolling, loading/result/error states, retry,
   copy, and close. The result and prompt do not go into saved instance state.
+- Render reasoning in an initially collapsed section with an accessible
+  expand/collapse button. Keep the user's fold choice across streaming updates;
+  reset it on retry/dismiss. Show answer, reasoning, status, and error in separate
+  views. Copy reads `getCopyText()` directly, independent of fold state, and
+  excludes reasoning, status/error labels, and protocol metadata. On failure,
+  retain a partial answer and permit copying it. Do not announce every token
+  through accessibility live regions. Dismissal clears all transient text.
+- Transport and controller callbacks carry cumulative snapshots. The controller
+  coalesces model progress into one queued UI update, keeps the latest reasoning
+  on success and both projections on error, and rejects updates after a terminal
+  event. Close/retry/target replacement invalidate queued snapshots as well as
+  network calls. The UI does not parse raw events or infer content type.
+- This adapts Cherry Studio's typed text/reasoning projections, stable fold state,
+  answer-only copy, and request-owned stream snapshots. It introduces no persistent
+  chat/output store or provider SDK dependency.
 - Check configuration before loading input and again before sending to the
   model. If cleared, guide to settings without sending. If replaced during
   collection, require a new action instead of silently switching services.
@@ -261,6 +326,15 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 | Connection/read/call timeout | Terminal timeout state, never a stuck spinner |
 | Manual close or stale target/generation | Cancel and discard callbacks |
 | Bad UTF-8, wrong response shape, oversized response | Fixed response error; no raw body |
+| Reasoning/content SSE chunks | Incremental separate projections; reasoning starts folded |
+| Usage-only or reasoning-only completion | `EMPTY_RESPONSE`; no reasoning/protocol substitution |
+| First-choice finish reason `length` | `OUTPUT_EXHAUSTED`; preserve partial answer/reasoning |
+| EOF/network break before a complete SSE terminal event | `INTERRUPTED_RESPONSE`; retain partial text |
+| Serialized Chat Completions/SSE inside content | Reject without publishing the envelope as answer |
+| Reply body exceeds the 1,000-character prompt guidance | Display and copy completely; no client clipping |
+| Final progress queued immediately before success/error | Preserve the latest projections on terminal delivery |
+| Fold toggled during streaming | Retain fold choice; copying still reads answer only |
+| Error after a partial answer | Separate error label; copying returns only the received answer |
 | Malformed NGA Content-Type or unmarked record with wrong author UID | Stop collection; do not send a model request |
 | Nonblank string `denied`/`error` on an outer row or reply `__P` | Skip the unavailable item before author/content validation; retain the accepted-item allowance |
 | Blank or non-string item marker | Apply normal author/content validation |
@@ -280,6 +354,12 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   accept only visible entries, validating their actual topic/reply authors.
 - Good: a profile observation cites `[回复2]` and its concrete wording, with
   restrained satire about the statement rather than an invented personal story.
+- Good: reasoning streams into a folded section, then a 1,200-character answer
+  streams into the body and is copied in full; a prompt instruction is not a
+  substring boundary.
+- Bad: setting a small output token limit that reasoning alone exhausts,
+  interpreting usage-only SSE as a successful answer, or copying the rendered
+  dialog's reasoning and error text along with the body.
 - Bad: rejecting a whole mixed page because an unavailable placeholder has a
   foreign author, or accepting denial text because its reply author matches.
 - Base: an unconfigured floor action opens settings and sends no request;
@@ -302,6 +382,18 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 - `AiResponseParserTest` and `AiSummaryClientTest`: bounded/type-safe parsing,
   special keys, UTF-8, request JSON, auth/Cookie isolation, status errors,
   redirects, 503 request count, explicit cancellation, and transport deadlines.
+  Assert summaries stream and both summaries and connection tests send exactly
+  `max_tokens: 10000`, without other token aliases or thinking overrides.
+  Fake-server progress must arrive before the
+  terminal event. Include partial stream failure, timeout flush, JSON fallback,
+  and valid SSE larger than the old 256 KiB response limit.
+  `AiStreamParserTest` covers split UTF-8, frame/tag boundaries, multiline and
+  CR/LF framing, index-zero choice selection, usage/DONE, empty/exhausted/
+  interrupted results, inline thinking, literal protocol-like prose, serialized
+  envelopes, operational bounds, and full replies above 1,000 characters.
+  Include valid content followed by malformed UTF-8 in one read, interrupted
+  ordinary protocol-like prefixes, and explicit index zero after an unindexed
+  row. Indexless fallback is allowed only when every choice is unindexed.
   `AiModelsClientTest` additionally covers HTTP production transport, base/full/custom
   URL derivation, draft-only validation, model ID types/bounds/deduplication,
   immutable and empty results, and malformed/oversized list responses.
@@ -317,12 +409,17 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   `SummaryInputTest` also verifies retained counts and independent evidence
   numbering across truncation, null entries, and empty/partial samples; prose
   and tone instructions are source-reviewed rather than duplicated as a string
-  snapshot test.
+  snapshot test. Assert both prompts contain `回复正文在1000字以内`.
+  Controller cases include progress coalescing, terminal flush, late progress
+  after close/same-target retry/target replacement, retained partial errors,
+  separate reasoning, and complete answer-only copying above 1,000 characters.
 - `AiSettingsContractTest`, `DefaultSettingsContractTest`, and
   `AiSummaryUiContractTest`: settings hierarchy/navigation, Key state-saving
   precautions, both floor menus, loaded-profile visibility, shared dialog,
   and pause/refresh cleanup.
   Settings coverage also asserts the toolbar save icon and model-editor wiring.
+  Shared-dialog coverage asserts separate views, default folding and reset,
+  accessible toggle, answer-only copy, and clearing transient text on dismiss.
   `AiModelEditorStateTest` covers model list/custom/error interaction, same-service
   cache retention/invalidation, late callback rejection, and user-edit preservation
   during discovery.
@@ -332,6 +429,17 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   current device authorization; otherwise report not run per project policy.
 
 ## 7. Wrong vs Correct
+
+```java
+// Wrong: reasoning can exhaust the cap before an answer; clipping can lose body text.
+payload.put("max_tokens", 1024);
+String copyText = result.substring(0, Math.min(result.length(), 1000));
+
+// Correct: apply the chosen shared generation cap and copy the full answer projection.
+payload.put("stream", true);
+payload.put("max_tokens", 10000); // No separate reasoning budget or thinking override.
+String copyText = controller.getState().getCopyText();
+```
 
 ```java
 // Wrong: a deadline can cancel the Call internally and strand the UI in Loading.
