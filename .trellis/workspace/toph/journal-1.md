@@ -1391,3 +1391,25 @@ Changed AI profile analysis to qualitative interests, expressed views, discussio
 ### Next Steps
 
 - Push feature/ai-summary without querying or waiting for remote build results, per the user instruction.
+
+
+## Session 59: Streaming AI summaries and folded reasoning
+<!-- trellis-session: v=2 fp=ab705db1271651b0 -->
+
+**Date**: 2026-09-12
+**Task**: Streaming AI summaries and folded reasoning
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Implemented streamed profile and floor summaries, initially folded reasoning, complete answer-only copy, exact reply-body prompt guidance, and the final shared max_tokens 10000 choice. Fixed partial-content loss around timeout, UTF-8 errors, protocol-prefix buffering, and choice selection. Independent full-scope static review, XML/source checks, and secret isolation passed. The user-requested no-cap GLM probe completed in 49.05 seconds with 2680 input and 3876 output tokens and a 617-character reply; no separate reasoning-token count was recorded. JVM tests, lint, Android builds, device operations, and workflow inspection remained unexecuted per user restrictions. Archived this direct-branch task using the no-PR archive option. User authorized commit, finish-work, and push.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0dcc4d6e` | fix(ai): stream summaries with folded reasoning |
+
+### Status
+
+[OK] **Completed**

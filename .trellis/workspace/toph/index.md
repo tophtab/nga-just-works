@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 58
-- **Last Active**: 2026-09-11
+- **Total Sessions**: 59
+- **Last Active**: 2026-09-12
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1393 | Active |
+| `journal-1.md` | ~1415 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 59 | 2026-09-12 | Streaming AI summaries and folded reasoning | `0dcc4d6e` | `feature/ai-summary` |
 | 58 | 2026-09-11 | Refine profile composition prompt and evidence | `9cf43a82` | `feature/ai-summary` |
 | 56 | 2026-09-11 | Fix AI profile unavailable activity parsing | `1931bc35` | `feature/ai-summary` |
 | 55 | 2026-09-11 | 精简 AI 设置并更新个人资料入口 | `39b27d49` | `feature/ai-summary` |
