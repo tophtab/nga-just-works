@@ -1251,3 +1251,65 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
+
+
+## Session 60: Thread author IP locations and loading usage tips
+<!-- trellis-session: v=2 fp=8e7fc1e866cd34c8 -->
+
+**Date**: 2026-09-12
+**Task**: Thread author IP locations and loading usage tips
+**Branch**: `feature/thread-ip-location-loading-tips`
+
+### Summary
+
+Implemented cached author IP locations and foreground loading tips; 223 app tests and 13-module lint passed; archived parent and child tasks.
+
+### Main Changes
+
+Completed the approved parent task and both independently reviewed child tasks
+on `feature/thread-ip-location-loading-tips`, based on `main` at `5bb92cf0`.
+Work commit: `ef77d0c92f6a20f72c418eadd053089642c63698`.
+
+- Replaced thread-floor level/reputation with the author's latest public
+  profile location while retaining post count. Every valid online page delivery,
+  including existing prefetch, shares author cache and queued/in-flight work.
+  There is one physical supplementary call in flight and no fixed request
+  interval. Success/valid-empty cache is 24 hours; failures and server stops
+  retain the approved scoped cooldown behavior.
+- Added eight local loading instructions with one stable selection per visible
+  initial-loading occasion. Background prefetch cannot consume tips. The AI
+  instruction is eligible only with its real bundled settings entry/destination.
+- Review fixes and regressions cover normalized non-profile rejection, late
+  server stops across consumer/account invalidation, same-UID credential
+  replacement, OkHttp 3.12 HTTP 503 replay, and cache-only readers accidentally
+  resuming an expired paused online queue. Metadata updates never rebind body
+  WebViews; destroyed views cannot receive old callbacks or start rebind fetches.
+- App Debug build and 223 JVM tests passed with zero failures/errors/skips.
+  All 13 module lint XML reports contain zero Error/Fatal. The repository debug
+  diagnostic returned the documented statistics JUnit and debug-module KAPT
+  example-fixture failures; those unrelated modules were unchanged.
+- Added executable author-location and loading-tip contracts with index,
+  operation, prefetch, and component links. No live NGA or device operation ran;
+  device checks were not run per project policy. No release package, push,
+  publication, or main-branch merge was performed.
+- Archived the parent and both children under `tasks/archive/2026-09/`. The 22
+  unchanged original-workspace planning files were hash-checked and moved into
+  `/home/toph/nga-just-works/.temp/completed-task-planning-copies/2026-09-12-thread-ip-location-loading-tips/`.
+  Only this task's obsolete runtime pointer was cleared; unrelated task copies
+  and sibling feature worktrees were preserved.
+
+Evidence: [combined review](../../tasks/archive/2026-09/09-11-thread-ip-location-loading-tips/research/combined-check-report.md)
+and [final validation](../../tasks/archive/2026-09/09-11-thread-ip-location-loading-tips/research/final-validation.md).
+
+No remaining in-scope implementation or validation work.
+
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `ef77d0c92f6a20f72c418eadd053089642c63698` | feat(android): show author IP locations and loading usage tips |
+
+### Status
+
+[OK] **Completed**
