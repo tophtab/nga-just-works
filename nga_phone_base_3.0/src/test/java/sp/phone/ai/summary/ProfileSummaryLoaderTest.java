@@ -36,6 +36,35 @@ public class ProfileSummaryLoaderTest {
     }
 
     @Test
+    public void eitherEmptyPageStillAllowsVisibleActivityFromTheOtherPage() {
+        for (ProfileSummaryLoader.Kind emptyKind : ProfileSummaryLoader.Kind.values()) {
+            FakePages pages = new FakePages();
+            Result result = new Result();
+            new ProfileSummaryLoader(pages).load("42", "Viewed user", result);
+            if (emptyKind == ProfileSummaryLoader.Kind.TOPICS) {
+                pages.requests.get(0).callback.onSuccess(new ProfileSummaryLoader.Page("42",
+                        ProfileSummaryLoader.Kind.TOPICS, Collections.emptyList()));
+            } else {
+                pages.requests.get(0).succeed("Visible topic", "");
+            }
+            assertEquals(2, pages.requests.size());
+            assertNull(result.prompt);
+            if (emptyKind == ProfileSummaryLoader.Kind.REPLIES) {
+                pages.requests.get(1).callback.onSuccess(new ProfileSummaryLoader.Page("42",
+                        ProfileSummaryLoader.Kind.REPLIES, Collections.emptyList()));
+            } else {
+                pages.requests.get(1).succeed("Reply topic", "Visible reply");
+            }
+            assertEquals(1, result.successes);
+            assertNull(result.error);
+            assertTrue(result.prompt.contains(emptyKind == ProfileSummaryLoader.Kind.TOPICS
+                    ? "无可见主题" : "无可见回复"));
+            assertTrue(result.prompt.contains(emptyKind == ProfileSummaryLoader.Kind.TOPICS
+                    ? "Visible reply" : "Visible topic"));
+        }
+    }
+
+    @Test
     public void cancellationBeforeFirstPagePreventsReplyFetchEvenIfCallbackArrives() {
         FakePages pages = new FakePages();
         Result result = new Result();

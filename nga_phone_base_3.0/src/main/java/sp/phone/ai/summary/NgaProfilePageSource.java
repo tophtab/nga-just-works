@@ -272,8 +272,15 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
                 if (row == null) {
                     throw new PageException(RESPONSE_ERROR);
                 }
+                // NGA mixes unavailable placeholders into otherwise usable activity pages.
+                if (hasUnavailableMarker(row)) {
+                    continue;
+                }
                 JSONObject authored = kind == ProfileSummaryLoader.Kind.REPLIES
                         ? object(row.get("__P")) : row;
+                if (kind == ProfileSummaryLoader.Kind.REPLIES && hasUnavailableMarker(authored)) {
+                    continue;
+                }
                 if (authored == null || !uid.equals(scalar(authored.get("authorid")))) {
                     throw new PageException("NGA 返回的内容与当前用户不符，请重新发起总结");
                 }
@@ -301,6 +308,16 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
             // Do not retain the parser exception: its text may contain the original response.
             throw new PageException(RESPONSE_ERROR);
         }
+    }
+
+    private static boolean hasUnavailableMarker(JSONObject row) {
+        if (row == null) {
+            return false;
+        }
+        Object denied = row.get("denied");
+        Object error = row.get("error");
+        return (denied instanceof String && !((String) denied).trim().isEmpty())
+                || (error instanceof String && !((String) error).trim().isEmpty());
     }
 
     private static JSONObject object(Object value) {

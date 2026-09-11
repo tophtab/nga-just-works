@@ -103,6 +103,154 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
+    public void unavailableTopicsDoNotHideVisibleTopicsBeforeOrAfterThem() throws Exception {
+        JSONObject first = row("42", false);
+        first.put("subject", "First visible topic");
+        JSONObject denied = row("99", false);
+        denied.put("denied", "DENIAL_MESSAGE_SENTINEL");
+        denied.put("subject", "UNAVAILABLE_TOPIC_SENTINEL");
+        JSONObject errored = row("99", false);
+        errored.put("error", "DENIAL_MESSAGE_SENTINEL");
+        errored.put("subject", "UNAVAILABLE_TOPIC_SENTINEL");
+        JSONObject last = row("42", false);
+        last.put("subject", "Last visible topic");
+
+        ProfileSummaryLoader.Page page = NgaProfilePageSource.parsePage(
+                document(first, denied, errored, last), "42", ProfileSummaryLoader.Kind.TOPICS);
+        assertEquals(2, page.entries.size());
+        String prompt = prompt(page);
+        assertTrue(prompt.contains("First visible topic"));
+        assertTrue(prompt.contains("Last visible topic"));
+        assertFalse(prompt.contains("UNAVAILABLE_TOPIC_SENTINEL"));
+        assertFalse(prompt.contains("DENIAL_MESSAGE_SENTINEL"));
+    }
+
+    @Test
+    public void unavailableReplyRowsAndNestedBodiesCannotEnterThePrompt() throws Exception {
+        for (String marker : new String[]{"denied", "error"}) {
+            JSONObject outer = row("99", true);
+            outer.put(marker, "DENIAL_MESSAGE_SENTINEL");
+            outer.getJSONObject("__P").put("content", "UNAVAILABLE_OUTER_REPLY_SENTINEL");
+            JSONObject nested = row("42", true);
+            nested.getJSONObject("__P").put(marker, "DENIAL_MESSAGE_SENTINEL");
+            nested.getJSONObject("__P").put("content", "UNAVAILABLE_NESTED_REPLY_SENTINEL");
+            JSONObject visible = row("42", true);
+            visible.getJSONObject("__P").put("content", "Visible reply after unavailable entries");
+
+            ProfileSummaryLoader.Page page = NgaProfilePageSource.parsePage(
+                    document(outer, nested, visible), "42", ProfileSummaryLoader.Kind.REPLIES);
+            assertEquals(1, page.entries.size());
+            assertEquals("Visible reply after unavailable entries", page.entries.get(0).getReply());
+            String prompt = prompt(page);
+            assertFalse(prompt.contains("UNAVAILABLE_OUTER_REPLY_SENTINEL"));
+            assertFalse(prompt.contains("UNAVAILABLE_NESTED_REPLY_SENTINEL"));
+            assertFalse(prompt.contains("DENIAL_MESSAGE_SENTINEL"));
+        }
+    }
+
+    @Test
+    public void unmarkedForeignOrMalformedRecordsStillFailAfterUnavailableRows() {
+        JSONObject unavailable = new JSONObject();
+        unavailable.put("denied", "Unavailable synthetic record");
+        for (ProfileSummaryLoader.Kind kind : ProfileSummaryLoader.Kind.values()) {
+            boolean reply = kind == ProfileSummaryLoader.Kind.REPLIES;
+            assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                    document(unavailable, row("99", reply)), "42", kind));
+            JSONObject malformed = row("42", reply);
+            malformed.remove(reply ? "__P" : "authorid");
+            assertThrows(NgaProfilePageSource.PageException.class, () -> NgaProfilePageSource.parsePage(
+                    document(unavailable, malformed), "42", kind));
+        }
+    }
+
+    @Test
+    public void blankAndNonStringMarkersRetainNormalAuthorAndContentValidation() throws Exception {
+        Object[] values = {null, "", " \t\r\n", true, false, 0, 1,
+                new JSONObject(), Collections.singletonList("Unavailable synthetic record")};
+        for (String marker : new String[]{"denied", "error"}) {
+            for (Object value : values) {
+                for (ProfileSummaryLoader.Kind kind : ProfileSummaryLoader.Kind.values()) {
+                    boolean reply = kind == ProfileSummaryLoader.Kind.REPLIES;
+                    JSONObject row = row("42", reply);
+                    row.put(marker, value);
+                    JSONObject authored = reply ? row.getJSONObject("__P") : row;
+                    authored.put(marker, value);
+                    assertEquals(1, NgaProfilePageSource.parsePage(document(row), "42", kind)
+                            .entries.size());
+
+                    authored.put("authorid", "99");
+                    assertThrows(NgaProfilePageSource.PageException.class,
+                            () -> NgaProfilePageSource.parsePage(document(row), "42", kind));
+                    authored.put("authorid", "42");
+                    authored.remove(reply ? "content" : "subject");
+                    assertThrows(NgaProfilePageSource.PageException.class,
+                            () -> NgaProfilePageSource.parsePage(document(row), "42", kind));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void allUnavailablePagesContributeNoActivityEvenWithoutUsableAuthorOrBody() throws Exception {
+        JSONObject denied = new JSONObject();
+        denied.put("denied", "Unavailable synthetic record");
+        JSONObject errored = new JSONObject();
+        errored.put("error", "Unavailable synthetic record");
+        JSONObject nested = new JSONObject();
+        nested.put("__P", errored);
+        ProfileSummaryLoader.Page topics = NgaProfilePageSource.parsePage(
+                document(denied, errored), "42", ProfileSummaryLoader.Kind.TOPICS);
+        ProfileSummaryLoader.Page replies = NgaProfilePageSource.parsePage(
+                document(denied, nested), "42", ProfileSummaryLoader.Kind.REPLIES);
+        assertTrue(topics.entries.isEmpty());
+        assertTrue(replies.entries.isEmpty());
+    }
+
+    @Test
+    public void unavailableRecordsDoNotConsumeTheTwentyVisibleEntryLimit() throws Exception {
+        int unavailableCount = 25;
+        int visibleCount = 22;
+        for (ProfileSummaryLoader.Kind kind : ProfileSummaryLoader.Kind.values()) {
+            boolean reply = kind == ProfileSummaryLoader.Kind.REPLIES;
+            JSONObject[] rows = new JSONObject[unavailableCount + visibleCount];
+            for (int i = 0; i < unavailableCount; i++) {
+                rows[i] = row("99", reply);
+                JSONObject markerOwner = reply && i % 2 == 0 ? rows[i].getJSONObject("__P") : rows[i];
+                markerOwner.put("denied", "Unavailable synthetic record");
+            }
+            for (int i = 0; i < visibleCount; i++) {
+                rows[unavailableCount + i] = row("42", reply);
+                rows[unavailableCount + i].put("subject", "Visible topic " + i);
+            }
+            ProfileSummaryLoader.Page page = NgaProfilePageSource.parsePage(
+                    document(rows), "42", kind);
+            assertEquals(20, page.entries.size());
+            String prompt = prompt(page);
+            assertTrue(prompt.contains("Visible topic 0 |"));
+            assertTrue(prompt.contains("Visible topic 19 |"));
+            assertFalse(prompt.contains("Visible topic 20 |"));
+            assertFalse(prompt.contains("Visible topic 21 |"));
+        }
+    }
+
+    @Test
+    public void wholePageRejectionsStillFailWhenEveryRecordIsUnavailable() {
+        JSONObject unavailable = new JSONObject();
+        unavailable.put("denied", "Unavailable synthetic record");
+        for (String marker : new String[]{"error", "__MESSAGE"}) {
+            JSONObject root = JSON.parseObject(document(unavailable));
+            JSONObject markerOwner = "error".equals(marker) ? root : root.getJSONObject("data");
+            markerOwner.put(marker, "WHOLE_PAGE_DENIAL_SENTINEL");
+            for (ProfileSummaryLoader.Kind kind : ProfileSummaryLoader.Kind.values()) {
+                NgaProfilePageSource.PageException error = assertThrows(NgaProfilePageSource.PageException.class,
+                        () -> NgaProfilePageSource.parsePage(JSON.toJSONString(root), "42", kind));
+                assertFalse(error.getMessage().contains("WHOLE_PAGE_DENIAL_SENTINEL"));
+                assertNull(error.getCause());
+            }
+        }
+    }
+
+    @Test
     public void missingReplyBodyCannotSilentlyTurnIntoATitleOnlySummary() {
         JSONObject row = row("42", true);
         row.getJSONObject("__P").remove("content");
@@ -315,12 +463,14 @@ public class NgaProfilePageSourceTest {
         return row;
     }
 
-    private static String document(JSONObject row) {
+    private static String document(JSONObject... items) {
         JSONObject rows = new JSONObject();
-        rows.put("0", row);
+        for (int i = 0; i < items.length; i++) {
+            rows.put(String.valueOf(i), items[i]);
+        }
         JSONObject data = new JSONObject();
         data.put("__T", rows);
-        data.put("__T__ROWS", 1);
+        data.put("__T__ROWS", items.length);
         JSONObject privateData = new JSONObject();
         privateData.put("cookie", "COOKIE_SENTINEL");
         privateData.put("email", "PROFILE_EMAIL_SENTINEL");
@@ -328,6 +478,13 @@ public class NgaProfilePageSourceTest {
         JSONObject root = new JSONObject();
         root.put("data", data);
         return JSON.toJSONString(root);
+    }
+
+    private static String prompt(ProfileSummaryLoader.Page page) {
+        return new ProfileSummaryInput(page.uid, "Viewed user",
+                page.kind == ProfileSummaryLoader.Kind.TOPICS ? page.entries : Collections.emptyList(),
+                page.kind == ProfileSummaryLoader.Kind.REPLIES ? page.entries : Collections.emptyList())
+                .toPrompt();
     }
 
     private static MockResponse gbkResponse(String json) {

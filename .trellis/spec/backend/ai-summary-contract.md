@@ -158,7 +158,8 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 - `NgaProfilePageSource` implements the existing `TOPIC.LIST` wire operation:
   `GET thread.php?authorid=<uid>&page=1&lite=js&noprefix`, adding `searchpost=1`
   for replies. Run the topics operation before replies, each capped at 20
-  entries; never request later pages or whole topics to obtain reply text.
+  accepted entries; skipped unavailable records do not consume this allowance.
+  Never request later pages or whole topics to obtain reply text.
 - Capture one Cookie/UA snapshot for both operations. Permit only HTTPS port
   443 on the explicit NGA host set in the source, with no userinfo, query,
   fragment, custom base path, or redirects. There is no application retry or
@@ -172,12 +173,24 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   `ResponseBody.contentType() == null`.
 - Normalize the known JS prefix once, then use the shared bounded decoder,
   including for a string-valued `parent`. Require `data.__T`, its row count,
-  and the correct author. Replies come from each row's `__P.content`,
-  `__P.authorid`, and `__P.postdate`; cap each reply at 800 characters.
+  and the correct author on available records. Replies come from each row's
+  `__P.content`, `__P.authorid`, and `__P.postdate`; cap each reply at 800 characters.
   Format dates in the device display timezone. Extract only title, board,
   date, and public reply text into the prompt, not raw JSON or private profile
-  fields. Missing, challenge, rejected, malformed, or mismatched data is not
-  an empty success.
+  fields.
+- Authorized first-page reads on 2026-09-11 contained unavailable placeholders
+  with nonblank string `denied` or `error` fields. Skip an outer row with either
+  marker before author/content validation; for replies, also inspect `__P` for
+  these markers. An unavailable topic can have a nonmatching author, while an
+  unavailable reply can still have a matching author and string content. Neither
+  form contributes text to the prompt. Blank/whitespace strings and other value
+  types do not establish unavailability; retain ordinary validation for them.
+- An all-unavailable page contributes an empty sample. Available entries from
+  the other kind still permit a summary; if both samples are empty, retain the
+  existing no-visible-content error. Missing/malformed page structures, root
+  `error`, `data.__MESSAGE`, challenge responses, and unmarked malformed or
+  foreign-author records remain collection errors. Do not generalize item
+  filtering into a fallback for arbitrary author mismatches or page rejection.
 
 ### Dialog and cancellation
 
@@ -218,7 +231,11 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 | Connection/read/call timeout | Terminal timeout state, never a stuck spinner |
 | Manual close or stale target/generation | Cancel and discard callbacks |
 | Bad UTF-8, wrong response shape, oversized response | Fixed response error; no raw body |
-| Malformed NGA Content-Type or wrong author UID | Stop collection; do not send a model request |
+| Malformed NGA Content-Type or unmarked record with wrong author UID | Stop collection; do not send a model request |
+| Nonblank string `denied`/`error` on an outer row or reply `__P` | Skip the unavailable item before author/content validation; retain the accepted-item allowance |
+| Blank or non-string item marker | Apply normal author/content validation |
+| All items unavailable on one page | Empty sample; use available activity from the other kind |
+| Both samples empty, root `error`, or `data.__MESSAGE` | Report the existing collection error; do not send a model request |
 | Second page-source invocation throws synchronously | Terminal collection error, still retryable |
 | `503 Retry-After: 0` from model | One POST only; preserve server error |
 
@@ -227,6 +244,10 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
 - Good: while logged in as user A, summarize viewed user B's first-page public
   activity using B's UID and the captured A session, with no credentials in
   the model prompt. Switching pages cancels the old operation.
+- Good: a page mixes visible activity with explicitly unavailable placeholders;
+  accept only visible entries, validating their actual topic/reply authors.
+- Bad: rejecting a whole mixed page because an unavailable placeholder has a
+  foreign author, or accepting denial text because its reply author matches.
 - Base: an unconfigured floor action opens settings and sends no request;
   settings can test a draft before saving it.
 - Good: a user enters `http://192.168.1.10:1234/v1` and a Key, opens the model
@@ -254,6 +275,11 @@ state exposes `IDLE`, `LOADING`, `SUCCESS`, or `ERROR` and display text.
   and `NgaProfilePageSourceTest`: frozen rows, correct UID, two first-page
   operations, reply text, limited content, date boundaries, charset errors,
   timeout versus user cancellation, synchronous failures, and late callbacks.
+  Profile parser regressions also cover mixed visible/unavailable topics,
+  outer and nested reply markers, both marker names, blank/non-string markers,
+  unmarked foreign authors, all-unavailable pages, unchanged whole-page errors,
+  and the 20 accepted-item cap after filtering. Loader tests cover an empty
+  topic sample with available replies and the both-empty error.
 - `AiSettingsContractTest`, `DefaultSettingsContractTest`, and
   `AiSummaryUiContractTest`: settings hierarchy/navigation, Key state-saving
   precautions, both floor menus, loaded-profile visibility, shared dialog,
@@ -291,4 +317,22 @@ client.listModels(config.getEndpoint(), config.getApiKey(), callback);
 
 // Correct: discovery validates only the fields the operation needs.
 client.listModels(draftEndpoint, currentApiKey(), callback);
+```
+
+```java
+// Wrong: this hides genuine author mismatches as empty/partial success.
+if (authored == null || !uid.equals(scalar(authored.get("authorid")))) {
+    continue;
+}
+
+// Correct: recognize explicit unavailability before validating available data.
+if (hasUnavailableMarker(row)) {
+    continue;
+}
+JSONObject authored = kind == ProfileSummaryLoader.Kind.REPLIES
+        ? object(row.get("__P")) : row;
+if (kind == ProfileSummaryLoader.Kind.REPLIES && hasUnavailableMarker(authored)) {
+    continue;
+}
+// Keep the existing author and required-content checks after these guards.
 ```
