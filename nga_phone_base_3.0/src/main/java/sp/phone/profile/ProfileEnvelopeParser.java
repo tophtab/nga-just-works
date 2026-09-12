@@ -3,7 +3,7 @@ package sp.phone.profile;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
-/** The established USER.PROFILE wrapper repairs, shared by both profile readers. */
+/** The established JSON wrapper repairs for the manual USER.PROFILE reader. */
 public final class ProfileEnvelopeParser {
 
     public static final class NonProfileResponseException extends IllegalArgumentException {

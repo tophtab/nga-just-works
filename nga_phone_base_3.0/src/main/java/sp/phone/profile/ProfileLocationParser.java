@@ -16,27 +16,16 @@ public final class ProfileLocationParser {
         if (source == null || source.trim().isEmpty() || requestedUid <= 0) {
             return ProfileLocationResult.failure();
         }
-        // HTML/login/challenge pages are not profile envelopes, even with HTTP 200.
-        if (source.trim().startsWith("<")) {
-            return ProfileLocationResult.rejected();
-        }
-        final JSONObject envelope;
+        final JSONObject user;
         try {
-            envelope = ProfileEnvelopeParser.parse(source);
-        } catch (ProfileEnvelopeParser.NonProfileResponseException ignored) {
-            return ProfileLocationResult.rejected();
+            user = ProfileWebUserParser.parse(source);
         } catch (RuntimeException ignored) {
             return ProfileLocationResult.failure();
         }
-        if (envelope == null || envelope.containsKey("error")) {
+        // A successful web profile has identified inline data; HTML alone proves nothing.
+        if (user == null || user.containsKey("error")) {
             return ProfileLocationResult.rejected();
         }
-        Object data = envelope.get("data");
-        Object profile = data instanceof JSONObject ? ((JSONObject) data).get("0") : null;
-        if (!(profile instanceof JSONObject)) {
-            return ProfileLocationResult.rejected();
-        }
-        JSONObject user = (JSONObject) profile;
         if (user.containsKey("uid")) {
             Object uid = user.get("uid");
             if (!(uid instanceof String || uid instanceof Number)

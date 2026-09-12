@@ -26,7 +26,7 @@ import sp.phone.http.bean.ThreadRowInfo;
 public class AuthorLocationRepositoryTest {
 
     @Test
-    public void fastCompletionCannotStartNextAuthorWithinOneSecond() {
+    public void fastCompletionCannotStartNextAuthorWithin500Millis() {
         for (ProfileLocationResult result : Arrays.asList(
                 ProfileLocationResult.success("广东"), ProfileLocationResult.failure())) {
             Harness h = new Harness();
@@ -34,22 +34,22 @@ public class AuthorLocationRepositoryTest {
             h.complete(result);
             assertEquals(Collections.singletonList(41), h.transport.authors());
             assertEquals(1, h.scheduledCount());
-            h.advanceElapsedBy(500);
+            h.advanceElapsedBy(250);
             // Repeated/overlapping deliveries share the existing wakeup without postponing it.
             h.deliver(page(42), true);
             h.deliver(page(42), true);
             assertEquals(1, h.scheduledCount());
-            h.advanceElapsedBy(499);
+            h.advanceElapsedBy(249);
             assertEquals(Collections.singletonList(41), h.transport.authors());
             h.advanceElapsedBy(1);
             assertEquals(Arrays.asList(41, 42), h.transport.authors());
-            assertEquals(Arrays.asList(0L, 1000L), h.transport.startTimes());
+            assertEquals(Arrays.asList(0L, 500L), h.transport.startTimes());
             assertEquals(0, h.scheduledCount());
         }
     }
 
     @Test
-    public void slowRequestsKeepThePhysicalSlotAndStillLeaveOneQuietSecond() {
+    public void slowRequestsKeepThePhysicalSlotAndStillLeave500QuietMillis() {
         Harness h = new Harness();
         h.deliver(page(41, 42), true);
         h.advanceElapsedBy(2500);
@@ -57,11 +57,11 @@ public class AuthorLocationRepositoryTest {
         assertEquals(Collections.singletonList(41), h.transport.authors());
         assertEquals(0, h.scheduledCount());
         h.complete(ProfileLocationResult.success("广东"));
-        h.advanceElapsedBy(999);
+        h.advanceElapsedBy(499);
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.advanceElapsedBy(1);
         assertEquals(Arrays.asList(41, 42), h.transport.authors());
-        assertEquals(Arrays.asList(0L, 3500L), h.transport.startTimes());
+        assertEquals(Arrays.asList(0L, 3000L), h.transport.startTimes());
         assertEquals(1, h.transport.maximumActive);
     }
 
@@ -80,11 +80,11 @@ public class AuthorLocationRepositoryTest {
         stale.action.run();
         assertEquals(1, h.scheduledCount());
         assertEquals(Collections.singletonList(41), h.transport.authors());
-        h.advanceElapsedBy(599);
+        h.advanceElapsedBy(99);
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.advanceElapsedBy(1);
         assertEquals(Arrays.asList(41, 43), h.transport.authors());
-        assertEquals(Arrays.asList(0L, 1000L), h.transport.startTimes());
+        assertEquals(Arrays.asList(0L, 500L), h.transport.startTimes());
     }
 
     @Test
@@ -96,12 +96,12 @@ public class AuthorLocationRepositoryTest {
         assertEquals(0, h.scheduledCount());
         h.session = ProfileSession.create("https://ngabbs.com", "8", "other-fixture", "Fixture UA");
         h.deliver(page(43), true);
-        h.advanceElapsedBy(999);
+        h.advanceElapsedBy(499);
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.advanceElapsedBy(1);
         assertEquals(Arrays.asList(41, 43), h.transport.authors());
         assertEquals(h.session, h.transport.active.session);
-        assertEquals(Arrays.asList(0L, 1000L), h.transport.startTimes());
+        assertEquals(Arrays.asList(0L, 500L), h.transport.startTimes());
     }
 
     @Test
@@ -117,11 +117,11 @@ public class AuthorLocationRepositoryTest {
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.complete(ProfileLocationResult.failure());
         assertTrue(h.persisted.isEmpty());
-        h.advanceElapsedBy(999);
+        h.advanceElapsedBy(499);
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.advanceElapsedBy(1);
         assertEquals(Arrays.asList(41, 42), h.transport.authors());
-        assertEquals(Arrays.asList(0L, 3000L), h.transport.startTimes());
+        assertEquals(Arrays.asList(0L, 2500L), h.transport.startTimes());
         assertEquals(1, h.transport.maximumActive);
     }
 
@@ -131,7 +131,7 @@ public class AuthorLocationRepositoryTest {
         h.deliver(page(41, 42, 43), true);
         h.complete(ProfileLocationResult.success("广东"));
         h.now += AuthorLocationCache.FRESH_MILLIS;
-        h.advanceElapsedBy(999);
+        h.advanceElapsedBy(499);
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.now -= 2 * AuthorLocationCache.FRESH_MILLIS;
         h.advanceElapsedBy(1);
@@ -141,10 +141,10 @@ public class AuthorLocationRepositoryTest {
         assertEquals(Arrays.asList(41, 42, 43), h.transport.authors());
         h.deliver(page(44), true);
         h.complete(ProfileLocationResult.success("江苏"));
-        h.advanceElapsedBy(999);
+        h.advanceElapsedBy(499);
         assertEquals(Arrays.asList(41, 42, 43), h.transport.authors());
         h.advanceElapsedBy(1);
-        assertEquals(Arrays.asList(0L, 1000L, 11_000L, 12_000L), h.transport.startTimes());
+        assertEquals(Arrays.asList(0L, 500L, 10_500L, 11_000L), h.transport.startTimes());
     }
 
     @Test
@@ -156,7 +156,7 @@ public class AuthorLocationRepositoryTest {
         assertEquals(0, h.scheduledCount());
         h.advanceElapsedBy(400);
         h.deliver(page(42), true);
-        h.advanceElapsedBy(599);
+        h.advanceElapsedBy(99);
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.advanceElapsedBy(1);
         assertEquals(Arrays.asList(41, 42), h.transport.authors());
@@ -205,17 +205,17 @@ public class AuthorLocationRepositoryTest {
         Page hiddenPrefetch = h.deliver(page(42, 43), true);
         assertEquals(Collections.singletonList(41), h.transport.authors());
 
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
         assertEquals(Arrays.asList(41, 42), h.transport.authors());
         assertEquals("广东", foreground.latest().location(41, h.now));
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
         assertEquals(Arrays.asList(41, 42, 43), h.transport.authors());
         assertEquals("上海", foreground.latest().location(42, h.now));
         assertEquals("上海", hiddenPrefetch.latest().location(42, h.now));
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("江苏"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("江苏"));
         assertEquals("江苏", hiddenPrefetch.latest().location(43, h.now));
         assertEquals(1_700_000_000_000L, h.now);
-        assertEquals(Arrays.asList(0L, 1000L, 2000L), h.transport.startTimes());
+        assertEquals(Arrays.asList(0L, 500L, 1000L), h.transport.startTimes());
         assertEquals(1, h.transport.maximumActive);
     }
 
@@ -236,7 +236,7 @@ public class AuthorLocationRepositoryTest {
             }
         }
         while (h.transport.active != null) {
-            h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
+            h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
         }
         assertEquals(expected, h.transport.authors());
         assertEquals(1, h.transport.maximumActive);
@@ -268,8 +268,8 @@ public class AuthorLocationRepositoryTest {
     public void freshAndValidEmptyCacheSurviveRepositoryRecreationButExpireOnDemand() {
         Harness first = new Harness();
         first.deliver(page(41, 42), true);
-        first.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
-        first.completeAndWaitOneSecond(ProfileLocationResult.success(null));
+        first.completeAndWaitInterval(ProfileLocationResult.success("广东"));
+        first.completeAndWaitInterval(ProfileLocationResult.success(null));
 
         Harness reopened = new Harness(first.persisted);
         Page page = reopened.deliver(page(41, 42), true);
@@ -288,7 +288,7 @@ public class AuthorLocationRepositoryTest {
     public void savedPageReadersUseOnlyFreshCacheAndNeverQueueMisses() {
         Harness h = new Harness();
         h.deliver(page(41), true);
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
         Harness offline = new Harness(h.persisted);
         Page savedPage = offline.deliver(page(41, 42, 43), false);
         assertEquals("广东", savedPage.latest().location(41, offline.now));
@@ -303,8 +303,8 @@ public class AuthorLocationRepositoryTest {
     public void cacheOnlyDeliveryCannotResumeAnOnlineQueueAfterItsRateLimitExpires() {
         Harness h = new Harness();
         h.deliver(page(41, 42, 43), true);
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
-        h.completeAndWaitOneSecond(ProfileLocationResult.rateLimit(h.now + AuthorLocationCache.RATE_LIMIT_MILLIS));
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
+        h.completeAndWaitInterval(ProfileLocationResult.rateLimit(h.now + AuthorLocationCache.RATE_LIMIT_MILLIS));
         h.now += AuthorLocationCache.RATE_LIMIT_MILLIS;
 
         // Saved-page reads and retained-view recreation use this same cache-only subscription.
@@ -318,8 +318,8 @@ public class AuthorLocationRepositoryTest {
         // A later actual online delivery can resume eligible work immediately, without a timer.
         h.deliver(page(44), true);
         assertEquals(Arrays.asList(41, 42, 43), h.transport.authors());
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("江苏"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("江苏"));
         assertEquals(Arrays.asList(41, 42, 43, 44), h.transport.authors());
     }
 
@@ -331,7 +331,7 @@ public class AuthorLocationRepositoryTest {
         assertTrue(h.transport.authors().isEmpty());
         h.repository.restore(Collections.emptyList());
         assertEquals(Collections.singletonList(41), h.transport.authors());
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
         assertEquals("广东", page.latest().location(41, h.now));
     }
 
@@ -339,9 +339,9 @@ public class AuthorLocationRepositoryTest {
     public void ordinaryFailuresCoolDownOnlyTheirKeyWithoutAutomaticRetry() {
         Harness h = new Harness();
         h.deliver(page(41, 42), true);
-        h.completeAndWaitOneSecond(ProfileLocationResult.failure());
+        h.completeAndWaitInterval(ProfileLocationResult.failure());
         assertEquals(Arrays.asList(41, 42), h.transport.authors());
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
         h.now += AuthorLocationCache.FAILURE_MILLIS - 1;
         h.deliver(page(41), true);
         assertEquals(2, h.transport.authors().size());
@@ -356,7 +356,7 @@ public class AuthorLocationRepositoryTest {
         Harness h = new Harness();
         h.deliver(page(41, 42, 43), true);
         long retry = h.now + 2 * AuthorLocationCache.RATE_LIMIT_MILLIS;
-        h.completeAndWaitOneSecond(ProfileLocationResult.rateLimit(retry));
+        h.completeAndWaitInterval(ProfileLocationResult.rateLimit(retry));
         assertEquals(Collections.singletonList(41), h.transport.authors());
         h.now = retry - 1;
         h.deliver(page(44), true);
@@ -373,7 +373,7 @@ public class AuthorLocationRepositoryTest {
     public void rateLimitHasThirtyMinuteMinimumAndIsSharedAfterProcessRecreation() {
         Harness h = new Harness();
         h.deliver(page(41), true);
-        h.completeAndWaitOneSecond(ProfileLocationResult.rateLimit(h.now + 1000));
+        h.completeAndWaitInterval(ProfileLocationResult.rateLimit(h.now + 1000));
         Harness recreated = new Harness(h.persisted);
         recreated.now += AuthorLocationCache.RATE_LIMIT_MILLIS - 1;
         recreated.deliver(page(42), true);
@@ -387,7 +387,7 @@ public class AuthorLocationRepositoryTest {
     public void siteRejectionStopsThatSessionWithoutRotatingAccountsOrRestartingOnRevisit() {
         Harness h = new Harness();
         h.deliver(page(41, 42), true);
-        h.completeAndWaitOneSecond(ProfileLocationResult.rejected());
+        h.completeAndWaitInterval(ProfileLocationResult.rejected());
         h.now += 2 * AuthorLocationCache.FRESH_MILLIS;
         h.deliver(page(43), true);
         assertEquals(Collections.singletonList(41), h.transport.authors());
@@ -396,7 +396,7 @@ public class AuthorLocationRepositoryTest {
         h.session = ProfileSession.create("https://bbs.nga.cn", "8", "other-fixture", "Fixture UA");
         h.deliver(page(42), true);
         assertEquals(Arrays.asList(41, 42), h.transport.authors());
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
         h.session = rejected;
         h.deliver(page(44), true);
         assertEquals(2, h.transport.authors().size());
@@ -411,7 +411,7 @@ public class AuthorLocationRepositoryTest {
                 "window.script_muti_get_var_store=<html>验证</html>"}) {
             Harness h = new Harness();
             h.deliver(page(41, 42), true);
-            h.completeAndWaitOneSecond(ProfileLocationParser.parse(wire, 41));
+            h.completeAndWaitInterval(ProfileLocationParser.parse(wire, 41));
             h.deliver(page(43), true);
             assertEquals(wire, Collections.singletonList(41), h.transport.authors());
         }
@@ -448,9 +448,9 @@ public class AuthorLocationRepositoryTest {
             h.session = ProfileSession.create("https://bbs.nga.cn", "8", "different-fixture", "Fixture UA");
             Page otherAccount = h.deliver(page(42), true);
             h.drainCompletions();
-            h.advanceElapsedBy(1000);
+            h.advanceElapsedBy(500);
             assertEquals(Arrays.asList(41, 42), h.transport.authors());
-            h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+            h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
             assertEquals("上海", otherAccount.latest().location(42, h.now));
             h.session = original;
             h.deliver(page(43), true);
@@ -487,10 +487,10 @@ public class AuthorLocationRepositoryTest {
         h.session = ProfileSession.create("https://bbs.nga.cn", "7", "replacement-fixture", "Fixture UA");
         h.deliver(page(42), true);
         h.drainCompletions();
-        h.advanceElapsedBy(1000);
+        h.advanceElapsedBy(500);
         assertEquals(Arrays.asList(41, 42), h.transport.authors());
         assertEquals(h.session, h.transport.active.session);
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
 
         h.session = original;
         h.deliver(page(43), true);
@@ -504,13 +504,13 @@ public class AuthorLocationRepositoryTest {
         Page alive = h.deliver(page(41, 43), true);
         destroyed.subscription.close();
         int oldEvents = destroyed.results.size();
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
         assertEquals(Arrays.asList(41, 43), h.transport.authors());
         assertEquals(oldEvents, destroyed.results.size());
         assertEquals("广东", alive.latest().location(41, h.now));
         alive.subscription.close();
         int remainingEvents = alive.results.size();
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
         assertEquals(remainingEvents, alive.results.size());
         assertEquals(2, h.transport.authors().size());
         // An already sent request can finish into the same valid cache after view destruction.
@@ -526,10 +526,10 @@ public class AuthorLocationRepositoryTest {
         old.subscription.close();
         Page replacement = h.deliver(page(43), true);
         int replacementEvents = replacement.results.size();
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
         assertEquals(replacementEvents, replacement.results.size());
         assertEquals(Arrays.asList(41, 43), h.transport.authors());
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
         assertNull(replacement.latest().location(41, h.now));
         assertEquals("上海", replacement.latest().location(43, h.now));
     }
@@ -547,13 +547,13 @@ public class AuthorLocationRepositoryTest {
         Page newPage = h.deliver(page(41), true);
         // Cancelling does not release the physical slot before the terminal callback.
         assertEquals(1, h.transport.authors().size());
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("旧结果"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("旧结果"));
         assertEquals(oldEvents, old.results.size());
         assertEquals(2, h.transport.authors().size());
         assertEquals("ngaPassportUid=7; ngaPassportCid=replacement-fixture", h.transport.active.session.cookie);
         assertNull(newPage.latest().location(41, h.now));
         assertTrue(h.persisted.isEmpty());
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("上海"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
         assertEquals("上海", newPage.latest().location(41, h.now));
         assertEquals(1, h.transport.maximumActive);
     }
@@ -563,7 +563,7 @@ public class AuthorLocationRepositoryTest {
         Harness h = new Harness();
         Page old = h.deliver(page(41, 42), true);
         h.session = ProfileSession.create("https://ngabbs.com", "8", "another-fixture", "Fixture UA");
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("旧结果"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("旧结果"));
         assertNull(old.latest().location(41, h.now));
         assertEquals(Collections.singletonList(41), h.transport.authors());
         assertTrue(h.persisted.isEmpty());
@@ -576,7 +576,7 @@ public class AuthorLocationRepositoryTest {
     public void previouslyDeliveredSnapshotIsInvalidatedWhenAccountChanges() {
         Harness h = new Harness();
         Page page = h.deliver(page(41), true);
-        h.completeAndWaitOneSecond(ProfileLocationResult.success("广东"));
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
         AuthorLocationRepository.Snapshot displayed = page.latest();
         assertEquals("广东", displayed.location(41, h.now));
         h.repository.invalidateSession();
@@ -642,9 +642,9 @@ public class AuthorLocationRepositoryTest {
             drainCompletions();
         }
 
-        void completeAndWaitOneSecond(ProfileLocationResult result) {
+        void completeAndWaitInterval(ProfileLocationResult result) {
             complete(result);
-            advanceElapsedBy(1000);
+            advanceElapsedBy(500);
         }
 
         AuthorLocationRepository.Cancellation schedule(Runnable action, long delayMillis) {

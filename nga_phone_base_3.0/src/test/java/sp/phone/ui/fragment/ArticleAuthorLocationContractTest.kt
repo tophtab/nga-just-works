@@ -119,12 +119,8 @@ class ArticleAuthorLocationContractTest {
     }
 
     @Test
-    fun supplementalTransportDoesNotReuseTheUiTaskAndBothProfileReadersShareWrappers() {
+    fun supplementalTransportDoesNotReuseTheUiTaskOrItsLoggingSideEffects() {
         val transport = source("java/sp/phone/profile/ProfileLocationTransport.java")
-        val task = source("java/sp/phone/task/JsonProfileLoadTask.java")
-        val parser = source("java/sp/phone/profile/ProfileLocationParser.java")
-        assertTrue(task.contains("ProfileEnvelopeParser.parse(js)"))
-        assertTrue(parser.contains("ProfileEnvelopeParser.parse(source)"))
         assertFalse(transport.contains("JsonProfileLoadTask"))
         assertFalse(transport.contains("RetrofitHelper"))
         assertFalse(transport.contains("NLog"))

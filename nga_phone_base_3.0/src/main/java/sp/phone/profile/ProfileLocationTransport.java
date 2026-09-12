@@ -48,7 +48,7 @@ final class ProfileLocationTransport implements AuthorLocationRepository.Transpo
                 .callTimeout(20, TimeUnit.SECONDS)
                 .addNetworkInterceptor(chain -> {
                     Response response = chain.proceed(chain.request());
-                    // OkHttp 3.12 retries 503 + Retry-After: 0 even when connection retries
+                    // OkHttp retries 503 + Retry-After: 0 even when connection retries
                     // are disabled. Remove only its 503 follow-up hint before that layer sees
                     // it; preserve status/body and all 429 retry metadata for our classifier.
                     return response.code() == 503
@@ -65,8 +65,8 @@ final class ProfileLocationTransport implements AuthorLocationRepository.Transpo
             return () -> { };
         }
         Request request = new Request.Builder()
-                .url(session.origin + "/nuke.php?__lib=ucp&__act=get&lite=js&noprefix&uid=" + author)
-                .header("Referer", session.origin + "/nuke.php?func=ucp&lite=jsx&uid=" + author)
+                .url(session.origin + "/nuke.php?func=ucp&uid=" + author)
+                .header("Referer", session.origin + "/nuke.php?func=ucp&uid=" + author)
                 .header("Cookie", session.cookie)
                 .header("User-Agent", session.userAgent)
                 .header("X-User-Agent", "Nga_Official")
