@@ -2,7 +2,7 @@
 
 `NGA Just Works` 是基于
 [Justwen/NGA-CLIENT-VER-OPEN-SOURCE](https://github.com/Justwen/NGA-CLIENT-VER-OPEN-SOURCE)
-进行的二次开发，当前代码基线为上游提交
+进行的二次开发，初始代码基线为上游提交
 [`5d807617f8058950f7ea81dda405e38fb0cc37ec`](https://github.com/Justwen/NGA-CLIENT-VER-OPEN-SOURCE/commit/5d807617f8058950f7ea81dda405e38fb0cc37ec)，并按需引入和适配上游后续的功能改进与问题修复。
 
 ## 下载
