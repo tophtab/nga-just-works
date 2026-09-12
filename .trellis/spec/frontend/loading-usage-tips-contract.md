@@ -65,19 +65,19 @@ actual bundled settings metadata once on first foreground demand.
   background, and 8 dp bottom margin compatible with their callers.
 - Put passive multiline `loading_tip` text below the spinner: wrap-content
   height, 16 sp, semantic `text_color`, centered text, and horizontal padding.
-  Do not ellipsize instructions, steal focus, or force announcements.
-- `loading_tip_strings.xml` is the copy source. Screen qualifiers matter:
+  Do not ellipsize instructions, steal focus, or force announcements. Tip
+  strings carry no trailing full stop and render as two centered lines: a
+  prefix (`你知道吗？` / `隐藏功能：` / `长按排序：` / `已加入AI功能。`) on
+  the first line via `\n`, and the instruction on the second. Keep both
+  conventions when editing copy.
+- `loading_tip_strings.xml` is the copy source. Screen qualifiers matter. The
+  catalog merges related gestures into one instruction per surface family:
 
-| Control / surface | Actual advertised behavior |
+| Tip | Actual advertised behavior |
 | --- | --- |
-| Online article, current page tap | Return to this page's top |
-| Online article, current page long press | Refresh this page |
-| Online article, lower-right reply button long press | Refresh this page |
-| Board topic list, compose button long press | Return to top and refresh the list |
-| Online topic list, title tap | Return to top and refresh the list |
-| Favorite-board card long press | Drag to reorder |
-| Home category-tab long press | Drag to reorder; favorite boards stay first |
-| Emoticon long press | Reorder within the current category |
+| Online article, current page number ("你知道吗？\n看帖时，点击、长按当前页码有隐藏功能") | Tap returns to this page's top; long press refreshes this page |
+| Bottom-right buttons ("隐藏功能：\n长按右下角按钮可刷新，板块页同时触发回顶") | Article reply-button long press refreshes this page without scrolling; board compose-button long press returns to top and refreshes |
+| Long-press reorder ("长按排序：\n收藏板块、分类标签、表情") | Favorite-board cards, home category tabs, and emoticons reorder by long-press drag; favorite boards stay first |
 
 The current-page and article reply-button refresh actions do not scroll to top
 or change pages. Do not copy the board's different refresh behavior into their
@@ -86,16 +86,17 @@ in [component guidelines](./component-guidelines.md).
 
 ### Optional AI guidance
 
-The ninth tip describes endpoint, API Key, and model configuration under
-`设置 → AI 设置`. It is eligible only when `R.xml.settings` actually includes
+The fourth tip announces the bundled AI feature and invites prompt
+contributions on GitHub ("已加入AI功能。\n有好的提示词，上github提issue").
+It is eligible only when `R.xml.settings` actually includes
 `android:key="pref_ai_settings"` with
 `android:fragment="sp.phone.ui.fragment.SettingsAiFragment"`, and that class is
 a loadable AndroidX Fragment. Load the class without initializing or creating
 the screen. An absent/broken optional entry excludes only this tip.
 
 Do not infer capability from the tip string, an AI model helper, or a sibling
-worktree. The baseline branch has eight eligible tips; a build containing the
-verified real settings entry has nine. Recheck both cases when integrating AI
+worktree. The baseline branch has three eligible tips; a build containing the
+verified real settings entry has four. Recheck both cases when integrating AI
 work. There is no new user preference, network request, or persistent tip state.
 
 ## 4. Validation & Error Matrix
@@ -110,8 +111,8 @@ work. There is no new user preference, network request, or persistent tip state.
 | Lifecycle destroyed or replaced | Remove obsolete observer and reset state |
 | Later visible loading occasion, multiple eligible tips | Avoid the previous resource ID |
 | Empty / single-entry catalog | No tip / sole tip, without failure |
-| AI key missing, wrong destination, or class absent | Eight-tip pool; do not advertise AI |
-| Verified AI entry and Fragment present | Include the ninth instruction |
+| AI key missing, wrong destination, or class absent | Three-tip pool; do not advertise AI |
+| Verified AI entry and Fragment present | Include the fourth instruction |
 | Success / empty / error transition | Spinner and tip leave together through the existing host path |
 
 ## 5. Good / Base / Bad Cases
@@ -119,7 +120,7 @@ work. There is no new user preference, network request, or persistent tip state.
 - **Good**: an initial load selects one tip, an app pause/resume keeps it, and
   normal completion hides it. A later load avoids the most recent selection.
 - **Base**: the current build has no AI settings destination, so it selects only
-  the eight instructions for available features.
+  the three instructions for available features.
 - **Bad**: selecting in the constructor/onAttach, rotating every few seconds,
   keeping ready content covered to make text readable, or advertising an
   unmerged AI feature merely because its resource string exists.
@@ -130,8 +131,8 @@ work. There is no new user preference, network request, or persistent tip state.
   avoidance across views and pool changes, and resource-ID identity.
 - `LoadingTipStateTest`: background exclusion, once-per-occasion selection,
   pause/ancestor-hide reuse, own-hide reset, destruction/reset, and empty pools.
-- `LoadingTipCatalogTest`: immutable eight/nine-entry pools and the actual
-  key/destination/class eligibility decision.
+- `LoadingTipCatalogTest`: immutable three/four-entry pools and the actual
+    key/destination/class eligibility decision.
 - `TopicPagePrefetchContractTest.retainedPageLoadingTipsUseThePageViewLifecycle`:
   pin the retained article page's view-owner binding after field binding.
 - Compile resources/Java/Kotlin, inspect app and all-module lint XML, and keep

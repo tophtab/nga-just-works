@@ -28,13 +28,13 @@ public class LoadingTipCatalogTest {
         List<Integer> base = LoadingTipCatalog.eligibleTips(false);
         List<Integer> withAi = LoadingTipCatalog.eligibleTips(true);
 
-        assertEquals(8, base.size());
+        assertEquals(3, base.size());
         assertEquals(base.size(), new HashSet<>(base).size());
         assertFalse(base.contains(0));
-        assertFalse(base.contains(R.string.loading_tip_ai_settings));
+        assertFalse(base.contains(R.string.loading_tip_ai_feature));
         assertEquals(base.size() + 1, withAi.size());
         assertTrue(withAi.containsAll(base));
-        assertTrue(withAi.contains(R.string.loading_tip_ai_settings));
+        assertTrue(withAi.contains(R.string.loading_tip_ai_feature));
         assertThrows(UnsupportedOperationException.class, () -> base.add(123));
         assertThrows(UnsupportedOperationException.class, () -> withAi.clear());
     }
@@ -52,7 +52,7 @@ public class LoadingTipCatalogTest {
         });
         assertTrue(available);
         assertEquals(1, destinationLookups.get());
-        assertTrue(LoadingTipCatalog.eligibleTips(available).contains(R.string.loading_tip_ai_settings));
+        assertTrue(LoadingTipCatalog.eligibleTips(available).contains(R.string.loading_tip_ai_feature));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class LoadingTipCatalogTest {
 
         boolean available = hasAiEntry(settings, name -> false);
         assertFalse(available);
-        assertFalse(LoadingTipCatalog.eligibleTips(available).contains(R.string.loading_tip_ai_settings));
+        assertFalse(LoadingTipCatalog.eligibleTips(available).contains(R.string.loading_tip_ai_feature));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class LoadingTipCatalogTest {
     @Test
     public void copyOrClassPresenceWithoutTheSettingsEntryIsInsufficient() throws Exception {
         Document settings = preferences(
-                "<Preference android:title=\"@string/loading_tip_ai_settings\"/>"
+                "<Preference android:title=\"@string/loading_tip_ai_feature\"/>"
                         + "<PreferenceScreen android:fragment=\"sp.phone.ui.fragment.SettingsAiFragment\"/>");
 
         assertFalse(hasAiEntry(settings, name -> true));

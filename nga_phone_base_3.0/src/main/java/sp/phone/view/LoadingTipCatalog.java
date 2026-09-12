@@ -11,14 +11,9 @@ import gov.anzong.androidnga.R;
 final class LoadingTipCatalog {
 
     private static final List<Integer> BASE_TIPS = Collections.unmodifiableList(Arrays.asList(
-            R.string.loading_tip_thread_page_top,
-            R.string.loading_tip_thread_page_refresh,
-            R.string.loading_tip_thread_reply_refresh,
-            R.string.loading_tip_board_compose_refresh,
-            R.string.loading_tip_topic_title_refresh,
-            R.string.loading_tip_favorite_board_reorder,
-            R.string.loading_tip_home_tab_reorder,
-            R.string.loading_tip_emoticon_reorder));
+            R.string.loading_tip_thread_page_gestures,
+            R.string.loading_tip_bottom_button_refresh,
+            R.string.loading_tip_long_press_reorder));
 
     private LoadingTipCatalog() {
     }
@@ -28,7 +23,7 @@ final class LoadingTipCatalog {
             return BASE_TIPS;
         }
         List<Integer> tips = new ArrayList<>(BASE_TIPS);
-        tips.add(R.string.loading_tip_ai_settings);
+        tips.add(R.string.loading_tip_ai_feature);
         return Collections.unmodifiableList(tips);
     }
 
