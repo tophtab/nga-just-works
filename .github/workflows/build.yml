@@ -2,7 +2,7 @@ name: Build and Publish Android
 
 on:
   push:
-    branches: [main, feature/ai-summary]
+    branches: ["**"]
     tags: ["*.*.*"]
     paths-ignore:
       - ".trellis/**"
@@ -11,13 +11,27 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ startsWith(github.ref, 'refs/heads/') }}
-
 jobs:
-  build-and-publish:
+  ref-identity:
     runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      ref_key: ${{ steps.ref.outputs.ref_key }}
+    steps:
+      - name: Derive publication ref key
+        id: ref
+        run: |
+          set -euo pipefail
+          # GitHub concurrency groups ignore case; hash the exact full ref first.
+          ref_digest="$(printf '%s' "$GITHUB_REF" | sha256sum)"
+          printf 'ref_key=%s\n' "${ref_digest%% *}" >> "$GITHUB_OUTPUT"
+
+  build-and-publish:
+    needs: ref-identity
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ needs.ref-identity.outputs.ref_key }}
+      cancel-in-progress: ${{ startsWith(github.ref, 'refs/heads/') }}
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
@@ -31,6 +45,7 @@ jobs:
           set -euo pipefail
           asset_suffix=""
           preview_tag_prefix=""
+          legacy_preview_tag_prefix=""
 
           if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == refs/tags/* ]]; then
             if [[ ! "$GITHUB_REF_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -46,7 +61,7 @@ jobs:
             gradle_tasks="verifyReleaseTag :nga_phone_base_3.0:assembleRelease"
             apk_dir=release
             expected_debuggable=false
-          elif [[ "$GITHUB_EVENT_NAME" == "push" && ( "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == "refs/heads/feature/ai-summary" ) ]]; then
+          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == refs/heads/* ]]; then
             stable_base=""
             while IFS= read -r candidate; do
               if [[ "$candidate" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -65,13 +80,24 @@ jobs:
             short_sha="${GITHUB_SHA:0:12}"
             version_name="${stable_base}-debug.${GITHUB_RUN_NUMBER}"
             preview_tag_prefix="debug-"
+            legacy_preview_tag_prefix="preview-"
             release_title="NGA Just Works ${version_name} (Debug)"
             if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
-              branch_slug="${GITHUB_REF_NAME//\//-}"
+              branch_name="${GITHUB_REF#refs/heads/}"
+              branch_slug="$(printf '%s' "$branch_name" | LC_ALL=C tr -c 'A-Za-z0-9._-' '-' | cut -c 1-80)"
+              if [[ ! "$branch_slug" =~ [A-Za-z0-9] ]]; then
+                branch_slug="branch"
+              fi
+              branch_digest="$(printf '%s' "$branch_name" | sha256sum)"
               asset_suffix="-${branch_slug}"
+              # The original-name digest isolates slugs that normalize or truncate alike.
               # Keep branch tags outside the namespaces cleaned by older main workflows.
-              preview_tag_prefix="branch-${branch_slug}-"
-              release_title="NGA Just Works ${version_name} (Debug, ${GITHUB_REF_NAME})"
+              preview_tag_prefix="branch-${branch_slug}-${branch_digest:0:12}-"
+              legacy_preview_tag_prefix=""
+              if [[ "$GITHUB_REF" == "refs/heads/feature/ai-summary" ]]; then
+                legacy_preview_tag_prefix="branch-feature-ai-summary-"
+              fi
+              release_title="NGA Just Works ${version_name} (Debug, ${branch_name})"
             fi
             release_tag="${preview_tag_prefix}${short_sha}"
             prerelease=true
@@ -97,6 +123,7 @@ jobs:
             echo "expected_debuggable=$expected_debuggable"
             echo "asset_suffix=$asset_suffix"
             echo "preview_tag_prefix=$preview_tag_prefix"
+            echo "legacy_preview_tag_prefix=$legacy_preview_tag_prefix"
           } >> "$GITHUB_OUTPUT"
 
       - name: Setup Java
@@ -114,7 +141,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          cache-read-only: ${{ steps.release.outputs.prerelease != 'true' || steps.release.outputs.asset_suffix != '' }}
           cache-cleanup: on-success
 
       - name: Restore release keystore
@@ -168,7 +195,7 @@ jobs:
 
       - name: Create GitHub Release
         id: publish
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/ai-summary' || startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/') || startsWith(github.ref, 'refs/tags/'))
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
@@ -180,15 +207,15 @@ jobs:
           (cd dist && sha256sum -c ./*.sha256)
           if [[ "$PRERELEASE" == "true" ]]; then
             existing_tag_sha="$(
-              gh api "repos/${GITHUB_REPOSITORY}/git/matching-refs/tags/${RELEASE_TAG}" \
-                --jq ".[] | select(.ref == \"refs/tags/${RELEASE_TAG}\") | .object.sha"
+              gh api "repos/${GITHUB_REPOSITORY}/git/matching-refs/tags/${RELEASE_TAG}" |
+                jq -r --arg tag "refs/tags/${RELEASE_TAG}" '.[] | select(.ref == $tag) | .object.sha'
             )"
             if [[ -n "$existing_tag_sha" ]]; then
               test "$existing_tag_sha" = "$GITHUB_SHA"
             fi
             release_id="$(
-              gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" \
-                --jq ".[] | select(.tag_name == \"${RELEASE_TAG}\") | .id"
+              gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" |
+                jq -r --arg tag "$RELEASE_TAG" '.[] | select(.tag_name == $tag) | .id'
             )"
             if [[ -n "$release_id" ]]; then
               existing_prerelease="$(gh api "repos/${GITHUB_REPOSITORY}/releases/${release_id}" --jq '.prerelease')"
@@ -224,6 +251,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CURRENT_PRERELEASE_TAG: ${{ steps.release.outputs.tag }}
           PREVIEW_TAG_PREFIX: ${{ steps.release.outputs.preview_tag_prefix }}
+          LEGACY_PREVIEW_TAG_PREFIX: ${{ steps.release.outputs.legacy_preview_tag_prefix }}
         run: |
           set -euo pipefail
           test -n "$PREVIEW_TAG_PREFIX"
@@ -235,14 +263,15 @@ jobs:
             if [[ -z "$old_tag" || "$old_tag" == "$CURRENT_PRERELEASE_TAG" ]]; then
               continue
             fi
-            if [[ "$PREVIEW_TAG_PREFIX" == "debug-" ]]; then
-              [[ "$old_tag" == debug-* || "$old_tag" == preview-* ]] || continue
-            else
-              [[ "$old_tag" == "$PREVIEW_TAG_PREFIX"* ]] || continue
+            if [[ "$old_tag" == "$PREVIEW_TAG_PREFIX"* ]]; then
               old_sha="${old_tag#"$PREVIEW_TAG_PREFIX"}"
-              # An exact SHA suffix protects branches that share this slug prefix.
-              [[ "$old_sha" =~ ^[0-9a-f]{12}$ ]] || continue
+            elif [[ -n "$LEGACY_PREVIEW_TAG_PREFIX" && "$old_tag" == "$LEGACY_PREVIEW_TAG_PREFIX"* ]]; then
+              old_sha="${old_tag#"$LEGACY_PREVIEW_TAG_PREFIX"}"
+            else
+              continue
             fi
+            # An exact SHA suffix protects unrelated tags and longer shared prefixes.
+            [[ "$old_sha" =~ ^[0-9a-f]{12}$ ]] || continue
             gh release delete "$old_tag" \
               --repo "$GITHUB_REPOSITORY" \
               --cleanup-tag \

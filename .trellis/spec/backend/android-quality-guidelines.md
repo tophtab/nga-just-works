@@ -399,8 +399,9 @@ adb -s REDACTED_SERIAL_MEIZU install --no-streaming -r -t test.apk
 
 Apply this contract whenever a task changes the application identity, version,
 release signing configuration, or GitHub APK publishing workflow. Eligible
-`main` and explicitly enabled `feature/ai-summary` pushes publish previews;
-exact `X.Y.Z` tag pushes publish stable releases.
+pushes to every branch publish previews; exact `X.Y.Z` tag pushes publish
+stable releases. The maintainer expanded the former main/AI allowlist to all
+branches on 2026-09-12.
 
 ### 2. Signatures
 
@@ -412,12 +413,14 @@ ANDROID_SIGNING_KEY_PASSWORD=<secret>
 CI_VERSION_NAME=<X.Y.Z or X.Y.Z-debug.RUN_NUMBER>
 CI_VERSION_CODE=<1..2100000000>
 RELEASE_TAG=<publication tag; stable X.Y.Z for Gradle verification>
-ASSET_SUFFIX=<empty or -feature-ai-summary>
-PREVIEW_TAG_PREFIX=<debug- or branch-feature-ai-summary-, empty for stable>
+ASSET_SUFFIX=<empty for main/stable, or -<readable branch slug>>
+PREVIEW_TAG_PREFIX=<debug- or branch-<slug>-<branch hash12>-, empty for stable>
+LEGACY_PREVIEW_TAG_PREFIX=<preview- for main, branch-feature-ai-summary- for exact AI, otherwise empty>
 GITHUB_SHA=<triggering commit SHA>
-GITHUB_REF=<refs/heads/main, refs/heads/feature/ai-summary, or refs/tags/X.Y.Z>
-GITHUB_REF_NAME=<main, feature/ai-summary, or X.Y.Z>
+GITHUB_REF=<refs/heads/<any branch> or refs/tags/X.Y.Z>
+GITHUB_REF_NAME=<original branch name or X.Y.Z>
 GITHUB_RUN_NUMBER=<long-lived build.yml workflow sequence>
+ref-identity.outputs.ref_key=<full lowercase SHA-256 of exact GITHUB_REF, no newline>
 python3 scripts/derive_android_version_code.py <stable X.Y.Z base> <build slot 0..999>
 ```
 
@@ -425,7 +428,8 @@ The publication identities are:
 
 ```text
 debug tag       = debug-<first 12 characters of GITHUB_SHA>
-branch tag      = branch-<branch slug>-<first 12 characters of GITHUB_SHA>
+branch hash12   = first 12 hex characters of SHA-256(original branch name UTF-8)
+branch tag      = branch-<branch slug>-<branch hash12>-<first 12 characters of GITHUB_SHA>
 debug version   = <newest reachable stable X.Y.Z tag>-debug.<GITHUB_RUN_NUMBER>
 stable version  = <exact X.Y.Z trigger tag>
 versionCode     = major*10_000_000 + minor*100_000 + patch*1_000 + build_slot
@@ -436,9 +440,15 @@ branch APK      = NGA-Just-Works-<CI_VERSION_NAME>-<branch slug>.apk
 checksum        = <APK filename>.sha256
 ```
 
-The enabled feature branch uses slug `feature-ai-summary` and Release title
-`NGA Just Works <CI_VERSION_NAME> (Debug, feature/ai-summary)`. The branch label
-is Release/asset metadata; Android `CI_VERSION_NAME` stays `X.Y.Z-debug.N`.
+Every non-main branch uses Release title
+`NGA Just Works <CI_VERSION_NAME> (Debug, <original branch name>)`. The readable
+slug preserves ASCII letters, digits, dots, underscores, and hyphens; slashes
+and other UTF-8 bytes become hyphens. Limit it to 80 ASCII bytes and use
+`branch` when no ASCII letter or digit remains. Existing AI and compatibility
+filenames retain suffixes `-feature-ai-summary` and
+`-feature-thread-detail-compat-mode`. The branch label is Release/asset metadata;
+Android `CI_VERSION_NAME` stays `X.Y.Z-debug.N`. The raw-name hash is part of
+the internal Release tag, so equal readable slugs do not share publications.
 
 The decimal layout is `Mmmppbbb`: minor and patch are `0..99`, and the final
 three digits reserve `0` for a stable tag and `1..999` for Debug previews. The
@@ -472,25 +482,37 @@ package migration is approved.
   `X.Y.Z` tag reachable from `GITHUB_SHA`, builds and signs one `preview`
   variant APK, verifies it, then publishes a `debug-<sha12>` GitHub
   prerelease titled with `(Debug)`.
-- An eligible `feature/ai-summary` push uses the same signed `preview` variant
+- Every eligible non-main branch push uses the same signed `preview` variant
   and publishes the APK/checksum directly as a GitHub prerelease. Do not use
   expiring Actions artifacts as the download channel. Add the branch label to
-  the Release title and asset filenames, and put tags in the separate
-  `branch-feature-ai-summary-<sha12>` namespace. A branch tag must not start
-  with `debug-` or `preview-`, because older main workflows also clean those
-  prefixes. Main and feature publications remain distinct for the same SHA.
+  the Release title and asset filenames. Put tags in the separate
+  `branch-<slug>-<branch hash12>-<sha12>` namespace. A branch tag must not start
+  with `debug-` or `preview-`, because older main workflows clean those prefixes.
+  Distinct original branch names, including `feature/a-b` and `feature/a/b`,
+  retain distinct Release channels even when their slugs and commit SHA match.
 - Branch checkout keeps the complete commit/tag graph (`fetch-depth: 0`) required
   by `git tag --merged` and first-parent distance, but uses partial clone
   `filter: blob:none` so historical file contents are not prefetched. Checkout
   still materializes every file in the current worktree before the build.
 - Pushes containing only `.trellis/**` and Markdown files do not publish.
-  `workflow_dispatch` is disabled so arbitrary refs cannot manufacture a
-  preview or stable release. That prohibition governs the publication
-  workflow. A separate dispatch-only workflow may exist to answer a build
+  `workflow_dispatch` remains disabled; publication is driven by branch/tag
+  pushes rather than a separate manual invocation. That prohibition governs
+  the publication workflow. A separate dispatch-only workflow may answer a build
   question, but it must not sign, package, publish, or read repository
   secrets, and it is deleted once its question is answered.
-- Keep the explicit branch allowlist. Group concurrent builds by workflow and
-  ref, cancel superseded branch runs, and leave stable-tag runs uncancelled.
+- Use `push.branches: ["**"]` and allow every `push` event on `refs/heads/`
+  through identity derivation and publication. A single `*` does not include
+  slash-separated branch names.
+- GitHub concurrency groups compare case-insensitively. The `ref-identity`
+  pre-job has `permissions: {}`, no checkout, and no secrets; it hashes the
+  exact complete `GITHUB_REF` and exports `ref_key`. The build job requires
+  that job and groups by workflow name plus `needs.ref-identity.outputs.ref_key`.
+  This separates `feature/Foo` from `feature/foo` and branch refs from tag refs.
+  Cancel superseded runs of the same branch, leaving stable-tag runs uncancelled.
+- A branch push reads the workflow from that branch. Distribute the shared CI
+  change to existing maintained branches; new branches inherit it from an
+  updated base. Do not merge feature implementations merely to distribute CI.
+  Branches recreated from an older commit still need the CI change.
 - A stable tag must match `X.Y.Z` exactly. The same workflow checks out that
   tag with `fetch-depth: 1` and `filter: blob:none`, uses it as
   `CI_VERSION_NAME`, builds and signs once, verifies the APK, and creates a
@@ -542,14 +564,21 @@ package migration is approved.
   those Debug assets. Stable Release assets are immutable; a fix requires a
   new stable version and versionCode.
 - Delete old previews only after the new prerelease is published, and only
-  within its channel. Main cleanup selects prereleases whose tag starts with
-  legacy `preview-` or current `debug-`. Feature cleanup selects its exact
-  `branch-<slug>-` prefix followed by exactly twelve hexadecimal SHA characters;
-  a longer branch slug sharing the prefix must not match. Exclude the current
-  tag and delete each selected tag with its Release. Main/other-branch previews,
-  stable releases, and unrelated prereleases stay outside feature cleanup.
+  within its channel. Main cleanup selects its current `debug-` prefix and
+  legacy `preview-` prefix. Feature cleanup selects its exact
+  `branch-<slug>-<branch hash12>-` prefix followed by exactly twelve
+  lowercase hexadecimal SHA characters. Main and legacy prefixes require the
+  same exact SHA suffix; a longer branch slug sharing any prefix must not
+  match. Exclude the current tag and delete each selected tag with its Release.
+  Main/other-branch previews, stable releases, and unrelated prereleases stay
+  outside feature cleanup.
   Lookup or deletion failures must fail visibly; never clean up after a failed
   publication. Pass dynamic titles/tags to shell scripts as environment data.
+- Only the exact original ref `refs/heads/feature/ai-summary` may additionally
+  remove old `branch-feature-ai-summary-<sha12>` prereleases, and only after a
+  new preview is published successfully. This is the known legacy AI channel
+  migration; do not derive unhashed cleanup prefixes for arbitrary branches.
+  Legacy tags must also have exactly twelve lowercase hexadecimal SHA characters.
 - Build-performance switches are decided from CI measurements, not local ones.
   The local machine's core count and background load differ from the
   `ubuntu-latest` runner, and a contended local A/B can invert the verdict:
@@ -563,9 +592,15 @@ package migration is approved.
   project's release build is dominated by the single non-parallelizable
   `minifyReleaseWithR8` task, so cross-subproject parallelism has little room
   to help until the module graph changes.
-- The job requires `contents: write`; it does not require `actions: read`.
+- The publishing build job requires `contents: write`; it does not require `actions: read`.
   Gradle caching remains owned by `setup-gradle@v4`, with main allowed to write
-  and feature/tag refs read-only. Do not layer another Gradle User Home cache action.
+  and feature/tag refs read-only. Do not layer another Gradle User Home cache
+  action.
+- GitHub expression string comparisons also ignore case. Derive cache access
+  from controlled identity outputs: read-only when `prerelease != 'true'` or
+  `asset_suffix != ''`. The Bash identity branch compares the original ref
+  case-sensitively, so only exact `main` can write; `Main` and `MAIN` remain
+  ordinary read-only branch previews.
 - APK packaging and release-signing verification default to GitHub Actions CI.
   A request to commit, finish work, push, or wait for CI does not authorize a
   local `assemblePreview` or `assembleRelease`. Run either packaging task
@@ -594,8 +629,8 @@ package migration is approved.
 | CI versionName is not stable or `X.Y.Z-debug.N` | Gradle configuration fails |
 | CI versionCode is nonnumeric, outside Android's range, or not greater than the installed build | Fail before publication; correct the semantic base/build-slot derivation |
 | version minor/patch exceeds 99, stable slot is not 0, or Debug slot is outside 1..999 | Fail identity derivation before Gradle starts |
-| Main commit has no reachable stable `X.Y.Z` tag | Fail during preview identity derivation |
-| Main checkout lacks the complete commit/tag graph needed by tag lookup or first-parent distance | Restore `fetch-depth: 0`; do not guess the base/slot |
+| Branch commit has no reachable stable `X.Y.Z` tag | Fail during preview identity derivation |
+| Branch checkout lacks the complete commit/tag graph needed by tag lookup or first-parent distance | Restore `fetch-depth: 0`; do not guess the base/slot |
 | Trigger tag is not exactly `X.Y.Z` | Fail before build/publication |
 | Stable `RELEASE_TAG` differs from effective Gradle versionName | Tag verification fails before publication |
 | Matching stable notes are missing, duplicated, out of order, malformed, or contain an empty required section | Fail before `gh release create`; do not fall back to generated notes |
@@ -606,12 +641,17 @@ package migration is approved.
 | APK applicationId, versionName, versionCode, or signer differs | Block publication |
 | Debug build/publication fails | Keep the prior Debug/legacy preview Release and tag available |
 | Cleanup sees a stable, non-prerelease, or unrelated-prefix Release | Leave it untouched |
-| Main cleanup sees `branch-feature-ai-summary-<sha12>` | Leave the branch preview untouched, including from older main workflows |
+| Main cleanup sees any `branch-*` preview | Leave it untouched, including legacy AI previews |
+| Two branch names normalize to the same readable slug | Hash the original names; their Release tags and cleanup sets remain distinct |
+| Two legal refs differ only in case | Hash the complete raw refs before grouping jobs; neither cancels the other's build |
+| A branch is named `Main` or `MAIN` | Treat it as a non-main branch for publication and cache access |
+| A branch name contains quotes, shell syntax, Unicode, or many path segments | Keep values as quoted environment/argument data; emit a bounded single-component asset name |
+| A different branch resembles the legacy AI slug | Do not apply legacy AI cleanup to it |
 | Feature cleanup sees a main preview, another branch, or a longer slug sharing its prefix | Leave it untouched; match the exact branch prefix plus twelve hex characters |
 | A feature preview uses a branch suffix in `CI_VERSION_NAME` | Reject the invalid Android version; put the suffix in asset metadata instead |
 | Preview APK is not debuggable or uses `.debug` applicationId/debug key | Reject before publication |
 | Stable APK is debuggable or release minification is disabled | Reject the stable build |
-| A `.trellis`/Markdown-only main push occurs | Skip the workflow; mixed pushes remain eligible |
+| A `.trellis`/Markdown-only branch push occurs | Skip the workflow; mixed pushes remain eligible |
 | Keystore/private-key material is tracked or packaged | Remove it from the release path and rotate if exposed |
 | The task requests commit/push/CI but not a local APK build | Do not run local `assemblePreview` or `assembleRelease`; push and inspect CI |
 | `main` or a stable tag has just been pushed | Report the pushed refs and stop; do not watch or poll the Actions run |
@@ -629,8 +669,8 @@ package migration is approved.
   and checksum. No additional Debug Release is created.
 - **Good**: A feature build publishes
   `NGA-Just-Works-5.6.1-debug.51-feature-ai-summary.apk` under
-  `branch-feature-ai-summary-<sha12>`, retaining Android versionName
-  `5.6.1-debug.51`. It replaces only older previews for that branch; ordinary
+  `branch-feature-ai-summary-<branch hash12>-<sha12>`, retaining Android
+  versionName `5.6.1-debug.51`. It replaces only older previews for that branch; ordinary
   main previews and stable downloads remain available.
 - **Good**: A stable tag validates `release-notes/<tag>.md` and publishes that
   exact file, including explicit `- 无` items for empty change categories.
@@ -659,6 +699,14 @@ package migration is approved.
   stable tag, an exact stable tag, an invalid tag, and a commit without a stable
   base. Verify main/feature identities differ even for the same SHA and branch
   asset names retain one path component without changing Android versionName.
+  Include nested, long, non-ASCII and shell-looking legal branch names. Verify
+  `feature/a-b` and `feature/a/b` have different tags and cleanup sets despite
+  equal readable suffixes; hash identity must use the original branch name.
+- Execute the ref-key Bash and assert deterministic keys for repeated exact
+  refs, distinct keys for case-only refs, and distinct branch/tag keys. Validate
+  the build job's dependency and concurrency wiring. Test cache access for
+  exact `main`, `Main`, `MAIN`, feature branches, and stable tags using GitHub's
+  case-insensitive expression comparison semantics.
 - Run `scripts/test_derive_android_version_code.py`. Assert `5.5.0/slot 0`
   gives `50,500,000`, slot `999` is exactly one below `5.5.1/slot 0`, two-digit
   minor/patch fields work, and malformed fields, field overflow, slot overflow,
@@ -682,8 +730,9 @@ package migration is approved.
   legacy `preview-*`, a stable Release, an unrelated prerelease, and a partial
   deletion failure. Include current/older feature tags and similarly prefixed
   branch names; assert main and feature cleanup cannot delete each other's
-  publications. Cleanup starts only after successful publication. Use offline
-  fixtures for these checks; never exercise deletion against live releases.
+  publications. Include legacy AI migration from its exact original ref and
+  rejection for lookalike refs. Cleanup starts only after successful
+  publication. Use offline fixtures; never exercise deletion against live releases.
 - Run focused local unit/static checks and lint before push. Do not run local
   APK packaging unless the maintainer explicitly requests it. Everything that
   gates a release happens before the push: remote ref unmoved, target tag not
@@ -753,6 +802,25 @@ gh release delete "$OLD_DEBUG" --cleanup-tag --yes
 
 #### Wrong
 
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+# GitHub folds group case, so feature/Foo and feature/foo collide.
+```
+
+#### Correct
+
+```yaml
+build-and-publish:
+  needs: ref-identity
+  concurrency:
+    group: ${{ github.workflow }}-${{ needs.ref-identity.outputs.ref_key }}
+    cancel-in-progress: ${{ startsWith(github.ref, 'refs/heads/') }}
+# The no-permission pre-job derives ref_key from the exact complete ref.
+```
+
+#### Wrong
+
 ```bash
 release_tag="debug-feature-ai-summary-${short_sha}"
 # Older main cleanup selects every debug-* prerelease and deletes this too.
@@ -761,8 +829,9 @@ release_tag="debug-feature-ai-summary-${short_sha}"
 #### Correct
 
 ```bash
-release_tag="branch-feature-ai-summary-${short_sha}"
-# The branch owns this namespace; cleanup also requires an exact SHA suffix.
+branch_digest="$(printf '%s' "$branch_name" | sha256sum)"
+release_tag="branch-${branch_slug}-${branch_digest:0:12}-${short_sha}"
+# Hash the ORIGINAL branch name; cleanup also requires an exact SHA suffix.
 ```
 
 #### Wrong

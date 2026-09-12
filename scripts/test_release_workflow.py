@@ -20,6 +20,7 @@ from types import SimpleNamespace
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 WORKFLOW = (REPOSITORY_ROOT / ".github/workflows/build.yml").read_text(encoding="utf-8")
+REF_KEY = "Derive publication ref key"
 IDENTITY = "Derive release identity"
 STAGING = "Verify and stage APK"
 PUBLICATION = "Create GitHub Release"
@@ -29,11 +30,32 @@ CLEANUP = "Remove older channel prereleases"
 def workflow_step(name: str) -> str:
     # Read literal step blocks without introducing a YAML dependency. actionlint
     # separately checks the complete workflow and its GitHub expressions.
-    for block in re.split(r"^      - name: ", WORKFLOW, flags=re.MULTILINE)[1:]:
-        title, _, body = block.partition("\n")
-        if title == name:
-            return body
+    lines = WORKFLOW.splitlines(keepends=True)
+    for start, line in enumerate(lines):
+        if line.rstrip() == "      - name: " + name:
+            end = start + 1
+            # A following step OR job ends this step; do not execute job YAML
+            # as Bash when the current step is the last one in a pre-job.
+            while end < len(lines):
+                if lines[end].strip() and not lines[end].startswith("        "):
+                    break
+                end += 1
+            return "".join(lines[start + 1:end])
     raise AssertionError(f"Missing workflow step: {name}")
+
+
+class ExpressionString(str):
+    """The workflow's GitHub string comparisons are case-insensitive."""
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, str):
+            return NotImplemented
+        return self.casefold() == other.casefold()
+
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, str):
+            return NotImplemented
+        return self.casefold() != other.casefold()
 
 
 GH_FIXTURE = r'''
@@ -105,6 +127,8 @@ if "--jq" in args:
         text=True,
     )
     sys.exit(result.returncode)
+for payload in payloads:
+    print(json.dumps(payload))
 '''
 
 
@@ -150,7 +174,12 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
 ''')
         # Synthetic APK bytes are never assembled or signed; only metadata and
         # signer responses are replaced while staging/checksums run unchanged.
-        self.executable(self.root / "sdk/build-tools/35.0.0/apksigner", "pass\n")
+        self.executable(self.root / "sdk/build-tools/35.0.0/apksigner", '''
+import os
+import sys
+assert sys.argv[1:4] == ["verify", "--verbose", "--print-certs"]
+sys.exit(int(os.environ.get("WORKFLOW_FIXTURE_SIGNER_EXIT", "0")))
+''')
         (self.root / "scripts").symlink_to(REPOSITORY_ROOT / "scripts", target_is_directory=True)
         (self.root / "release-notes").mkdir()
         shutil.copyfile(
@@ -175,7 +204,7 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
             args, cwd=self.root, env=self.env, capture_output=True, text=True, check=True,
         )
 
-    def run_step(self, name: str) -> subprocess.CompletedProcess[str]:
+    def run_step(self, name: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
         block = workflow_step(name)
         script = textwrap.dedent(block.split("        run: |\n", 1)[1])
         self.assertNotIn("${{", script, "Pass dynamic workflow values through env")
@@ -188,12 +217,18 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
         }
         return subprocess.run(
             ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script],
-            cwd=self.root, env={**self.env, **step_env}, capture_output=True, text=True,
+            cwd=cwd or self.root, env={**self.env, **step_env}, capture_output=True, text=True,
             check=False,
         )
 
-    def assert_success(self, result: subprocess.CompletedProcess[str]) -> None:
+    def assert_success(self, result: subprocess.CompletedProcess[str] | None) -> None:
+        self.assertIsNotNone(result)
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    @staticmethod
+    def branch_prefix(branch: str, slug: str) -> str:
+        digest = hashlib.sha256(branch.encode("utf-8")).hexdigest()[:12]
+        return f"branch-{slug}-{digest}-"
 
     def derive(self, ref: str) -> subprocess.CompletedProcess[str]:
         self.env["GITHUB_REF"] = ref
@@ -246,16 +281,25 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
 
     def evaluate(self, expression: str, outcome: str = "success") -> bool:
         # These workflow conditions use only comparisons, boolean operators and
-        # startsWith. Evaluate their source with the same string-valued context.
+        # startsWith. Model GitHub's case-insensitive comparisons, including
+        # comparisons that used to treat Main/MAIN as the main cache owner.
         expression = expression.removeprefix("${{").removesuffix("}}").strip()
         return bool(eval(
             expression.replace("&&", " and ").replace("||", " or "),
-            {"__builtins__": {}, "startsWith": str.startswith},
             {
-                "github": SimpleNamespace(ref=self.env["GITHUB_REF"]),
+                "__builtins__": {},
+                "startsWith": lambda value, prefix: value.casefold().startswith(prefix.casefold()),
+            },
+            {
+                "github": SimpleNamespace(
+                    ref=ExpressionString(self.env["GITHUB_REF"]),
+                    event_name=ExpressionString(self.env["GITHUB_EVENT_NAME"]),
+                ),
                 "steps": SimpleNamespace(
-                    publish=SimpleNamespace(outcome=outcome),
-                    release=SimpleNamespace(outputs=SimpleNamespace(**self.outputs)),
+                    publish=SimpleNamespace(outcome=ExpressionString(outcome)),
+                    release=SimpleNamespace(outputs=SimpleNamespace(**{
+                        key: ExpressionString(value) for key, value in self.outputs.items()
+                    })),
                 ),
             },
         ))
@@ -273,9 +317,24 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
         cases = (
             ("refs/heads/main", f"debug-{self.sha[:12]}", "5.6.1-debug.51", "50601002",
              "NGA Just Works 5.6.1-debug.51 (Debug)", "", "preview"),
-            ("refs/heads/feature/ai-summary", f"branch-feature-ai-summary-{self.sha[:12]}",
+            ("refs/heads/feature/ai-summary",
+             self.branch_prefix("feature/ai-summary", "feature-ai-summary") + self.sha[:12],
              "5.6.1-debug.51", "50601002", "NGA Just Works 5.6.1-debug.51 (Debug, feature/ai-summary)",
              "-feature-ai-summary", "preview"),
+            ("refs/heads/feature/thread-detail-compat-mode",
+             self.branch_prefix("feature/thread-detail-compat-mode", "feature-thread-detail-compat-mode") + self.sha[:12],
+             "5.6.1-debug.51", "50601002",
+             "NGA Just Works 5.6.1-debug.51 (Debug, feature/thread-detail-compat-mode)",
+             "-feature-thread-detail-compat-mode", "preview"),
+            ("refs/heads/feature/thread-ip-location-loading-tips",
+             self.branch_prefix("feature/thread-ip-location-loading-tips", "feature-thread-ip-location-loading-tips") + self.sha[:12],
+             "5.6.1-debug.51", "50601002",
+             "NGA Just Works 5.6.1-debug.51 (Debug, feature/thread-ip-location-loading-tips)",
+             "-feature-thread-ip-location-loading-tips", "preview"),
+            ("refs/heads/review/team/topic.v2_1",
+             self.branch_prefix("review/team/topic.v2_1", "review-team-topic.v2_1") + self.sha[:12],
+             "5.6.1-debug.51", "50601002", "NGA Just Works 5.6.1-debug.51 (Debug, review/team/topic.v2_1)",
+             "-review-team-topic.v2_1", "preview"),
             ("refs/tags/5.6.1", "5.6.1", "5.6.1", "50601000", "NGA Just Works 5.6.1", "", "release"),
         )
         for ref, tag, version, code, title, suffix, variant in cases:
@@ -307,11 +366,13 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
         self.assertEqual("5.6.2-debug.51", self.env["CI_VERSION_NAME"])
         self.assertEqual("50602001", self.env["CI_VERSION_CODE"])
 
-    def test_invalid_tags_and_unapproved_events_or_branches_fail_identity(self) -> None:
+    def test_invalid_tags_and_non_push_or_non_publication_refs_fail_identity(self) -> None:
         for event, ref in (
             ("push", "refs/tags/v5.6.1"), ("push", "refs/tags/5.6.1-rc.1"),
-            ("push", "refs/tags/5.100.0"), ("push", "refs/heads/feature/other"),
+            ("push", "refs/tags/5.100.0"), ("push", "refs/pull/10/merge"),
             ("workflow_dispatch", "refs/heads/main"),
+            ("pull_request", "refs/heads/feature/other"),
+            ("workflow_dispatch", "refs/tags/5.6.1"),
         ):
             with self.subTest(event=event, ref=ref):
                 self.env["GITHUB_EVENT_NAME"] = event
@@ -325,12 +386,111 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
         self.assertNotEqual(0, result.returncode)
         self.assertIn("No stable X.Y.Z tag is reachable", result.stderr)
 
+    def test_arbitrary_legal_branch_names_stay_literal_and_make_bounded_assets(self) -> None:
+        cases = (
+            ("feature/$(touch${IFS}substituted)", "feature---touch--IFS-substituted-"),
+            ("feature/`touch${IFS}backticks`", "feature--touch--IFS-backticks-"),
+            ('feature/";touch${IFS}quoted;#', "feature---touch--IFS-quoted--"),
+            ("feature/Mixed_CASE.v2--ready", "feature-Mixed_CASE.v2--ready"),
+            ("实验/分支", "branch"),
+            ("feature/" + "long-name/" * 40 + "end", ("feature-" + "long-name-" * 8)[:80]),
+        )
+        for branch, slug in cases:
+            with self.subTest(branch=branch):
+                self.command("git", "check-ref-format", "--branch", branch)
+                self.assert_success(self.derive("refs/heads/" + branch))
+                self.assertEqual("-" + slug, self.outputs["asset_suffix"])
+                self.assertEqual(self.branch_prefix(branch, slug), self.outputs["preview_tag_prefix"])
+                self.assertEqual("", self.outputs["legacy_preview_tag_prefix"])
+                self.assertEqual(
+                    f"NGA Just Works 5.6.1-debug.51 (Debug, {branch})", self.outputs["title"],
+                )
+                self.command("git", "check-ref-format", "refs/tags/" + self.outputs["tag"])
+                self.assert_success(self.stage())
+                filenames = {p.name for p in (self.root / "dist").iterdir()}
+                expected = f"NGA-Just-Works-5.6.1-debug.51-{slug}.apk"
+                self.assertEqual({expected, expected + ".sha256"}, filenames)
+                for filename in filenames:
+                    self.assertLess(len(filename.encode("ascii")), 255)
+                    self.assertRegex(filename, r"^[A-Za-z0-9._-]+$")
+                self.seed_releases([])
+                publication, cleanup = self.publish()
+                self.assert_success(publication)
+                self.assert_success(cleanup)
+                publication, cleanup = self.publish()
+                self.assert_success(publication)
+                self.assert_success(cleanup)
+                for sentinel in ("substituted", "backticks", "quoted"):
+                    self.assertFalse((self.root / sentinel).exists())
+                create = next(call for call in self.calls() if call[:2] == ["release", "create"])
+                patch = next(call for call in self.calls() if "PATCH" in call)
+                self.assertEqual(self.outputs["title"], create[create.index("--title") + 1])
+                self.assertIn("name=" + self.outputs["title"], patch)
+
+    def test_same_sha_and_colliding_slugs_keep_independent_releases(self) -> None:
+        long_prefix = "feature/" + "long-name/" * 40
+        for branches in (
+            ("feature/a-b", "feature/a/b"),
+            ("feature/ai-summary", "feature-ai-summary"),
+            (long_prefix + "first", long_prefix + "second"),
+            ("实验/一", "实验/二"),
+        ):
+            with self.subTest(branches=branches):
+                self.seed_releases([])
+                identities = []
+                for branch in branches:
+                    self.command("git", "check-ref-format", "--branch", branch)
+                    self.assert_success(self.derive("refs/heads/" + branch))
+                    identities.append(dict(self.outputs))
+                    self.assert_success(self.stage())
+                    publication, cleanup = self.publish()
+                    self.assert_success(publication)
+                    self.assert_success(cleanup)
+                self.assertEqual(identities[0]["asset_suffix"], identities[1]["asset_suffix"])
+                self.assertNotEqual(identities[0]["preview_tag_prefix"], identities[1]["preview_tag_prefix"])
+                self.assertNotEqual(identities[0]["tag"], identities[1]["tag"])
+                self.assertEqual(
+                    {identity["tag"] for identity in identities},
+                    {release["tag_name"] for release in self.state()["releases"]},
+                )
+                self.assertFalse(any(call[:2] == ["release", "delete"] for call in self.calls()))
+
+    def test_branch_channel_remains_the_same_across_commits(self) -> None:
+        branch = "review/team/topic"
+        self.assert_success(self.derive("refs/heads/" + branch))
+        previous = dict(self.outputs)
+        self.assert_success(self.stage())
+        self.assert_success(self.publish()[0])
+        self.command("git", "commit", "--quiet", "--allow-empty", "-m", "next preview")
+        self.env["GITHUB_SHA"] = self.command("git", "rev-parse", "HEAD").stdout.strip()
+        self.env["GITHUB_RUN_NUMBER"] = "52"
+        self.assert_success(self.derive("refs/heads/" + branch))
+        self.assertEqual(previous["preview_tag_prefix"], self.outputs["preview_tag_prefix"])
+        self.assertNotEqual(previous["tag"], self.outputs["tag"])
+        self.assertEqual("5.6.1-debug.52", self.env["CI_VERSION_NAME"])
+        self.assertEqual("50601003", self.env["CI_VERSION_CODE"])
+        self.assert_success(self.stage())
+        publication, cleanup = self.publish()
+        self.assert_success(publication)
+        self.assert_success(cleanup)
+        self.assertEqual({self.outputs["tag"]}, {r["tag_name"] for r in self.state()["releases"]})
+        self.assertEqual({"refs/tags/" + self.outputs["tag"]}, {r["ref"] for r in self.state()["refs"]})
+
     def test_publication_and_cleanup_preserve_other_channels(self) -> None:
         old_main = "debug-111111111111"
         old_legacy = "preview-222222222222"
         old_feature = "branch-feature-ai-summary-333333333333"
+        ai_prefix = self.branch_prefix("feature/ai-summary", "feature-ai-summary")
+        compat_prefix = self.branch_prefix("feature/thread-detail-compat-mode", "feature-thread-detail-compat-mode")
+        nested_prefix = self.branch_prefix("review/team/topic", "review-team-topic")
+        collision_prefix = self.branch_prefix("feature-ai-summary", "feature-ai-summary")
+        old_ai = ai_prefix + "444444444444"
+        old_compat = compat_prefix + "555555555555"
+        old_nested = nested_prefix + "666666666666"
+        old_collision = collision_prefix + "777777777777"
         releases = [
             (old_main, True), (old_legacy, True), (old_feature, True),
+            (old_ai, True), (old_compat, True), (old_nested, True), (old_collision, True),
             ("branch-feature-other-444444444444", True),
             ("branch-feature-ai-summary-next-555555555555", True),
             ("branch-feature-ai-summary-deadbeefdead-666666666666", True),
@@ -340,9 +500,18 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
             ("branch-feature-ai-summary-888888888888", False),
             ("debug-999999999999", False), ("5.6.1", False), ("unrelated-beta", True),
         ]
+        for prefix in ("debug-", "preview-", ai_prefix, compat_prefix, nested_prefix, collision_prefix):
+            releases.extend((prefix + suffix, True) for suffix in (
+                "11111111111", "1111111111111", "ABCDEFABCDEF", "zzzzzzzzzzzz",
+                "next-111111111111", "111111111111-222222222222",
+            ))
+            releases.append((prefix + "aaaaaaaaaaaa", False))
         for ref, removed in (
             ("refs/heads/main", {old_main, old_legacy}),
-            ("refs/heads/feature/ai-summary", {old_feature}),
+            ("refs/heads/feature/ai-summary", {old_feature, old_ai}),
+            ("refs/heads/feature/thread-detail-compat-mode", {old_compat}),
+            ("refs/heads/review/team/topic", {old_nested}),
+            ("refs/heads/feature-ai-summary", {old_collision}),
         ):
             with self.subTest(ref=ref):
                 self.assert_success(self.derive(ref))
@@ -365,8 +534,27 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
                         self.assertIn("--cleanup-tag", call)
                         self.assertIn("--yes", call)
 
+    def test_only_the_original_ai_branch_migrates_its_legacy_tags(self) -> None:
+        legacy = "branch-feature-ai-summary-111111111111"
+        for branch in ("feature/ai-summary", "feature-ai-summary", "feature/ai/summary", "feature/ai-summary/next"):
+            with self.subTest(branch=branch):
+                self.assert_success(self.derive("refs/heads/" + branch))
+                self.assert_success(self.stage())
+                self.seed_releases([(legacy, True)])
+                publication, cleanup = self.publish()
+                self.assert_success(publication)
+                self.assert_success(cleanup)
+                should_migrate = branch == "feature/ai-summary"
+                self.assertEqual(
+                    "branch-feature-ai-summary-" if should_migrate else "",
+                    self.outputs["legacy_preview_tag_prefix"],
+                )
+                self.assertEqual(
+                    not should_migrate, legacy in {r["tag_name"] for r in self.state()["releases"]},
+                )
+
     def test_same_commit_rerun_validates_then_replaces_the_same_assets(self) -> None:
-        for ref in ("refs/heads/main", "refs/heads/feature/ai-summary"):
+        for ref in ("refs/heads/main", "refs/heads/feature/ai-summary", "refs/heads/review/team/topic"):
             with self.subTest(ref=ref):
                 self.seed_releases([])
                 self.assert_success(self.derive(ref))
@@ -393,7 +581,7 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
                 self.assertEqual({"dist/" + p.name for p in (self.root / "dist").iterdir()}, set(uploads[0][3:5]))
 
     def test_wrong_sha_or_non_prerelease_blocks_replacement(self) -> None:
-        for ref in ("refs/heads/main", "refs/heads/feature/ai-summary"):
+        for ref in ("refs/heads/main", "refs/heads/feature/ai-summary", "refs/heads/review/team/topic"):
             for conflict in ("sha", "stable"):
                 with self.subTest(ref=ref, conflict=conflict):
                     self.assert_success(self.derive(ref))
@@ -411,21 +599,31 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
                     self.assertFalse(any(call[0] == "release" or "PATCH" in call for call in self.calls()))
 
     def test_api_and_publication_failures_keep_the_previous_preview(self) -> None:
-        self.assert_success(self.derive("refs/heads/feature/ai-summary"))
-        self.assert_success(self.stage())
-        previous = "branch-feature-ai-summary-111111111111"
-        for failure in ("tags", "releases", "detail", "patch", "create", "upload"):
-            with self.subTest(failure=failure):
-                releases = [(previous, True)]
-                if failure in {"detail", "patch", "upload"}:
-                    releases.append((self.outputs["tag"], True))
-                partial_output = {"tags": self.sha + "\n", "releases": "2\n", "detail": "true\n"}
-                self.seed_releases(releases, fail=failure, fail_output=partial_output.get(failure, ""))
-                result, cleanup = self.publish()
-                self.assertNotEqual(0, result.returncode)
-                self.assertIsNone(cleanup)
-                self.assertIn(previous, {r["tag_name"] for r in self.state()["releases"]})
-                self.assertFalse(any(call[:2] == ["release", "delete"] for call in self.calls()))
+        for branch in ("feature/ai-summary", "review/team/topic"):
+            self.assert_success(self.derive("refs/heads/" + branch))
+            self.assert_success(self.stage())
+            previous = self.outputs["preview_tag_prefix"] + "111111111111"
+            legacy = "branch-feature-ai-summary-222222222222"
+            for failure in ("tags", "releases", "detail", "patch", "create", "upload"):
+                with self.subTest(branch=branch, failure=failure):
+                    releases = [(previous, True), (legacy, True)]
+                    if failure in {"detail", "patch", "upload"}:
+                        releases.append((self.outputs["tag"], True))
+                    # A failed API can emit usable partial JSON before exiting;
+                    # pipefail must still stop publication rather than accept it.
+                    partial_output = {
+                        "tags": json.dumps([{"ref": "refs/tags/" + self.outputs["tag"],
+                                             "object": {"sha": self.sha}}]),
+                        "releases": json.dumps([{"tag_name": self.outputs["tag"], "id": 3}]),
+                        "detail": "true\n",
+                    }
+                    self.seed_releases(releases, fail=failure, fail_output=partial_output.get(failure, ""))
+                    result, cleanup = self.publish()
+                    self.assertNotEqual(0, result.returncode)
+                    self.assertIsNone(cleanup)
+                    remaining = {r["tag_name"] for r in self.state()["releases"]}
+                    self.assertTrue({previous, legacy}.issubset(remaining))
+                    self.assertFalse(any(call[:2] == ["release", "delete"] for call in self.calls()))
 
     def test_release_title_is_passed_as_literal_data(self) -> None:
         self.assert_success(self.derive("refs/heads/feature/ai-summary"))
@@ -467,10 +665,17 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
             ("application-id", "com.github.tophtab.ngajustworks.debug"),
             ("version-name", "5.6.1-debug.51-feature-ai-summary"),
             ("version-code", "1"), ("debuggable", "false"),
+            ("min-sdk", "26"), ("target-sdk", "34"),
         ):
             with self.subTest(field=field):
                 self.assertNotEqual(0, self.stage(**{field: value}).returncode)
                 self.assertEqual([], list((self.root / "dist").glob("*.sha256")))
+
+    def test_signature_verification_failure_stops_staging(self) -> None:
+        self.assert_success(self.derive("refs/heads/review/team/topic"))
+        self.env["WORKFLOW_FIXTURE_SIGNER_EXIT"] = "1"
+        self.assertNotEqual(0, self.stage().returncode)
+        self.assertEqual([], list((self.root / "dist").glob("*.sha256")))
 
     def test_publication_rejects_missing_extra_or_corrupt_assets(self) -> None:
         self.assert_success(self.derive("refs/heads/feature/ai-summary"))
@@ -501,9 +706,9 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
         self.assertEqual(previous, self.state()["releases"][0]["tag_name"])
 
     def test_cleanup_stops_at_a_failed_deletion(self) -> None:
-        self.assert_success(self.derive("refs/heads/feature/ai-summary"))
+        self.assert_success(self.derive("refs/heads/review/team/topic"))
         self.assert_success(self.stage())
-        old_tags = ["branch-feature-ai-summary-" + str(i) * 12 for i in (1, 2, 3)]
+        old_tags = [self.outputs["preview_tag_prefix"] + str(i) * 12 for i in (1, 2, 3)]
         self.seed_releases([(tag, True) for tag in old_tags], fail_delete_tag=old_tags[1])
         publication, cleanup = self.publish()
         self.assert_success(publication)
@@ -511,18 +716,118 @@ print(json.loads(Path(os.environ["WORKFLOW_FIXTURE_MANIFEST"]).read_text())[sys.
         self.assertEqual(old_tags[:2], [call[2] for call in self.calls() if call[:2] == ["release", "delete"]])
         self.assertEqual({*old_tags[1:], self.outputs["tag"]}, {r["tag_name"] for r in self.state()["releases"]})
 
-    def test_publication_selection_and_branch_concurrency(self) -> None:
-        publication = re.search(r"^        if: (.+)$", workflow_step(PUBLICATION), re.MULTILINE)[1]
-        cancellation = re.search(r"^  cancel-in-progress: (.+)$", WORKFLOW, re.MULTILINE)[1]
-        self.assertLess(WORKFLOW.index("- name: " + PUBLICATION), WORKFLOW.index("- name: " + CLEANUP))
-        self.assertNotIn("actions/upload-artifact", WORKFLOW)
-        for ref, selected, cancelled in (
-            ("refs/heads/main", True, True),
-            ("refs/heads/feature/ai-summary", True, True),
-            ("refs/tags/5.6.1", True, False),
-            ("refs/heads/feature/other", False, True),
+    def test_trigger_keeps_all_branch_pushes_tags_and_documentation_skips(self) -> None:
+        trigger = re.search(r"(?ms)^on:\n(.*?)(?=^\S)", WORKFLOW)[1]
+        self.assertEqual(["push"], re.findall(r"^  (\w+):$", trigger, re.MULTILINE))
+        branches = re.search(r"^    branches: (.+)$", trigger, re.MULTILINE)[1]
+        self.assertEqual(["**"], json.loads(branches), "A single * does not match nested branch names")
+        tags = re.search(r"^    tags: (.+)$", trigger, re.MULTILINE)[1]
+        self.assertEqual(["*.*.*"], json.loads(tags))
+        ignored_paths = re.findall(r'^      - "(.+)"$', trigger, re.MULTILINE)
+        self.assertEqual([".trellis/**", "**/*.md"], ignored_paths)
+
+    def test_ref_key_hashes_the_exact_full_ref_without_a_checkout(self) -> None:
+        refs = (
+            "refs/heads/feature/Foo", "refs/heads/feature/foo",
+            "refs/heads/main", "refs/heads/Main", "refs/heads/MAIN",
+            "refs/heads/5.6.1", "refs/tags/5.6.1",
+            "refs/heads/feature/$(touch${IFS}ref_key_substituted)",
+            "refs/heads/实验/分支",
+        )
+        keys = set()
+        with tempfile.TemporaryDirectory() as checkout_free:
+            for ref in refs:
+                with self.subTest(ref=ref):
+                    self.command("git", "check-ref-format", ref)
+                    self.env["GITHUB_REF"] = ref
+                    expected = hashlib.sha256(ref.encode("utf-8")).hexdigest()
+                    for attempt in range(2):
+                        # A later commit/run of the same branch must use the same
+                        # group, while case-only refs and branch/tag refs differ.
+                        self.env["GITHUB_SHA"] = self.sha if attempt == 0 else "f" * 40
+                        self.env["GITHUB_RUN_NUMBER"] = str(51 + attempt)
+                        Path(self.env["GITHUB_OUTPUT"]).write_text("")
+                        self.assert_success(self.run_step(REF_KEY, cwd=Path(checkout_free)))
+                        values = self.read_values("GITHUB_OUTPUT")
+                        self.assertEqual({"ref_key": expected}, values)
+                        self.assertRegex(values["ref_key"], r"^[0-9a-f]{64}$")
+                    keys.add(values["ref_key"].casefold())
+            self.assertEqual([], list(Path(checkout_free).iterdir()))
+        self.assertEqual(len(refs), len(keys), "GitHub folds group names to the same case")
+        self.assertEqual([], self.calls())
+
+    def test_ref_key_pre_job_gates_build_concurrency_without_permissions_or_secrets(self) -> None:
+        workflow_header = WORKFLOW.split("jobs:\n", 1)[0]
+        self.assertNotIn("concurrency:", workflow_header)
+        ref_job = WORKFLOW.split("  ref-identity:\n", 1)[1].split("  build-and-publish:\n", 1)[0]
+        build_header = WORKFLOW.split("  build-and-publish:\n", 1)[1].split("    steps:\n", 1)[0]
+        self.assertIn("    permissions: {}", ref_job)
+        self.assertNotIn("uses:", ref_job)
+        self.assertNotIn("secrets.", ref_job)
+        self.assertNotIn("github.token", ref_job)
+        self.assertIn("      ref_key: ${{ steps.ref.outputs.ref_key }}", ref_job)
+        self.assertIn("        id: ref", workflow_step(REF_KEY))
+        self.assertIn("    needs: ref-identity", build_header)
+        self.assertIn("    concurrency:", build_header)
+        self.assertIn("      group: ${{ github.workflow }}-${{ needs.ref-identity.outputs.ref_key }}", build_header)
+        self.assertNotIn("github.ref }}", build_header)
+        self.assertLess(WORKFLOW.index("- name: " + IDENTITY), WORKFLOW.index("- name: Setup Gradle"))
+
+    def test_cache_is_writable_only_for_the_exact_main_identity(self) -> None:
+        cache_condition = re.search(
+            r"^          cache-read-only: (.+)$", workflow_step("Setup Gradle"), re.MULTILINE,
+        )[1]
+        for ref, read_only in (
+            ("refs/heads/main", False),
+            ("refs/heads/Main", True),
+            ("refs/heads/MAIN", True),
+            ("refs/heads/feature/main", True),
+            ("refs/heads/feature/ai-summary", True),
+            ("refs/heads/5.6.1", True),
+            ("refs/tags/5.6.1", True),
         ):
             with self.subTest(ref=ref):
+                self.assert_success(self.derive(ref))
+                self.assertEqual(read_only, self.evaluate(cache_condition))
+
+    def test_case_only_branch_names_keep_independent_preview_releases(self) -> None:
+        branches = ("feature/Foo", "feature/foo", "Main", "main", "MAIN")
+        tags = set()
+        for branch in branches:
+            with self.subTest(branch=branch):
+                self.assert_success(self.derive("refs/heads/" + branch))
+                tags.add(self.outputs["tag"])
+                self.assert_success(self.stage())
+                publication, cleanup = self.publish()
+                self.assert_success(publication)
+                self.assert_success(cleanup)
+                self.assertEqual(tags, {r["tag_name"] for r in self.state()["releases"]})
+        self.assertEqual(len(branches), len({tag.casefold() for tag in tags}))
+        self.assertFalse(any(call[:2] == ["release", "delete"] for call in self.calls()))
+
+    def test_publication_selection_and_branch_concurrency(self) -> None:
+        publication = re.search(r"^        if: (.+)$", workflow_step(PUBLICATION), re.MULTILINE)[1]
+        cancellation = re.search(r"^      cancel-in-progress: (.+)$", WORKFLOW, re.MULTILINE)[1]
+        self.assertLess(WORKFLOW.index("- name: " + PUBLICATION), WORKFLOW.index("- name: " + CLEANUP))
+        self.assertNotIn("actions/upload-artifact", WORKFLOW)
+        for event, ref, selected, cancelled in (
+            ("push", "refs/heads/main", True, True),
+            ("push", "refs/heads/Main", True, True),
+            ("push", "refs/heads/MAIN", True, True),
+            ("push", "refs/heads/feature/Foo", True, True),
+            ("push", "refs/heads/feature/foo", True, True),
+            ("push", "refs/heads/feature/ai-summary", True, True),
+            ("push", "refs/heads/feature/thread-detail-compat-mode", True, True),
+            ("push", "refs/tags/5.6.1", True, False),
+            ("push", "refs/heads/feature/other", True, True),
+            ("push", "refs/heads/review/team/topic", True, True),
+            ("workflow_dispatch", "refs/heads/main", False, True),
+            ("workflow_dispatch", "refs/tags/5.6.1", False, False),
+            ("pull_request", "refs/pull/10/merge", False, False),
+            ("push", "refs/pull/10/merge", False, False),
+        ):
+            with self.subTest(event=event, ref=ref):
+                self.env["GITHUB_EVENT_NAME"] = event
                 self.env["GITHUB_REF"] = ref
                 self.assertEqual(selected, self.evaluate(publication))
                 self.assertEqual(cancelled, self.evaluate(cancellation))
