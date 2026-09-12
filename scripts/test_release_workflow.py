@@ -352,9 +352,17 @@ sys.exit(int(os.environ.get("WORKFLOW_FIXTURE_SIGNER_EXIT", "0")))
                 self.assertEqual(tasks, self.outputs["gradle_tasks"])
                 self.assert_success(self.stage())
                 filename = f"NGA-Just-Works-{version}{suffix}.apk"
-                self.assertEqual({filename, filename + ".sha256"}, {p.name for p in (self.root / "dist").iterdir()})
                 digest = hashlib.sha256((self.root / "dist" / filename).read_bytes()).hexdigest()
+                staged = {filename, filename + ".sha256"}
+                if variant == "release":
+                    staged |= {"NGA-Just-Works.apk", "NGA-Just-Works.apk.sha256"}
+                self.assertEqual(staged, {p.name for p in (self.root / "dist").iterdir()})
                 self.assertEqual(f"{digest}  {filename}\n", (self.root / "dist" / (filename + ".sha256")).read_text())
+                if variant == "release":
+                    self.assertEqual(
+                        f"{digest}  NGA-Just-Works.apk\n",
+                        (self.root / "dist" / "NGA-Just-Works.apk.sha256").read_text(),
+                    )
 
     def test_only_reachable_stable_tags_set_the_preview_base(self) -> None:
         self.command("git", "commit", "--quiet", "--allow-empty", "-m", "future")

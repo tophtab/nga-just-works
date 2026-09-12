@@ -452,6 +452,7 @@ debug slot      = first-parent commit distance from stable tag to GITHUB_SHA + 1
 APK             = NGA-Just-Works-<CI_VERSION_NAME>.apk
 branch APK      = NGA-Just-Works-<CI_VERSION_NAME>-<branch slug>.apk
 checksum        = <APK filename>.sha256
+stable copy     = NGA-Just-Works.apk (+ .sha256), staged only for stable releases
 ```
 
 Every non-main branch uses Release title
@@ -621,9 +622,12 @@ package migration is approved.
   locally only when the maintainer explicitly asks for a local APK build;
   otherwise use focused unit/static checks before push and the CI job as the
   build/signing gate.
-- Before publication, require exactly the APK and SHA-256 sidecar in `dist/`,
-  verify the checksum, applicationId, versionName, versionCode, signer, and
-  merged manifest `debuggable` value for the selected channel.
+- Before publication, require exactly the APK and SHA-256 sidecar in `dist/`
+  (stable builds additionally stage the version-free `NGA-Just-Works.apk` pair
+  so the README's `releases/latest/download` link stays version-independent:
+  2 files per preview, 4 per stable), verify the checksum, applicationId,
+  versionName, versionCode, signer, and merged manifest `debuggable` value for
+  the selected channel.
 - Local unit tests, static checks, and lint are the developer quality gate. APK
   packaging and signing verification run in GitHub Actions unless explicitly
   authorized for a local build. Pushing `main` or a stable tag ends the task:

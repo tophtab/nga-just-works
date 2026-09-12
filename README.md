@@ -7,7 +7,9 @@
 
 ## 下载
 
-[GitHub Releases](https://github.com/tophtab/nga-just-works/releases) 
+[下载最新稳定版 APK](https://github.com/tophtab/nga-just-works/releases/latest/download/NGA-Just-Works.apk) — 链接始终指向最新正式版，同页附有 `.sha256` 校验文件。
+
+历史版本与预览版见 [GitHub Releases](https://github.com/tophtab/nga-just-works/releases)。
 
 
 ## 功能对比

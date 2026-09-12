@@ -192,6 +192,12 @@ jobs:
           test "$(apkanalyzer manifest debuggable "$release_apk")" = "$EXPECTED_DEBUGGABLE"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$release_apk"
           (cd dist && sha256sum "$(basename "$release_apk")" > "$(basename "$release_apk").sha256")
+          if [[ "$APK_DIR" == "release" ]]; then
+            # Stable releases carry a version-free asset name so the README's
+            # releases/latest/download link stays valid across versions.
+            cp "$release_apk" dist/NGA-Just-Works.apk
+            (cd dist && sha256sum NGA-Just-Works.apk > NGA-Just-Works.apk.sha256)
+          fi
 
       - name: Create GitHub Release
         id: publish
@@ -203,7 +209,13 @@ jobs:
           PRERELEASE: ${{ steps.release.outputs.prerelease }}
         run: |
           set -euo pipefail
-          test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 2
+          # Stable builds also stage the version-free APK pair for the
+          # releases/latest/download link: 2 files per preview, 4 per stable.
+          expected_dist_files=2
+          if [[ "$PRERELEASE" == "false" ]]; then
+            expected_dist_files=4
+          fi
+          test "$(find dist -maxdepth 1 -type f | wc -l)" -eq "$expected_dist_files"
           (cd dist && sha256sum -c ./*.sha256)
           if [[ "$PRERELEASE" == "true" ]]; then
             existing_tag_sha="$(
