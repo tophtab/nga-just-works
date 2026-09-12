@@ -49,16 +49,17 @@ APK。每个分支推送代码后都会自动构建签名预览版，纯 Markdow
 - 发帖工具栏的键盘按钮
 - 内嵌的 release 签名路径与口令
 
-## 未来计划
+## AI 功能
 
-参考 [nga_harmony](https://github.com/apap6628114/nga_harmony) 的实现引入 AI 功能：
+以下功能已在
+[`feature/ai-summary`](https://github.com/tophtab/nga-just-works/tree/feature/ai-summary)
+分支实现，尚未合入主分支。体验时请在 GitHub Releases 中选择标题包含该分支名的预览版。
 
-- [ ] 通用 AI 对话 — 流式输出、多轮、可中断
-- [ ] 帖子内容分析 — 一键把帖子送入对话并自动注入上下文
-- [ ] 用户行为分析 — 按发帖数据分析时段分布与版块偏好
-- [ ] 多服务商支持 — DeepSeek、智谱 GLM、豆包、MiniMax、Kimi、OpenAI 及自定义
-- [ ] 场景化提示词 — 为帖子总结、用户分析等场景分别定制 system prompt
-- [ ] 流式 Markdown 渲染
+- 楼层总结 — 在楼层菜单一键总结当前楼层，自动附带帖子标题、楼层号与作者。
+- 用户分析（AI 查成分）— 基于用户近期公开主题与回复，分析兴趣、观点和发言风格。
+- 自定义 AI 服务 — 配置一个 OpenAI Chat Completions 兼容服务，填写 API 地址、API Key 和模型；支持获取模型列表、手动填写模型及连接测试。
+- 查成分提示词 — 提供论坛锐评、详细分析两种预设，也可自定义提示词。
+- 流式结果展示 — 正文以纯文本逐步显示，思考过程默认折叠；支持关闭取消、重试和复制正文。
 
 ## 致谢
 
@@ -69,7 +70,7 @@ APK。每个分支推送代码后都会自动构建签名预览版，纯 Markdow
 
 **其他 NGA 客户端** — 功能与交互设计的参考
 
-- [nga_harmony](https://github.com/apap6628114/nga_harmony) — HarmonyOS ArkTS 客户端，AI 功能规划的主要参考
+- [nga_harmony](https://github.com/apap6628114/nga_harmony) — HarmonyOS ArkTS 客户端，AI 功能设计的主要参考
 - [MNGA](https://github.com/BugenZhao/MNGA)
 - [NGNGA](https://github.com/PoiScript/NGNGA)
 - [NgaLite](https://github.com/fhyxz001/NgaLite)
