@@ -15,19 +15,20 @@ class ArticleAuthorLocationContractTest {
     private fun source(path: String) = File(root, "nga_phone_base_3.0/src/main/$path").readText()
 
     @Test
-    fun successfulPageDeliveryEnrichesIndependentlyAndRetainedViewRebindingIsCacheOnly() {
+    fun mainReaderDoesNotStartAutomaticAuthorProfileQueries() {
         val fragment = source("java/sp/phone/ui/fragment/ArticleListFragment.java")
         val delivery = fragment.substringAfter("public void setData(ThreadData data)")
             .substringBefore("private void renderData")
         assertTrue(delivery.contains("getView() == null"))
-        assertTrue(delivery.contains("mAuthorLocations.deliver(data, !mRequestParam.loadCache)"))
+        assertTrue(delivery.contains("renderData(data)"))
         assertFalse(delivery.contains("RESUMED"))
         assertFalse(delivery.contains("getCurrentFragment"))
         assertFalse(delivery.contains("getPrefetchPages"))
-        assertTrue(fragment.contains("mAuthorLocations.deliver(mDeliveredData, false)"))
-        assertTrue(fragment.contains("AuthorLocationService.bind(getContext(), getViewLifecycleOwner()"))
-        assertTrue(fragment.substringAfter("public void onDestroyView()")
-            .substringBefore("private void applyReplyFabClearance").contains("mAuthorLocations.close()"))
+        assertFalse(fragment.contains("AuthorLocationService"))
+        assertFalse(fragment.contains("mAuthorLocations"))
+        val rebind = fragment.substringAfter("public void onViewCreated(View view, Bundle savedInstanceState)")
+            .substringBefore("public void onDestroyView()")
+        assertTrue(rebind.contains("renderData(mDeliveredData)"))
     }
 
     @Test
@@ -46,7 +47,7 @@ class ArticleAuthorLocationContractTest {
     }
 
     @Test
-    fun staleReaderDataCannotBeRetainedRenderedOrUsedForAuthorRequests() {
+    fun staleReaderDataCannotBeRetainedOrRendered() {
         val fragment = source("java/sp/phone/ui/fragment/ArticleListFragment.java")
         val delivery = fragment.substringAfter("public void setData(ThreadData data)")
             .substringBefore("private void renderData")
@@ -54,7 +55,6 @@ class ArticleAuthorLocationContractTest {
         assertTrue(acceptance >= 0)
         assertTrue(acceptance < delivery.indexOf("mDeliveredData = data"))
         assertTrue(acceptance < delivery.indexOf("renderData(data)"))
-        assertTrue(acceptance < delivery.indexOf("mAuthorLocations.deliver(data,"))
 
         val validation = fragment.substringAfter("private boolean isCurrentData(ThreadData data)")
             .substringBefore("public void setData(ThreadData data)")
@@ -71,7 +71,7 @@ class ArticleAuthorLocationContractTest {
         val invalidation = fragment.substringAfter("viewModel.getReaderState().observe(this, state ->")
             .substringBefore("consumePendingAnchor();")
         assertTrue(invalidation.contains("mDeliveredData = null"))
-        assertTrue(invalidation.contains("mAuthorLocations.deliver(null, false)"))
+        assertTrue(invalidation.contains("mArticleAdapter.setData(null)"))
     }
 
     @Test

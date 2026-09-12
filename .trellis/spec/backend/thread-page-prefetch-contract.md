@@ -93,11 +93,11 @@ request.
   Reuse retained data only when the state actually permits ready-data reuse.
 - Prefetched data lives only in the page Fragment/presenter inside the current
   topic Activity. Do not persist it or share it across topics or activities.
-- Author location is separate enrichment of each valid online page delivery,
-  including offscreen prefetch. Its independent persistent cache does not
-  persist thread pages or add a page-selection window. Follow the
-  [author-location contract](./author-profile-location-contract.md); loading tips
-  require foreground visibility, while this enrichment does not.
+- Main disables automatic author-location queries. Normal page delivery and
+  offscreen prefetch must not start supplemental `USER.PROFILE` requests.
+  The separate `experiment/auto-ip-query` branch retains that enrichment; see
+  the [author-location contract](./author-profile-location-contract.md).
+  This separation does not change page selection, retention, or loading tips.
 
 ## 4. Validation & Error Matrix
 

@@ -1,5 +1,20 @@
 # USER.PROFILE Author Location Enrichment
 
+## Main branch status
+
+Automatic author-location queries are temporarily disabled on `main`.
+`ArticleListFragment` must not bind `AuthorLocationService` or submit page
+authors to it. Opening a thread, prefetching, refreshing, and recreating a view
+therefore start no supplemental `USER.PROFILE` requests. Floor detail shows
+post count alone. Manual profile loading still uses its existing reader.
+
+The helper classes remain dormant; sections 2–7 document their retained
+reference behavior, not an active main-branch integration. Automatic queries
+and further 503 handling experiments live in `experiment/auto-ip-query` and
+its separate worktree. A one-second pacing interval did not prevent the
+reported 503s; the server's cause and safe quota remain unverified. Do not
+reconnect the service on `main` as part of unrelated reader or metadata work.
+
 ## 1. Scope / Trigger
 
 This is a current-fork contract for `sp.phone.profile`, thread-floor metadata,
@@ -210,8 +225,10 @@ rejections must not block a replacement credential for the same UID.
 - `ProfileLocationTransportTest`: explicit wire identity, strict bounded GBK,
   stop classification, Retry-After, and one physical request with the actual
   configured client against loopback HTTP 503/429 fixtures.
-- `ArticleAuthorLocationContractTest`: common delivery integration, complete
-  author collection, view/account lifetime boundaries, and metadata-only binding.
+- `ArticleAuthorLocationContractTest`: main reader has no automatic location
+  service integration, normal and retained page rendering still work, and
+  stale reader data is rejected. Retained helper tests also cover complete
+  author collection and metadata-only binding.
   Keep existing page-state, prefetch, refresh, and page-cache regressions green.
 - Run the app debug build/unit/lint and repository Android quality gate. Source
   contracts do not constitute Android UI execution or live NGA verification.

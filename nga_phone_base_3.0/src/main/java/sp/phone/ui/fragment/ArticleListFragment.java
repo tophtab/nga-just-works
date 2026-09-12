@@ -35,7 +35,6 @@ import sp.phone.mvp.viewmodel.ArticleShareViewModel;
 import sp.phone.mvp.model.thread.*;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
-import sp.phone.profile.AuthorLocationService;
 import sp.phone.ui.adapter.ArticleListAdapter;
 import sp.phone.ui.fragment.dialog.BaseDialogFragment;
 import sp.phone.ui.fragment.dialog.AiSummaryDialog;
@@ -64,8 +63,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     public SwipeRefreshLayout mSwipeRefreshLayout;
 
     private ArticleListAdapter mArticleAdapter;
-
-    private AuthorLocationService.Page mAuthorLocations;
 
     private Unbinder mViewBindings;
 
@@ -262,7 +259,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                     mRequestParam.page = state.currentPage;
                     mDeliveredData = null;
                     mDisplayedData = null;
-                    if (mAuthorLocations != null) mAuthorLocations.deliver(null, false);
                     if (mArticleAdapter != null) {
                         mArticleAdapter.setData(null);
                         mArticleAdapter.notifyDataSetChanged();
@@ -367,8 +363,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         mListView.setLayoutManager(new LinearLayoutManager(getContext()));
         mListView.setItemViewCacheSize(20);
         mListView.setAdapter(mArticleAdapter);
-        mAuthorLocations = AuthorLocationService.bind(getContext(), getViewLifecycleOwner(),
-                mArticleAdapter::setAuthorLocations);
         mListView.setEmptyView(view.findViewById(R.id.empty_view));
         applyReplyFabClearance();
         if (PhoneConfiguration.getInstance().useSolidColorBackground()) {
@@ -383,8 +377,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         });
         if (isCurrentData(mDeliveredData)) {
             renderData(mDeliveredData);
-            // Recreating a retained view reuses location cache only; it is not page delivery.
-            mAuthorLocations.deliver(mDeliveredData, false);
             hideLoadingView();
         } else {
             mDeliveredData = null;
@@ -396,10 +388,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     @Override
     public void onDestroyView() {
         dismissAiSummary();
-        if (mAuthorLocations != null) {
-            mAuthorLocations.close();
-            mAuthorLocations = null;
-        }
         if (mArticleAdapter != null) mArticleAdapter.releaseWebViews();
         if (mListView != null) mListView.setAdapter(null);
         mDisplayedData = null;
@@ -490,12 +478,10 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         mAiThreadTitle = data.getThreadInfo() != null
                 ? data.getThreadInfo().getSubject() : null;
         mDeliveredData = data;
-        if (getView() == null || mArticleAdapter == null || mAuthorLocations == null) {
+        if (getView() == null || mArticleAdapter == null) {
             return;
         }
         renderData(data);
-        // Both normal and offscreen-prefetched success reach this seam independently.
-        mAuthorLocations.deliver(data, !mRequestParam.loadCache);
     }
 
     private void renderData(ThreadData data) {
