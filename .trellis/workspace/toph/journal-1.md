@@ -1756,3 +1756,35 @@ No remaining in-scope implementation or validation work.
 ### Next Steps
 
 - 6.0.0 稳定版本发布等待后续安排。
+
+
+## Session 68: 收尾 AI 模型列表兼容回退
+<!-- trellis-session: v=2 fp=a60619fc6ac0c432 -->
+
+**Date**: 2026-09-12
+**Task**: 收尾 AI 模型列表兼容回退
+**Branch**: `main`
+
+### Summary
+
+完成既有模型发现兼容修复的审阅、提交和收尾。原实现来自 2026-09-12 15:32 的 Codex 会话 01a09487-c419-7b03-94e9-09002c2d1ce7，沿用用户不建 Trellis 任务的选择。
+
+### Main Changes
+
+- 提交模型列表根路径向 /v1/models 的单次同源回退、对应测试及规范，保留共享取消和总超时，并抑制隐式 503 重试。
+- 用户确认查成分问题已排除，按要求删除未跟踪的 09-12-ai-profile-format-recurrence 调查任务及其运行时引用；保留并行的阅读刷新任务。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6212a0b63103816465381cbe712f65fafc5aee12` | fix(ai): add bounded fallback for model discovery |
+
+### Testing
+
+- [OK] 三个文件与已验证内容的哈希一致：全项目 633 项测试、77 个测试类、13 个模块通过，包含 26 项 AiModelsClientTest 用例。
+- [OK] 13 个模块 lint 报告均为 0 Error/Fatal；独立 Trellis 审阅及提交前 whitespace 检查通过。未重复运行已通过且内容未变的测试。
+
+### Status
+
+[OK] **Completed**
