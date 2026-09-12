@@ -140,7 +140,7 @@ public class AiSummaryUiContractTest {
         assertFalse(copy.contains("substring("));
         String render = method(dialog, "void render(SummaryController.State state)");
         assertTrue(render.contains("boolean canCopy = !state.getCopyText().isEmpty()"));
-        assertTrue(render.contains("BUTTON_NEUTRAL).setEnabled(canCopy)"));
+        assertTrue(render.contains("BUTTON_POSITIVE).setEnabled(canCopy)"));
         assertTrue(render.contains("content.setTextIsSelectable(canCopy)"));
     }
 

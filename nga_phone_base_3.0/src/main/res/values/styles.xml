@@ -5,6 +5,11 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
+    <style name="AppTheme.AiSummaryDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="colorBackgroundFloating">@color/background_color</item>
+        <item name="android:textColorPrimary">@color/text_color</item>
+    </style>
+
     <style name="AppThemeDayNight" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="android:textColor">@color/text_color_selector</item>
         <item name="android:windowIsTranslucent">true</item>

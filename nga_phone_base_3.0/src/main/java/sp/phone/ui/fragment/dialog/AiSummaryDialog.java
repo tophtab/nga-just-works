@@ -50,7 +50,8 @@ public final class AiSummaryDialog {
                             SummaryController.InputSource input, Supplier<String> currentTarget) {
         this.target = target;
         this.input = input;
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_ai_summary, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppTheme_AiSummaryDialog);
+        View view = LayoutInflater.from(builder.getContext()).inflate(R.layout.dialog_ai_summary, null);
         content = view.findViewById(R.id.ai_summary_content);
         status = view.findViewById(R.id.ai_summary_status);
         error = view.findViewById(R.id.ai_summary_error);
@@ -60,12 +61,12 @@ public final class AiSummaryDialog {
         ScrollView scroll = view.findViewById(R.id.ai_summary_scroll);
         scroll.getLayoutParams().height = (int) (context.getResources()
                 .getDisplayMetrics().heightPixels * 0.45f);
-        dialog = new AlertDialog.Builder(context)
+        dialog = builder
                 .setTitle(title)
                 .setView(view)
-                .setNegativeButton(R.string.ai_summary_close, (ignored, which) -> dismiss())
-                .setPositiveButton(R.string.ai_summary_retry, null)
-                .setNeutralButton(R.string.ai_summary_copy, null)
+                .setNeutralButton(R.string.ai_summary_close, (ignored, which) -> dismiss())
+                .setNegativeButton(R.string.ai_summary_retry, null)
+                .setPositiveButton(R.string.ai_summary_copy, null)
                 .create();
         AiConfigStore configs = new AiConfigStore(context.getApplicationContext());
         AiSummaryClient client = new AiSummaryClient();
@@ -109,8 +110,8 @@ public final class AiSummaryDialog {
             render(controller.getState());
         });
         dialog.setOnShowListener(ignored -> {
-            dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(button -> retry());
-            dialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(button -> copy(context));
+            dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(button -> retry());
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(button -> copy(context));
             retry();
         });
     }
@@ -149,8 +150,8 @@ public final class AiSummaryDialog {
         error.setText(state.getErrorMessage());
         error.setVisibility(state.getErrorMessage().isEmpty() ? View.GONE : View.VISIBLE);
         renderReasoning(state);
-        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(!loading);
-        dialog.getButton(DialogInterface.BUTTON_NEUTRAL).setEnabled(canCopy);
+        dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setEnabled(!loading);
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(canCopy);
     }
 
     private void renderReasoning(SummaryController.State state) {
