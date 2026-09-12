@@ -1655,3 +1655,36 @@ No remaining in-scope implementation or validation work.
 ### Status
 
 [OK] **Completed**
+
+
+## Session 65: 修复 AI 查成分内容格式异常并合入 main
+<!-- trellis-session: v=2 fp=4974a782e9f1edee -->
+
+**Date**: 2026-09-12
+**Task**: 修复 AI 查成分内容格式异常并合入 main
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+完成 NGA 主题正文字符串中原始 TAB/LF/CR 的局部兼容修复，保留严格转义、身份校验与输入上限。修复提交已快进合入 main，本任务已归档。恢复中断会话后确认代码、测试与规范的 Git blob 均与独立复核一致，并重新检查已有 XML 报告；未重复运行 Gradle。归档和日志提交按既定交付顺序同步到主分支。
+
+### Main Changes
+
+- 只修改主题正文解析器及对应回归测试，补充原始控制字符、畸形转义、长度边界和 GBK 采集集成用例。
+- 完成根因复盘、AI 契约更新及独立复核；归档任务的 12 条上下文引用全部有效。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `3b38ce9a25aeb82e6141b5b836890085472fd48e` | fix(ai): normalize native topic string whitespace |
+
+### Testing
+
+- [OK] 此前 AI 专项 211 项、应用 515 项全部通过；全仓库现有报告共 600 项、76 suites、13 modules，0 failure/error/skip，包含已记录的缓存复用。
+- [OK] 此前应用 Debug 与 Android-test APK 构建通过；13 个模块 Lint 报告均为 0 Error/Fatal。
+- [OK] 本轮主分支快进后与已审查工作提交整棵 Git 树一致；没有新增 NGA/模型请求或设备操作，测试 APK 未安装或执行。
+
+### Status
+
+[OK] **Completed**

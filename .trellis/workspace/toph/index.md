@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 64
+- **Total Sessions**: 65
 - **Last Active**: 2026-09-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1657 | Active |
+| `journal-1.md` | ~1690 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 65 | 2026-09-12 | 修复 AI 查成分内容格式异常并合入 main | `3b38ce9a25aeb82e6141b5b836890085472fd48e` | `feature/ai-summary` |
 | 64 | 2026-09-12 | AI 查成分正文采样与提示词简化 | `0482795c5d175a13c78dd34be9e79b8c9bcfaf77` | `feature/ai-summary` |
 | 63 | 2026-09-12 | 所有分支自动构建 APK 与分支同步 | `8ceb57d9e73dd1476cea32ecd21175451c3818bd`, `3d7f5fcbedaf951807915262da9dadfebc923b7b` | `feature/thread-detail-compat-mode` |
 | 62 | 2026-09-12 | AI 查成分提示词选项与参考项目致谢 | `69d410029ba55b43122a05c872c53a8dbd8fb4bf` | `feature/ai-summary` |
