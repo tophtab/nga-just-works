@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 66
+- **Total Sessions**: 67
 - **Last Active**: 2026-09-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1722 | Active |
+| `journal-1.md` | ~1758 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 67 | 2026-09-12 | 合并 IP 查询分支到 main | `2a2e479c771e7ef99459715bdfacdd7f1688b0ad` | `main` |
 | 66 | 2026-09-12 | 修复主题翻页重复渲染 | `16cc185b` | `main` |
 | 65 | 2026-09-12 | 修复 AI 查成分内容格式异常并合入 main | `3b38ce9a25aeb82e6141b5b836890085472fd48e` | `feature/ai-summary` |
 | 64 | 2026-09-12 | AI 查成分正文采样与提示词简化 | `0482795c5d175a13c78dd34be9e79b8c9bcfaf77` | `feature/ai-summary` |

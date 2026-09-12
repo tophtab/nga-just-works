@@ -1720,3 +1720,39 @@ No remaining in-scope implementation or validation work.
 ### Status
 
 [OK] **Completed**
+
+
+## Session 67: 合并 IP 查询分支到 main
+<!-- trellis-session: v=2 fp=9c089ba8c85e165b -->
+
+**Date**: 2026-09-12
+**Task**: 合并 IP 查询分支到 main
+**Branch**: `main`
+
+### Summary
+
+已将 experiment/auto-ip-query 合并到 main，恢复自动属地查询并修复 READY 数据重放时的重复订阅；完成质量检查及 Trellis 任务归档，6.0.0 稳定发布暂缓。
+
+### Main Changes
+
+- 保留主线 AI 修复、独立翻页修复及其归档日志；未提交的 AI 改动和任务保持原样。
+- 同步六份 IP 相关规范，记录完整审阅和最终产品快照验证；使用真实双亲合并提交保留分支历史。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2a2e479c771e7ef99459715bdfacdd7f1688b0ad` | Merge branch 'experiment/auto-ip-query' into main |
+
+### Testing
+
+- [OK] 最终提交范围：620 项 JVM 测试、77 个测试类、13 个模块全部通过；所有 lint 报告均为 0 Error/Fatal。
+- [OK] 包含本地 AI WIP 的工作区 633 项测试通过；Python 工作流与版本回归 36 项通过。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 6.0.0 稳定版本发布等待后续安排。
