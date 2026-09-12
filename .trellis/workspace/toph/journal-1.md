@@ -1449,3 +1449,25 @@ Implemented streamed profile and floor summaries, initially folded reasoning, co
 ### Status
 
 [OK] **Completed**
+
+
+## Session 64: AI 查成分正文采样与提示词简化
+<!-- trellis-session: v=2 fp=1b7c3ca562e946dc -->
+
+**Date**: 2026-09-12
+**Task**: AI 查成分正文采样与提示词简化
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+补齐第一页主题主楼正文；主题和回复清理后各保留前1200字符，移除指定固定规则段及锐评风格的强制编号引文要求，保留自定义文本和总输入上限。完成独立 Trellis 审查及规范同步：应用368项测试通过，13个Android模块lint均为零Error/Fatal，Debug构建通过；仓库级测试仅复现lib_bu_statistics和lib_module_debug两处已记录的示例测试编译失败。未进行真实NGA/模型请求或设备操作。本次工作已提交并归档；日志提交后按授权推送feature/ai-summary。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0482795c5d175a13c78dd34be9e79b8c9bcfaf77` | feat(ai): include topic bodies in profile summaries |
+
+### Status
+
+[OK] **Completed**

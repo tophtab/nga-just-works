@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 62
+- **Total Sessions**: 64
 - **Last Active**: 2026-09-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1451 | Active |
+| `journal-1.md` | ~1473 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 64 | 2026-09-12 | AI 查成分正文采样与提示词简化 | `0482795c5d175a13c78dd34be9e79b8c9bcfaf77` | `feature/ai-summary` |
 | 62 | 2026-09-12 | AI 查成分提示词选项与参考项目致谢 | `69d410029ba55b43122a05c872c53a8dbd8fb4bf` | `feature/ai-summary` |
 | 59 | 2026-09-12 | Streaming AI summaries and folded reasoning | `0dcc4d6e` | `feature/ai-summary` |
 | 58 | 2026-09-11 | Refine profile composition prompt and evidence | `9cf43a82` | `feature/ai-summary` |
