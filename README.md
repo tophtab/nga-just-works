@@ -5,8 +5,6 @@
 进行的二次开发，当前代码基线为上游提交
 [`5d807617f8058950f7ea81dda405e38fb0cc37ec`](https://github.com/Justwen/NGA-CLIENT-VER-OPEN-SOURCE/commit/5d807617f8058950f7ea81dda405e38fb0cc37ec)，并按需引入和适配上游后续的功能改进与问题修复。
 
-本项目是 NGA 三方客户端，与 NGA 及原项目作者不存在隶属、授权或背书关系。
-
 ## 下载
 
 [GitHub Releases](https://github.com/tophtab/nga-just-works/releases) 
