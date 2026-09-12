@@ -3,7 +3,7 @@
   "name": "release-6-0-0-preparation",
   "title": "6.0.0 发布准备与发布",
   "description": "整理 6.0.0 发布说明并衔接已验证的 main 提交；用户已授权发布，完成 main 推送后推送 6.0.0 标签，复用已有验证结果。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": "docs",
   "scope": "release",
   "package": null,
@@ -11,11 +11,11 @@
   "creator": "toph",
   "assignee": "toph",
   "createdAt": "2026-09-12",
-  "completedAt": null,
+  "completedAt": "2026-09-12",
   "branch": "main",
   "base_branch": "main",
   "worktree_path": null,
-  "commit": null,
+  "commit": "c0dd626f8d42e84fdec8961d3e021bc67142c1f0",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -34,6 +34,10 @@
     "preparation_authorized": true,
     "preparation_commit_push_authorized": true,
     "reader_fix_commit": "ee4556f8",
-    "prior_validation_record": ".trellis/tasks/archive/2026-09/09-12-reader-refresh-stability/validation.md"
+    "prior_validation_record": ".trellis/tasks/archive/2026-09/09-12-reader-refresh-stability/validation.md",
+    "release_commit": "c0dd626f8d42e84fdec8961d3e021bc67142c1f0",
+    "main_push_completed": true,
+    "tag_push_completed": true,
+    "ci_followup_requested": false
   }
 }

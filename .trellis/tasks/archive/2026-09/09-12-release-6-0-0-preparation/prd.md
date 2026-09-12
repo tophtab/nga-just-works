@@ -54,14 +54,22 @@ instruction, tag the prepared, pushed main commit as `6.0.0`.
 ## Acceptance Criteria
 
 - [x] `release-notes/6.0.0.md` contains the intended user-facing release text.
-- [ ] The release notes and required reader/IP changes are committed and
+- [x] The release notes and required reader/IP changes are committed and
       included in the pushed main history.
-- [ ] A durable release handoff records the version, pushed target, notes,
+- [x] A durable release handoff records the version, pushed target, notes,
       publication commands, and the maintainer's no-repeat-validation choice.
 - [x] No new test/build/lint/validator run or quality-review cycle was added
       after the maintainer's clarification.
 - [x] The maintainer explicitly authorized stable publication before tag creation.
-- [ ] Push `6.0.0` after the prepared main history has been pushed.
+- [x] Push `6.0.0` after the prepared main history has been pushed.
+
+## Delivery
+
+Main was pushed from `d1e59291` to release preparation commit
+`c0dd626f8d42e84fdec8961d3e021bc67142c1f0`. The annotated `6.0.0` tag was then
+created on that exact commit and pushed successfully. Publication is now owned
+by the existing tag-triggered GitHub workflow; no CI polling was performed.
+See `release-ready.md` for the durable publication record.
 
 ## Out of Scope
 
