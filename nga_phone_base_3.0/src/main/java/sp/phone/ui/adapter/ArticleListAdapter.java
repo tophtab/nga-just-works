@@ -92,7 +92,8 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
 
     private ThemeManager mThemeManager = ThemeManager.getInstance();
 
-    private LocalWebView[] mLocalWebViews = new LocalWebView[0];
+    private final ArticleBodyViews<LocalWebView> mBodyViews =
+            new ArticleBodyViews<>(this::createLocalWebView, ArticleListAdapter::releaseWebView);
 
     private String mTopicOwner;
 
@@ -380,13 +381,10 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     public void setData(ThreadData data) {
-        if (mData != data) {
-            releaseWebViews();
-            mLocalWebViews = new LocalWebView[data == null ? 0 : data.getRowList().size()];
-        }
+        mBodyViews.setData(data);
         mData = data;
         mDataGeneration++;
-        mAuthorLocations = AuthorLocationRepository.Snapshot.empty();
+        if (data == null) mAuthorLocations = AuthorLocationRepository.Snapshot.empty();
     }
 
     public void setAuthorLocations(AuthorLocationRepository.Snapshot locations) {
@@ -405,15 +403,15 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
     }
 
     public void releaseWebViews() {
-        for (LocalWebView webView : mLocalWebViews) {
-            if (webView == null) continue;
-            if (webView.getParent() instanceof ViewGroup) {
-                ((ViewGroup) webView.getParent()).removeView(webView);
-            }
-            webView.stopLoading();
-            webView.destroy();
+        mBodyViews.clear();
+    }
+
+    private static void releaseWebView(LocalWebView webView) {
+        if (webView.getParent() instanceof ViewGroup) {
+            ((ViewGroup) webView.getParent()).removeView(webView);
         }
-        mLocalWebViews = new LocalWebView[0];
+        webView.stopLoading();
+        webView.destroy();
     }
 
     public void setSupportListener(View.OnClickListener listener) {
@@ -530,10 +528,13 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         String location = row.getISANONYMOUS() ? null
                 : mAuthorLocations.location(row.getAuthorid(), System.currentTimeMillis());
         String posts = TextUtils.isEmpty(row.getPostCount()) ? "N/A" : row.getPostCount();
-        holder.detailTv.setText(location == null
+        String detail = location == null
                 ? mContext.getString(R.string.article_author_posts, posts)
-                : mContext.getString(R.string.article_author_location_posts, location, posts));
-
+                : mContext.getString(R.string.article_author_location_posts, location, posts);
+        // Compare what is drawn: an invalidated snapshot already reads null while old text remains.
+        if (!TextUtils.equals(holder.detailTv.getText(), detail)) {
+            holder.detailTv.setText(detail);
+        }
     }
 
     private LocalWebView createLocalWebView() {
@@ -551,27 +552,22 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
         holder.contentTextView.setVisibility(hasHtml ? View.GONE : View.VISIBLE);
         holder.contentContainer.setVisibility(hasHtml ? View.VISIBLE : View.GONE);
         if (hasHtml) {
-            if (mLocalWebViews != null) {
-                LocalWebView localWebView = mLocalWebViews[position];
-                if (localWebView == null) {
-                    localWebView = createLocalWebView();
-                    mLocalWebViews[position] = localWebView;
+            LocalWebView localWebView = mBodyViews.getOrCreate(position);
+            // A retained row may move to another holder after insertion/reordering. Its actual
+            // parent, not a holder's old reference, determines whether it needs attaching.
+            if (localWebView.getParent() != holder.contentContainer) {
+                holder.contentContainer.removeView(holder.contentTV);
+                if (localWebView.getParent() instanceof ViewGroup) {
+                    ((ViewGroup) localWebView.getParent()).removeView(localWebView);
                 }
-                if (localWebView != holder.contentTV) {
-                    holder.contentContainer.removeView(holder.contentTV);
-                    if (localWebView.getParent() != null) {
-                        ((ViewGroup) localWebView.getParent()).removeView(localWebView);
-                    }
-                    holder.contentTV = localWebView;
-                    holder.contentContainer.addView(localWebView);
-                }
-            } else if (holder.contentTV == null) {
-                holder.contentTV = createLocalWebView();
-                holder.contentContainer.addView(holder.contentTV);
+                holder.contentContainer.addView(localWebView);
             }
+            holder.contentTV = localWebView;
             holder.contentTV.getWebViewClientEx().setImgUrls(row.getImageUrls());
             holder.contentTV.loadDataWithBaseURL(null, html, "text/html", "utf-8", null);
         } else {
+            holder.contentContainer.removeView(holder.contentTV);
+            holder.contentTV = null;
             holder.contentTextView.setText(row.getContent());
         }
     }

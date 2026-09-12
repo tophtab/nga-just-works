@@ -11,8 +11,12 @@ briefly flash when the user swipes forward or back.
   The preceding conversation presented the retained-content fix; the user
   delegated the task/workflow decision with “你自己判断”.
 - Resuming a READY page redelivers its retained response and unconditionally
-  rebinds every row. Body binding reloads the row WebViews. This redundant
-  render path is confirmed in source; device-visible causality is unverified.
+  rebinds every row. This redundant list-binding path is confirmed in source;
+  device-visible causality is unverified. Follow-up investigation in
+  `09-12-reader-refresh-stability` corrected the original reload explanation:
+  `LocalWebView` skips equal HTML, so binding does not necessarily reload it.
+  Fresh-response destruction of those views was a separate remaining cause
+  of unnecessary body loading during manual refresh.
 - This is a lightweight bug fix with settled requirements and no unresolved
   product decisions. A PRD and curated research are sufficient.
 

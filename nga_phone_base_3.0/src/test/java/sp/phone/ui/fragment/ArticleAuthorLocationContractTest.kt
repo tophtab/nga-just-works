@@ -64,43 +64,29 @@ class ArticleAuthorLocationContractTest {
         val service = source("java/sp/phone/profile/AuthorLocationService.java")
         val pageDelivery = service.substringAfter("public void deliver(ThreadData data, boolean online)")
             .substringBefore("@Override")
-        val replayGuard = "if (data != null && data == lastDeliveredData) {"
-        val replayIndex = pageDelivery.indexOf(replayGuard)
-        assertTrue(replayIndex >= 0)
-        assertTrue(pageDelivery.indexOf("if (closed)") in 0 until replayIndex)
-        assertTrue(pageDelivery.substringBefore(replayGuard).contains("return;"))
-        assertTrue(replayIndex < pageDelivery.indexOf("lastDeliveredData = data"))
-        val replay = pageDelivery.substringAfter(replayGuard)
-            .substringBefore("lastDeliveredData = data")
-        assertTrue(replay.contains("Delivery previous = updates.getValue()"))
-        assertTrue(replay.contains("previous != null && previous.generation == generation"))
-        assertTrue(replay.contains("updates.setValue(previous)"))
-        assertTrue(replay.contains("return;"))
-        // No new epoch/consumer: pending first delivery and cache-only intent survive READY replay.
-        for (sideEffect in listOf("++generation", "subscription.close()", "whenSessionSettled(",
-            "repository.", "new Delivery(", "ArticleAuthorIds.fromPage(")) {
-            assertFalse(replay.contains(sideEffect))
-            val effectIndex = pageDelivery.indexOf(sideEffect)
-            assertTrue(effectIndex > replayIndex)
-        }
+        // The executable AuthorLocationPageTest now owns replay/handoff behavior; this pins
+        // that Android actually calls that production controller, without a second algorithm.
+        assertTrue(pageDelivery.contains("controller.deliver(data, online)"))
+        assertFalse(pageDelivery.contains("repository.subscribe"))
+        assertTrue(service.contains("new AuthorLocationPage(service.repository, service::whenSessionSettled,"))
+        assertTrue(service.contains("() -> service.sessionSignal, updates::setValue"))
     }
 
     @Test
-    fun nullDeliveryAlwaysClearsReplayIdentityAndCloseReleasesTheResponse() {
+    fun viewLifecycleClosesTheTestedControllerAndReplaysCurrentOutputAfterSessionCheck() {
         val service = source("java/sp/phone/profile/AuthorLocationService.java")
         val page = service.substringAfter("public static final class Page")
-        val delivery = page.substringAfter("public void deliver(ThreadData data, boolean online)")
-            .substringBefore("@Override")
-        assertTrue(page.contains("private ThreadData lastDeliveredData;"))
-        assertTrue(delivery.contains("if (data != null && data == lastDeliveredData)"))
-        val replacement = delivery.substringAfter("lastDeliveredData = data;")
-        assertTrue(replacement.contains("long version = ++generation"))
-        assertTrue(replacement.contains("subscription.close()"))
-        assertTrue(replacement.contains("new Delivery(version, AuthorLocationRepository.Snapshot.empty())"))
-        assertTrue(replacement.contains("service.repository.subscribe(authors, online,"))
-        val close = page.substringAfter("public void close()")
-        assertTrue(close.contains("lastDeliveredData = null"))
-        assertTrue(close.indexOf("lastDeliveredData = null") < close.indexOf("subscription.close()"))
+        val start = page.substringAfter("public void onStart(@NonNull LifecycleOwner owner)")
+            .substringBefore("public void onDestroy")
+        assertTrue(start.indexOf("service.repository.synchronizeSession()") >= 0)
+        assertTrue(start.indexOf("service.repository.synchronizeSession()") < start.indexOf("controller.replay()"))
+        assertTrue(page.substringAfter("public void onDestroy").substringBefore("public void close()")
+            .contains("close()"))
+        assertTrue(page.substringAfter("public void close()").contains("controller.close()"))
+        assertTrue(service.contains("page.controller.isCurrent(delivery)"))
+        val controller = source("java/sp/phone/profile/AuthorLocationPage.java")
+        assertTrue(controller.contains("private final WeakReference<AuthorLocationPage> owner"))
+        assertFalse(controller.contains("android."))
     }
 
     @Test
@@ -171,6 +157,14 @@ class ArticleAuthorLocationContractTest {
         assertTrue(adapter.contains("row.getISANONYMOUS() ? null"))
         assertTrue(adapter.contains("R.string.article_author_posts"))
         assertTrue(adapter.contains("R.string.article_author_location_posts"))
+        val bindDetail = adapter.substringAfter("private void onBindAuthorDetail")
+            .substringBefore("private LocalWebView createLocalWebView")
+        assertTrue(bindDetail.contains("if (!TextUtils.equals(holder.detailTv.getText(), detail))"))
+        assertTrue(bindDetail.substringAfter("if (!TextUtils.equals(holder.detailTv.getText(), detail))")
+            .contains("holder.detailTv.setText(detail)"))
+        val setData = adapter.substringAfter("public void setData(ThreadData data)")
+            .substringBefore("public void setAuthorLocations")
+        assertTrue(setData.contains("if (data == null) mAuthorLocations ="))
     }
 
     @Test
@@ -189,8 +183,8 @@ class ArticleAuthorLocationContractTest {
         assertTrue(capture.contains("User user = users.get(index)"))
         assertTrue(capture.contains("user.getCid()"))
         assertFalse(capture.contains("UserManager.INSTANCE.getActiveUser("))
-        assertTrue(service.contains("delivery.generation == page.generation"))
-        assertTrue(service.contains("generation == version && service.sessionSignal == signal"))
+        assertTrue(service.contains("page.controller.isCurrent(delivery)"))
+        assertTrue(service.contains("service::whenSessionSettled"))
     }
 
     @Test

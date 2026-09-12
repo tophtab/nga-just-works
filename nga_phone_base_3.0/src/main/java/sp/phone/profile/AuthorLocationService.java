@@ -15,10 +15,8 @@ import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 import com.justwent.androidnga.bu.UserManager;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -81,7 +79,7 @@ public final class AuthorLocationService {
         AuthorLocationService service = get(context);
         Page page = new Page(service);
         page.updates.observe(owner, delivery -> {
-            if (!page.closed && delivery.generation == page.generation) {
+            if (page.controller.isCurrent(delivery)) {
                 display.accept(delivery.snapshot);
             }
         });
@@ -171,85 +169,27 @@ public final class AuthorLocationService {
         });
     }
 
-    private static final class Delivery {
-        final long generation;
-        final AuthorLocationRepository.Snapshot snapshot;
-
-        Delivery(long generation, AuthorLocationRepository.Snapshot snapshot) {
-            this.generation = generation;
-            this.snapshot = snapshot;
-        }
-    }
-
-    /** The app repository cannot keep a view alive through LiveData's lifecycle observers. */
-    private static final class DeliverySink implements Consumer<AuthorLocationRepository.Snapshot> {
-        private final WeakReference<MutableLiveData<Delivery>> updates;
-        private final long generation;
-
-        DeliverySink(MutableLiveData<Delivery> updates, long generation) {
-            this.updates = new WeakReference<>(updates);
-            this.generation = generation;
-        }
-
-        @Override
-        public void accept(AuthorLocationRepository.Snapshot snapshot) {
-            MutableLiveData<Delivery> target = updates.get();
-            if (target != null) {
-                target.setValue(new Delivery(generation, snapshot));
-            }
-        }
-    }
-
     public static final class Page implements DefaultLifecycleObserver, AutoCloseable {
         private final AuthorLocationService service;
-        private final MutableLiveData<Delivery> updates = new MutableLiveData<>();
-        private AuthorLocationRepository.Subscription subscription;
-        private ThreadData lastDeliveredData;
-        private long generation;
-        private boolean closed;
+        private final MutableLiveData<AuthorLocationPage.Delivery> updates = new MutableLiveData<>();
+        private final AuthorLocationPage controller;
 
         private Page(AuthorLocationService service) {
             this.service = service;
+            controller = new AuthorLocationPage(service.repository, service::whenSessionSettled,
+                    () -> service.sessionSignal, updates::setValue);
         }
 
         /** Accepts fresh page data; READY replays only restore the current metadata. */
         public void deliver(ThreadData data, boolean online) {
-            if (closed) {
-                return;
-            }
-            if (data != null && data == lastDeliveredData) {
-                // Keep the original subscription's online/cache-only intent and pending work.
-                Delivery previous = updates.getValue();
-                if (previous != null && previous.generation == generation) {
-                    updates.setValue(previous);
-                }
-                return;
-            }
-            lastDeliveredData = data;
-            long version = ++generation;
-            long signal = service.sessionSignal;
-            if (subscription != null) {
-                subscription.close();
-                subscription = null;
-            }
-            updates.setValue(new Delivery(version, AuthorLocationRepository.Snapshot.empty()));
-            Set<Integer> authors = ArticleAuthorIds.fromPage(data);
-            service.whenSessionSettled(() -> {
-                if (!closed && generation == version && service.sessionSignal == signal) {
-                    subscription = service.repository.subscribe(authors, online,
-                            new DeliverySink(updates, version));
-                }
-            });
+            controller.deliver(data, online);
         }
 
         @Override
         public void onStart(@NonNull LifecycleOwner owner) {
             service.repository.synchronizeSession();
             // Re-evaluate expiry after a long stop without turning a revisit into network work.
-            Delivery previous = updates.getValue();
-            if (!closed && previous != null) {
-                updates.setValue(previous);
-            }
+            controller.replay();
         }
 
         @Override
@@ -259,13 +199,7 @@ public final class AuthorLocationService {
 
         @Override
         public void close() {
-            closed = true;
-            lastDeliveredData = null;
-            generation++;
-            if (subscription != null) {
-                subscription.close();
-                subscription = null;
-            }
+            controller.close();
         }
     }
 }

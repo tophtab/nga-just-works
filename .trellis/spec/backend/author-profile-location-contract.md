@@ -48,8 +48,15 @@ AuthorLocationService.Page AuthorLocationService.bind(
         Context context, LifecycleOwner owner,
         Consumer<AuthorLocationRepository.Snapshot> display)
 void AuthorLocationService.Page.deliver(ThreadData data, boolean online)
+void AuthorLocationPage.deliver(ThreadData data, boolean online)
+void AuthorLocationPage.replay()
+boolean AuthorLocationPage.isCurrent(AuthorLocationPage.Delivery delivery)
 AuthorLocationRepository.Subscription AuthorLocationRepository.subscribe(
         Collection<Integer> authors, boolean online, Consumer<Snapshot> listener)
+// Package-private: the page owns the handle before synchronous initial publication.
+AuthorLocationRepository.Subscription AuthorLocationRepository.subscribe(
+        Collection<Integer> authors, boolean online, Consumer<Snapshot> listener,
+        Consumer<Subscription> onRegistered)
 String AuthorLocationRepository.Snapshot.location(int author, long now)
 void ArticleListAdapter.setAuthorLocations(AuthorLocationRepository.Snapshot locations)
 ```
@@ -84,24 +91,50 @@ transport exercise the same repository on the host JVM.
   Location data is separate from the existing raw thread-page cache format.
 - `ArticleListPresenter` also routes `SHOW_READY_DATA` through `setData` on
   resume. Repeating the exact same nonnull `ThreadData` in one
-  `AuthorLocationService.Page` is a replay. Preserve that Page's existing
-  subscription and online/cache-only intent; re-emit its latest current-
-  generation `Delivery` from `updates` without creating a generation, closing
-  the consumer, or entering session-settling/repository dispatch. This restores
+  `AuthorLocationService.Page` is a replay. Its Android-free `AuthorLocationPage`
+  controller preserves the existing subscription and online/cache-only intent;
+  re-emit its latest current-generation `Delivery` through the lifecycle shell
+  without creating a generation, closing the consumer, or entering session-
+  settling/repository dispatch. This restores
   metadata if the adapter rebound its body without restarting queries.
   A new Page's retained-data delivery uses `online=false`; later READY replay
   must not promote it to online. Null delivery always clears the remembered
   response and consumer; close also releases the response reference. Session
   invalidation publishes an empty snapshot and must never recover an older
   snapshot from a separate replay cache. Fresh response objects still replace
-  the subscription. A response arriving after view destruction is retained
-  for later cache-only rendering.
+  the subscription through the handoff below. A response arriving after view
+  destruction is retained for later cache-only rendering.
+- A fresh nonnull response must not blank valid metadata before a cache hit.
+  Keep the current snapshot and active consumer while a replacement awaits
+  account/session settling. Track pending replacement sequence independently
+  of active output generation so account invalidation can still clear the
+  displayed text during that wait. Install the new consumer, which publishes
+  its authoritative cache snapshot synchronously, before closing the previous
+  consumer. Dispose the previous consumer during the first new publication,
+  before the new subscription can dispatch missing work; this prunes removed
+  queued authors without interrupting shared in-flight authors. Then reject
+  retired output. Validate pending sequence, session signal and close state
+  before installation. The repository's package-private registration callback
+  gives the controller ownership of the new subscription before synchronous
+  publication. A display callback that closes or null-resets the page can then
+  dispose it immediately. Only a still-active online consumer may enqueue or
+  dispatch after publication; this also applies when the request slot is idle.
+  Preserve the existing public subscribe API.
+  Null/reset and close immediately invalidate pending work and dispose obsolete
+  consumers. Keep this orchestration in an Android-free production seam with
+  an Android lifecycle/LiveData shell; preserve weak ownership at the app-wide
+  repository boundary.
 - Render bodies without waiting for location. Show `发帖：123   IP 属地：广东`
   when known, or post count alone otherwise. Remove level/reputation from floor
   detail only; preserve underlying profile/statistics and other author actions.
 - Asynchronous location changes use `AuthorMetadataPayload` and bind only
   `tv_detail`. Validate data generation, author UID, and bound row identity.
   Never reload the body WebView or run a full-list bind for these callbacks.
+  Preserve the valid snapshot when assigning a fresh nonnull page. Read the
+  next value through its epoch/TTL guard and compare the final detail string
+  (post count plus location) with the holder's actually displayed text before
+  assigning it. Do not infer that no clear is needed by comparing two snapshot
+  lookups after invalidation: both can be null while old text remains visible.
 - Close obsolete consumers on data replacement/view destruction. Old snapshots
   carry an invalidatable session epoch; expiry is also checked when reading a
   snapshot. View recreation reuses retained thread data and cached observations.
@@ -237,6 +270,10 @@ rejections must not block a replacement credential for the same UID.
 | Missing/corrupt/expired cache | Lookup only when an online delivery requires it |
 | Offline page or retained view rebound | Cache-only display, including misses |
 | Repeated nonnull response instance delivered to the same Page | Re-emit the current snapshot while preserving the existing consumer and online/cache-only intent; no new queries |
+| Fresh response contains an author with a valid current-session cached location | Preserve the displayed location through deferred consumer handoff; no artificial empty before the cache hit |
+| Account invalidates while replacement is pending | The active consumer immediately clears displayed metadata; stale pending work cannot restore it |
+| Initial synchronous metadata display closes or null-resets the page | Dispose the registered consumer before request dispatch, including with an idle repository |
+| Equivalent detail text arrives, including a same-session refresh | Keep the existing text; no redundant identical `setText` |
 | Cache-only subscription after a 429 pause expires | Do not resume another page's queue; later real online work may resume it |
 | Fast, slow, failed, or canceled request completes | Next supplemental call starts at least 500 ms after its terminal callback; one physical call remains the concurrency limit |
 | Page/account changes while waiting | Cancel obsolete work; new eligible work still honors the shared pacing deadline |
@@ -286,6 +323,14 @@ rejections must not block a replacement credential for the same UID.
   recreated-view cache-only replay, fresh responses, and retention after view
   destruction; keep the executable cache-only/expired-pause regressions.
   Keep existing page-state, prefetch, refresh, and page-cache regressions green.
+- `AuthorLocationPageTest`: execute the production page-delivery controller on the host JVM with queued
+  settlement, fake clocks/signals, and the real repository's fake transport.
+  Capture all emitted values to catch an empty interposed before a cache hit;
+  cover replacement/account invalidation, expiry, fresh/removed/anonymous
+  authors, READY/cache-only intent, null/close, superseded pending work and
+  synchronous subscriber reentrancy with both occupied and idle physical
+  request slots. A test-local subscription wrapper does
+  not cover the production Page's orchestration.
 - Run the app debug build/unit/lint and repository Android quality gate. Source
   contracts do not constitute Android UI execution or live NGA verification.
 

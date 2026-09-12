@@ -51,7 +51,9 @@ class ArticleReaderUiContractTest {
     @Test fun rowBindingResetsUnknownScoreIdentityAndVariableWebViewRetention() {
         val adapter = source("sp/phone/ui/adapter/ArticleListAdapter")
         assertFalse(adapter.contains("new LocalWebView[20]"))
-        assertTrue(adapter.contains("data.getRowList().size()"))
+        assertTrue(adapter.contains("mBodyViews.setData(data)"))
+        assertTrue(adapter.contains("mBodyViews.getOrCreate(position)"))
+        assertTrue(adapter.contains("mBodyViews.clear()"))
         assertTrue(adapter.contains("holder.scoreTv.setVisibility(scoreKnown ? View.VISIBLE : View.GONE)"))
         assertTrue(adapter.contains("holder.nickNameTV.setEnabled(userKnown)"))
         assertTrue(adapter.contains("holder.avatarPanel.setEnabled(userKnown)"))
@@ -62,6 +64,25 @@ class ArticleReaderUiContractTest {
         assertTrue(adapter.contains("if (!ArticleRowPresentation.canReply(row)) return;"))
         assertEquals(2, Regex("ArticleQuote.authorMarkup\\(row\\)").findAll(presenter).count())
         assertTrue(presenter.contains("ArticleQuote.mention(row)"))
+    }
+
+    @Test fun bodyBindingStillUpdatesHtmlAndImageMetadataAndUsesTheActualRetainedParent() {
+        val adapter = source("sp/phone/ui/adapter/ArticleListAdapter")
+        val bind = adapter.substringAfter("private void onBindContentView")
+            .substringBefore("private void onBindDeviceType")
+        assertTrue(bind.contains("localWebView.getParent() != holder.contentContainer"))
+        assertFalse(bind.contains("removeAllViews()")) // The container also owns its XML fallback/spacing.
+        assertTrue(bind.contains("holder.contentTV.getWebViewClientEx().setImgUrls(row.getImageUrls())"))
+        assertTrue(bind.contains("holder.contentTV.loadDataWithBaseURL(null, html"))
+        val webView = source("sp/phone/view/webview/LocalWebView")
+        val load = webView.substringAfter("public void loadDataWithBaseURL(")
+            .substringBefore("@JavascriptInterface")
+        assertTrue(load.indexOf("if (data.equals(mContentData))") < load.indexOf("super.loadDataWithBaseURL"))
+        assertTrue(load.substringBefore("mContentData = data").contains("return;"))
+        val release = adapter.substringAfter("private static void releaseWebView")
+            .substringBefore("public void setSupportListener")
+        assertTrue(release.indexOf("removeView(webView)") < release.indexOf("webView.destroy()"))
+        assertTrue(release.contains("webView.stopLoading()"))
     }
 
     @Test fun nestedCommentsUseDisplayProjectionWithoutChangingEditableSource() {

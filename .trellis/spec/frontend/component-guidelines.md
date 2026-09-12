@@ -606,6 +606,13 @@ Follow the [author-location contract](../backend/author-profile-location-contrac
 for per-delivered-page fetching, account/cache boundaries, and lifecycle cleanup.
 Async metadata uses generation/author/holder-checked payloads that only bind
 `tv_detail`; never reload body WebViews through a full-list notification.
+Keep the current valid location snapshot across an ordinary response refresh.
+Do not briefly replace known locations with an empty placeholder while cached
+metadata is handed to a new subscription. Compare the final detail string with
+the holder's actual text before calling `setText`; equal current values need no
+text assignment. Account invalidation and expiry must still clear old text.
+Comparing two snapshot lookups cannot establish what is drawn: invalidation can
+make both lookups null while the holder still shows the previous location.
 
 ## Initial-loading usage tips
 
@@ -644,8 +651,10 @@ body when the accepted response is the same instance as `mDisplayedData` for
 the current view and the displayed topic-owner value is unchanged. A newly
 discovered/changed topic owner still needs a rebind to update OP badges.
 Calling `notifyDataSetChanged()` on every unchanged entry causes full
-row binding and another `loadDataWithBaseURL()` for each body WebView, producing
-an unnecessary reload even though no page request was made.
+row binding and calls to `loadDataWithBaseURL()` for each body WebView. This is
+unnecessary list work, but is **not proof of a body reload**: `LocalWebView`
+overrides that method and skips equal HTML. Trace the override and resource
+lifetime before claiming Chromium loaded a document again.
 
 Keep foreground title/menu updates, topic-owner metadata and pending anchors
 independent of body binding. Validate reader/account/generation identity before
@@ -663,6 +672,30 @@ the changed nickname badge visible.
 Review ordinary/cached resume, completed and in-flight prefetch, explicit
 refresh, view recreation and stale-generation rejection. Existing offline
 request/UI checks do not establish device-visible smoothness.
+
+### Manual article refresh
+
+Release 5.6.1 retained body WebViews across new response objects and skipped
+equal HTML. Preserve that property while supporting the current reader's
+variable row counts and explicit page identities. A new `ThreadData` reference
+means row data must be considered for binding; it is not by itself a reason to
+destroy all body views. Doing so discards the HTML equality cache, removes the
+drawn content, and forces even unchanged documents through initial rendering.
+
+Retain applicable body resources for surviving meaningful row identities in
+the same accepted reader/page context. Bind genuine body and image-URL changes,
+allocate for new rows, and release removed or incompatible resources. Row
+position alone is not proof of identity after replacement or reordering. Do not
+reinstate a fixed 20-view limit. Source/account/generation retirement, null/reset
+and Fragment view destruction still release obsolete resources.
+
+Keep the equality guard in `LocalWebView` authoritative; do not suppress the
+user's network refresh or retain a stale response to avoid drawing changes.
+`ArticleBodyViews` owns the adapter's body resources. Behavioral tests must
+exercise this production retention owner with tracked
+resources and prove reuse/disposal across fresh objects, growth/shrink/reorder,
+context replacement and close. A source assertion that mentions a load method
+does not establish either a load or a visual frame transition.
 
 ## Compatibility reader navigation and row presentation
 
@@ -724,8 +757,9 @@ boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
   normalization to renderer/temporary quote input. Do not send the fully
   rendered document to the composer.
 - Retain `LocalWebView` instances according to the actual row list, including
-  pages larger than 20. Release the previous page's instances when replacing
-  data and on view destruction. Body selection, gestures, FAB behavior and
+  pages larger than 20. Retain surviving same-context row resources across
+  ordinary refresh; release removed or incompatible instances and all owned
+  instances on view destruction. Body selection, gestures, FAB behavior and
   ordinary HTML/image-prefix preparation keep their existing contracts.
 
 ### 4. Validation & Error Matrix

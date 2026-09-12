@@ -1,0 +1,10 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend entry point."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Article renderer, READY reuse, author payload and lifecycle contracts; task design corrects historical overbroad reload/release wording."}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend entry point and quality gate."}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Required debug/JVM/all-module lint; no device operations without explicit request."}
+{"file": ".trellis/spec/backend/author-profile-location-contract.md", "reason": "Author metadata, lifecycle, epoch/TTL, cache-only delivery and pacing contracts."}
+{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "Reader/source/account identity and real row/page semantics."}
+{"file": ".trellis/spec/backend/thread-page-prefetch-contract.md", "reason": "Keep foreground refresh, prefetch and READY semantics."}
+{"file": ".trellis/spec/guides/index.md", "reason": "Shared thinking/check conventions."}
+{"file": ".trellis/tasks/09-12-reader-refresh-stability/research/baseline.md", "reason": "Verified 5.6.1 comparison and exact regressions."}
+{"file": ".trellis/tasks/09-12-reader-refresh-stability/research/metadata-delivery.md", "reason": "Metadata handoff design and race/behavioral test matrix."}

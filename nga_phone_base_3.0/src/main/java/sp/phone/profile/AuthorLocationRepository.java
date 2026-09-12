@@ -178,11 +178,18 @@ public final class AuthorLocationRepository {
 
     /** Cache-only readers register the same way but can never create a profile request. */
     public Subscription subscribe(Collection<Integer> authors, boolean online, Consumer<Snapshot> listener) {
+        return subscribe(authors, online, listener, subscription -> { });
+    }
+
+    /** A page owns its handle before synchronous publication can close or reset that page. */
+    Subscription subscribe(Collection<Integer> authors, boolean online, Consumer<Snapshot> listener,
+                           Consumer<Subscription> onRegistered) {
         synchronizeSession();
         Subscription subscription = new Subscription(authors, online, listener);
         subscriptions.add(subscription);
+        onRegistered.accept(subscription);
         subscription.publish();
-        if (loaded && online) {
+        if (loaded && online && subscription.isActive()) {
             enqueueMissing(subscription);
             dispatch();
         }
