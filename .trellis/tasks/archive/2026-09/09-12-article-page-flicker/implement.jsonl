@@ -1,0 +1,6 @@
+{"file":".trellis/spec/frontend/index.md","reason":"Locate article UI and loading contracts."}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Body WebViews, navigation and view-lifetime ownership."}
+{"file":".trellis/spec/backend/thread-page-prefetch-contract.md","reason":"Keep READY reuse, promotion and foreground errors intact."}
+{"file":".trellis/spec/frontend/loading-usage-tips-contract.md","reason":"Preserve loading completion behavior."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Required offline quality gate and device policy."}
+{"file":".trellis/tasks/09-12-article-page-flicker/research/render-path.md","reason":"Confirmed cause, narrow boundary and existing workspace edits."}

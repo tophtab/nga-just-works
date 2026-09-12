@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Review rendering, metadata and anchors."}
+{"file":".trellis/spec/backend/thread-page-prefetch-contract.md","reason":"Verify request-state semantics stay intact."}
+{"file":".trellis/spec/frontend/loading-usage-tips-contract.md","reason":"Preserve loading tips and completion."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Debug gates and per-module lint XML inspection."}
+{"file":".trellis/tasks/09-12-article-page-flicker/research/render-path.md","reason":"Evaluate the concrete bug and regression limits."}

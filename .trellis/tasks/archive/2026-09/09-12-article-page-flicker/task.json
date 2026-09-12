@@ -1,0 +1,32 @@
+{
+  "id": "article-page-flicker",
+  "name": "article-page-flicker",
+  "title": "修复主题来回翻页时的重复渲染闪烁",
+  "description": "避免已加载和预加载主题页在切回前台时重复刷新楼层正文，保留手动刷新及视图重建行为，并完成离线回归验证。",
+  "status": "completed",
+  "dev_type": "frontend",
+  "scope": "article-reader",
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-12",
+  "completedAt": "2026-09-12",
+  "branch": "main",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": "16cc185bb6969c8914039f5cc710024fca1cf84f",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleListFragment.java",
+    ".trellis/spec/frontend/component-guidelines.md",
+    ".trellis/spec/backend/thread-page-prefetch-contract.md"
+  ],
+  "notes": "Local bug fix with no PR, completed on shared main. Full integrated gate passed with 633 tests and 13 zero-error lint reports; 1198 inputs stayed unchanged. Work commit contains only this task's render guard, blacklist-row update and spec additions. The concurrent author-location task's staged changes were preserved with an isolated commit index; no working source file was changed during commit.",
+  "meta": {
+    "direct_main_fix": true
+  }
+}
