@@ -116,10 +116,23 @@ transport exercise the same repository on the host JVM.
 | HTTP 429 | Pause the origin/account for at least 30 minutes, or longer valid delta-seconds / RFC 1123 `Retry-After` |
 | Authentication / challenge / site rejection | Stop the captured immutable session in process memory, including its credentials and UA |
 | Concurrency | One physical supplementary request in flight across all page consumers |
-| Dispatch | Reuse queued/in-flight keys; immediately use a free slot; no normal-request interval or timer |
+| Dispatch | Reuse queued/in-flight keys; the first idle request may start immediately, then wait at least 1,000 ms after each call's terminal callback before starting another |
 | Expiry / unpause | Reconsider on later work events; expiry alone does not start a request |
 | Cancellation | Retain the physical slot until the canceled call's terminal callback |
 | Orphaned queued work | Remove an unsent author only when no valid online consumer needs it |
+
+Request pacing is shared by the app-scoped repository across pages, prefetch,
+refreshes, account changes, and origin changes. Use monotonic elapsed time for
+this deadline; wall time still owns cache expiry and server pauses. A slow,
+failed, or canceled call also leaves a full one-second gap after completion,
+so connection setup and cancellation cannot cause back-to-back requests.
+
+Use one cancellable owner-thread wakeup only while eligible online work awaits
+the pacing deadline. Recheck session, cache, server stops, and consumers when it
+runs. Cancel it when its queue becomes empty or its session is invalidated,
+without resetting the app-wide deadline. Ignore obsolete wakeups. A delayed
+wakeup never catches up with a burst, and pacing never schedules TTL refreshes
+or automatic recovery from a server pause.
 
 Persist disposable data at `cacheDir/author-locations-v1.json`, encoded as UTF-8:
 
@@ -164,17 +177,20 @@ rejections must not block a replacement credential for the same UID.
 | Missing/corrupt/expired cache | Lookup only when an online delivery requires it |
 | Offline page or retained view rebound | Cache-only display, including misses |
 | Cache-only subscription after a 429 pause expires | Do not resume another page's queue; later real online work may resume it |
+| Fast, slow, failed, or canceled request completes | Next supplemental call starts at least 1,000 ms after its terminal callback; one physical call remains the concurrency limit |
+| Page/account changes while waiting | Cancel obsolete work; new eligible work still honors the shared pacing deadline |
+| Wall-clock change or delayed wakeup | No shortened interval or catch-up burst |
 | Data/author/view generation changed | Ignore obsolete UI payload; never reload a body WebView |
 
 ## 5. Good / Base / Bad Cases
 
 - **Good**: one delivered page needs authors A/B; an independently prefetched
-  page needs B/C. B shares queued/in-flight work, and C starts as soon as the
-  physical slot becomes free, without advancing a clock.
+  page needs B/C. B shares queued/in-flight work, and C starts after the
+  physical slot is free and the shared one-second pacing deadline passes.
 - **Base**: an author has a fresh empty observation. The floor shows its post
   count and subsequent deliveries do not repeat that lookup during the TTL.
-- **Bad**: query once per holder, start a separate three-page batch, sleep
-  between normal requests, refresh locations on every resume, or discard a
+- **Bad**: query once per holder, start a separate three-page batch, block a
+  thread to pace requests, refresh locations on every resume, or discard a
   received server stop because the original view disappeared.
 
 ## 6. Tests Required
@@ -183,7 +199,9 @@ rejections must not block a replacement credential for the same UID.
   empty, UID binding, malformed/non-profile responses, location bounds, exact
   origins, Cookie-safe input, and credential snapshot equality.
 - `AuthorLocationRepositoryTest`: distinct delivered authors, duplicate sharing,
-  immediate dispatch, incremental prefetch, fake-clock TTL/failure/429 boundaries,
+  immediate first dispatch, exact 999/1,000 ms pacing boundaries, slow/canceled
+  calls, wall-clock changes, delayed/obsolete wakeups, incremental prefetch,
+  fake-clock TTL/failure/429 boundaries,
   persistent late pauses, same-UID credential isolation, obsolete callbacks,
   shared-consumer disposal, and cache-only readers that cannot resume paused
   online work when its pause expires.

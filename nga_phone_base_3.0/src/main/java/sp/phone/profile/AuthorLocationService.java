@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -50,7 +51,11 @@ public final class AuthorLocationService {
         AuthorLocationStore store = new AuthorLocationStore(
                 new File(app.getCacheDir(), "author-locations-v1.json"));
         repository = new AuthorLocationRepository(new ProfileLocationTransport(System::currentTimeMillis),
-                System::currentTimeMillis, this::captureSession, main::post,
+                System::currentTimeMillis, SystemClock::elapsedRealtime, this::captureSession, main::post,
+                (action, delayMillis) -> {
+                    main.postDelayed(action, delayMillis);
+                    return () -> main.removeCallbacks(action);
+                },
                 entries -> disk.execute(() -> store.write(entries)));
         preferenceListener = (prefs, key) -> {
             if (PreferenceKey.KEY_NGA_DOMAIN.equals(key) || PreferenceKey.USER_AGENT.equals(key)) {

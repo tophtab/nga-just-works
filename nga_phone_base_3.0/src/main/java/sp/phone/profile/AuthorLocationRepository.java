@@ -20,12 +20,19 @@ import java.util.function.Supplier;
  */
 public final class AuthorLocationRepository {
 
+    static final long REQUEST_INTERVAL_MILLIS = 1000L;
+
     public interface Cancellation {
         void cancel();
     }
 
     public interface Transport {
         Cancellation fetch(ProfileSession session, int author, Consumer<ProfileLocationResult> callback);
+    }
+
+    /** Delayed actions run on the same owner executor as repository methods. */
+    public interface Scheduler {
+        Cancellation schedule(Runnable action, long delayMillis);
     }
 
     private static final class Epoch {
@@ -112,11 +119,26 @@ public final class AuthorLocationRepository {
         }
     }
 
+    private final class DispatchWakeup implements Runnable {
+        Cancellation cancellation;
+
+        @Override
+        public void run() {
+            if (wakeup != this) {
+                return;
+            }
+            wakeup = null;
+            dispatch();
+        }
+    }
+
     private final AuthorLocationCache cache = new AuthorLocationCache();
     private final Transport transport;
     private final LongSupplier clock;
+    private final LongSupplier elapsedClock;
     private final Supplier<ProfileSession> sessionSource;
     private final Executor completionExecutor;
+    private final Scheduler scheduler;
     private final Consumer<List<AuthorLocationCache.Entry>> persist;
     private final Set<Subscription> subscriptions = new LinkedHashSet<>();
     private final LinkedHashMap<AuthorLocationCache.Key, Job> queue = new LinkedHashMap<>();
@@ -124,14 +146,19 @@ public final class AuthorLocationRepository {
     private ProfileSession session;
     private Epoch currentEpoch = new Epoch();
     private Job inFlight;
+    private DispatchWakeup wakeup;
+    private long nextRequestAt;
     private boolean loaded;
 
-    AuthorLocationRepository(Transport transport, LongSupplier clock, Supplier<ProfileSession> sessionSource,
-                             Executor completionExecutor, Consumer<List<AuthorLocationCache.Entry>> persist) {
+    AuthorLocationRepository(Transport transport, LongSupplier clock, LongSupplier elapsedClock,
+                             Supplier<ProfileSession> sessionSource, Executor completionExecutor,
+                             Scheduler scheduler, Consumer<List<AuthorLocationCache.Entry>> persist) {
         this.transport = transport;
         this.clock = clock;
+        this.elapsedClock = elapsedClock;
         this.sessionSource = sessionSource;
         this.completionExecutor = completionExecutor;
+        this.scheduler = scheduler;
         this.persist = persist;
     }
 
@@ -166,6 +193,7 @@ public final class AuthorLocationRepository {
     public void invalidateSession() {
         currentEpoch.valid = false;
         queue.clear();
+        cancelWakeup();
         for (Subscription subscription : new ArrayList<>(subscriptions)) {
             if (subscription.listener != null) {
                 subscription.listener.accept(Snapshot.empty());
@@ -220,21 +248,47 @@ public final class AuthorLocationRepository {
                 iterator.remove();
             }
         }
+        if (queue.isEmpty()) {
+            cancelWakeup();
+        }
+    }
+
+    private void cancelWakeup() {
+        if (wakeup != null) {
+            DispatchWakeup pending = wakeup;
+            wakeup = null;
+            if (pending.cancellation != null) {
+                pending.cancellation.cancel();
+            }
+        }
     }
 
     private void dispatch() {
         synchronizeSession();
         if (!loaded || inFlight != null || session == null || rejectedSessions.contains(session)
                 || cache.isPaused(session, clock.getAsLong())) {
+            cancelWakeup();
             return;
         }
         pruneQueue();
         while (!queue.isEmpty()) {
             AuthorLocationCache.Key key = queue.keySet().iterator().next();
-            Job job = queue.remove(key);
+            Job job = queue.get(key);
             if (job.epoch != currentEpoch || cache.get(key, clock.getAsLong()) != null) {
+                queue.remove(key);
                 continue;
             }
+            long delay = nextRequestAt - elapsedClock.getAsLong();
+            if (delay > 0) {
+                if (wakeup == null) {
+                    DispatchWakeup pending = new DispatchWakeup();
+                    wakeup = pending;
+                    pending.cancellation = scheduler.schedule(pending, delay);
+                }
+                return;
+            }
+            cancelWakeup();
+            queue.remove(key);
             inFlight = job;
             try {
                 job.cancellation = transport.fetch(job.session, key.author,
@@ -244,6 +298,7 @@ public final class AuthorLocationRepository {
             }
             return;
         }
+        cancelWakeup();
     }
 
     private void complete(Job job, ProfileLocationResult result) {
@@ -251,6 +306,10 @@ public final class AuthorLocationRepository {
             return;
         }
         inFlight = null;
+        // Keep one quiet second after every physical call, including failure/cancellation.
+        // This app-wide deadline survives page and account changes; wall-clock edits cannot
+        // shorten it. Waiting after completion also avoids bursts after a slow connection.
+        nextRequestAt = AuthorLocationCache.addTime(elapsedClock.getAsLong(), REQUEST_INTERVAL_MILLIS);
         long now = clock.getAsLong();
         // A response can already be queued here when a UI/account signal invalidates its
         // consumers. Server stops still belong to the captured scope/session, not that UI epoch.
@@ -288,7 +347,7 @@ public final class AuthorLocationRepository {
                 subscription.publish();
             }
         }
-        // No timer or minimum start spacing: a free slot immediately serves the next author.
+        // Only pending online work gets a wakeup; cache expiry and server pauses never poll.
         dispatch();
     }
 }
