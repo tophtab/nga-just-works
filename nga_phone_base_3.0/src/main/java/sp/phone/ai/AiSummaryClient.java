@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import okhttp3.Authenticator;
 import okhttp3.Call;
@@ -41,7 +42,12 @@ public final class AiSummaryClient {
     private static final MediaType JSON_TYPE = MediaType.parse("application/json; charset=utf-8");
     private static final long CALL_TIMEOUT_MILLIS = 60_000;
     private static final long SUMMARY_TIMEOUT_MILLIS = 180_000;
+    private static final int MAX_HTML_PREFIX_BYTES = 512;
+    private static final Pattern HTML_DOCUMENT_PREFIX = Pattern.compile(
+            "\\A\\ufeff?[\\t\\n\\f\\r ]*(?:<!doctype[\\t\\n\\f\\r ]+html(?=[\\t\\n\\f\\r >])"
+                    + "|<html(?=[\\t\\n\\f\\r />]))", Pattern.CASE_INSENSITIVE);
     private final OkHttpClient http;
+    private final OkHttpClient modelsHttp;
     private final OkHttpClient summaryHttp;
     private final HttpUrl testEndpoint;
 
@@ -61,6 +67,7 @@ public final class AiSummaryClient {
     public AiSummaryClient() {
         testEndpoint = null;
         http = createTransport(CALL_TIMEOUT_MILLIS);
+        modelsHttp = createModelsTransport(http);
         summaryHttp = createSummaryTransport(http, SUMMARY_TIMEOUT_MILLIS);
     }
 
@@ -74,6 +81,7 @@ public final class AiSummaryClient {
         }
         testEndpoint = loopbackEndpoint;
         http = createTransport(timeoutMillis);
+        modelsHttp = createModelsTransport(http);
         summaryHttp = createSummaryTransport(http, timeoutMillis);
     }
 
@@ -107,7 +115,7 @@ public final class AiSummaryClient {
                 .header("Accept", "application/json")
                 .get()
                 .build();
-        return enqueue(http, request,
+        return enqueue(modelsHttp, request,
                 (response, call) -> AiResponseParser.modelIds(readBoundedUtf8(response.body(), MAX_RESPONSE_BYTES)),
                 callback::onSuccess, callback::onError);
     }
@@ -293,6 +301,53 @@ public final class AiSummaryClient {
                 .readTimeout(Math.min(timeoutMillis, 60_000), TimeUnit.MILLISECONDS)
                 .callTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
                 .build();
+    }
+
+    private static OkHttpClient createModelsTransport(OkHttpClient base) {
+        // Both discovery attempts share one Call/deadline and the isolated dispatcher/pool.
+        // Keep this compatibility policy off the billable POST transport.
+        return base.newBuilder()
+                .addInterceptor(chain -> {
+                    Request request = chain.request();
+                    Response response = chain.proceed(request);
+                    if (!"/models".equals(request.url().encodedPath())) {
+                        return response;
+                    }
+                    final boolean fallback;
+                    try {
+                        fallback = !chain.call().isCanceled()
+                                && (response.code() == 404 || response.code() == 405
+                                || (response.isSuccessful() && startsWithHtmlDocument(response)));
+                    } catch (IOException | RuntimeException | Error failure) {
+                        response.close();
+                        throw failure;
+                    }
+                    if (!fallback || chain.call().isCanceled()) {
+                        return response;
+                    }
+                    response.close();
+                    HttpUrl fallbackUrl = request.url().newBuilder().encodedPath("/v1/models").build();
+                    return chain.proceed(request.newBuilder().url(fallbackUrl).build());
+                })
+                .addNetworkInterceptor(chain -> {
+                    Response response = chain.proceed(chain.request());
+                    // As with NgaProfilePageSource, disable OkHttp's 503 + Retry-After: 0
+                    // GET follow-up; only the single explicit discovery fallback is allowed.
+                    return response.code() == 503
+                            ? response.newBuilder().removeHeader("Retry-After").build() : response;
+                })
+                .build();
+    }
+
+    private static boolean startsWithHtmlDocument(Response response) throws IOException {
+        if (response.body() == null) {
+            return false;
+        }
+        // Content-Type is unreliable on compatible gateways. Inspect only a small document
+        // prefix without consuming it; JSON, including mislabeled JSON, keeps its strict parser.
+        try (ResponseBody prefix = response.peekBody(MAX_HTML_PREFIX_BYTES)) {
+            return HTML_DOCUMENT_PREFIX.matcher(new String(prefix.bytes(), StandardCharsets.UTF_8)).find();
+        }
     }
 
     OkHttpClient transportForTest() {

@@ -64,15 +64,7 @@ public class AiModelsClientTest {
         assertFalse(Thread.currentThread() == result.callbackThread);
         assertThrows(UnsupportedOperationException.class, () -> result.models.add("extra"));
         RecordedRequest request = takeRequest(server);
-        assertEquals("GET", request.getMethod());
-        assertEquals("/v1/models", request.getPath());
-        assertEquals("Bearer " + API_KEY, request.getHeader("Authorization"));
-        assertEquals("application/json", request.getHeader("Accept"));
-        assertNull(request.getHeader("Content-Type"));
-        assertNull(request.getHeader("Cookie"));
-        assertNull(request.getHeader("X-User-Agent"));
-        assertNull(request.getHeader("Proxy-Authorization"));
-        assertEquals(0, request.getBodySize());
+        assertModelRequest(request, "/v1/models");
         assertNull(call.request().body());
         assertEquals(1, server.getRequestCount());
     }
@@ -102,14 +94,128 @@ public class AiModelsClientTest {
     }
 
     @Test
+    public void rootModelRoutesFallBackOnceFor404And405() throws Exception {
+        AiSummaryClient client = client();
+        for (String path : new String[]{"/", "/chat/completions///"}) {
+            for (int status : new int[]{404, 405}) {
+                server.enqueue(new MockResponse().setResponseCode(status)
+                        .addHeader("Set-Cookie", "synthetic-session=private; Path=/")
+                        .setBody("synthetic-private-error"));
+                server.enqueue(success("fallback-model"));
+                Result result = new Result();
+                Call call = client.listModels(server.url(path).toString(), API_KEY, result);
+                result.await();
+                assertEquals(Collections.singletonList("fallback-model"), result.models);
+                assertNull(result.error);
+                assertModelRequest(takeRequest(server), "/models");
+                assertModelRequest(takeRequest(server), "/v1/models");
+                assertEquals("/models", call.request().url().encodedPath());
+                assertThrows(UnsupportedOperationException.class, () -> result.models.add("extra"));
+            }
+        }
+        assertEquals(8, server.getRequestCount());
+    }
+
+    @Test
+    public void rootHtmlDocumentsFallBackRegardlessOfContentType() throws Exception {
+        String[] documents = {
+                "<!doctype html><html><body>SPA shell</body></html>",
+                "\ufeff \r\n<!DOCTYPE HTML PUBLIC \"synthetic\"><html></html>",
+                " \t\n<HTML lang=\"zh\"><body>页面</body></HTML>",
+                "\ufeff<html><body>SPA shell</body></html>",
+                "<!DoCtYpE\tHtMl><html></html>",
+                "<html/>"
+        };
+        AiSummaryClient client = client();
+        for (int i = 0; i < documents.length; i++) {
+            server.enqueue(new MockResponse().setBody(documents[i])
+                    .addHeader("Content-Type", i % 2 == 0 ? "text/html" : "application/json"));
+            server.enqueue(success("discovered"));
+            Result result = new Result();
+            client.listModels(server.url("/").toString(), API_KEY, result);
+            result.await();
+            assertEquals(Collections.singletonList("discovered"), result.models);
+            assertNull(result.error);
+            assertModelRequest(takeRequest(server), "/models");
+            assertModelRequest(takeRequest(server), "/v1/models");
+        }
+        assertEquals(documents.length * 2, server.getRequestCount());
+    }
+
+    @Test
+    public void validRootJsonWithHtmlContentTypeDoesNotFallBack() throws Exception {
+        server.enqueue(success("示例<html>").setHeader("Content-Type", "text/html; charset=iso-8859-1"));
+        Result result = new Result();
+        client().listModels(server.url("/").toString(), API_KEY, result);
+        result.await();
+        assertEquals(Collections.singletonList("示例<html>"), result.models);
+        assertNull(result.error);
+        assertModelRequest(takeRequest(server), "/models");
+        assertEquals(1, server.getRequestCount());
+    }
+
+    @Test
+    public void partialHtmlTokensAndDocumentsOutsideThePrefixDoNotFallBack() throws Exception {
+        String[] bodies = {
+                "<htmlish>not an HTML document</htmlish>",
+                "<!doctype htmlish><html></html>",
+                "<html",
+                "synthetic text <html></html>",
+                "\u0000<html></html>",
+                " ".repeat(4096) + "<html></html>"
+        };
+        AiSummaryClient client = client();
+        for (String body : bodies) {
+            server.enqueue(new MockResponse().setHeader("Content-Type", "text/html").setBody(body));
+            Result result = new Result();
+            client.listModels(server.url("/").toString(), API_KEY, result);
+            result.await();
+            assertEquals(AiError.INVALID_RESPONSE, result.error);
+            assertNull(result.models);
+            assertModelRequest(takeRequest(server), "/models");
+        }
+        assertEquals(bodies.length, server.getRequestCount());
+    }
+
+    @Test
+    public void explicitCustomAndEncodedPrefixesNeverFallBack() throws Exception {
+        String[][] paths = {
+                {"/v1", "/v1/models"},
+                {"/v2/chat/completions", "/v2/models"},
+                {"/custom/openai/v2/", "/custom/openai/v2/models"},
+                {"/%76%31", "/%76%31/models"},
+                {"/%2F", "/%2F/models"},
+                {"/tenant%2Fname/%E6%A8%A1%E5%9E%8B", "/tenant%2Fname/%E6%A8%A1%E5%9E%8B/models"}
+        };
+        int[] statuses = {404, 405, 200};
+        AiError[] errors = {AiError.ADDRESS, AiError.INVALID_REQUEST, AiError.INVALID_RESPONSE};
+        AiSummaryClient client = client();
+        for (String[] path : paths) {
+            for (int i = 0; i < statuses.length; i++) {
+                server.enqueue(new MockResponse().setResponseCode(statuses[i])
+                        .setHeader("Content-Type", "text/html").setBody("<!doctype html><html></html>"));
+                Result result = new Result();
+                client.listModels(server.url(path[0]).toString(), API_KEY, result);
+                result.await();
+                assertEquals(errors[i], result.error);
+                assertNull(result.models);
+                assertModelRequest(takeRequest(server), path[1]);
+            }
+        }
+        assertEquals(paths.length * statuses.length, server.getRequestCount());
+    }
+
+    @Test
     public void emptyDataIsASuccessfulImmutableList() throws Exception {
         server.enqueue(new MockResponse().setBody("{\"data\":[]}"));
         Result result = new Result();
-        client().listModels(endpoint(), API_KEY, result);
+        client().listModels(server.url("/").toString(), API_KEY, result);
         result.await();
         assertEquals(Collections.emptyList(), result.models);
         assertNull(result.error);
         assertThrows(UnsupportedOperationException.class, () -> result.models.add("extra"));
+        assertModelRequest(takeRequest(server), "/models");
+        assertEquals(1, server.getRequestCount());
     }
 
     @Test
@@ -135,9 +241,9 @@ public class AiModelsClientTest {
 
     @Test
     public void statusesUseFixedErrorsWithoutExposingResponseBodies() throws Exception {
-        int[] statuses = {400, 401, 403, 404, 429, 500, 503};
+        int[] statuses = {400, 401, 403, 404, 405, 429, 500, 503};
         AiError[] errors = {AiError.INVALID_REQUEST, AiError.AUTHENTICATION, AiError.AUTHENTICATION,
-                AiError.ADDRESS, AiError.RATE_LIMIT, AiError.SERVER, AiError.SERVER};
+                AiError.ADDRESS, AiError.INVALID_REQUEST, AiError.RATE_LIMIT, AiError.SERVER, AiError.SERVER};
         AiSummaryClient client = client();
         for (int i = 0; i < statuses.length; i++) {
             server.enqueue(new MockResponse().setResponseCode(statuses[i])
@@ -153,21 +259,102 @@ public class AiModelsClientTest {
     }
 
     @Test
+    public void rootNonPathFailuresDoNotFallBackEvenWithHtmlBodies() throws Exception {
+        int[] statuses = {400, 401, 403, 408, 421, 429, 500, 502, 503, 504};
+        AiError[] errors = {AiError.INVALID_REQUEST, AiError.AUTHENTICATION, AiError.AUTHENTICATION,
+                AiError.INVALID_REQUEST, AiError.INVALID_REQUEST, AiError.RATE_LIMIT,
+                AiError.SERVER, AiError.SERVER, AiError.SERVER, AiError.SERVER};
+        AiSummaryClient client = client();
+        for (int i = 0; i < statuses.length; i++) {
+            server.enqueue(new MockResponse().setResponseCode(statuses[i])
+                    .setHeader("Content-Type", "text/html").setHeader("Retry-After", "0")
+                    .setBody("<html>synthetic-private-error</html>"));
+            Result result = new Result();
+            client.listModels(server.url("/").toString(), API_KEY, result);
+            result.await();
+            assertEquals(errors[i], result.error);
+            assertNull(result.models);
+            assertFalse(result.error.getMessage().contains("synthetic-private-error"));
+            assertModelRequest(takeRequest(server), "/models");
+        }
+        assertEquals(statuses.length, server.getRequestCount());
+    }
+
+    @Test
+    public void failedFallbackUsesExistingStatusErrorsWithoutAnotherAttempt() throws Exception {
+        int[] statuses = {400, 401, 403, 404, 405, 429, 500, 503};
+        AiError[] errors = {AiError.INVALID_REQUEST, AiError.AUTHENTICATION, AiError.AUTHENTICATION,
+                AiError.ADDRESS, AiError.INVALID_REQUEST, AiError.RATE_LIMIT, AiError.SERVER, AiError.SERVER};
+        AiSummaryClient client = client();
+        for (int i = 0; i < statuses.length; i++) {
+            server.enqueue(new MockResponse().setResponseCode(404));
+            server.enqueue(new MockResponse().setResponseCode(statuses[i])
+                    .setHeader("Retry-After", "0").setBody("synthetic-private-error"));
+            Result result = new Result();
+            client.listModels(server.url("/").toString(), API_KEY, result);
+            result.await();
+            assertEquals(errors[i], result.error);
+            assertNull(result.models);
+            assertFalse(result.error.getMessage().contains("synthetic-private-error"));
+            assertModelRequest(takeRequest(server), "/models");
+            assertModelRequest(takeRequest(server), "/v1/models");
+        }
+        assertEquals(statuses.length * 2, server.getRequestCount());
+    }
+
+    @Test
+    public void serviceUnavailableCannotConsumeAnExtraDiscoveryResponse() throws Exception {
+        AiSummaryClient client = client();
+        for (boolean fallback : new boolean[]{false, true}) {
+            if (fallback) {
+                server.enqueue(new MockResponse().setResponseCode(404));
+            }
+            server.enqueue(new MockResponse().setResponseCode(503).setHeader("Retry-After", "0"));
+            server.enqueue(success("deliberate-next-call"));
+            Result failure = new Result();
+            client.listModels(server.url("/").toString(), API_KEY, failure);
+            failure.await();
+            assertEquals(AiError.SERVER, failure.error);
+            assertNull(failure.models);
+            assertModelRequest(takeRequest(server), "/models");
+            if (fallback) {
+                assertModelRequest(takeRequest(server), "/v1/models");
+            }
+            Result next = new Result();
+            client.listModels(endpoint(), API_KEY, next);
+            next.await();
+            assertEquals(Collections.singletonList("deliberate-next-call"), next.models);
+            assertNull(next.error);
+            assertModelRequest(takeRequest(server), "/v1/models");
+        }
+        assertEquals(5, server.getRequestCount());
+    }
+
+    @Test
     public void redirectsNeverForwardTheKeyToAnotherServer() throws Exception {
         MockWebServer destination = new MockWebServer();
         destination.start();
         try {
             AiSummaryClient client = client();
-            for (int status : new int[]{301, 302, 303, 307, 308}) {
-                server.enqueue(new MockResponse().setResponseCode(status)
-                        .addHeader("Location", destination.url("/stolen")));
-                Result result = new Result();
-                client.listModels(endpoint(), API_KEY, result);
-                result.await();
-                assertEquals(AiError.ADDRESS, result.error);
-                assertNull(result.models);
+            for (boolean fallback : new boolean[]{false, true}) {
+                for (int status : new int[]{301, 302, 303, 307, 308}) {
+                    if (fallback) {
+                        server.enqueue(new MockResponse().setResponseCode(404));
+                    }
+                    server.enqueue(new MockResponse().setResponseCode(status)
+                            .addHeader("Location", destination.url("/stolen")));
+                    Result result = new Result();
+                    client.listModels(server.url("/").toString(), API_KEY, result);
+                    result.await();
+                    assertEquals(AiError.ADDRESS, result.error);
+                    assertNull(result.models);
+                    assertModelRequest(takeRequest(server), "/models");
+                    if (fallback) {
+                        assertModelRequest(takeRequest(server), "/v1/models");
+                    }
+                }
             }
-            assertEquals(5, server.getRequestCount());
+            assertEquals(15, server.getRequestCount());
             assertEquals(0, destination.getRequestCount());
         } finally {
             destination.shutdown();
@@ -237,7 +424,7 @@ public class AiModelsClientTest {
     public void cancellationTerminatesInflightDiscoveryWithoutSuccess() throws Exception {
         server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
         Result result = new Result();
-        Call call = client().listModels(endpoint(), API_KEY, result);
+        Call call = client().listModels(server.url("/").toString(), API_KEY, result);
         takeRequest(server);
         call.cancel();
         result.await();
@@ -248,10 +435,27 @@ public class AiModelsClientTest {
     }
 
     @Test
+    public void cancellingTheReturnedCallAlsoStopsTheFallback() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+        Result result = new Result();
+        Call call = client().listModels(server.url("/").toString(), API_KEY, result);
+        assertModelRequest(takeRequest(server), "/models");
+        assertModelRequest(takeRequest(server), "/v1/models");
+        call.cancel();
+        result.await();
+        assertTrue(call.isCanceled());
+        assertEquals(AiError.CANCELLED, result.error);
+        assertNull(result.models);
+        assertEquals(2, server.getRequestCount());
+    }
+
+    @Test
     public void stalledDiscoveryIsATimeoutRatherThanUserCancellation() throws Exception {
         server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
         Result result = new Result();
-        deadlineClient().listModels(endpoint(), API_KEY, result);
+        deadlineClient("/chat/completions", 500)
+                .listModels(server.url("/").toString(), API_KEY, result);
         result.await();
         assertEquals(AiError.TIMEOUT, result.error);
         assertNull(result.models);
@@ -260,11 +464,65 @@ public class AiModelsClientTest {
 
     @Test
     public void bodyReadTimeoutCannotBecomeSuccessOrCancellation() throws Exception {
-        server.enqueue(success("delayed").setBodyDelay(2, TimeUnit.SECONDS));
+        // The root route peeks in the interceptor; the explicit route reads in the parser.
+        for (String path : new String[]{"/", "/v1"}) {
+            server.enqueue(success("delayed").setBodyDelay(2, TimeUnit.SECONDS));
+            Result result = new Result();
+            deadlineClient(path, 500).listModels(server.url(path).toString(), API_KEY, result);
+            result.await();
+            assertEquals(AiError.TIMEOUT, result.error);
+            assertNull(result.models);
+        }
+        assertEquals(2, server.getRequestCount());
+    }
+
+    @Test
+    public void fallbackSharesTheOriginalTotalTimeoutBudget() throws Exception {
+        // Each delay fits the deadline separately; together they must time out.
+        server.enqueue(new MockResponse().setResponseCode(404)
+                .setHeadersDelay(900, TimeUnit.MILLISECONDS));
+        server.enqueue(success("too-late").setBodyDelay(900, TimeUnit.MILLISECONDS));
         Result result = new Result();
-        deadlineClient().listModels(endpoint(), API_KEY, result);
+        Call call = deadlineClient("/chat/completions", 1500)
+                .listModels(server.url("/").toString(), API_KEY, result);
         result.await();
         assertEquals(AiError.TIMEOUT, result.error);
+        assertNull(result.models);
+        assertTrue(call.isCanceled());
+        assertModelRequest(takeRequest(server), "/models");
+        assertModelRequest(takeRequest(server), "/v1/models");
+        assertEquals(2, server.getRequestCount());
+    }
+
+    @Test
+    public void networkFailuresAtEitherAttemptDoNotTryAnotherPath() throws Exception {
+        AiSummaryClient client = client();
+        for (boolean fallback : new boolean[]{false, true}) {
+            if (fallback) {
+                server.enqueue(new MockResponse().setResponseCode(404));
+            }
+            server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AFTER_REQUEST));
+            Result result = new Result();
+            client.listModels(server.url("/").toString(), API_KEY, result);
+            result.await();
+            assertEquals(AiError.NETWORK, result.error);
+            assertNull(result.models);
+            assertModelRequest(takeRequest(server), "/models");
+            if (fallback) {
+                assertModelRequest(takeRequest(server), "/v1/models");
+            }
+        }
+        assertEquals(3, server.getRequestCount());
+    }
+
+    @Test
+    public void failedHtmlPeekDoesNotStartFallback() throws Exception {
+        server.enqueue(new MockResponse().setBody("<html>" + "x".repeat(200))
+                .setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY));
+        Result result = new Result();
+        client().listModels(server.url("/").toString(), API_KEY, result);
+        result.await();
+        assertEquals(AiError.NETWORK, result.error);
         assertNull(result.models);
         assertEquals(1, server.getRequestCount());
     }
@@ -275,18 +533,41 @@ public class AiModelsClientTest {
                 new MockResponse().setBody("{malformed synthetic-private-error"),
                 new MockResponse().setResponseCode(204),
                 new MockResponse().setBody(new Buffer().write(new byte[]{(byte) 0xc3, 0x28})),
+                new MockResponse().setBody(new Buffer().writeByte(0xff).writeUtf8("<html></html>")),
                 new MockResponse().setBody(AiResponseParserTest.response("not a model list")),
-                new MockResponse().setBody("{\"data\":[{\"id\":1}]}")
+                new MockResponse().setBody("{\"data\":[{\"id\":1}]}"),
+                new MockResponse().setBody("{\"data\":[{\"id\":\"valid\"},{\"id\":false}]}"),
+                success("x".repeat(257)),
+                new MockResponse().setBody("{\"data\":[],\"ignored\":"
+                        + "[".repeat(60) + "0" + "]".repeat(60) + "}")
         };
         AiSummaryClient client = client();
-        for (MockResponse response : responses) {
-            server.enqueue(response);
-            Result result = new Result();
-            client.listModels(endpoint(), API_KEY, result);
-            result.await();
-            assertEquals(AiError.INVALID_RESPONSE, result.error);
-            assertNull(result.models);
+        for (boolean fallback : new boolean[]{false, true}) {
+            for (MockResponse response : responses) {
+                if (fallback) {
+                    server.enqueue(new MockResponse().setResponseCode(404));
+                }
+                server.enqueue(response);
+                Result result = new Result();
+                client.listModels(server.url("/").toString(), API_KEY, result);
+                result.await();
+                assertEquals(AiError.INVALID_RESPONSE, result.error);
+                assertNull(result.models);
+            }
         }
+        assertEquals(responses.length * 3, server.getRequestCount());
+    }
+
+    @Test
+    public void fallbackHtmlRemainsAnInvalidResponseAndCannotRecurse() throws Exception {
+        server.enqueue(new MockResponse().setBody("<!doctype html><html></html>"));
+        server.enqueue(new MockResponse().setBody("<!doctype html><html></html>"));
+        Result result = new Result();
+        client().listModels(server.url("/").toString(), API_KEY, result);
+        result.await();
+        assertEquals(AiError.INVALID_RESPONSE, result.error);
+        assertNull(result.models);
+        assertEquals(2, server.getRequestCount());
     }
 
     @Test
@@ -300,17 +581,26 @@ public class AiModelsClientTest {
         MockResponse[] responses = {
                 new MockResponse().setBody(oversized),
                 new MockResponse().setChunkedBody(oversized, 4096),
-                new MockResponse().addHeader("Content-Encoding", "gzip").setBody(compressed)
+                new MockResponse().addHeader("Content-Encoding", "gzip").setBody(compressed),
+                new MockResponse().setBody("{\"data\":["
+                        + "{\"id\":\"same-model\"},".repeat(AiResponseParser.MAX_MODELS)
+                        + "{\"id\":\"same-model\"}]}")
         };
         AiSummaryClient client = client();
-        for (MockResponse response : responses) {
-            server.enqueue(response);
-            Result result = new Result();
-            client.listModels(endpoint(), API_KEY, result);
-            result.await();
-            assertEquals(AiError.RESPONSE_TOO_LARGE, result.error);
-            assertNull(result.models);
+        for (boolean fallback : new boolean[]{false, true}) {
+            for (MockResponse response : responses) {
+                if (fallback) {
+                    server.enqueue(new MockResponse().setResponseCode(404));
+                }
+                server.enqueue(response);
+                Result result = new Result();
+                client.listModels(server.url("/").toString(), API_KEY, result);
+                result.await();
+                assertEquals(AiError.RESPONSE_TOO_LARGE, result.error);
+                assertNull(result.models);
+            }
         }
+        assertEquals(responses.length * 3, server.getRequestCount());
     }
 
     private String endpoint() {
@@ -323,10 +613,26 @@ public class AiModelsClientTest {
         return client;
     }
 
-    private AiSummaryClient deadlineClient() {
-        AiSummaryClient client = new AiSummaryClient(server.url("/v1/chat/completions"), 500);
+    private AiSummaryClient deadlineClient(String path, long timeoutMillis) {
+        AiSummaryClient client = new AiSummaryClient(server.url(path), timeoutMillis);
         clients.add(client);
         return client;
+    }
+
+    private void assertModelRequest(RecordedRequest request, String path) {
+        assertEquals("GET", request.getMethod());
+        assertEquals(path, request.getPath());
+        assertNotNull(request.getRequestUrl());
+        assertEquals(server.url("/").scheme(), request.getRequestUrl().scheme());
+        assertEquals(server.url("/").host(), request.getRequestUrl().host());
+        assertEquals(server.getPort(), request.getRequestUrl().port());
+        assertEquals("Bearer " + API_KEY, request.getHeader("Authorization"));
+        assertEquals("application/json", request.getHeader("Accept"));
+        assertNull(request.getHeader("Content-Type"));
+        assertNull(request.getHeader("Cookie"));
+        assertNull(request.getHeader("X-User-Agent"));
+        assertNull(request.getHeader("Proxy-Authorization"));
+        assertEquals(0, request.getBodySize());
     }
 
     private static RecordedRequest takeRequest(MockWebServer server) throws Exception {

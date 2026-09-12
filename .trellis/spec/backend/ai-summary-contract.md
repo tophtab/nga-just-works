@@ -83,9 +83,10 @@ loading and answerless states return an empty string.
   and custom ports. Reject credentials in the URL, query/fragment components,
   control characters, and other schemes.
   Remove trailing slashes and append `/chat/completions` only when absent.
-  Preserve the supplied version/custom prefix; never invent `/v1` for a bare
-  host. An endpoint ending in `/v1` and its complete `/v1/chat/completions`
-  form resolve identically.
+  Preserve the supplied version/custom prefix; configuration normalization
+  never invents `/v1` for a bare host. An endpoint ending in `/v1` and its
+  complete `/v1/chat/completions` form resolve identically. Model discovery
+  alone has the limited root-path fallback below.
 - Endpoint, Key, and model limits are 2,048, 4,096, and 256 characters. Keys
   contain printable non-space ASCII; models and keys must be nonblank.
   Validation errors contain fixed messages, never rejected values or causes.
@@ -143,7 +144,26 @@ loading and answerless states return an empty string.
 - Derive the model URL by replacing the normalized endpoint's final
   `/chat/completions` with `/models`. Preserve custom/version paths, host, and
   port. Send GET with the configured Bearer Key through the isolated transport.
-  Decode only the compatible `data[].id` shape through the shared bounded JSON
+- When that derived URL's encoded path is exactly `/models`, allow one
+  same-origin fallback to `/v1/models` after HTTP 404/405 or a successful
+  response whose bounded body prefix identifies an HTML document. Some
+  compatible gateways serve their SPA HTML with HTTP 200 for unknown routes.
+  Inspect at most 512 bytes for a leading `<!doctype html` or `<html` marker,
+  case-insensitively, allowing a UTF-8 BOM and HTML ASCII whitespace. Require
+  a marker delimiter so text such as `<htmlish>` cannot trigger fallback.
+  Content-Type alone is not evidence: valid model JSON labelled `text/html`
+  must still succeed at the original URL. Explicit version/custom prefixes
+  never fall back to another path.
+- Both discovery attempts belong to the same returned `Call`, cancellation,
+  and total timeout, with at most two HTTP requests and one terminal callback.
+  Close the first response before the fallback; also close it if the body
+  peek fails. Keep scheme, host, port, Bearer Key, and Accept headers unchanged.
+  Do not fall back on empty model lists, arbitrary malformed JSON/UTF-8,
+  authentication or rate-limit errors, server failures, redirects, network
+  failures, timeouts, or cancellation. A failed fallback uses the existing
+  fixed error mapping and never starts another request. Do not rewrite the
+  configured endpoint or change summary/connection-test URLs.
+- Decode only the compatible `data[].id` shape through the shared bounded JSON
   decoder. Return validated, trimmed model IDs in provider order with duplicates
   removed, using an immutable list and a maximum of 1,024 response rows.
   A wrong `data` shape or any invalid row/ID fails the whole response; do not
@@ -180,6 +200,10 @@ loading and answerless states return an empty string.
   Disabling connection retries alone does not stop an OkHttp follow-up for
   `503` with `Retry-After: 0`. Preserve the first HTTP failure, without a second
   billed send. Match MockWebServer to the resolved production OkHttp version.
+- Model discovery uses a derived isolated client that shares the dispatcher
+  and connection pool. Keep its explicit path fallback within one application
+  interceptor/Call. Suppress OkHttp's `503 Retry-After: 0` GET follow-up in the
+  discovery transport so a server failure cannot consume an extra attempt.
 - Limit prompts to 64 Ki characters, decompressed summary transport to 8 MiB,
   and each answer/reasoning projection to 256 Ki characters. A single SSE event
   or fallback JSON object is bounded at 512 Ki characters by the shared decoder.
@@ -447,13 +471,18 @@ loading and answerless states return an empty string.
 | Custom is blank or retained text exceeds 8,192 UTF-16 code units | Reject without closing the editor or clipping text |
 | Prompt selection/custom text changes during profile collection | Reject stale input before a model request; retry uses the new configuration |
 | Model editor opened with draft address/Key and no model | GET the derived `/models` endpoint; no save or summary request |
+| Root `/models` returns 404/405 or HTTP success with an HTML document prefix | Try same-origin `/v1/models` once, within the original Call and deadline |
+| Valid root model JSON, including empty `data` or a wrong HTML Content-Type | Use the original response; one request only |
+| Explicit version/custom model URL, or root auth/rate-limit/server/redirect/parse failure | Preserve its result/error; no alternate model path |
+| Fallback fails, is cancelled, or exhausts the shared timeout | One fixed terminal error; no third request |
+| Model-discovery GET receives `503 Retry-After: 0` | Preserve the first server error; no hidden repeat GET |
 | HTTP LAN endpoint or HTTPS endpoint | Normalize and use the configured scheme and port |
 | Model list is empty or discovery fails | Manual entry stays available; retain same-service cached choices |
 | Custom text/selection changes while discovery runs | Preserve the user's draft when results arrive |
 | Model editor dismissed or draft service changes | Cancel/invalidate discovery; stale results cannot reach another editor |
 | Lost key, corrupt record, failed atomic write | Fixed storage error; no plaintext/cache fallback |
 | 401/403 from model | Authentication error |
-| 3xx/404 from model | Address error; do not follow the redirect |
+| 3xx/404 from model, after any eligible discovery fallback | Address error; do not follow the redirect |
 | 429 / 5xx / other 4xx | Rate-limit / server / invalid-request error |
 | Connection/read/call timeout | Terminal timeout state, never a stuck spinner |
 | Manual close or stale target/generation | Cancel and discard callbacks |
@@ -532,8 +561,13 @@ loading and answerless states return an empty string.
   settings can test a draft before saving it.
 - Good: a user enters `http://192.168.1.10:1234/v1` and a Key, opens the model
   editor, and selects a fetched ID or a custom one before saving from the toolbar.
-- Base: a compatible service without `/models` still supports a manually entered
-  model, including after a failed refresh of a previously available list.
+- Good: a bare gateway address serves an HTML page at `/models`; discovery
+  retrieves its list from `/v1/models` while chat keeps `/chat/completions`.
+- Base: an empty model list is a successful lookup with manual entry available;
+  a service without either eligible model-list route still supports a manually
+  entered model, including after a failed refresh of a previously available list.
+- Bad: retrying discovery on every parse/auth error, prepending `/v1` to an
+  explicit custom path, or giving the fallback a fresh timeout/cancel handle.
 - Bad: reading all rows to summarize one floor, carrying the global NGA
   Cookie into a model request, or relying on `persistent=false` alone to keep
   an `EditTextPreference` secret out of Fragment saved state.
@@ -569,6 +603,13 @@ loading and answerless states return an empty string.
   `AiModelsClientTest` additionally covers HTTP production transport, base/full/custom
   URL derivation, draft-only validation, model ID types/bounds/deduplication,
   immutable and empty results, and malformed/oversized list responses.
+  Cover root 404/405 and HTTP-200 HTML fallback, exact same-origin paths/auth,
+  one terminal callback, and a two-request ceiling even if the fallback fails.
+  Valid/empty JSON and JSON mislabelled HTML must not fall back, nor may
+  explicit/encoded custom prefixes, auth/rate-limit/server/redirect errors,
+  or malformed model responses. Verify cancellation during fallback, one total
+  deadline across both attempts, parser/size limits on the fallback response,
+  redirect credential isolation, and no hidden `503 Retry-After: 0` GET retry.
 - `SummaryInputTest`, `SummaryControllerTest`, `ProfileSummaryLoaderTest`,
   and `NgaProfilePageSourceTest`: frozen rows, correct UID, two first-page
   list kinds with no detail reads, topic metadata/reply text, limited
@@ -691,6 +732,13 @@ client.listModels(config.getEndpoint(), config.getApiKey(), callback);
 
 // Correct: discovery validates only the fields the operation needs.
 client.listModels(draftEndpoint, currentApiKey(), callback);
+```
+
+```text
+Wrong: bare address -> globally rewrite configuration to /v1, or retry every error.
+Correct: GET /models -> 404/405 or successful HTML -> GET /v1/models once.
+         GET /models -> {"data":[]} -> success, without another request.
+         GET /custom/v2/models -> 404 -> address error, preserving the prefix.
 ```
 
 ```java
