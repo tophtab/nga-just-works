@@ -1,5 +1,13 @@
 # USER.PROFILE Author Location Enrichment
 
+## Experiment branch
+
+Automatic author-profile queries are being tested on `experiment/auto-ip-query`
+after HTTP 503 reports continued with one-second request spacing. The `main`
+reader has disconnected this service. This branch retains the full page and
+prefetch integration, one-second pacing, and a body-independent HTTP 503 stop.
+The server's quota and the cause of the reported 503s remain unverified.
+
 ## 1. Scope / Trigger
 
 This is a current-fork contract for `sp.phone.profile`, thread-floor metadata,
@@ -57,7 +65,7 @@ transport exercise the same repository on the host JVM.
   A cache-only subscription must not call the dispatcher, including when a
   server pause just expired and another online consumer still has queued work.
   Location data is separate from the existing raw thread-page cache format.
-- Render bodies without waiting for location. Show `IP 属地：广东   发帖：123`
+- Render bodies without waiting for location. Show `发帖：123   IP 属地：广东`
   when known, or post count alone otherwise. Remove level/reputation from floor
   detail only; preserve underlying profile/statistics and other author actions.
 - Asynchronous location changes use `AuthorMetadataPayload` and bind only
@@ -114,7 +122,7 @@ transport exercise the same repository on the host JVM.
 | Success / valid empty | Retain the latest observation for 24 hours |
 | Ordinary failure | Suppress the author key for 10 minutes |
 | HTTP 429 | Pause the origin/account for at least 30 minutes, or longer valid delta-seconds / RFC 1123 `Retry-After` |
-| Authentication / challenge / site rejection | Stop the captured immutable session in process memory, including its credentials and UA |
+| Authentication / challenge / site rejection / HTTP 503 | Stop the captured immutable session in process memory, including its credentials and UA |
 | Concurrency | One physical supplementary request in flight across all page consumers |
 | Dispatch | Reuse queued/in-flight keys; the first idle request may start immediately, then wait at least 1,000 ms after each call's terminal callback before starting another |
 | Expiry / unpause | Reconsider on later work events; expiry alone does not start a request |
@@ -133,6 +141,13 @@ runs. Cancel it when its queue becomes empty or its session is invalidated,
 without resetting the app-wide deadline. Ignore obsolete wakeups. A delayed
 wakeup never catches up with a burst, and pacing never schedules TTL refreshes
 or automatic recovery from a server pause.
+
+HTTP 503 always stops supplemental reads for the captured session before body
+decoding, including an empty, missing, unreadable, oversized, malformed, or
+profile-shaped body. The existing session-stop result is a local dispatch
+decision; it does not assert that 503 means authentication rejection or rate
+limiting. No later author, page refresh, or same-session consumer recreation
+may restart the queue. Manual profile loading remains a separate user action.
 
 Persist disposable data at `cacheDir/author-locations-v1.json`, encoded as UTF-8:
 
@@ -168,10 +183,11 @@ rejections must not block a replacement credential for the same UID.
 | Valid matching profile with location | Publish metadata and cache for 24 hours |
 | Valid profile with absent / blank location | Cache valid empty; show post count only |
 | Invalid author / session / configured origin | No supplementary request |
-| Malformed profile JSON, invalid location, I/O failure, oversized / undecodable body | Per-author 10-minute failure cooldown |
+| Malformed profile JSON, invalid location, I/O failure, oversized / undecodable body without an HTTP 503 status | Per-author 10-minute failure cooldown |
 | Redirect, HTTP 401/403, site error, mismatched UID, or non-profile text/HTML after wrapper normalization | Stop captured session; no redirect, identity rotation, or next-author loop |
 | HTTP 429, including a queued completion after view/account invalidation | Persist account pause; preserve longer server delay |
-| HTTP 5xx containing a valid profile-shaped body | Ordinary failure, never success |
+| HTTP 503 with any body, including absent/unreadable body | Stop captured session before body decoding; never continue with the next author |
+| Other HTTP 5xx containing a valid profile-shaped body | Ordinary failure, never success |
 | Bounded HTTP 5xx challenge body | Session rejection, never empty success |
 | Fresh persisted cache, including valid empty | No profile request after process recreation |
 | Missing/corrupt/expired cache | Lookup only when an online delivery requires it |
@@ -208,8 +224,11 @@ rejections must not block a replacement credential for the same UID.
 - `AuthorLocationStoreTest`: atomic read-back, corruption/version/bounds, TTL
   validation, latest observations, and retention of server-pause guards.
 - `ProfileLocationTransportTest`: explicit wire identity, strict bounded GBK,
-  stop classification, Retry-After, and one physical request with the actual
-  configured client against loopback HTTP 503/429 fixtures.
+  body-independent HTTP 503 stop classification, Retry-After, and one physical
+  request with the actual configured client against loopback HTTP 503/429 fixtures.
+- `AuthorLocationRepositoryTest` must feed an actual empty-503 classification
+  into the queue and verify that pending and newly delivered authors stay
+  stopped, including after same-session consumer invalidation.
 - `ArticleAuthorLocationContractTest`: common delivery integration, complete
   author collection, view/account lifetime boundaries, and metadata-only binding.
   Keep existing page-state, prefetch, refresh, and page-cache regressions green.

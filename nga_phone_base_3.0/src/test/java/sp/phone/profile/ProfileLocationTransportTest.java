@@ -142,9 +142,17 @@ public class ProfileLocationTransportTest {
             assertEquals(ProfileLocationResult.Kind.SESSION_REJECTED,
                     ProfileLocationTransport.readResponse(response, 42, now).kind);
         }
-        assertEquals(ProfileLocationResult.Kind.FAILURE,
-                ProfileLocationTransport.readResponse(response(request(), 503,
-                        ResponseBody.create(null, new byte[0])), 42, now).kind);
+    }
+
+    @Test
+    public void serviceUnavailableStopsWithoutDependingOnAnErrorBody() throws IOException {
+        for (ResponseBody body : new ResponseBody[]{
+                null, ResponseBody.create(null, new byte[0]), fixtureBody(),
+                ResponseBody.create(null, new byte[]{(byte) 0x81}),
+                unreadableBody(1), unreadableBody(ProfileLocationTransport.MAX_RESPONSE_BYTES + 1L)}) {
+            assertEquals(ProfileLocationResult.Kind.SESSION_REJECTED,
+                    ProfileLocationTransport.readResponse(response(request(), 503, body), 42, now).kind);
+        }
     }
 
     @Test

@@ -98,8 +98,10 @@ final class ProfileLocationTransport implements AuthorLocationRepository.Transpo
         if (code == 429) {
             return ProfileLocationResult.rateLimit(retryAt(response.header("Retry-After"), now));
         }
-        if (code >= 300 && code < 500) {
+        if (code == 503 || (code >= 300 && code < 500)) {
             // Includes redirects, authentication, challenge and unknown site rejection.
+            // A 503 stops supplemental reads even without a usable error body. Otherwise
+            // the queue would keep querying other authors through the same failing endpoint.
             return ProfileLocationResult.rejected();
         }
         ResponseBody body = response.body();

@@ -598,9 +598,10 @@ topic list fragments, or their toolbars.
 
 ## Article author metadata
 
-Thread-floor detail shows known public profile IP location and post count, or
-post count alone; level/reputation no longer appear there. The value describes
-the latest profile observation, not a historical reply's posting location.
+Thread-floor detail shows post count before the known public profile IP
+location (`发帖：123   IP 属地：广东`), or post count alone; level/reputation
+no longer appear there. The value describes the latest profile observation,
+not a historical reply's posting location.
 Follow the [author-location contract](../backend/author-profile-location-contract.md)
 for per-delivered-page fetching, account/cache boundaries, and lifecycle cleanup.
 Async metadata uses generation/author/holder-checked payloads that only bind

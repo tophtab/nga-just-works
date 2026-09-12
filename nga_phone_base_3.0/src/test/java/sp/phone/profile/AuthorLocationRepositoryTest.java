@@ -16,6 +16,10 @@ import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import sp.phone.http.bean.ThreadData;
 import sp.phone.http.bean.ThreadRowInfo;
 
@@ -171,6 +175,26 @@ public class AuthorLocationRepositoryTest {
             h.advanceElapsedBy(2 * AuthorLocationCache.RATE_LIMIT_MILLIS);
             assertEquals(Collections.singletonList(41), h.transport.authors());
         }
+    }
+
+    @Test
+    public void empty503StopsQueuedAndFutureAuthorsForTheCapturedSession() throws Exception {
+        Harness h = new Harness();
+        h.deliver(page(41, 42), true);
+        try (Response response = new Response.Builder()
+                .request(new Request.Builder().url("https://bbs.nga.cn/nuke.php").build())
+                .protocol(Protocol.HTTP_1_1).code(503).message("Offline fixture")
+                .body(ResponseBody.create(null, new byte[0])).build()) {
+            h.complete(ProfileLocationTransport.readResponse(response, 41, h.now));
+        }
+        assertEquals(0, h.scheduledCount());
+        h.advanceElapsedBy(10_000);
+        h.deliver(page(43, 44), true);
+        h.repository.invalidateSession();
+        h.deliver(page(45), true);
+        assertEquals(Collections.singletonList(41), h.transport.authors());
+        assertEquals(0, h.scheduledCount());
+        assertTrue(h.persisted.isEmpty());
     }
 
     @Test
