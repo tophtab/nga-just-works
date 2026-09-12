@@ -1810,3 +1810,38 @@ Restore same-page body WebView retention while preserving real content updates a
 ### Status
 
 [OK] **Completed**
+
+
+## Session 70: Publish 6.0.0
+<!-- trellis-session: v=2 fp=a3a11cb9a17639da -->
+
+**Date**: 2026-09-12
+**Task**: Publish 6.0.0
+**Branch**: `main`
+
+### Summary
+
+Prepared the 6.0.0 release notes, pushed main, and pushed annotated tag 6.0.0 after the maintainer explicitly authorized publication.
+
+### Main Changes
+
+- Added Chinese release notes covering changes since 5.6.1, including the committed reader/IP refresh fix.
+- Published refs/heads/main and then refs/tags/6.0.0 at c0dd626f8d42e84fdec8961d3e021bc67142c1f0; recorded the release handoff and archived the task.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c0dd626f8d42e84fdec8961d3e021bc67142c1f0` | docs(release): prepare 6.0.0 release notes |
+
+### Testing
+
+- [OK] Reused the preceding implementation gate as explicitly requested; no repeated tests, builds, lint, validators, or review cycle.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- The existing GitHub workflow owns stable APK build and publication; no CI polling or device follow-up was requested.
