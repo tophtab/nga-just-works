@@ -10,7 +10,7 @@ import sp.phone.ai.AiProfilePrompt;
 public final class ProfileSummaryInput {
 
     public static final int MAX_ITEMS_PER_PAGE = 20;
-    public static final int MAX_BODY_CHARS = 1200;
+    public static final int MAX_BODY_CHARS = 200;
     /** @deprecated Use MAX_BODY_CHARS for the reply text limit. */
     @Deprecated
     public static final int MAX_REPLY_CHARS = MAX_BODY_CHARS;

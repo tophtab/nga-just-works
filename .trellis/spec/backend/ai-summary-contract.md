@@ -55,7 +55,7 @@ SummaryController.Cancelable ProfileSummaryLoader.load(
 String ProfileSummaryInput.toPrompt(AiProfilePrompt profilePrompt);
 // The compatibility overloads use the default forum-roast style.
 String ProfileSummaryInput.Entry.getBody();
-// MAX_BODY_CHARS is 1200 for reply text; MAX_REPLY_CHARS/getReply() remain compatibility aliases.
+// MAX_BODY_CHARS is 200 for reply text; MAX_REPLY_CHARS/getReply() remain compatibility aliases.
 // Topic entries serialize metadata only, even if an Entry carries incidental body text.
 SummaryController.Cancelable SummaryController.InputSource.load(
         AiConfig config, SummaryController.Callback callback);
@@ -318,7 +318,7 @@ loading and answerless states return an empty string.
   profile fields. Do not execute the response or invoke the legacy
   renderer/raw-response logger. The removed topic-detail parser is not part
   of this collection path; keep the shared JSON decoder strict.
-- Reply bodies retain at most the first 1,200 cleaned UTF-16
+- Reply bodies retain at most the first 200 cleaned UTF-16
   code units, preserving the existing surrogate-boundary handling and 64,000
   source-processing bound. The common prompt describes this prefix limit.
   Keep metadata bounds and the 65,536-code-unit whole-prompt client limit.
@@ -371,7 +371,7 @@ loading and answerless states return an empty string.
   verbatim, including instructions the user independently writes there.
 - Topic entries contain only title, board, and date; never emit a
   `主题正文：` field or an unavailable-topic-body notice. Reply entries contain
-  metadata plus `回复正文：`, limited to the first 1,200 cleaned characters.
+  metadata plus `回复正文：`, limited to the first 200 cleaned characters.
   The common framing explicitly says that topic bodies are absent. This
   boundary applies to both presets and custom instructions.
   A reply's enclosing topic title need not express the reply
@@ -479,7 +479,7 @@ loading and answerless states return an empty string.
 | A profile request finishes, including failure or cancellation | Start the next queued profile call only after at least 500 ms; retain the cooldown across source instances |
 | NGA list GET receives `503 Retry-After: 0` | Preserve the first HTTP failure; no hidden follow-up outside the paced queue |
 | Profile source lists exceed retained limits | Prompt counts and input labels describe only the retained entries |
-| A reply body exceeds 1,200 cleaned characters | Retain only its prefix without splitting a surrogate pair; framing states the limit |
+| A reply body exceeds 200 cleaned characters | Retain only its prefix without splitting a surrogate pair; framing states the limit |
 | A topic list record or topic Entry contains body text | Ignore it; serialize only topic metadata and schedule no detail request |
 | Raw control character in model-service JSON | Preserve the shared decoder's existing invalid-response result |
 | Cancellation during either list read or the 500 ms wait | Cancel the active/queued work for that load, schedule no later read for it, discard late callbacks |
@@ -596,7 +596,7 @@ loading and answerless states return an empty string.
   explicit collection request still observes the 500 ms cooldown.
   Reply collection failures must not produce a partial topic-only prompt.
   `SummaryInputTest` excludes nonempty topic Entry bodies for every prompt
-  style and covers reply prefixes at 1,199/1,200/1,201 characters and surrogate
+  style and covers reply prefixes at 199/200/201 characters and surrogate
   boundaries. `AiSummaryClientTest` sends maximum metadata/reply samples with
   both built-in styles and maximum custom instructions without clipping;
   separately retain its rejection of an oversized caller-supplied prompt.

@@ -535,7 +535,7 @@ public class AiSummaryClientTest {
 
     private static ProfileSummaryInput maximumProfileInput() {
         ProfileSummaryInput.Entry entry = new ProfileSummaryInput.Entry("T".repeat(200),
-                "B".repeat(80), "D".repeat(32), "文".repeat(1200));
+                "B".repeat(80), "D".repeat(32), "文".repeat(ProfileSummaryInput.MAX_BODY_CHARS));
         List<ProfileSummaryInput.Entry> entries = Collections.nCopies(20, entry);
         return new ProfileSummaryInput("1234567890123456789", "N".repeat(100), entries, entries);
     }

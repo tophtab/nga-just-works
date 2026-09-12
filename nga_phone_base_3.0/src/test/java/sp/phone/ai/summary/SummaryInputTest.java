@@ -144,9 +144,9 @@ public class SummaryInputTest {
         replies.add(null);
         for (int i = 0; i < 25; i++) {
             topics.add(new ProfileSummaryInput.Entry("Topic " + i, "Board", "2026-01-01",
-                    repeat('t', 1200) + "TRUNCATED_TOPIC_SENTINEL"));
+                    repeat('t', 200) + "TRUNCATED_TOPIC_SENTINEL"));
             replies.add(new ProfileSummaryInput.Entry("Reply topic " + i, "Board", "2026-01-02",
-                    repeat('x', 1200) + "TRUNCATED_REPLY_SENTINEL"));
+                    repeat('x', 200) + "TRUNCATED_REPLY_SENTINEL"));
         }
         ProfileSummaryInput snapshot = new ProfileSummaryInput("4200", "Viewed user", topics, replies);
         topics.clear();
@@ -166,15 +166,15 @@ public class SummaryInputTest {
         assertFalse(prompt.contains("Reply topic 20"));
         assertFalse(prompt.contains("SENTINEL"));
         assertFalse(prompt.contains("主题正文："));
-        assertFalse(prompt.contains(repeat('t', 1200)));
-        assertTrue(prompt.contains("回复正文：" + repeat('x', 1200) + "\n"));
+        assertFalse(prompt.contains(repeat('t', 200)));
+        assertTrue(prompt.contains("回复正文：" + repeat('x', 200) + "\n"));
         assertTrue(prompt.length() < 65536);
     }
 
     @Test
-    public void replyBodiesKeepTheFirst1200CleanedCharactersWithoutSplittingSurrogates() {
-        for (int length : new int[]{1199, 1200, 1201}) {
-            String expected = repeat('文', Math.min(length, 1200));
+    public void replyBodiesKeepTheFirst200CleanedCharactersWithoutSplittingSurrogates() {
+        for (int length : new int[]{199, 200, 201}) {
+            String expected = repeat('文', Math.min(length, 200));
             ProfileSummaryInput.Entry entry = new ProfileSummaryInput.Entry("Title", "Board", "Date",
                     "<p>[b]" + repeat('文', length) + "[/b]</p>");
             assertEquals(expected, entry.getBody());
@@ -182,8 +182,8 @@ public class SummaryInputTest {
                     Collections.singletonList(entry)).toPrompt();
             assertTrue(prompt.contains("回复正文：" + expected + "\n"));
         }
-        for (int prefix : new int[]{1198, 1199}) {
-            String expected = repeat('a', prefix) + (prefix == 1198 ? "😀" : "");
+        for (int prefix : new int[]{198, 199}) {
+            String expected = repeat('a', prefix) + (prefix == 198 ? "😀" : "");
             ProfileSummaryInput.Entry entry = new ProfileSummaryInput.Entry("Title", "Board", "Date",
                     repeat('a', prefix) + "&#x1F600;TRUNCATED_SENTINEL");
             assertEquals(expected, entry.getBody());
