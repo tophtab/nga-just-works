@@ -6,7 +6,7 @@ import java.util.List;
 
 import sp.phone.ai.AiProfilePrompt;
 
-/** Sequential, first-page-only TOPIC.LIST reads for one frozen profile UID. */
+/** Sequential first-page topic/reply samples for one frozen profile UID. */
 public final class ProfileSummaryLoader {
 
     public enum Kind { TOPICS, REPLIES }

@@ -69,15 +69,16 @@ public class SummaryInputTest {
     }
 
     @Test
-    public void profileInputCopiesAndBoundsEachPageAndReply() {
+    public void profileInputCopiesAndBoundsEachPageAndBody() {
         List<ProfileSummaryInput.Entry> topics = new ArrayList<>();
         List<ProfileSummaryInput.Entry> replies = new ArrayList<>();
         topics.add(null);
         replies.add(null);
         for (int i = 0; i < 25; i++) {
-            topics.add(new ProfileSummaryInput.Entry("Topic " + i, "Board", "2026-01-01", "IGNORED_TOPIC_BODY"));
+            topics.add(new ProfileSummaryInput.Entry("Topic " + i, "Board", "2026-01-01",
+                    repeat('t', 1200) + "TRUNCATED_TOPIC_SENTINEL"));
             replies.add(new ProfileSummaryInput.Entry("Reply topic " + i, "Board", "2026-01-02",
-                    repeat('x', 1000) + "TRUNCATED_REPLY_SENTINEL"));
+                    repeat('x', 1200) + "TRUNCATED_REPLY_SENTINEL"));
         }
         ProfileSummaryInput snapshot = new ProfileSummaryInput("4200", "Viewed user", topics, replies);
         topics.clear();
@@ -96,8 +97,34 @@ public class SummaryInputTest {
         assertFalse(prompt.contains("Topic 20"));
         assertFalse(prompt.contains("Reply topic 20"));
         assertFalse(prompt.contains("SENTINEL"));
-        assertFalse(prompt.contains("IGNORED_TOPIC_BODY"));
-        assertTrue(prompt.length() < 32000);
+        assertTrue(prompt.contains("主题正文：" + repeat('t', 1200) + "\n"));
+        assertTrue(prompt.contains("回复正文：" + repeat('x', 1200) + "\n"));
+        assertTrue(prompt.length() < 65536);
+    }
+
+    @Test
+    public void bothBodyKindsKeepTheFirst1200CleanedCharactersWithoutSplittingSurrogates() {
+        for (int length : new int[]{1199, 1200, 1201}) {
+            String expected = repeat('文', Math.min(length, 1200));
+            ProfileSummaryInput.Entry entry = new ProfileSummaryInput.Entry("Title", "Board", "Date",
+                    "<p>[b]" + repeat('文', length) + "[/b]</p>");
+            assertEquals(expected, entry.getBody());
+            String prompt = new ProfileSummaryInput("42", "User", Collections.singletonList(entry),
+                    Collections.singletonList(entry)).toPrompt();
+            assertTrue(prompt.contains("主题正文：" + expected + "\n"));
+            assertTrue(prompt.contains("回复正文：" + expected + "\n"));
+        }
+        for (int prefix : new int[]{1198, 1199}) {
+            String expected = repeat('a', prefix) + (prefix == 1198 ? "😀" : "");
+            ProfileSummaryInput.Entry entry = new ProfileSummaryInput.Entry("Title", "Board", "Date",
+                    repeat('a', prefix) + "&#x1F600;TRUNCATED_SENTINEL");
+            assertEquals(expected, entry.getBody());
+            String prompt = new ProfileSummaryInput("42", "User", Collections.singletonList(entry),
+                    Collections.singletonList(entry)).toPrompt();
+            assertTrue(prompt.contains("主题正文：" + expected + "\n"));
+            assertTrue(prompt.contains("回复正文：" + expected + "\n"));
+            assertFalse(prompt.contains("TRUNCATED_SENTINEL"));
+        }
     }
 
     @Test
@@ -173,8 +200,9 @@ public class SummaryInputTest {
         assertFalse(topicsPrompt.contains("无可见主题\n"));
         assertEvidenceNumbers(topicsPrompt, "主题", 1);
         assertEvidenceNumbers(topicsPrompt, "回复", 0);
-        assertFalse(topicsPrompt.contains("Quoted claim"));
-        assertFalse(topicsPrompt.contains("My reply"));
+        assertTrue(topicsPrompt.contains("主题正文：引用：\nQuoted claim\n引用结束"));
+        assertTrue(topicsPrompt.contains("My reply"));
+        assertFalse(topicsPrompt.contains("https://unused.invalid"));
     }
 
     @Test

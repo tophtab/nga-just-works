@@ -21,6 +21,7 @@ import java.net.PasswordAuthentication;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -39,6 +40,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import okhttp3.mockwebserver.SocketPolicy;
 import okio.Buffer;
 import okio.GzipSink;
+import sp.phone.ai.summary.ProfileSummaryInput;
 
 public class AiSummaryClientTest {
     private final AiConfig config = new AiConfig("https://unused.example.test/v1", "synthetic-test-key", "synthetic-model");
@@ -489,6 +491,48 @@ public class AiSummaryClientTest {
         assertThrows(IllegalArgumentException.class,
                 () -> client.summarize(config, "x".repeat(AiSummaryClient.MAX_PROMPT_CHARS + 1), new Result()));
         assertEquals(0, server.getRequestCount());
+    }
+
+    @Test
+    public void maximumProfileBodiesAndMetadataFitBothPresetsWithoutClipping() throws Exception {
+        ProfileSummaryInput input = maximumProfileInput();
+        AiSummaryClient client = client(5_000);
+        for (AiProfilePrompt.Style style : new AiProfilePrompt.Style[]{
+                AiProfilePrompt.Style.FORUM_ROAST, AiProfilePrompt.Style.DETAILED}) {
+            String prompt = input.toPrompt(new AiProfilePrompt(style, ""));
+            assertTrue(prompt.length() > 60000);
+            assertTrue(prompt.length() <= AiSummaryClient.MAX_PROMPT_CHARS);
+            server.enqueue(success("Synthetic summary"));
+            Result result = new Result();
+            client.summarize(config, prompt, result);
+            result.await();
+            assertNull(result.error);
+            JSONObject request = SafeJsonParser.parseObject(takeRequest().getBody().readUtf8());
+            assertEquals(prompt, request.getJSONArray("messages").getJSONObject(0).get("content"));
+        }
+        assertEquals(2, server.getRequestCount());
+    }
+
+    @Test
+    public void maximumCustomProfileOverflowRetainsInstructionsAndSendsNoPartialPrompt() {
+        String customText = "  " + "文".repeat(AiProfilePrompt.MAX_CUSTOM_PROMPT_CHARS - 4) + "\n\t";
+        AiProfilePrompt custom = new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, customText);
+        String prompt = maximumProfileInput().toPrompt(custom);
+        assertEquals(customText, custom.getInstructions());
+        assertTrue(prompt.contains("输出要求：\n" + customText + "\n"));
+        assertTrue(prompt.length() > AiSummaryClient.MAX_PROMPT_CHARS);
+        AiSummaryClient client = client(5_000);
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                () -> client.summarize(config, prompt, new Result()));
+        assertEquals("待总结内容为空或过长", error.getMessage());
+        assertEquals(0, server.getRequestCount());
+    }
+
+    private static ProfileSummaryInput maximumProfileInput() {
+        ProfileSummaryInput.Entry entry = new ProfileSummaryInput.Entry("T".repeat(200),
+                "B".repeat(80), "D".repeat(32), "文".repeat(1200));
+        List<ProfileSummaryInput.Entry> entries = Collections.nCopies(20, entry);
+        return new ProfileSummaryInput("1234567890123456789", "N".repeat(100), entries, entries);
     }
 
     private AiSummaryClient client(long timeoutMillis) {

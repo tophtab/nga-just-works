@@ -52,6 +52,11 @@ SummaryController.Cancelable ProfileSummaryLoader.load(
         SummaryController.Callback callback);
 String ProfileSummaryInput.toPrompt(AiProfilePrompt profilePrompt);
 // The compatibility overloads use the default forum-roast style.
+String ProfileSummaryInput.Entry.getBody();
+// MAX_BODY_CHARS is 1200; MAX_REPLY_CHARS/getReply() remain compatibility aliases.
+// Internal to the summary package; null means explicitly unavailable:
+String NgaTopicBodyParser.parse(String raw, String uid, String tid)
+        throws NgaProfilePageSource.PageException;
 SummaryController.Cancelable SummaryController.InputSource.load(
         AiConfig config, SummaryController.Callback callback);
 // SummaryController.Callback: default onProgress(String answer, String reasoning),
@@ -235,10 +240,11 @@ loading and answerless states return an empty string.
   account's UID. `AiSummarySources.profile` defers all session lookup and reads
   until the controller confirms a valid AI configuration.
 - Input sources receive the controller's initial configuration snapshot.
-  Profile collection carries its immutable prompt selection through both page
-  reads and composition; it does not independently reload settings. Before
-  sending, the controller retains its second configuration validation and
-  compares the prompt selection and retained custom text as well as endpoint,
+  Profile collection carries its immutable prompt selection through the list
+  reads, topic-body enrichment, and composition; it does not independently
+  reload settings. Before sending, the controller retains its second
+  configuration validation and compares the prompt selection and retained
+  custom text as well as endpoint,
   model, and Key. A changed configuration rejects the collected input; an
   explicit retry captures the newly saved selection. Floor input and connection
   tests keep their own instructions.
@@ -246,13 +252,20 @@ loading and answerless states return an empty string.
   `GET thread.php?authorid=<uid>&page=1&lite=js&noprefix`, adding `searchpost=1`
   for replies. Run the topics operation before replies, each capped at 20
   accepted entries; skipped unavailable records do not consume this allowance.
-  Never request later pages or whole topics to obtain reply text.
-- Capture one Cookie/UA snapshot for both operations. Permit only HTTPS port
-  443 on the explicit NGA host set in the source, with no userinfo, query,
-  fragment, custom base path, or redirects. There is no application retry or
+  Retain valid topic IDs privately and enrich the topic sample with at most one
+  `THREAD.PAGE` GET per retained topic:
+  `read.php?page=1&__output=8&noprefix&v2&tid=<tid>`. Project only the verified
+  original post into the topic entry. Never request later activity pages or
+  use topic details to obtain the reply sample, which already has `__P.content`.
+- Capture one Cookie/UA snapshot for all list and detail reads. Permit only
+  HTTPS port 443 on the explicit NGA host set in the source, with no userinfo,
+  query, fragment, custom base path, or redirects. There is no application retry or
   account rotation. Connection retries are disabled; an internal idempotent
-  HTTP follow-up can still repeat the same page. The page limit is not a claim
-  of at most two underlying network transmissions.
+  HTTP follow-up can still repeat the same page. There are at most 22
+  application-scheduled reads (two lists plus 20 topic details), not a claim
+  about the number of underlying network transmissions. Topic enrichment is
+  sequential and retains the list order; its single cancel handle covers the
+  list and all detail calls, including synchronous callbacks and late results.
 - Read a maximum of 512 KiB per NGA response. Honor a valid declared charset;
   default to pinned GBK when absent. A present but unparsable Content-Type,
   invalid charset, or invalid encoded bytes is a protocol error, not a reason
@@ -261,10 +274,26 @@ loading and answerless states return an empty string.
 - Normalize the known JS prefix once, then use the shared bounded decoder,
   including for a string-valued `parent`. Require `data.__T`, its row count,
   and the correct author on available records. Replies come from each row's
-  `__P.content`, `__P.authorid`, and `__P.postdate`; cap each reply at 800 characters.
+  `__P.content`, `__P.authorid`, and `__P.postdate`.
   Format dates in the device display timezone. Extract only title, board,
-  date, and public reply text into the prompt, not raw JSON or private profile
-  fields.
+  date, and the selected public body into the prompt, not raw JSON, fetch IDs,
+  or private profile fields.
+- Topic detail parsing requires matching topic identity, an explicit original
+  floor (`lou == 0`), and that original's matching TID and viewed author ID.
+  Array position and Java bean defaults are not proof of an original post.
+  `NgaTopicBodyParser` owns that projection; its null result means explicitly
+  unavailable, distinct from a valid empty body. Entry serialization labels
+  either case as an application notice, never as a server-authored claim.
+  Other floors and user tables are not source material for the prompt. Keep
+  source-backed NGA envelope normalization local and outside quoted text;
+  do not execute it or invoke the legacy renderer/raw-response logger.
+- Both topic and reply bodies retain at most the first 1,200 cleaned UTF-16
+  code units, preserving the existing surrogate-boundary handling and 64,000
+  source-processing bound. The common prompt describes this prefix limit.
+  Keep metadata bounds and the 65,536-code-unit whole-prompt client limit.
+  Both built-in styles must fit with maximum retained samples; exceptionally
+  large custom instructions plus metadata still receive the explicit existing
+  over-limit error, without silent extra body/custom truncation.
 - Authorized first-page reads on 2026-09-11 contained unavailable placeholders
   with nonblank string `denied` or `error` fields. Skip an outer row with either
   marker before author/content validation; for replies, also inspect `__P` for
@@ -278,6 +307,11 @@ loading and answerless states return an empty string.
   `error`, `data.__MESSAGE`, challenge responses, and unmarked malformed or
   foreign-author records remain collection errors. Do not generalize item
   filtering into a fallback for arbitrary author mismatches or page rejection.
+- An explicitly unavailable original body can retain its visible topic
+  metadata with an application-owned unavailable-body notice. Server denial
+  text is not authored text. Unmarked missing/ambiguous original posts,
+  mismatched IDs, malformed structures, and whole-page errors terminate
+  collection rather than silently succeeding with titles alone.
 
 ### Profile composition prompt
 
@@ -290,8 +324,8 @@ loading and answerless states return an empty string.
   sections, `画像`, `标签`, and `一句锐评`: a forum-style portrait, supported
   interest/style tags, and a sharp evidence-grounded punchline. `DETAILED` uses a neutral tone
   and five plain-text sections: `兴趣关注`, `主要观点`, `发言风格`, `成分总结`,
-  and `标签`. Both analyze expressed interests, views, and wording, without
-  scores, rankings, or a personality/credibility total.
+  and `标签`. Both analyze expressed interests, views, and wording through
+  their selected style instructions.
 - `CUSTOM` replaces the preset's style and output-format instructions with
   the user's exact multiline text. Never append an inactive preset or silently
   trim/truncate the saved text. The common sample framing and the application's
@@ -301,15 +335,18 @@ loading and answerless states return an empty string.
   errors, not reasons to select a different style silently.
 - Include the actual retained topic and reply counts after bounded copying.
   Number entries independently as `[主题1]`, `[主题2]`, and `[回复1]`, `[回复2]`.
-  These are local evidence identifiers, not links or additional NGA metadata.
-  Each substantive observation cites an identifier and a short quote or concrete
-  paraphrase. Missing evidence stays unknown; a contradiction needs both
-  comparable statements and their references.
-- Topic inputs contain titles, not their bodies. A reply's enclosing topic title
-  need not express the reply author's opinion. Preserve quote attribution and
-  distinguish self-reported experience from independently verified facts. Do not
-  infer sensitive personal attributes or real-world identity, income, location,
-  health, or character from these bounded samples. Source content remains data,
+  These organize the input, not mandatory citations in the model's answer.
+  The fixed paragraph from `每条实质观察须附输入中的[主题N]或[回复N]编号`
+  through `不作人格评价。` is removed for every style. Do not reintroduce its
+  citation/quotation, contradiction, scoring, attribute, or character rules as
+  a hidden common suffix. The forum-roast preset also no longer demands
+  numbered short-quotation support for its punchline. Stored custom text stays
+  verbatim, including instructions the user independently writes there.
+- Topic entries contain metadata plus `主题正文：`; reply entries contain
+  metadata plus `回复正文：`. Each body is limited to the first 1,200 cleaned
+  characters. A reply's enclosing topic title need not express the reply
+  author's opinion. Preserve quote attribution and distinguish self-reported
+  experience from independently verified facts. Source content remains data,
   not instructions to the model.
 - In the forum-roast preset, describe the voice through general traits: direct
   forum phrasing, brisk short sentences, rhetorical questions, short analogies,
@@ -401,8 +438,14 @@ loading and answerless states return an empty string.
 | Blank or non-string item marker | Apply normal author/content validation |
 | All items unavailable on one page | Empty sample; use available activity from the other kind |
 | Both samples empty, root `error`, or `data.__MESSAGE` | Report the existing collection error; do not send a model request |
-| Profile source lists exceed retained limits | Prompt counts and evidence IDs describe only the retained entries |
-| Profile sample has no support for a view or trait | State insufficient evidence; no score or invented personal conclusion |
+| Profile source lists exceed retained limits | Prompt counts and input labels describe only the retained entries |
+| A topic or reply body exceeds 1,200 cleaned characters | Retain only its prefix without splitting a surrogate pair; framing states the limit |
+| Topic detail includes later or foreign-author floors | Include only the verified original belonging to the requested topic and viewed UID |
+| Original body explicitly unavailable | Keep visible topic metadata with a fixed unavailable-body notice; no denial text or substitute floor |
+| Unmarked original missing/ambiguous or topic/original identity disagrees | Terminal collection error; no model request |
+| Cancellation during topic enrichment | Cancel the active call, schedule no later detail/reply reads, discard late callbacks |
+| Custom instructions plus retained sample exceed the whole-prompt bound | Existing explicit input error; no partial model request or custom-text clipping |
+| Any selected profile prompt style | Compose the same sample framing without the removed fixed rule paragraph; presets do not require source IDs/quotes |
 | Second page-source invocation throws synchronously | Terminal collection error, still retryable |
 | `503 Retry-After: 0` from model | One POST only; preserve server error |
 
@@ -413,8 +456,9 @@ loading and answerless states return an empty string.
   the model prompt. Switching pages cancels the old operation.
 - Good: a page mixes visible activity with explicitly unavailable placeholders;
   accept only visible entries, validating their actual topic/reply authors.
-- Good: a profile observation cites `[回复2]` and its concrete wording, with
-  restrained satire about the statement rather than an invented personal story.
+- Good: a topic entry contains its verified original body's first 1,200 cleaned
+  characters, while a reply entry contains the viewed user's `__P` body from
+  the reply list. A later floor never substitutes for the original.
 - Good: save a multiline custom prompt, select detailed analysis, and later
   return to custom; the same text is restored and only the selected instructions
   appear before the public sample.
@@ -474,14 +518,22 @@ loading and answerless states return an empty string.
   immutable and empty results, and malformed/oversized list responses.
 - `SummaryInputTest`, `SummaryControllerTest`, `ProfileSummaryLoaderTest`,
   and `NgaProfilePageSourceTest`: frozen rows, correct UID, two first-page
-  operations, reply text, limited content, date boundaries, charset errors,
+  list operations plus bounded original-body reads, topic/reply text, limited
+  content, date boundaries, charset errors,
   timeout versus user cancellation, synchronous failures, and late callbacks.
   Profile parser regressions also cover mixed visible/unavailable topics,
   outer and nested reply markers, both marker names, blank/non-string markers,
   unmarked foreign authors, all-unavailable pages, unchanged whole-page errors,
   and the 20 accepted-item cap after filtering. Loader tests cover an empty
   topic sample with available replies and the both-empty error.
-  `SummaryInputTest` also verifies retained counts and independent evidence
+  Topic-body coverage verifies explicit floor/TID/author identity, unavailable
+  originals, wrong/missing/ambiguous originals, request bounds/order, body-only
+  projection, envelope handling, and cancellation/late callbacks during
+  enrichment. `SummaryInputTest` covers both body prefixes at 1,199/1,200/1,201
+  characters and surrogate boundaries. `AiSummaryClientTest` sends maximum
+  samples with each built-in style without clipping and verifies that an
+  oversized custom input fails before any request.
+  `SummaryInputTest` also verifies retained counts and independent input
   numbering across truncation, null entries, and empty/partial samples; prose
   and tone instructions are source-reviewed rather than duplicated as a string
   snapshot test. Assert both built-in profile presets and the floor prompt
@@ -509,6 +561,16 @@ loading and answerless states return an empty string.
   current device authorization; otherwise report not run per project policy.
 
 ## 7. Wrong vs Correct
+
+```java
+// Wrong: response position alone does not establish the requested original post.
+String body = scalar(object(rows.get("0")).get("content"));
+
+// Correct (summary package): verify topic, explicit floor, and author first.
+String body = NgaTopicBodyParser.parse(raw, viewedUid, requestedTid);
+ProfileSummaryInput.Entry enriched = metadata.withBody(body);
+// A null result produces an application-owned unavailable-body notice.
+```
 
 ```java
 // Wrong when saving an edited settings draft: silently resets the prompt selection.

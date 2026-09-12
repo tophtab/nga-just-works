@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -32,7 +31,7 @@ import okio.BufferedSource;
 import sp.phone.ai.SafeJsonParser;
 
 /**
- * Narrow TOPIC.LIST adapter. Wire fields come from pinned TopicListModel and TopicListBean.__P.
+ * Narrow TOPIC.LIST / THREAD.PAGE adapter using the pinned list and original-post wire fields.
  * The legacy shared converter/parser logs bodies, so this path decodes its own bounded response.
  * Cookie and UA are captured once per summary and never exposed to the model input.
  */
@@ -42,7 +41,8 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
     private static final Set<String> NGA_HOSTS = new HashSet<>(Arrays.asList(
             "bbs.nga.cn", "bbs.ngacn.cc", "nga.178.com", "nga.donews.com", "ngabbs.com"));
     private static final String PREFIX = "window.script_muti_get_var_store=";
-    private static final String RESPONSE_ERROR = "NGA 内容格式异常，请稍后重试";
+    static final String RESPONSE_ERROR = "NGA 内容格式异常，请稍后重试";
+    static final String IDENTITY_ERROR = "NGA 返回的内容与当前用户或主题不符，请重新发起总结";
     private static final String ACCESS_ERROR = "NGA 暂时无法提供公开内容，请检查登录状态或访问限制";
 
     private final Call.Factory client;
@@ -73,66 +73,226 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
     @Override
     public SummaryController.Cancelable loadFirstPage(String uid, ProfileSummaryLoader.Kind kind,
                                                       ProfileSummaryLoader.PageCallback callback) {
-        final Request request;
-        try {
-            request = buildRequest(domain, cookie, userAgent, uid, kind);
-        } catch (IllegalArgumentException ignored) {
-            callback.onError("论坛地址或用户资料无效，请检查后重试");
-            return SummaryController.Cancelable.NONE;
-        }
-        Call call = client.newCall(request);
-        AtomicBoolean userCanceled = new AtomicBoolean();
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException exception) {
-                if (!userCanceled.get()) {
-                    callback.onError(networkError(exception));
-                }
-            }
+        Load load = new Load(uid, kind, callback);
+        load.request(null);
+        return load;
+    }
 
-            @Override
-            public void onResponse(Call call, Response response) {
+    private final class Load implements SummaryController.Cancelable {
+        final String uid;
+        final ProfileSummaryLoader.Kind kind;
+        final ProfileSummaryLoader.PageCallback callback;
+        final List<ProfileSummaryInput.Entry> entries = new ArrayList<>();
+        List<Candidate> candidates = Collections.emptyList();
+        int nextTopic;
+        RequestStep expected;
+        Call current;
+        boolean stopped;
+
+        Load(String uid, ProfileSummaryLoader.Kind kind, ProfileSummaryLoader.PageCallback callback) {
+            this.uid = uid;
+            this.kind = kind;
+            this.callback = callback;
+        }
+
+        void request(Candidate topic) {
+            final RequestStep step;
+            synchronized (this) {
+                if (stopped) {
+                    return;
+                }
+                step = new RequestStep(topic);
+                expected = step;
+            }
+            final Request request;
+            try {
+                request = topic == null ? buildRequest(domain, cookie, userAgent, uid, kind)
+                        : buildTopicRequest(domain, cookie, userAgent, topic.tid);
+            } catch (IllegalArgumentException ignored) {
+                fail(step, "论坛地址或用户资料无效，请检查后重试");
+                return;
+            }
+            Call call = null;
+            try {
+                call = client.newCall(request);
+                synchronized (this) {
+                    if (!isExpected(step)) {
+                        call.cancel();
+                        return;
+                    }
+                    current = call;
+                }
+                // No lock around enqueue: a fake call may read its response synchronously.
+                // Cancellation after registration cancels this Call even before enqueue runs.
+                call.enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException exception) {
+                        fail(step, networkError(exception));
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) {
+                        receive(step, call, response);
+                    }
+                });
+            } catch (RuntimeException ignored) {
+                if (call != null) {
+                    call.cancel();
+                }
+                fail(step, RESPONSE_ERROR);
+            }
+        }
+
+        void receive(RequestStep step, Call call, Response response) {
+            try {
+                List<Candidate> listed = null;
+                String body = null;
+                // The read and parse never hold the load lock; cancel can stop a blocked read.
                 try (Response closedResponse = response) {
-                    if (userCanceled.get()) {
+                    if (!isExpected(step)) {
                         return;
                     }
                     if (call.isCanceled()) {
-                        callback.onError("读取 NGA 内容超时，请稍后重试");
+                        fail(step, "读取 NGA 内容超时，请稍后重试");
                         return;
                     }
                     String error = statusError(closedResponse.code());
                     if (error != null) {
-                        callback.onError(error);
+                        fail(step, error);
                         return;
                     }
-                    ProfileSummaryLoader.Page page = parsePage(readBody(closedResponse.body(),
-                            closedResponse.header("Content-Type")), uid, kind);
-                    if (!userCanceled.get()) {
-                        if (call.isCanceled()) {
-                            callback.onError("读取 NGA 内容超时，请稍后重试");
-                        } else {
-                            callback.onSuccess(page);
-                        }
+                    String raw = readBody(closedResponse.body(), closedResponse.header("Content-Type"));
+                    if (step.topic == null) {
+                        listed = parseCandidates(raw, uid, kind);
+                    } else {
+                        body = NgaTopicBodyParser.parse(raw, uid, step.topic.tid);
                     }
-                } catch (PageException exception) {
-                    if (!userCanceled.get()) {
-                        callback.onError(exception.getMessage());
-                    }
-                } catch (IOException exception) {
-                    if (!userCanceled.get()) {
-                        callback.onError(networkError(exception));
-                    }
-                } catch (RuntimeException ignored) {
-                    if (!userCanceled.get()) {
-                        callback.onError(RESPONSE_ERROR);
+                }
+                // Close the preceding response before starting the next transport call.
+                if (call.isCanceled()) {
+                    fail(step, "读取 NGA 内容超时，请稍后重试");
+                } else if (step.topic == null) {
+                    acceptList(step, listed);
+                } else {
+                    acceptBody(step, step.topic.entry.withBody(body));
+                }
+            } catch (PageException exception) {
+                fail(step, exception.getMessage());
+            } catch (IOException exception) {
+                fail(step, networkError(exception));
+            } catch (RuntimeException ignored) {
+                fail(step, RESPONSE_ERROR);
+            }
+        }
+
+        void acceptList(RequestStep step, List<Candidate> listed) {
+            synchronized (this) {
+                if (!isExpected(step)) {
+                    return;
+                }
+                expected = null;
+                current = null;
+                if (kind == ProfileSummaryLoader.Kind.TOPICS) {
+                    candidates = listed;
+                } else {
+                    for (Candidate candidate : listed) {
+                        entries.add(candidate.entry);
                     }
                 }
             }
-        });
-        return () -> {
-            userCanceled.set(true);
-            call.cancel();
-        };
+            next();
+        }
+
+        void acceptBody(RequestStep step, ProfileSummaryInput.Entry entry) {
+            synchronized (this) {
+                if (!isExpected(step)) {
+                    return;
+                }
+                expected = null;
+                current = null;
+                entries.add(entry);
+                nextTopic++;
+            }
+            next();
+        }
+
+        void next() {
+            Candidate topic = null;
+            ProfileSummaryLoader.Page page = null;
+            synchronized (this) {
+                if (stopped) {
+                    return;
+                }
+                if (nextTopic < candidates.size()) {
+                    topic = candidates.get(nextTopic);
+                } else {
+                    page = new ProfileSummaryLoader.Page(uid, kind, entries);
+                    stop();
+                }
+            }
+            if (page != null) {
+                callback.onSuccess(page);
+            } else {
+                request(topic);
+            }
+        }
+
+        synchronized boolean isExpected(RequestStep step) {
+            return !stopped && expected == step;
+        }
+
+        void fail(RequestStep step, String error) {
+            final Call active;
+            synchronized (this) {
+                if (!isExpected(step)) {
+                    return;
+                }
+                active = current;
+                stop();
+            }
+            if (active != null) {
+                active.cancel();
+            }
+            callback.onError(error);
+        }
+
+        private void stop() {
+            stopped = true;
+            expected = null;
+            current = null;
+            candidates = Collections.emptyList();
+            entries.clear();
+        }
+
+        @Override
+        public void cancel() {
+            final Call active;
+            synchronized (this) {
+                active = current;
+                stop();
+            }
+            if (active != null) {
+                active.cancel();
+            }
+        }
+    }
+
+    private static final class RequestStep {
+        final Candidate topic;
+
+        RequestStep(Candidate topic) {
+            this.topic = topic;
+        }
+    }
+
+    private static final class Candidate {
+        final String tid;
+        final ProfileSummaryInput.Entry entry;
+
+        Candidate(String tid, ProfileSummaryInput.Entry entry) {
+            this.tid = tid;
+            this.entry = entry;
+        }
     }
 
     private static String networkError(IOException error) {
@@ -142,22 +302,43 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
 
     static Request buildRequest(String domain, String cookie, String userAgent, String uid,
                                 ProfileSummaryLoader.Kind kind) {
-        HttpUrl base = HttpUrl.parse(domain);
-        if (base == null || !"https".equals(base.scheme()) || base.port() != 443
-                || !NGA_HOSTS.contains(base.host()) || !base.username().isEmpty()
-                || !base.password().isEmpty() || !"/".equals(base.encodedPath())
-                || base.query() != null || base.fragment() != null
-                || uid == null || !uid.matches("[1-9][0-9]{0,18}")) {
+        if (uid == null || !uid.matches("[1-9][0-9]{0,18}") || kind == null) {
             throw new IllegalArgumentException("论坛地址或用户资料无效");
         }
-        HttpUrl.Builder url = base.newBuilder().addPathSegment("thread.php")
+        HttpUrl.Builder url = baseUrl(domain).newBuilder().addPathSegment("thread.php")
                 .addQueryParameter("authorid", uid);
         if (kind == ProfileSummaryLoader.Kind.REPLIES) {
             url.addQueryParameter("searchpost", "1");
         }
         url.addQueryParameter("page", "1").addQueryParameter("lite", "js")
                 .addQueryParameter("noprefix", null);
-        Request.Builder request = new Request.Builder().url(url.build())
+        return request(url.build(), cookie, userAgent);
+    }
+
+    static Request buildTopicRequest(String domain, String cookie, String userAgent, String tid) {
+        if (tid == null || !tid.matches("[1-9][0-9]{0,18}")) {
+            throw new IllegalArgumentException("主题编号无效");
+        }
+        HttpUrl url = baseUrl(domain).newBuilder().addPathSegment("read.php")
+                .addQueryParameter("page", "1").addQueryParameter("__output", "8")
+                .addQueryParameter("noprefix", null).addQueryParameter("v2", null)
+                .addQueryParameter("tid", tid).build();
+        return request(url, cookie, userAgent);
+    }
+
+    private static HttpUrl baseUrl(String domain) {
+        HttpUrl base = HttpUrl.parse(domain);
+        if (base == null || !"https".equals(base.scheme()) || base.port() != 443
+                || !NGA_HOSTS.contains(base.host()) || !base.username().isEmpty()
+                || !base.password().isEmpty() || !"/".equals(base.encodedPath())
+                || base.query() != null || base.fragment() != null) {
+            throw new IllegalArgumentException("论坛地址无效");
+        }
+        return base;
+    }
+
+    private static Request request(HttpUrl url, String cookie, String userAgent) {
+        Request.Builder request = new Request.Builder().url(url)
                 .header("X-User-Agent", "Nga_Official");
         if (cookie != null && !cookie.isEmpty()) {
             request.header("Cookie", cookie);
@@ -210,7 +391,7 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
                 .contains("charset=")) {
             throw new PageException(RESPONSE_ERROR);
         }
-        // TOPIC.LIST's pinned lite=js representation defaults to GBK; explicit charset wins.
+        // Both pinned NGA representations default to GBK; an explicit charset wins.
         if (charset == null) {
             charset = Charset.forName("GBK");
         }
@@ -226,6 +407,14 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
 
     static ProfileSummaryLoader.Page parsePage(String raw, String uid, ProfileSummaryLoader.Kind kind)
             throws PageException {
+        List<ProfileSummaryInput.Entry> entries = new ArrayList<>();
+        for (Candidate candidate : parseCandidates(raw, uid, kind)) {
+            entries.add(candidate.entry);
+        }
+        return new ProfileSummaryLoader.Page(uid, kind, entries);
+    }
+
+    static JSONObject parseData(String raw) throws PageException {
         if (raw == null || raw.length() > MAX_RESPONSE_BYTES) {
             throw new PageException(RESPONSE_ERROR);
         }
@@ -251,6 +440,18 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
             if (data == null || data.containsKey("__MESSAGE")) {
                 throw new PageException(ACCESS_ERROR);
             }
+            return data;
+        } catch (PageException exception) {
+            throw exception;
+        } catch (RuntimeException ignored) {
+            throw new PageException(RESPONSE_ERROR);
+        }
+    }
+
+    private static List<Candidate> parseCandidates(String raw, String uid, ProfileSummaryLoader.Kind kind)
+            throws PageException {
+        try {
+            JSONObject data = parseData(raw);
             JSONObject rows = object(data.get("__T"));
             Object rowCount = data.get("__T__ROWS");
             if (rows == null || !(rowCount instanceof Number) || ((Number) rowCount).intValue() < 0) {
@@ -266,7 +467,7 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
             if (keys.isEmpty() && ((Number) rowCount).intValue() != 0) {
                 throw new PageException(RESPONSE_ERROR);
             }
-            List<ProfileSummaryInput.Entry> entries = new ArrayList<>();
+            List<Candidate> entries = new ArrayList<>();
             for (Integer index : keys) {
                 JSONObject row = object(rows.get(String.valueOf(index)));
                 if (row == null) {
@@ -295,13 +496,14 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
                 if (title.isEmpty()) {
                     throw new PageException(RESPONSE_ERROR);
                 }
-                entries.add(new ProfileSummaryInput.Entry(title, board(row),
-                        date(authored.get("postdate"), ZoneId.systemDefault()), reply));
+                String tid = kind == ProfileSummaryLoader.Kind.TOPICS ? positiveId(row.get("tid")) : null;
+                entries.add(new Candidate(tid, new ProfileSummaryInput.Entry(title, board(row),
+                        date(authored.get("postdate"), ZoneId.systemDefault()), reply)));
                 if (entries.size() == ProfileSummaryInput.MAX_ITEMS_PER_PAGE) {
                     break;
                 }
             }
-            return new ProfileSummaryLoader.Page(uid, kind, entries);
+            return entries;
         } catch (PageException exception) {
             throw exception;
         } catch (RuntimeException ignored) {
@@ -310,7 +512,7 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
         }
     }
 
-    private static boolean hasUnavailableMarker(JSONObject row) {
+    static boolean hasUnavailableMarker(JSONObject row) {
         if (row == null) {
             return false;
         }
@@ -320,12 +522,20 @@ public final class NgaProfilePageSource implements ProfileSummaryLoader.PageSour
                 || (error instanceof String && !((String) error).trim().isEmpty());
     }
 
-    private static JSONObject object(Object value) {
+    static JSONObject object(Object value) {
         return value instanceof JSONObject ? (JSONObject) value : null;
     }
 
-    private static String scalar(Object value) {
+    static String scalar(Object value) {
         return value instanceof String || value instanceof Number ? value.toString() : "";
+    }
+
+    static String positiveId(Object value) throws PageException {
+        String id = scalar(value);
+        if (!id.matches("[1-9][0-9]{0,18}")) {
+            throw new PageException(RESPONSE_ERROR);
+        }
+        return id;
     }
 
     private static String board(JSONObject row) {

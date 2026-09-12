@@ -1,0 +1,6 @@
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Existing AI configuration, transport, text, and cancellation contract; task PRD/design supersede its title-only, 800-character, and mandatory-citation clauses."}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"NGA response bounds, codec, source-backed operations, identity, and logging rules for new topic-body reads."}
+{"file":".trellis/spec/backend/nga-platform-operation-registry.md","reason":"Pinned TOPIC.LIST and THREAD.PAGE wire operations; do not invent body-fetch parameters or import reader fallback behavior."}
+{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"Preserve the existing session snapshot and dedicated profile transport; never mix NGA and provider credentials."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Device-independent Android validation and explicit device-operation boundaries."}
+{"file":".trellis/tasks/09-12-ai-profile-body-prompt/research/current-behavior.md","reason":"Verified current code paths, reference limitations, original-post fields, parser constraints, and the maintainer's 1200-character decision."}
