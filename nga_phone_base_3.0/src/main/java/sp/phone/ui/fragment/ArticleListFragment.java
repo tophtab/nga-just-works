@@ -3,6 +3,7 @@ package sp.phone.ui.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     protected ArticleListParam mRequestParam;
     private ThreadData mDisplayedData;
+    private String mDisplayedTopicOwner;
 
     private AiSummaryDialog mAiSummaryDialog;
 
@@ -127,7 +129,13 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                     FunctionUtils.createVoteDialog(row, getActivity(), mListView, mToast);
                     break;
                 case R.id.menu_ban_this_one:
+                    boolean wasBlacklisted = row.get_isInBlackList();
                     mPresenter.banThisSB(row);
+                    if (wasBlacklisted != row.get_isInBlackList()
+                            && mDisplayedData != null && mArticleAdapter != null) {
+                        int position = mDisplayedData.getRowList().indexOf(row);
+                        if (position >= 0) mArticleAdapter.notifyItemChanged(position);
+                    }
                     break;
                 case R.id.menu_show_this_person_only:
                     ARouter.getInstance()
@@ -391,6 +399,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         if (mArticleAdapter != null) mArticleAdapter.releaseWebViews();
         if (mListView != null) mListView.setAdapter(null);
         mDisplayedData = null;
+        mDisplayedTopicOwner = null;
         mArticleAdapter = null;
         if (mViewBindings != null) mViewBindings.unbind();
         mViewBindings = null;
@@ -486,7 +495,6 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
 
     private void renderData(ThreadData data) {
         ArticleShareViewModel viewModel = getReaderViewModel();
-        mDisplayedData = data;
         if (isResumed() && mRequestParam.title == null && data.getThreadInfo() != null) {
             getActivity().setTitle(data.getThreadInfo().getSubject());
         }
@@ -495,9 +503,15 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
             if (first.getLou() == 0 && ArticleRowPresentation.hasFloor(first)
                     && ArticleRowPresentation.hasUser(first)) viewModel.setTopicOwner(first.getAuthor());
         }
-        mArticleAdapter.setTopicOwner(viewModel.getTopicOwner().getValue());
-        mArticleAdapter.setData(data);
-        mArticleAdapter.notifyDataSetChanged();
+        String topicOwner = viewModel.getTopicOwner().getValue();
+        // READY delivery reuses this view's WebViews unless the response or OP label changed.
+        if (mDisplayedData != data || !TextUtils.equals(mDisplayedTopicOwner, topicOwner)) {
+            mDisplayedData = data;
+            mDisplayedTopicOwner = topicOwner;
+            mArticleAdapter.setTopicOwner(topicOwner);
+            mArticleAdapter.setData(data);
+            mArticleAdapter.notifyDataSetChanged();
+        }
         if (isResumed()) getActivity().invalidateOptionsMenu();
         if (mRequestParam.pid > 0 && !mRequestParam.loadCache
                 && viewModel.getReaderSession().state().pendingAnchor == null) {

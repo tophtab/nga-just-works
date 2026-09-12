@@ -635,6 +635,34 @@ that makes it visible is actually reachable.
 suppress long-press text selection: modern Chromium WebView handles the gesture
 in its content layer, outside the `View` long-click path.
 
+### Retained article page entry
+
+`ArticleListPresenter` redelivers READY data on resume, including a response
+already rendered by offscreen prefetch. In `ArticleListFragment`, reuse the
+body when the accepted response is the same instance as `mDisplayedData` for
+the current view and the displayed topic-owner value is unchanged. A newly
+discovered/changed topic owner still needs a rebind to update OP badges.
+Calling `notifyDataSetChanged()` on every unchanged entry causes full
+row binding and another `loadDataWithBaseURL()` for each body WebView, producing
+an unnecessary reload even though no page request was made.
+
+Keep foreground title/menu updates, topic-owner metadata and pending anchors
+independent of body binding. Validate reader/account/generation identity before
+reusing content. A new response must render even when its page number is the
+same. Use the displayed response as the view-lifetime marker: `mDeliveredData`
+can survive view destruction, but `mDisplayedData` must be cleared in
+`onDestroyView()` so `onViewCreated()` binds retained data into the new adapter.
+
+In-place row edits must publish their own update. For a blacklist toggle,
+notify only the clicked row after its flag changes, using its index in the
+currently displayed response. A stale menu whose row is no longer displayed
+must not rebind a replacement row. Do not rely on a later page resume to make
+the changed nickname badge visible.
+
+Review ordinary/cached resume, completed and in-flight prefetch, explicit
+refresh, view recreation and stale-generation rejection. Existing offline
+request/UI checks do not establish device-visible smoothness.
+
 ## Compatibility reader navigation and row presentation
 
 ### 1. Scope / Trigger

@@ -86,6 +86,12 @@ request.
   current source. An explicit
   refresh during `PREFETCHING` coalesces with the same in-flight request; if it
   fails while foreground, the normal foreground fallback begins.
+- READY delivery on resume must not force a full body rebind when that response
+  and its topic-owner metadata are already displayed in the surviving page
+  view. Keep the render decision
+  in the view owner so a recreated view still restores retained data. Preserve
+  foreground metadata/navigation and normal completion UI; see the
+  [retained article entry contract](../frontend/component-guidelines.md#retained-article-page-entry).
 - A repeated load/resume while `FOREGROUND_LOADING` leaves the request and its
   refresh indicator active. A `NONE` load decision is not proof that retained
   data is ready: redisplaying it through the success path would move the state
@@ -112,6 +118,8 @@ request.
 | Same page is already prefetching or loading | No duplicate request |
 | Old data remains during refresh; another load/resume arrives | Keep foreground loading; do not mark the old data ready |
 | Background prefetch succeeds | Store/render in that offscreen page and enter `READY` |
+| Enter a READY page with unchanged response/owner in its surviving view | Reuse body content; preserve foreground metadata/navigation |
+| Recreate a READY page's view | Bind retained data into the new adapter |
 | Background prefetch fails | Return to `IDLE`; no user-facing side effect |
 | Page enters during prefetch | Wait for and promote the same request |
 | Promoted prefetch fails while foreground | Start the existing foreground load/error chain |
