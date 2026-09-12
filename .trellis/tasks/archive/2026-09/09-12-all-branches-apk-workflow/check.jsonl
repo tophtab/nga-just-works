@@ -1,3 +1,3 @@
 {"file":".trellis/spec/backend/index.md","reason":"检查涉及的 Android/CI 规范入口。"}
 {"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查 ref、env、身份、产物与 GitHub 发布/清理的数据流；完整发布规范由检查代理直接读取以免自动注入截断。"}
-{"file":".trellis/tasks/09-12-all-branches-apk-workflow/research/ai-workflow-reference.md","reason":"核对 AI 复用、全分支隔离、名称碰撞与本次用户决策。"}
+{"file":".trellis/tasks/archive/2026-09/09-12-all-branches-apk-workflow/research/ai-workflow-reference.md","reason":"核对 AI 复用、全分支隔离、名称碰撞与本次用户决策。"}

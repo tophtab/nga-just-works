@@ -3,7 +3,7 @@
   "name": "all-branches-apk-workflow",
   "title": "所有分支自动构建 APK",
   "description": "复用 AI 分支的预览版命名与发布方案，将 APK 构建扩展到所有分支，并同步现有分支的公共 CI 配置。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": "backend",
   "scope": "ci",
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "toph",
   "assignee": "toph",
   "createdAt": "2026-09-12",
-  "completedAt": null,
+  "completedAt": "2026-09-12",
   "branch": "feature/thread-detail-compat-mode",
   "base_branch": "main",
   "worktree_path": "/home/toph/nga-just-works-compat-mode",
@@ -47,6 +47,6 @@
         "method": "parallel work already merged the same public commit; verified exact tree equality with isolated preparation"
       }
     },
-    "delivery_record": ".trellis/tasks/09-12-all-branches-apk-workflow/delivery.md"
+    "delivery_record": ".trellis/tasks/archive/2026-09/09-12-all-branches-apk-workflow/delivery.md"
   }
 }
