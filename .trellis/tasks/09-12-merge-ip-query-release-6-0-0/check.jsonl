@@ -1,0 +1,9 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Full-scope backend contract discovery"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Full-scope UI contract discovery"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Compilation, unit/lint checks, no local APK/device operations, and main-push handoff policy"}
+{"file": ".trellis/spec/backend/author-profile-location-contract.md", "reason": "IP integration and offline regression coverage"}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Network/data boundary review"}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "USER.PROFILE route contract"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Lifecycle integration and metadata ordering"}
+{"file": ".trellis/spec/backend/thread-page-prefetch-contract.md", "reason": "Shared successful-page delivery behavior"}
+{"file": ".trellis/spec/frontend/loading-usage-tips-contract.md", "reason": "Remove stale disabled-feature assumptions"}

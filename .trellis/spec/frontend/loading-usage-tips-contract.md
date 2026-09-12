@@ -10,8 +10,8 @@ WebView/media placeholders, or Compose private-message spinners.
 
 Tips describe already reachable features in local Chinese resources. They are
 passive instructions, with no remote copy, quotations, new gestures, or required
-display duration. Automatic author-location queries are disabled on main;
-the separate experiment has different foreground requirements. See the
+display duration. Automatic author-location enrichment also processes accepted
+offscreen page deliveries, independently of foreground-only tip selection. See the
 [author-location contract](../backend/author-profile-location-contract.md).
 
 ## 2. Signatures

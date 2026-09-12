@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Active Android/network contracts"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Compilation, unit/lint checks, no local APK/device operations, and main-push handoff policy"}
+{"file": ".trellis/spec/backend/author-profile-location-contract.md", "reason": "IP queue/parser/cache/lifecycle integration"}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Network identity, offline fixtures, privacy boundaries"}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "USER.PROFILE route and compatibility"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Metadata ordering and lifecycle-safe adapter binding"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Delivery-to-repository-to-adapter flow"}

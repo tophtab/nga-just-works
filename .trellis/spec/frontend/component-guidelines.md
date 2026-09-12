@@ -598,12 +598,13 @@ topic list fragments, or their toolbars.
 
 ## Article author metadata
 
-On main, thread-floor detail shows post count alone; automatic author-location
-queries are disabled, and level/reputation no longer appear there. The separate
-`experiment/auto-ip-query` branch retains public profile IP metadata. Follow the
-[author-location contract](../backend/author-profile-location-contract.md) for
-the main integration boundary and the retained helper behavior. Any experimental
-async metadata must use generation/author/holder-checked payloads that only bind
+Thread-floor detail shows post count before the known public profile IP
+location (`发帖：123   IP 属地：广东`), or post count alone; level/reputation
+no longer appear there. The value describes the latest profile observation,
+not a historical reply's posting location.
+Follow the [author-location contract](../backend/author-profile-location-contract.md)
+for per-delivered-page fetching, account/cache boundaries, and lifecycle cleanup.
+Async metadata uses generation/author/holder-checked payloads that only bind
 `tv_detail`; never reload body WebViews through a full-list notification.
 
 ## Initial-loading usage tips

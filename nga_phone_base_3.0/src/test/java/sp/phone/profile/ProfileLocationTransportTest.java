@@ -50,8 +50,8 @@ public class ProfileLocationTransportTest {
     }
 
     @Test
-    public void actualClientDoesNotRepeat503WithZeroRetryAfterAndPreserves429Metadata() throws Exception {
-        for (int status : new int[]{503, 429}) {
+    public void actualClientReadsWebProfilesDoesNotRepeat503AndPreserves429Metadata() throws Exception {
+        for (int status : new int[]{200, 503, 429}) {
             AtomicInteger requests = new AtomicInteger();
             String retryAfter = status == 429 ? "3600" : "0";
             try (ServerSocket server = new ServerSocket(0, 2, InetAddress.getByAddress(new byte[]{127, 0, 0, 1}))) {
@@ -67,8 +67,8 @@ public class ProfileLocationTransportTest {
                                     // Consume the local fixture's request without retaining/logging headers.
                                 }
                                 int code = requests.incrementAndGet() == 1 ? status : 200;
-                                byte[] body = (code == 503 ? "/*$js$*/<html>验证</html>" : "")
-                                        .getBytes(Charset.forName("GBK"));
+                                byte[] body = (code == 200 ? fixtureHtml()
+                                        : code == 503 ? "<html>验证</html>" : "").getBytes(Charset.forName("GBK"));
                                 String wire = "HTTP/1.1 " + code + " Offline fixture\r\n"
                                         + "Retry-After: " + retryAfter + "\r\n"
                                         + "Content-Length: " + body.length + "\r\nConnection: close\r\n\r\n";
@@ -92,9 +92,13 @@ public class ProfileLocationTransportTest {
                         assertEquals("3600", response.header("Retry-After"));
                         assertEquals(now + 3_600_000L,
                                 ProfileLocationTransport.readResponse(response, 42, now).retryAt);
-                    } else {
+                    } else if (status == 503) {
                         assertEquals(ProfileLocationResult.Kind.SESSION_REJECTED,
                                 ProfileLocationTransport.readResponse(response, 42, now).kind);
+                    } else {
+                        ProfileLocationResult result = ProfileLocationTransport.readResponse(response, 42, now);
+                        assertEquals(ProfileLocationResult.Kind.SUCCESS, result.kind);
+                        assertEquals("广东", result.location);
                     }
                 } finally {
                     client.connectionPool().evictAll();
@@ -106,7 +110,7 @@ public class ProfileLocationTransportTest {
     }
 
     @Test
-    public void requestUsesOnlyTheImmutableSnapshotAndEstablishedProfileRoute() throws Exception {
+    public void requestUsesOnlyTheImmutableSnapshotAndWebProfileRoute() throws Exception {
         AtomicReference<Request> captured = new AtomicReference<>();
         AtomicReference<ProfileLocationResult> result = new AtomicReference<>();
         CountDownLatch done = new CountDownLatch(1);
@@ -125,8 +129,8 @@ public class ProfileLocationTransportTest {
         Request request = captured.get();
         assertNotNull(request);
         assertEquals("GET", request.method());
-        assertEquals("https://bbs.nga.cn/nuke.php?__lib=ucp&__act=get&lite=js&noprefix&uid=42", request.url().toString());
-        assertEquals("https://bbs.nga.cn/nuke.php?func=ucp&lite=jsx&uid=42", request.header("Referer"));
+        assertEquals("https://bbs.nga.cn/nuke.php?func=ucp&uid=42", request.url().toString());
+        assertEquals("https://bbs.nga.cn/nuke.php?func=ucp&uid=42", request.header("Referer"));
         assertEquals("ngaPassportUid=7; ngaPassportCid=fixture-session", request.header("Cookie"));
         assertEquals("Fixture UA", request.header("User-Agent"));
         assertEquals("Nga_Official", request.header("X-User-Agent"));
@@ -142,9 +146,17 @@ public class ProfileLocationTransportTest {
             assertEquals(ProfileLocationResult.Kind.SESSION_REJECTED,
                     ProfileLocationTransport.readResponse(response, 42, now).kind);
         }
-        assertEquals(ProfileLocationResult.Kind.FAILURE,
-                ProfileLocationTransport.readResponse(response(request(), 503,
-                        ResponseBody.create(null, new byte[0])), 42, now).kind);
+    }
+
+    @Test
+    public void serviceUnavailableStopsWithoutDependingOnAnErrorBody() throws IOException {
+        for (ResponseBody body : new ResponseBody[]{
+                null, ResponseBody.create(null, new byte[0]), fixtureBody(),
+                ResponseBody.create(null, new byte[]{(byte) 0x81}),
+                unreadableBody(1), unreadableBody(ProfileLocationTransport.MAX_RESPONSE_BYTES + 1L)}) {
+            assertEquals(ProfileLocationResult.Kind.SESSION_REJECTED,
+                    ProfileLocationTransport.readResponse(response(request(), 503, body), 42, now).kind);
+        }
     }
 
     @Test
@@ -171,10 +183,11 @@ public class ProfileLocationTransportTest {
                 ProfileLocationTransport.readResponse(response(request(), 200,
                         unreadableBody(ProfileLocationTransport.MAX_RESPONSE_BYTES + 1)), 42, now).kind);
         Buffer bytes = new Buffer();
+        bytes.write(fixtureHtml().getBytes(Charset.forName("GBK")));
         bytes.write(new byte[ProfileLocationTransport.MAX_RESPONSE_BYTES + 100]);
         AtomicInteger closed = new AtomicInteger();
         ResponseBody streaming = new ResponseBody() {
-            @Override public MediaType contentType() { return MediaType.parse("application/json"); }
+            @Override public MediaType contentType() { return MediaType.parse("text/html"); }
             @Override public long contentLength() { return -1; }
             @Override public BufferedSource source() { return bytes; }
             @Override public void close() { closed.incrementAndGet(); super.close(); }
@@ -202,6 +215,16 @@ public class ProfileLocationTransportTest {
                 ProfileLocationTransport.readResponse(response(request(), 503, challenge503), 42, now).kind);
     }
 
+    @Test
+    public void non200StatusCannotTurnAWebProfileIntoSuccess() throws IOException {
+        for (int code : new int[]{201, 500, 502, 504}) {
+            try (Response response = response(request(), code, fixtureBody())) {
+                assertEquals(ProfileLocationResult.Kind.FAILURE,
+                        ProfileLocationTransport.readResponse(response, 42, now).kind);
+            }
+        }
+    }
+
     private static Request request() {
         return new Request.Builder().url("https://bbs.nga.cn/nuke.php").build();
     }
@@ -212,8 +235,12 @@ public class ProfileLocationTransportTest {
     }
 
     private static ResponseBody fixtureBody() {
-        return ResponseBody.create(MediaType.parse("text/javascript; charset=GBK"),
-                "{\"data\":{\"0\":{\"uid\":42,\"ipLoc\":\"广东\"}}}".getBytes(Charset.forName("GBK")));
+        return ResponseBody.create(MediaType.parse("text/html; charset=GBK"), fixtureHtml().getBytes(Charset.forName("GBK")));
+    }
+
+    private static String fixtureHtml() {
+        return "<!doctype html><html><head><title>Fixture profile</title></head><body>"
+                + "<script>__UCPUSER = {\"uid\":42,\"ipLoc\":\"广东\"};</script></body></html>";
     }
 
     private static ResponseBody unreadableBody(long size) {

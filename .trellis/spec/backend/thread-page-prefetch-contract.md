@@ -99,11 +99,15 @@ request.
   Reuse retained data only when the state actually permits ready-data reuse.
 - Prefetched data lives only in the page Fragment/presenter inside the current
   topic Activity. Do not persist it or share it across topics or activities.
-- Main disables automatic author-location queries. Normal page delivery and
-  offscreen prefetch must not start supplemental `USER.PROFILE` requests.
-  The separate `experiment/auto-ip-query` branch retains that enrichment; see
-  the [author-location contract](./author-profile-location-contract.md).
-  This separation does not change page selection, retention, or loading tips.
+- Successful normal and offscreen-prefetched page deliveries submit their
+  accepted authors to the shared supplementary `USER.PROFILE` repository
+  independently, without waiting for other pages. Keep its serialized 500 ms
+  pacing, cache/account boundaries, and HTTP 503 session stop from the
+  [author-location contract](./author-profile-location-contract.md).
+  Saved-page and retained-view replays remain cache-only. Enrichment does not
+  change page selection, retention, or foreground-only loading-tip selection.
+  `SHOW_READY_DATA` is a display replay, not another page response: preserve
+  the view's existing location consumer instead of replacing its subscription.
 
 ## 4. Validation & Error Matrix
 

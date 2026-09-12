@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  */
 public final class AuthorLocationRepository {
 
-    static final long REQUEST_INTERVAL_MILLIS = 1000L;
+    static final long REQUEST_INTERVAL_MILLIS = 500L;
 
     public interface Cancellation {
         void cancel();
@@ -306,7 +306,7 @@ public final class AuthorLocationRepository {
             return;
         }
         inFlight = null;
-        // Keep one quiet second after every physical call, including failure/cancellation.
+        // Keep the full pacing interval after every physical call, including failure/cancellation.
         // This app-wide deadline survives page and account changes; wall-clock edits cannot
         // shorten it. Waiting after completion also avoids bursts after a slow connection.
         nextRequestAt = AuthorLocationCache.addTime(elapsedClock.getAsLong(), REQUEST_INTERVAL_MILLIS);

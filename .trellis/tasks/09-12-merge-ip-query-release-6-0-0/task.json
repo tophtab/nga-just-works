@@ -1,0 +1,29 @@
+{
+  "id": "merge-ip-query-release-6-0-0",
+  "name": "merge-ip-query-release-6-0-0",
+  "title": "合并 IP 查询分支到 main",
+  "description": "合并 experiment/auto-ip-query，恢复自动属地补全，完成检查、提交、Trellis 归档及 main 推送；按后续要求暂缓发布 6.0.0。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-12",
+  "completedAt": null,
+  "branch": "main",
+  "base_branch": "main",
+  "worktree_path": "/home/toph/nga-just-works",
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Stable release deferred. User explicitly requested continuing edits directly on main; this task has no PR. Preserve unstaged AI WIP and the parallel reader task's separate code/archive/journal commits on main.",
+  "meta": {
+    "direct_main_integration": true,
+    "validated_product_tree": "151737f3029ceac5b869dd1bdf332ba844af49cb"
+  }
+}

@@ -204,6 +204,7 @@ public final class AuthorLocationService {
         private final AuthorLocationService service;
         private final MutableLiveData<Delivery> updates = new MutableLiveData<>();
         private AuthorLocationRepository.Subscription subscription;
+        private ThreadData lastDeliveredData;
         private long generation;
         private boolean closed;
 
@@ -211,11 +212,20 @@ public final class AuthorLocationService {
             this.service = service;
         }
 
-        /** Called for each successful page delivery, not holder binding or visibility changes. */
+        /** Accepts fresh page data; READY replays only restore the current metadata. */
         public void deliver(ThreadData data, boolean online) {
             if (closed) {
                 return;
             }
+            if (data != null && data == lastDeliveredData) {
+                // Keep the original subscription's online/cache-only intent and pending work.
+                Delivery previous = updates.getValue();
+                if (previous != null && previous.generation == generation) {
+                    updates.setValue(previous);
+                }
+                return;
+            }
+            lastDeliveredData = data;
             long version = ++generation;
             long signal = service.sessionSignal;
             if (subscription != null) {
@@ -250,6 +260,7 @@ public final class AuthorLocationService {
         @Override
         public void close() {
             closed = true;
+            lastDeliveredData = null;
             generation++;
             if (subscription != null) {
                 subscription.close();

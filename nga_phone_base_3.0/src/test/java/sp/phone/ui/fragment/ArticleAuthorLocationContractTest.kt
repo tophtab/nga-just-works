@@ -15,20 +15,92 @@ class ArticleAuthorLocationContractTest {
     private fun source(path: String) = File(root, "nga_phone_base_3.0/src/main/$path").readText()
 
     @Test
-    fun mainReaderDoesNotStartAutomaticAuthorProfileQueries() {
+    fun successfulPageDeliveryEnrichesIndependentlyAndRetainedViewRebindingIsCacheOnly() {
         val fragment = source("java/sp/phone/ui/fragment/ArticleListFragment.java")
         val delivery = fragment.substringAfter("public void setData(ThreadData data)")
             .substringBefore("private void renderData")
         assertTrue(delivery.contains("getView() == null"))
-        assertTrue(delivery.contains("renderData(data)"))
+        assertTrue(delivery.contains("mAuthorLocations == null"))
+        assertTrue(delivery.contains("mAuthorLocations.deliver(data, !mRequestParam.loadCache)"))
+        assertTrue(delivery.indexOf("mDeliveredData = data") < delivery.indexOf("getView() == null"))
+        assertTrue(delivery.indexOf("getView() == null") < delivery.indexOf("renderData(data)"))
+        assertTrue(delivery.indexOf("renderData(data)") < delivery.indexOf("mAuthorLocations.deliver(data,"))
         assertFalse(delivery.contains("RESUMED"))
         assertFalse(delivery.contains("getCurrentFragment"))
         assertFalse(delivery.contains("getPrefetchPages"))
-        assertFalse(fragment.contains("AuthorLocationService"))
-        assertFalse(fragment.contains("mAuthorLocations"))
+        assertTrue(fragment.contains("AuthorLocationService.bind(getContext(), getViewLifecycleOwner()"))
         val rebind = fragment.substringAfter("public void onViewCreated(View view, Bundle savedInstanceState)")
             .substringBefore("public void onDestroyView()")
         assertTrue(rebind.contains("renderData(mDeliveredData)"))
+        assertTrue(rebind.contains("mAuthorLocations.deliver(mDeliveredData, false)"))
+        assertTrue(rebind.indexOf("renderData(mDeliveredData)") <
+            rebind.indexOf("mAuthorLocations.deliver(mDeliveredData, false)"))
+        val destroy = fragment.substringAfter("public void onDestroyView()")
+            .substringBefore("private void applyReplyFabClearance")
+        assertTrue(destroy.contains("mAuthorLocations.close()"))
+        assertTrue(destroy.contains("mAuthorLocations = null"))
+        assertTrue(destroy.contains("mDisplayedData = null"))
+        assertFalse(destroy.contains("mDeliveredData = null"))
+    }
+
+    @Test
+    fun readyResumeReplaysRestoreCurrentMetadataWithoutReplacingThePageSubscription() {
+        val presenter = source("java/sp/phone/mvp/presenter/ArticleListPresenter.java")
+        val resume = presenter.substringAfter("@Override protected void onResume()")
+            .substringBefore("@Override protected void onDestroy()")
+        assertTrue(resume.contains("requestForegroundLoad(false)"))
+        val ready = presenter.substringAfter("SHOW_READY_DATA && mThreadData != null) {")
+            .substringBefore("if (decision ==")
+        assertTrue(ready.contains("showData(mThreadData)"))
+        val show = presenter.substringAfter("private void showData(ThreadData data)")
+            .substringBefore("private void finishError")
+        assertTrue(show.contains("mBaseView.setData(data)"))
+
+        val fragment = source("java/sp/phone/ui/fragment/ArticleListFragment.java")
+        val delivery = fragment.substringAfter("public void setData(ThreadData data)")
+            .substringBefore("private void renderData")
+        assertTrue(delivery.contains("mAuthorLocations.deliver(data, !mRequestParam.loadCache)"))
+
+        val service = source("java/sp/phone/profile/AuthorLocationService.java")
+        val pageDelivery = service.substringAfter("public void deliver(ThreadData data, boolean online)")
+            .substringBefore("@Override")
+        val replayGuard = "if (data != null && data == lastDeliveredData) {"
+        val replayIndex = pageDelivery.indexOf(replayGuard)
+        assertTrue(replayIndex >= 0)
+        assertTrue(pageDelivery.indexOf("if (closed)") in 0 until replayIndex)
+        assertTrue(pageDelivery.substringBefore(replayGuard).contains("return;"))
+        assertTrue(replayIndex < pageDelivery.indexOf("lastDeliveredData = data"))
+        val replay = pageDelivery.substringAfter(replayGuard)
+            .substringBefore("lastDeliveredData = data")
+        assertTrue(replay.contains("Delivery previous = updates.getValue()"))
+        assertTrue(replay.contains("previous != null && previous.generation == generation"))
+        assertTrue(replay.contains("updates.setValue(previous)"))
+        assertTrue(replay.contains("return;"))
+        // No new epoch/consumer: pending first delivery and cache-only intent survive READY replay.
+        for (sideEffect in listOf("++generation", "subscription.close()", "whenSessionSettled(",
+            "repository.", "new Delivery(", "ArticleAuthorIds.fromPage(")) {
+            assertFalse(replay.contains(sideEffect))
+            val effectIndex = pageDelivery.indexOf(sideEffect)
+            assertTrue(effectIndex > replayIndex)
+        }
+    }
+
+    @Test
+    fun nullDeliveryAlwaysClearsReplayIdentityAndCloseReleasesTheResponse() {
+        val service = source("java/sp/phone/profile/AuthorLocationService.java")
+        val page = service.substringAfter("public static final class Page")
+        val delivery = page.substringAfter("public void deliver(ThreadData data, boolean online)")
+            .substringBefore("@Override")
+        assertTrue(page.contains("private ThreadData lastDeliveredData;"))
+        assertTrue(delivery.contains("if (data != null && data == lastDeliveredData)"))
+        val replacement = delivery.substringAfter("lastDeliveredData = data;")
+        assertTrue(replacement.contains("long version = ++generation"))
+        assertTrue(replacement.contains("subscription.close()"))
+        assertTrue(replacement.contains("new Delivery(version, AuthorLocationRepository.Snapshot.empty())"))
+        assertTrue(replacement.contains("service.repository.subscribe(authors, online,"))
+        val close = page.substringAfter("public void close()")
+        assertTrue(close.contains("lastDeliveredData = null"))
+        assertTrue(close.indexOf("lastDeliveredData = null") < close.indexOf("subscription.close()"))
     }
 
     @Test
@@ -47,7 +119,7 @@ class ArticleAuthorLocationContractTest {
     }
 
     @Test
-    fun staleReaderDataCannotBeRetainedOrRendered() {
+    fun staleReaderDataCannotBeRetainedRenderedOrUsedForAuthorRequests() {
         val fragment = source("java/sp/phone/ui/fragment/ArticleListFragment.java")
         val delivery = fragment.substringAfter("public void setData(ThreadData data)")
             .substringBefore("private void renderData")
@@ -55,6 +127,7 @@ class ArticleAuthorLocationContractTest {
         assertTrue(acceptance >= 0)
         assertTrue(acceptance < delivery.indexOf("mDeliveredData = data"))
         assertTrue(acceptance < delivery.indexOf("renderData(data)"))
+        assertTrue(acceptance < delivery.indexOf("mAuthorLocations.deliver(data,"))
 
         val validation = fragment.substringAfter("private boolean isCurrentData(ThreadData data)")
             .substringBefore("public void setData(ThreadData data)")
@@ -68,9 +141,11 @@ class ArticleAuthorLocationContractTest {
             .substringBefore("public void onDestroyView()")
         assertTrue(rebind.contains("if (isCurrentData(mDeliveredData))"))
         assertTrue(rebind.indexOf("isCurrentData(mDeliveredData)") < rebind.indexOf("renderData(mDeliveredData)"))
+        assertTrue(rebind.indexOf("isCurrentData(mDeliveredData)") < rebind.indexOf("mAuthorLocations.deliver(mDeliveredData, false)"))
         val invalidation = fragment.substringAfter("viewModel.getReaderState().observe(this, state ->")
             .substringBefore("consumePendingAnchor();")
         assertTrue(invalidation.contains("mDeliveredData = null"))
+        assertTrue(invalidation.contains("mAuthorLocations.deliver(null, false)"))
         assertTrue(invalidation.contains("mArticleAdapter.setData(null)"))
     }
 
@@ -119,12 +194,8 @@ class ArticleAuthorLocationContractTest {
     }
 
     @Test
-    fun supplementalTransportDoesNotReuseTheUiTaskAndBothProfileReadersShareWrappers() {
+    fun supplementalTransportDoesNotReuseTheUiTaskOrItsLoggingSideEffects() {
         val transport = source("java/sp/phone/profile/ProfileLocationTransport.java")
-        val task = source("java/sp/phone/task/JsonProfileLoadTask.java")
-        val parser = source("java/sp/phone/profile/ProfileLocationParser.java")
-        assertTrue(task.contains("ProfileEnvelopeParser.parse(js)"))
-        assertTrue(parser.contains("ProfileEnvelopeParser.parse(source)"))
         assertFalse(transport.contains("JsonProfileLoadTask"))
         assertFalse(transport.contains("RetrofitHelper"))
         assertFalse(transport.contains("NLog"))
