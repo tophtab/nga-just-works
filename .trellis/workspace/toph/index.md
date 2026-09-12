@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 68
+- **Total Sessions**: 69
 - **Last Active**: 2026-09-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1790 | Active |
+| `journal-1.md` | ~1812 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 69 | 2026-09-12 | 恢复阅读刷新与属地显示稳定性 | `ee4556f889f1f14c886e413e1f7d65e7b336062d` | `main` |
 | 68 | 2026-09-12 | 收尾 AI 模型列表兼容回退 | `6212a0b63103816465381cbe712f65fafc5aee12` | `main` |
 | 67 | 2026-09-12 | 合并 IP 查询分支到 main | `2a2e479c771e7ef99459715bdfacdd7f1688b0ad` | `main` |
 | 66 | 2026-09-12 | 修复主题翻页重复渲染 | `16cc185b` | `main` |

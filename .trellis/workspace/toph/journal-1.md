@@ -1788,3 +1788,25 @@ No remaining in-scope implementation or validation work.
 ### Status
 
 [OK] **Completed**
+
+
+## Session 69: 恢复阅读刷新与属地显示稳定性
+<!-- trellis-session: v=2 fp=2b25a1762e557f27 -->
+
+**Date**: 2026-09-12
+**Task**: 恢复阅读刷新与属地显示稳定性
+**Branch**: `main`
+
+### Summary
+
+Restore same-page body WebView retention while preserving real content updates and lifecycle cleanup. Keep valid IP locations visible through subscription handoff, skip unchanged text assignments, and cancel synchronous close/null subscriptions before dispatch. Independent review passed; debug build and 677 JVM tests passed; all 13 lint reports contain zero Error/Fatal. All 1198 selected build inputs remained unchanged. No device or live NGA validation was performed. Task archived; user authorized push to origin/main.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `ee4556f889f1f14c886e413e1f7d65e7b336062d` | fix(reader): preserve bodies and author locations on refresh |
+
+### Status
+
+[OK] **Completed**
