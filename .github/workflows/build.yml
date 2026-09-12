@@ -2,7 +2,7 @@ name: Build and Publish Android
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
     tags: ["*.*.*"]
     paths-ignore:
       - ".trellis/**"
@@ -11,13 +11,27 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref == 'refs/heads/main' }}
-
 jobs:
-  build-and-publish:
+  ref-identity:
     runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      ref_key: ${{ steps.ref.outputs.ref_key }}
+    steps:
+      - name: Derive publication ref key
+        id: ref
+        run: |
+          set -euo pipefail
+          # GitHub concurrency groups ignore case; hash the exact full ref first.
+          ref_digest="$(printf '%s' "$GITHUB_REF" | sha256sum)"
+          printf 'ref_key=%s\n' "${ref_digest%% *}" >> "$GITHUB_OUTPUT"
+
+  build-and-publish:
+    needs: ref-identity
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ needs.ref-identity.outputs.ref_key }}
+      cancel-in-progress: ${{ startsWith(github.ref, 'refs/heads/') }}
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v4
@@ -29,6 +43,9 @@ jobs:
         id: release
         run: |
           set -euo pipefail
+          asset_suffix=""
+          preview_tag_prefix=""
+          legacy_preview_tag_prefix=""
 
           if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == refs/tags/* ]]; then
             if [[ ! "$GITHUB_REF_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -44,7 +61,7 @@ jobs:
             gradle_tasks="verifyReleaseTag :nga_phone_base_3.0:assembleRelease"
             apk_dir=release
             expected_debuggable=false
-          else
+          elif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == refs/heads/* ]]; then
             stable_base=""
             while IFS= read -r candidate; do
               if [[ "$candidate" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -62,12 +79,34 @@ jobs:
             build_slot=$((commit_distance + 1))
             short_sha="${GITHUB_SHA:0:12}"
             version_name="${stable_base}-debug.${GITHUB_RUN_NUMBER}"
-            release_tag="debug-${short_sha}"
+            preview_tag_prefix="debug-"
+            legacy_preview_tag_prefix="preview-"
             release_title="NGA Just Works ${version_name} (Debug)"
+            if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+              branch_name="${GITHUB_REF#refs/heads/}"
+              branch_slug="$(printf '%s' "$branch_name" | LC_ALL=C tr -c 'A-Za-z0-9._-' '-' | cut -c 1-80)"
+              if [[ ! "$branch_slug" =~ [A-Za-z0-9] ]]; then
+                branch_slug="branch"
+              fi
+              branch_digest="$(printf '%s' "$branch_name" | sha256sum)"
+              asset_suffix="-${branch_slug}"
+              # The original-name digest isolates slugs that normalize or truncate alike.
+              # Keep branch tags outside the namespaces cleaned by older main workflows.
+              preview_tag_prefix="branch-${branch_slug}-${branch_digest:0:12}-"
+              legacy_preview_tag_prefix=""
+              if [[ "$GITHUB_REF" == "refs/heads/feature/ai-summary" ]]; then
+                legacy_preview_tag_prefix="branch-feature-ai-summary-"
+              fi
+              release_title="NGA Just Works ${version_name} (Debug, ${branch_name})"
+            fi
+            release_tag="${preview_tag_prefix}${short_sha}"
             prerelease=true
             gradle_tasks=":nga_phone_base_3.0:assemblePreview"
             apk_dir=preview
             expected_debuggable=true
+          else
+            echo "Unsupported publication event/ref: $GITHUB_EVENT_NAME $GITHUB_REF" >&2
+            exit 1
           fi
 
           version_code="$(python3 scripts/derive_android_version_code.py "$version_base" "$build_slot")"
@@ -82,6 +121,9 @@ jobs:
             echo "gradle_tasks=$gradle_tasks"
             echo "apk_dir=$apk_dir"
             echo "expected_debuggable=$expected_debuggable"
+            echo "asset_suffix=$asset_suffix"
+            echo "preview_tag_prefix=$preview_tag_prefix"
+            echo "legacy_preview_tag_prefix=$legacy_preview_tag_prefix"
           } >> "$GITHUB_OUTPUT"
 
       - name: Setup Java
@@ -99,7 +141,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          cache-read-only: ${{ steps.release.outputs.prerelease != 'true' || steps.release.outputs.asset_suffix != '' }}
           cache-cleanup: on-success
 
       - name: Restore release keystore
@@ -126,90 +168,112 @@ jobs:
           ./gradlew "${gradle_tasks[@]}" --no-daemon
 
       - name: Verify and stage APK
+        env:
+          APK_DIR: ${{ steps.release.outputs.apk_dir }}
+          EXPECTED_DEBUGGABLE: ${{ steps.release.outputs.expected_debuggable }}
+          ASSET_SUFFIX: ${{ steps.release.outputs.asset_suffix }}
         run: |
           set -euo pipefail
           app_version="$CI_VERSION_NAME"
           mapfile -t source_apks < <(
-            find "nga_phone_base_3.0/build/outputs/apk/${{ steps.release.outputs.apk_dir }}" \
+            find "nga_phone_base_3.0/build/outputs/apk/${APK_DIR}" \
               -maxdepth 1 -type f -name '*.apk' ! -name '*unsigned*' -print
           )
           test "${#source_apks[@]}" -eq 1
           source_apk="${source_apks[0]}"
           mkdir -p dist
-          release_apk="dist/NGA-Just-Works-${app_version}.apk"
+          release_apk="dist/NGA-Just-Works-${app_version}${ASSET_SUFFIX}.apk"
           cp "$source_apk" "$release_apk"
           test "$(apkanalyzer manifest application-id "$release_apk")" = "com.github.tophtab.ngajustworks"
           test "$(apkanalyzer manifest version-name "$release_apk")" = "$app_version"
           test "$(apkanalyzer manifest version-code "$release_apk")" = "$CI_VERSION_CODE"
           test "$(apkanalyzer manifest min-sdk "$release_apk")" = "29"
           test "$(apkanalyzer manifest target-sdk "$release_apk")" = "35"
-          test "$(apkanalyzer manifest debuggable "$release_apk")" = "${{ steps.release.outputs.expected_debuggable }}"
+          test "$(apkanalyzer manifest debuggable "$release_apk")" = "$EXPECTED_DEBUGGABLE"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$release_apk"
           (cd dist && sha256sum "$(basename "$release_apk")" > "$(basename "$release_apk").sha256")
 
       - name: Create GitHub Release
+        id: publish
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/') || startsWith(github.ref, 'refs/tags/'))
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_TITLE: ${{ steps.release.outputs.title }}
+          PRERELEASE: ${{ steps.release.outputs.prerelease }}
         run: |
           set -euo pipefail
           test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 2
           (cd dist && sha256sum -c ./*.sha256)
-          if [[ "${{ steps.release.outputs.prerelease }}" == "true" ]]; then
-            release_tag="${{ steps.release.outputs.tag }}"
+          if [[ "$PRERELEASE" == "true" ]]; then
             existing_tag_sha="$(
-              gh api "repos/${GITHUB_REPOSITORY}/git/matching-refs/tags/${release_tag}" \
-                --jq ".[] | select(.ref == \"refs/tags/${release_tag}\") | .object.sha"
+              gh api "repos/${GITHUB_REPOSITORY}/git/matching-refs/tags/${RELEASE_TAG}" |
+                jq -r --arg tag "refs/tags/${RELEASE_TAG}" '.[] | select(.ref == $tag) | .object.sha'
             )"
             if [[ -n "$existing_tag_sha" ]]; then
               test "$existing_tag_sha" = "$GITHUB_SHA"
             fi
             release_id="$(
-              gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" \
-                --jq ".[] | select(.tag_name == \"${release_tag}\") | .id"
+              gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" |
+                jq -r --arg tag "$RELEASE_TAG" '.[] | select(.tag_name == $tag) | .id'
             )"
             if [[ -n "$release_id" ]]; then
-              test "$(gh api "repos/${GITHUB_REPOSITORY}/releases/${release_id}" --jq '.prerelease')" = "true"
+              existing_prerelease="$(gh api "repos/${GITHUB_REPOSITORY}/releases/${release_id}" --jq '.prerelease')"
+              test "$existing_prerelease" = "true"
               gh api --method PATCH "repos/${GITHUB_REPOSITORY}/releases/${release_id}" \
-                -f name="${{ steps.release.outputs.title }}" \
+                -f name="$RELEASE_TITLE" \
                 -f target_commitish="$GITHUB_SHA" \
                 -F prerelease=true >/dev/null
-              gh release upload "$release_tag" dist/* \
+              gh release upload "$RELEASE_TAG" dist/* \
                 --repo "$GITHUB_REPOSITORY" \
                 --clobber
             else
-              gh release create "$release_tag" dist/* \
+              gh release create "$RELEASE_TAG" dist/* \
                 --repo "$GITHUB_REPOSITORY" \
                 --target "$GITHUB_SHA" \
-                --title "${{ steps.release.outputs.title }}" \
+                --title "$RELEASE_TITLE" \
                 --generate-notes \
                 --prerelease
             fi
           else
             release_notes="release-notes/${GITHUB_REF_NAME}.md"
             python3 scripts/validate_release_notes.py "$release_notes"
-            gh release create "${{ steps.release.outputs.tag }}" dist/* \
+            gh release create "$RELEASE_TAG" dist/* \
               --repo "$GITHUB_REPOSITORY" \
-              --title "${{ steps.release.outputs.title }}" \
+              --title "$RELEASE_TITLE" \
               --notes-file "$release_notes" \
               --verify-tag
           fi
 
-      - name: Remove older debug prereleases
-        if: steps.release.outputs.prerelease == 'true'
+      - name: Remove older channel prereleases
+        if: steps.publish.outcome == 'success' && steps.release.outputs.prerelease == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          CURRENT_DEBUG_TAG: ${{ steps.release.outputs.tag }}
+          CURRENT_PRERELEASE_TAG: ${{ steps.release.outputs.tag }}
+          PREVIEW_TAG_PREFIX: ${{ steps.release.outputs.preview_tag_prefix }}
+          LEGACY_PREVIEW_TAG_PREFIX: ${{ steps.release.outputs.legacy_preview_tag_prefix }}
         run: |
           set -euo pipefail
+          test -n "$PREVIEW_TAG_PREFIX"
           old_tags="$(
             gh api --paginate "repos/${GITHUB_REPOSITORY}/releases" \
-                --jq '.[] | select(.prerelease == true and ((.tag_name | startswith("preview-")) or (.tag_name | startswith("debug-")))) | .tag_name'
+              --jq '.[] | select(.prerelease == true) | .tag_name'
           )"
           while IFS= read -r old_tag; do
-            if [[ -n "$old_tag" && "$old_tag" != "$CURRENT_DEBUG_TAG" ]]; then
-              gh release delete "$old_tag" \
-                --repo "$GITHUB_REPOSITORY" \
-                --cleanup-tag \
-                --yes
+            if [[ -z "$old_tag" || "$old_tag" == "$CURRENT_PRERELEASE_TAG" ]]; then
+              continue
             fi
+            if [[ "$old_tag" == "$PREVIEW_TAG_PREFIX"* ]]; then
+              old_sha="${old_tag#"$PREVIEW_TAG_PREFIX"}"
+            elif [[ -n "$LEGACY_PREVIEW_TAG_PREFIX" && "$old_tag" == "$LEGACY_PREVIEW_TAG_PREFIX"* ]]; then
+              old_sha="${old_tag#"$LEGACY_PREVIEW_TAG_PREFIX"}"
+            else
+              continue
+            fi
+            # An exact SHA suffix protects unrelated tags and longer shared prefixes.
+            [[ "$old_sha" =~ ^[0-9a-f]{12}$ ]] || continue
+            gh release delete "$old_tag" \
+              --repo "$GITHUB_REPOSITORY" \
+              --cleanup-tag \
+              --yes
           done <<< "$old_tags"
