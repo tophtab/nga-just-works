@@ -1688,3 +1688,35 @@ No remaining in-scope implementation or validation work.
 ### Status
 
 [OK] **Completed**
+
+
+## Session 66: 修复主题翻页重复渲染
+<!-- trellis-session: v=2 fp=8600a1267f257179 -->
+
+**Date**: 2026-09-12
+**Task**: 修复主题翻页重复渲染
+**Branch**: `main`
+
+### Summary
+
+已加载页面按响应实例和楼主信息复用正文，修复翻页重复绑定；与并行属地补全修改的联合验证通过。
+
+### Main Changes
+
+- 保留标题、菜单、楼层定位和视图重建；黑名单切换只更新对应楼层。
+- 仅提交翻页补丁和对应规范，保留另一任务暂存内容及进行中的合并。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `16cc185b` | fix(reader): preserve rendered content when switching pages |
+
+### Testing
+
+- [OK] Debug 构建、633 项全仓单测及 13 模块 lint 通过，0 Error/Fatal；1198 个验证输入保持一致。
+- [OK] 按项目策略未运行设备测试；主动刷新仍可能重新加载正文。
+
+### Status
+
+[OK] **Completed**
