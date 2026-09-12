@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_show_with_app_api">帖子详情兼容模式</string>
-    <string name="summary_show_with_app_api">普通方式无法解析帖子时，尝试兼容方式阅读。仅影响帖子详情，默认关闭。</string>
+    <string name="summary_show_with_app_api">普通方式无法解析帖子时，尝试兼容方式阅读。</string>
 
     <string name="app_name">NGA Just Works</string>
     <string name="menu_login">登录</string>
