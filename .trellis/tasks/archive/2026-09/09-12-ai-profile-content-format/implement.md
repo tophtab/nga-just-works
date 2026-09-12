@@ -39,13 +39,23 @@
   evidence. Full-scope review passed without findings or further code changes;
   see `independent-check.md`.
 - [x] Update the AI-summary compatibility contract and task validation report.
-- [ ] Commit the verified work and merge the correction into main; verify the
-  merged product tree matches the checked tree, rerunning affected checks if
-  integration changes code.
-- [ ] After the correction is present in main, archive the completed task and
-  record the journal, then bring main forward to include that bookkeeping.
-- [ ] Present the commit, merge, and validation results. Separate release
-  publication and device operations remain outside the authorized scope.
+- [x] Commit the verified work and merge the correction into main. Main was
+  fast-forwarded to `3b38ce9a25aeb82e6141b5b836890085472fd48e`; its tree exactly
+  matches the reviewed work commit. No integration code changes were needed.
+  See `delivery.md` for the resumed-session verification.
+
+## Finish-work sequence
+
+Product acceptance criteria AC1-AC7 are satisfied. The finish-work commands
+record the remaining delivery bookkeeping in this order:
+
+1. Archive this completed task and record the session journal.
+2. Fast-forward main to the resulting archive and journal commits; verify that
+   only Trellis records differ from the checked work commit and both worktrees
+   are clean.
+3. Normally push main, verify the remote ref, and present the repair commit,
+   integration result, and validation limits. Separate release publication and
+   device operations remain outside the authorized scope.
 
 ## Validation commands
 
