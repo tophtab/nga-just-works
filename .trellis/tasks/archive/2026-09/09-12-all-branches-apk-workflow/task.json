@@ -1,0 +1,52 @@
+{
+  "id": "all-branches-apk-workflow",
+  "name": "all-branches-apk-workflow",
+  "title": "所有分支自动构建 APK",
+  "description": "复用 AI 分支的预览版命名与发布方案，将 APK 构建扩展到所有分支，并同步现有分支的公共 CI 配置。",
+  "status": "completed",
+  "dev_type": "backend",
+  "scope": "ci",
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-12",
+  "completedAt": "2026-09-12",
+  "branch": "feature/thread-detail-compat-mode",
+  "base_branch": "main",
+  "worktree_path": "/home/toph/nga-just-works-compat-mode",
+  "commit": "8ceb57d9e73dd1476cea32ecd21175451c3818bd",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".github/workflows/build.yml",
+    "scripts/test_release_workflow.py",
+    "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/ReleaseWorkflowContractTest.kt",
+    "README.md",
+    ".trellis/spec/backend/android-quality-guidelines.md"
+  ],
+  "notes": "2026-09-12: user approved implementation with 开始 and already authorized commit, finish-work and push. Public CI, full verification and independent review passed; all 3 remaining local branches contain the reviewed workflow. Main independently merged the source CI commit; AI rollout uses latest committed baseline 5288e895 and preserves new README acknowledgements. Unrelated main Trellis/loading-tip work remains untouched; deleted IP branch is not restored.",
+  "meta": {
+    "rollout": {
+      "feature/thread-detail-compat-mode": {
+        "base_commit": "dade93ac12504f4664fd6853dc44850a89f3a91d",
+        "public_ci_commit": "8ceb57d9e73dd1476cea32ecd21175451c3818bd",
+        "method": "reviewed public source commit"
+      },
+      "feature/ai-summary": {
+        "base_commit": "5288e89513c81193ea160e8c15daedd74caac459",
+        "public_ci_commit": "dc601c9390979b0a35e367156e0af58634448f0e",
+        "method": "isolated cherry-pick followed by fast-forward; preserve latest README acknowledgements"
+      },
+      "main": {
+        "base_commit": "081746b2d6c314102e563c395400eef1992c1571",
+        "public_ci_commit": "8ceb57d9e73dd1476cea32ecd21175451c3818bd",
+        "integration_commit": "b918b4a4181d0b189c19a7671be65d00535bb787",
+        "method": "parallel work already merged the same public commit; verified exact tree equality with isolated preparation"
+      }
+    },
+    "delivery_record": ".trellis/tasks/archive/2026-09/09-12-all-branches-apk-workflow/delivery.md"
+  }
+}

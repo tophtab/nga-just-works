@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"仓库后端与 Android 构建规范入口。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"核对 branch ref、身份输出、文件名、GitHub API 与清理边界的数据流。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"复用 AI 分支发布实现，并识别扩展全分支后的缺口。"}
+{"file":".trellis/tasks/archive/2026-09/09-12-all-branches-apk-workflow/research/ai-workflow-reference.md","reason":"固定 AI 来源、全分支新增边界和用户对旧白名单的明确取代。"}
