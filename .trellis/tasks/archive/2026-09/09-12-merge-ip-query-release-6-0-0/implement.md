@@ -62,6 +62,17 @@
 Archive status and the developer journal record the local finish-work result.
 The final push result is reported after those bookkeeping commits are created.
 
+## Merge result
+
+Committed the real merge on main as
+`2a2e479c771e7ef99459715bdfacdd7f1688b0ad`, with first parent
+`2239e4d39c856f270bd3d2259c97cd94365f527c` and source parent
+`f5bcec31202635a5992d4fbf81537c71c93a86d4`. The 18 product paths match the
+validated snapshot; the work commit also records this task's nine artifacts.
+Verified both branch histories and the independent reader commit are in main
+ancestry. All six original shared/AI working-file hashes are preserved; the
+three AI files and their separate task remain unstaged after the merge.
+
 ## Evidence and boundaries
 
 See `research/implementation-verification.md` for implementation commands and
