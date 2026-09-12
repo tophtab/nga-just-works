@@ -1,0 +1,39 @@
+{
+  "id": "release-6-0-0-preparation",
+  "name": "release-6-0-0-preparation",
+  "title": "6.0.0 发布准备与发布",
+  "description": "整理 6.0.0 发布说明并衔接已验证的 main 提交；用户已授权发布，完成 main 推送后推送 6.0.0 标签，复用已有验证结果。",
+  "status": "in_progress",
+  "dev_type": "docs",
+  "scope": "release",
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-12",
+  "completedAt": null,
+  "branch": "main",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "release-notes/6.0.0.md",
+    ".trellis/tasks/09-12-release-6-0-0-preparation/prd.md",
+    ".trellis/tasks/09-12-release-6-0-0-preparation/research/release-context.md",
+    ".trellis/tasks/09-12-release-6-0-0-preparation/release-ready.md"
+  ],
+  "notes": "Documentation-only preparation on main, without a PR. The maintainer authorized all preparation, waived repeated checks, and then explicitly said 可以发布了！. Reuse the reader-refresh-stability gate; push main before creating/pushing the exact 6.0.0 tag. Archive with --skip-branch-validation because branch and base_branch are intentionally main.",
+  "meta": {
+    "release_version": "6.0.0",
+    "publication_authorized": true,
+    "repeat_validation": false,
+    "preparation_authorized": true,
+    "preparation_commit_push_authorized": true,
+    "reader_fix_commit": "ee4556f8",
+    "prior_validation_record": ".trellis/tasks/archive/2026-09/09-12-reader-refresh-stability/validation.md"
+  }
+}
