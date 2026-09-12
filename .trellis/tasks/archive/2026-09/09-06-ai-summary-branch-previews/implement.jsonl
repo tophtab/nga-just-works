@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"Active Android release contracts and spec ownership."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Signing/version/publication invariants; use focused static checks and CI packaging."}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Extend the existing publication path and keep naming/cleanup consistent."}
+{"file":".trellis/tasks/09-06-ai-summary-branch-previews/research/publication-boundary.md","reason":"Confirmed branch state, narrow implementation boundary, and namespace isolation design."}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="ai_settings_endpoint"
+        android:persistent="false"
+        android:summary="@string/ai_settings_endpoint_hint"
+        android:title="@string/ai_settings_endpoint_title" />
+
+    <!-- A plain Preference opens a transient password editor. EditTextPreference
+         can save its text to the Fragment state even with persistent=false. -->
+    <Preference
+        android:key="ai_settings_api_key"
+        android:persistent="false"
+        android:summary="@string/ai_settings_key_empty"
+        android:title="@string/ai_settings_key_title" />
+
+    <Preference
+        android:key="ai_settings_model"
+        android:persistent="false"
+        android:summary="@string/ai_settings_model_hint"
+        android:title="@string/ai_settings_model_title" />
+
+    <Preference
+        android:key="ai_settings_profile_prompt"
+        android:persistent="false"
+        android:summary="@string/ai_settings_profile_prompt_roast"
+        android:title="@string/ai_settings_profile_prompt_title" />
+
+    <Preference
+        android:key="ai_settings_test"
+        android:persistent="false"
+        android:summary="@string/ai_settings_test_summary"
+        android:title="@string/ai_settings_test_title" />
+
+</PreferenceScreen>

@@ -40,9 +40,7 @@
 
 ## AI 功能
 
-以下功能已在
-[`feature/ai-summary`](https://github.com/tophtab/nga-just-works/tree/feature/ai-summary)
-分支实现，尚未合入主分支。体验时请在 GitHub Releases 中选择标题包含该分支名的预览版。
+以下功能已合入主分支，可在设置中配置 AI 服务后使用。
 
 - 楼层总结 — 在楼层菜单一键总结当前楼层，自动附带帖子标题、楼层号与作者。
 - 用户分析（AI 查成分）— 基于用户近期公开主题与回复，分析兴趣、观点和发言风格。
@@ -59,13 +57,15 @@
 
 **其他 NGA 客户端** — 功能与交互设计的参考
 
-- [nga_harmony](https://github.com/apap6628114/nga_harmony) — HarmonyOS ArkTS 客户端，AI 功能设计的主要参考
+- [lnga_harmony](https://github.com/apap6628114/lnga_harmony) — HarmonyOS ArkTS 客户端，AI 功能与论坛锐评提示词设计参考
 - [MNGA](https://github.com/BugenZhao/MNGA)
 - [NGNGA](https://github.com/PoiScript/NGNGA)
 - [NgaLite](https://github.com/fhyxz001/NgaLite)
 - [open-nga](https://github.com/mlzzen/open-nga)
 
 **AI相关**
+
+- [nga-analyzer](https://github.com/noer25/nga-analyzer) — 详细分析提示词设计参考
 - [LINUX DO 社区](https://linux.do/)
 - 给 AI 立规矩的开源框架：[trellis](https://github.com/mindfold-ai/Trellis)
 

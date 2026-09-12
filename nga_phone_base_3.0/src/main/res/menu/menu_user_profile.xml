@@ -3,6 +3,12 @@
       xmlns:androidnga="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_ai_summary"
+        android:title="@string/ai_summary_profile_title"
+        android:visible="false"
+        androidnga:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_send_message"
         android:icon="@drawable/btn_ic_mail"
         android:title="@string/menu_send_msg"
@@ -32,4 +38,3 @@
 
 
 </menu>
-

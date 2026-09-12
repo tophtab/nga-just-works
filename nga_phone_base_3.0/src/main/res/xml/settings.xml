@@ -147,4 +147,9 @@
     <PreferenceScreen
         android:title="实验室" android:fragment="sp.phone.ui.fragment.SettingsLabFragment"/>
 
+    <PreferenceScreen
+        android:fragment="sp.phone.ui.fragment.SettingsAiFragment"
+        android:key="pref_ai_settings"
+        android:title="@string/ai_settings_title" />
+
 </PreferenceScreen>

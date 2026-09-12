@@ -27,7 +27,6 @@
 
 [OK] **Completed**
 
-
 ## Session 2: 发布 NGA Just Works 4.3.0
 
 **Date**: 2026-07-26
@@ -49,7 +48,6 @@
 
 [OK] **Completed**
 
-
 ## Session 3: Optimize Android CI release
 
 **Date**: 2026-07-26
@@ -70,7 +68,6 @@ Tag releases now reuse the exact successful same-SHA main APK, documentation-onl
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 4: Publish NGA Just Works 4.5.0
 
@@ -102,7 +99,6 @@ Bumped the Android release metadata to 4.5.0, published the signed tag release, 
 
 [OK] **Completed**
 
-
 ## Session 5: Native NGA account login
 
 **Date**: 2026-07-26
@@ -124,7 +120,6 @@ Added native account/password and CAPTCHA login, retained a controlled Web fallb
 
 [OK] **Completed**
 
-
 ## Session 6: Simplify Android release and add main previews
 
 **Date**: 2026-07-26
@@ -145,7 +140,6 @@ Changed Android publishing to create a signed prerelease on eligible main pushes
 
 [OK] **Completed**
 
-
 ## Session 7: Publish debuggable Android prerelease
 
 **Date**: 2026-07-26
@@ -165,7 +159,6 @@ Published CI-signed production-ID Debug prereleases with debug naming, preview b
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 8: Restore Justwen multi-account Web login
 
@@ -188,7 +181,6 @@ Restored the Room-backed multi-account chooser and controlled NGA Web login flow
 
 [OK] **Completed**
 
-
 ## Session 9: Bootstrap original NGA platform contracts
 
 **Date**: 2026-07-26
@@ -208,7 +200,6 @@ Derived the NGA platform operation contracts exclusively from untouched Justwen 
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 10: Restore original Justwen login
 
@@ -231,7 +222,6 @@ Restored the pinned Justwen full WebView/Passport Cookie login, removed the aban
 
 [OK] **Completed**
 
-
 ## Session 11: Update About Page Project Information
 
 **Date**: 2026-07-27
@@ -251,7 +241,6 @@ Removed the two legacy QQ groups from the About page, added the upstream-derived
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 12: Absorb Android Device Gate Evidence
 
@@ -273,7 +262,6 @@ Reviewed the pending foundation check-results update, corrected an inaccurate cl
 
 [OK] **Completed**
 
-
 ## Session 13: Article page tab reselect scroll-to-top
 
 **Date**: 2026-07-27
@@ -293,7 +281,6 @@ Added current-page tab reselect handling so article content scrolls to the first
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 14: Refine settings categories
 
@@ -315,7 +302,6 @@ Regrouped settings into domain and account, appearance, notifications, and other
 
 [OK] **Completed**
 
-
 ## Session 15: Home drawer edge navigation
 
 **Date**: 2026-07-27
@@ -335,7 +321,6 @@ Added a home-only menu icon and reliable left-edge drawer dragging without break
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 16: Fix About screen status-bar overlap
 
@@ -357,7 +342,6 @@ Applied idempotent Android status-bar insets to the legacy MaterialAboutActivity
 
 [OK] **Completed**
 
-
 ## Session 17: Favorite pager boundary drawer
 
 **Date**: 2026-07-27
@@ -378,7 +362,6 @@ Replaced the 24dp home drawer edge gesture with a non-consuming favorite-pager l
 
 [OK] **Completed**
 
-
 ## Session 18: 重建 Git 历史并保留上游贡献
 
 **Date**: 2026-07-27
@@ -398,7 +381,6 @@ Replaced the 24dp home drawer edge gesture with a non-consuming favorite-pager l
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 19: Clarify favorite board navigation
 
@@ -431,7 +413,6 @@ Separated local board-bookmark terminology from server-side topic favorites and 
 
 [OK] **Completed**
 
-
 ## Session 20: 默认跳过 ADB 真机测试
 
 **Date**: 2026-07-27
@@ -451,7 +432,6 @@ Separated local board-bookmark terminology from server-side topic favorites and 
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 21: 收藏页跟手拖拽侧栏
 
@@ -473,7 +453,6 @@ Separated local board-bookmark terminology from server-side topic favorites and 
 
 [OK] **Completed**
 
-
 ## Session 22: Customize article text selection menu
 
 **Date**: 2026-07-27
@@ -493,7 +472,6 @@ Limited native article text selection to Copy, Select all, and Search; delegated
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 23: Release 4.10.0
 
@@ -517,7 +495,6 @@ Published signed stable 4.10.0 with the native text-selection menu and adaptive 
 
 [OK] **Completed**
 
-
 ## Session 24: Publish 4.10.0 with structured changelog
 
 **Date**: 2026-07-27
@@ -538,7 +515,6 @@ Backfilled the 4.9.0 Release body; added validated versioned Added/Removed/Fixed
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 25: Merge release workflow Gradle invocations and settle parallel execution
 
@@ -561,7 +537,6 @@ Collapsed each publication job to one Gradle invocation: stable now resolves ver
 
 [OK] **Completed**
 
-
 ## Session 26: WebView 正文选词菜单接管
 
 **Date**: 2026-07-28
@@ -582,7 +557,6 @@ Collapsed each publication job to one Gradle invocation: stable now resolves ver
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 27: 表情分类内拖拽排序
 
@@ -665,7 +639,6 @@ Collapsed each publication job to one Gradle invocation: stable now resolves ver
 
 - 无（真机验收通过，任务已归档）
 
-
 ## Session 29: 图片域名自动模式与页面级服务端图床
 
 **Date**: 2026-08-08
@@ -686,7 +659,6 @@ Collapsed each publication job to one Gradle invocation: stable now resolves ver
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 30: 5.3.2 图片域名自动模式发布收尾
 
@@ -716,7 +688,6 @@ Collapsed each publication job to one Gradle invocation: stable now resolves ver
 
 - 无（等待 GitHub Actions 按 5.3.2 tag 自动构建正式 Release）
 
-
 ## Session 31: Trellis 日志清理收尾
 
 **Date**: 2026-08-08
@@ -745,7 +716,6 @@ Collapsed each publication job to one Gradle invocation: stable now resolves ver
 
 - 无
 
-
 ## Session 32: Restore minSdk 29 compatibility
 
 **Date**: 2026-08-10
@@ -767,7 +737,6 @@ Restored Android 10/API 29 installation support while keeping compile/target SDK
 
 [OK] **Completed**
 
-
 ## Session 33: 首页栏次顺序与自定义排序
 
 **Date**: 2026-08-10
@@ -787,7 +756,6 @@ Restored Android 10/API 29 installation support while keeping compile/target SDK
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 34: 主题与板块页固定 FAB 与主题刷新
 
@@ -809,7 +777,6 @@ Restored Android 10/API 29 installation support while keeping compile/target SDK
 
 [OK] **Completed**
 
-
 ## Session 35: 完成主题页预读取与父任务集成
 
 **Date**: 2026-08-10
@@ -829,7 +796,6 @@ Restored Android 10/API 29 installation support while keeping compile/target SDK
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 36: Clear inherited Android lint errors
 
@@ -851,7 +817,6 @@ Cleared the 11 inherited app lint errors without changing runtime WebView layout
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 37: Move article refresh to page long press
 
@@ -883,7 +848,6 @@ Removed the article overflow refresh item and added guarded periodic refresh whi
 
 [OK] **Completed**
 
-
 ## Session 38: Tune article long-press refresh interval
 
 **Date**: 2026-08-10
@@ -912,7 +876,6 @@ Changed the selected-page long-press repeat interval from 3 seconds to 5 seconds
 
 [OK] **Completed**
 
-
 ## Session 39: Clear repository Android lint errors
 
 **Date**: 2026-08-10
@@ -934,7 +897,6 @@ Replaced ConfirmDialog context!! with requireContext(), verified all 13 Android 
 
 [OK] **Completed**
 
-
 ## Session 40: Release 5.5.0
 
 **Date**: 2026-08-10
@@ -954,7 +916,6 @@ Replaced ConfirmDialog context!! with requireContext(), verified all 13 Android 
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 41: Optimize Android checkout and versionCode
 
@@ -976,7 +937,6 @@ Optimized Android workflow checkout with tag shallow clones and blobless partial
 
 [OK] **Completed**
 
-
 ## Session 42: 修复系统导航栏与深色模式显示
 
 **Date**: 2026-08-16
@@ -996,7 +956,6 @@ Optimized Android workflow checkout with tag shallow clones and blobless partial
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 43: Complete dark mode text color adaptation
 
@@ -1018,7 +977,6 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 [OK] **Completed**
 
-
 ## Session 44: 完成个人资料页深色模式配色
 
 **Date**: 2026-08-16
@@ -1039,7 +997,6 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 [OK] **Completed**
 
-
 ## Session 45: 有导航键时恢复侧滑返回
 
 **Date**: 2026-08-23
@@ -1059,7 +1016,6 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 46: 修复侧滑返回黑屏并发布 5.5.3
 
@@ -1082,7 +1038,6 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 [OK] **Completed**
 
-
 ## Session 47: 长按发帖按钮刷新当前页
 
 **Date**: 2026-08-23
@@ -1102,7 +1057,6 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 ### Status
 
 [OK] **Completed**
-
 
 ## Session 48: 修复历史缓存旧图床图片失效并完成收尾
 <!-- trellis-session: v=2 fp=4bb4b20b4d704b77 -->
@@ -1138,6 +1092,44 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 - 创建并推送 5.6.1 修复版本，等待 GitHub Actions 完成正式构建。
 
+## Session 49: 完成 BYOK AI 设置与上下文总结
+<!-- trellis-session: v=2 fp=2dbb23332e5c40ad -->
+
+**Date**: 2026-09-06
+**Task**: 完成 BYOK AI 设置与上下文总结
+**Branch**: `main`
+
+### Summary
+
+接续用户指定会话并完成 07-25-nga-android-advanced：AI 设置、楼层总结、资料页用户总结；经一次性确认后提交代码、规范和继承研究，再归档任务。
+
+### Main Changes
+
+- 实现独立 AI 二级设置、Keystore 加密配置、无 NGA Cookie 的单次 Chat Completions 请求；两个总结入口共用可取消弹窗和对象绑定控制器。
+- 补齐限定首屏资料读取、字符集与输入上限、暂停/刷新取消和超时回归；同步 AI 规范、已批准任务范围、六份继承研究与验收记录。
+- 任务直接在 main 上完成且没有独立 PR 分支，使用脚本的 --skip-branch-validation 本地任务选项归档；39 项无关 Trellis 改动按哈希核对并保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `edd69f219d7a07bf78278eea4f66eb5934dc4fc5` | feat(android): add BYOK AI settings and contextual summaries |
+| `de31004a4db9aae4c75bc5b2c6e4370d62bab050` | docs(ai): record summary contracts and task verification |
+
+### Testing
+
+- [OK] App JVM：228 项通过，0 failure/error/skip；Debug App 与 Android 测试 APK 构建成功。
+- [OK] 13 个 Android 模块 lint XML 均为 0 Error/Fatal。仓库诊断仅保留已记录的 lib_bu_statistics JUnit 和 lib_module_debug KAPT 示例测试失败。
+- [OK] 独立审查通过；AAPT2 两种资源链接模式均生成 SettingsAiFragment 类名与构造保留规则。
+- [OK] 设备测试 not run per project policy；未查询 ADB、安装或运行 instrumentation，未调用真实 NGA/模型服务，也未发布或推送。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 本任务已完成并归档，无本任务待办。
 
 ## Session 50: 验证本地发布签名并同步双分支知识
 <!-- trellis-session: v=2 fp=0285283ce18d9307 -->
@@ -1178,6 +1170,83 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 - 签名验证已完成；私有存储与双分支最终推送状态见后续收尾记录。
 
+## Session 51: 验证本地发布签名并同步双分支知识
+<!-- trellis-session: v=2 fp=614828c71b2a336f -->
+
+**Date**: 2026-09-06
+**Task**: 验证本地发布签名并同步双分支知识
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+完成 AI 分支的签名构建与保留数据覆盖安装，确认本地发布签名可用，并将签名位置、使用方法和验证结果同步到 main 与 feature/ai-summary。本轮按维护者要求直接处理，未创建 Trellis 任务。
+
+### Main Changes
+
+- 本地签名位于 ~/.config/nga-just-works/signing/：nga-just-works-release.p12 与 credentials.env；记录公开证书指纹和四项环境变量名称，未提交签名文件或密码。
+- feature/ai-summary 的 c52e045c 为该分支增加签名 APK Actions 产物（保留 7 天），限制 Release 发布和旧预览清理只在原发布流程执行；该工作流改动保留在功能分支。
+- 新增 local-android-signing.md 并接入 backend 索引与 Android 质量规范。仅将通用文档提交 cherry-pick 到两个分支，各自追加日志，AI 功能保持分支隔离。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c52e045c658815cfb8dbc423b316c48401149d94` | ci(android): upload signed AI summary branch APKs |
+| `141c7f4ff53f182203d5ba9e9341666d0050afb9` | docs(android): record local signing and recovery |
+
+### Testing
+
+- [OK] workflow 的 actionlint 语法与表达式检查通过；按维护者要求未等待或监控 GitHub 构建。
+- [OK] keytool 验证本地 PKCS#12 私钥项和存储密码；本地 assemblePreview 成功，apksigner 确认原安装包、本地签名和新 APK 证书一致。
+- [OK] 实际构建源为 feature/ai-summary@c52e045c，生成 5.6.1-debug.6（versionCode 50601006）；经明确授权使用 Windows ADB 在小米 24129PN74C / API 35 覆盖安装成功。
+- [OK] 覆盖安装后版本正确，应用 ID、数据目录、首次安装时间保持不变。此次仅验证签名、构建和安装，未启动 App 或进行真实 NGA/AI 服务联调。
+- [OK] 通用文档的相对链接、空白、Shell 示例语法检查通过，确认未包含实际密码；本次收尾为文档变更，未重新构建 APK 或检查 Trellis 运行时。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 签名验证已完成；私有存储与双分支最终推送状态见后续收尾记录。
+
+## Session 52: AI summary branch prereleases
+<!-- trellis-session: v=2 fp=6d83b5df5261a7bb -->
+
+**Date**: 2026-09-06
+**Task**: AI summary branch prereleases
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Synced the AI summary branch with main and replaced expiring Actions artifacts with branch-labelled GitHub prereleases.
+
+### Main Changes
+
+- Merged the Trellis 0.6.16 main update without rewriting feature history; preserved concurrent signing documentation and journal commits.
+- Published preview metadata now uses branch-specific tags and APK filenames, with successful-publication gating and isolated old-release cleanup.
+- Added offline workflow regression tests and synchronized the download guidance and signed-release contract.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `87e096e2` | Merge main into feature/ai-summary |
+| `3ed2a4d1` | ci(android): publish branch-labelled preview releases |
+
+### Testing
+
+- [OK] 26 Python tests passed, including 15 workflow tests covering actual Bash scripts with local Git/APK fixtures and mocked GitHub API results.
+- [OK] actionlint 1.7.12 with ShellCheck 0.11.0, YAML/Bash syntax, Python compilation, and git diff --check passed; independent Trellis review passed.
+- [OK] All 39 imported Trellis files matched main, and all 22 changed runtime Python files compiled.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- GitHub Actions builds and signs the branch APK after the workflow-change push; download the branch-labelled prerelease from GitHub Releases after publication.
 
 ## Session 53: 完成私有签名存储与双分支收尾
 <!-- trellis-session: v=2 fp=8c0b6365e8a84b89 -->
@@ -1218,6 +1287,100 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 - 本次签名存储与文档收尾已完成。本轮没有新增构建、设备操作或 CI 监控；日志随本轮提交推送同步。
 
+## Session 54: 完成私有签名存储与双分支收尾
+<!-- trellis-session: v=2 fp=e7c04116960fcf68 -->
+
+**Date**: 2026-09-06
+**Task**: 完成私有签名存储与双分支收尾
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+完成私有签名存储，更新通用签名规范并保存原会话构建、签名和覆盖安装证据；文档已同步并推送到 main 与 feature/ai-summary。本轮按维护者要求不创建任务，仅完成文档和日志收尾，没有修改应用代码。
+
+### Main Changes
+
+- 已创建并推送私有仓库 https://github.com/tophtab/nga-just-works-signing，签名材料提交 95bcbc08261517c3922f2429e234f5594bdad77e；保存原始 .p12 与配套 credentials.env，仓库 Actions 已关闭。
+- 更新 local-android-signing.md、backend 索引和签名质量约定，记录本地路径、私有存储位置、公开证书和使用方法；按维护者要求移除换电脑迁移及待选择备份介质的说明。
+- 构建与安装证据已整理为 [2026-09-06 签名验证记录](reports/2026-09-06-local-signing.md)，保留实际源提交、APK 版本与哈希、签名和数据保留检查，并区分历史验证与本轮操作。
+- 公共文档提交已分别推送：main@87961c47、feature/ai-summary@f1cdf4b9；通过远端分支读取确认。功能分支原有发布流程提交和日志均保留。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f1cdf4b96675af3ed470743e0b4a366ba33cab43` | docs(android): finalize signing storage and verification |
+
+### Testing
+
+- [OK] 复核原会话证据：feature/ai-summary@c52e045c 的 assemblePreview 构建成功，APK 为 5.6.1-debug.6 / 50601006，签名与原安装包一致。
+- [OK] 复核原会话安装证据：Windows ADB 覆盖安装返回 Success，版本正确，应用 ID、数据目录和首次安装时间保持不变。
+- [OK] 本轮验证私有仓库 owner/visibility，重新克隆后两个签名文件与原件逐字节一致；克隆的私钥项、存储密码及证书验证通过。
+- [OK] 文档相对链接、Bash 示例语法、空白和公开提交中的签名敏感数据核对通过；远端两个分支的文档提交已确认。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 本次签名存储与文档收尾已完成。本轮没有新增构建、设备操作或 CI 监控；日志随本轮提交推送同步。
+
+## Session 55: 精简 AI 设置并更新个人资料入口
+<!-- trellis-session: v=2 fp=35619367c263b361 -->
+
+**Date**: 2026-09-11
+**Task**: 精简 AI 设置并更新个人资料入口
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Completed AI settings simplification, HTTP support, automatic model discovery with custom fallback, toolbar Save, and the profile-only AI查成分 label. Final source/resource review and 122 focused tests passed. The app unit run passed 259 of 263 tests; four unchanged release-workflow assertions remain baseline failures. Authorized LAN model discovery returned 149 models and the short connection test succeeded; credentials were not persisted. User stopped further local builds and authorized commit, finish-work, and feature-branch push. Full evidence is in the archived task validation.md.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `39b27d49` | feat(ai): simplify settings and discover models |
+
+### Status
+
+[OK] **Completed**
+
+## Session 56: Fix AI profile unavailable activity parsing
+<!-- trellis-session: v=2 fp=a82ab1f8c484fa5b -->
+
+**Date**: 2026-09-11
+**Task**: Fix AI profile unavailable activity parsing
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Fixed repeatable profile author mismatches caused by unavailable NGA activity placeholders.
+
+### Main Changes
+
+- Skip explicit nonblank string denied/error markers on activity rows and nested replies before normal author/content checks; preserve the accepted-item cap and whole-page errors.
+- Add seven parser regressions and one partial-availability loader regression; document the observed wire behavior in the AI summary contract.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1931bc35` | fix(ai): skip unavailable profile activity |
+
+### Testing
+
+- [OK] Four authorized first-page NGA reads established the mixed-availability response shape; bounded offline inspection confirmed valid authors and reply bodies on remaining synthetic rows.
+- [OK] Independent source/spec review and git diff --check passed. No local Gradle, compilation, JVM tests, lint, APK assembly, device work, or model requests were run for this repair.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Push feature/ai-summary and inspect the existing remote preview build; that workflow does not execute the new JVM regressions.
 
 ## Session 57: 帖子楼层菜单与缓存交互修复
 <!-- trellis-session: v=2 fp=099a334debb29d87 -->
@@ -1252,6 +1415,61 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 [OK] **Completed**
 
+## Session 58: Refine profile composition prompt and evidence
+<!-- trellis-session: v=2 fp=69f4a250acecd887 -->
+
+**Date**: 2026-09-11
+**Task**: Refine profile composition prompt and evidence
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Changed AI profile analysis to qualitative interests, expressed views, discussion style, evidence, synthesis, and tags with general deadpan black humor.
+
+### Main Changes
+
+- Adapted the user-supplied analyzer reference to five concise plain-text sections without scoring, using evidence-grounded humor and explicit quote/context attribution.
+- Added retained sample counts and independent topic/reply evidence identifiers; extended existing tests for capped immutable inputs, null entries, partial samples, and content isolation.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9cf43a82` | feat(ai): improve profile composition prompt |
+
+### Testing
+
+- [OK] Independent source/spec review and git diff --check passed. Updated JVM tests were not executed; model output and tone adherence were not evaluated.
+- [OK] No local builds, Gradle, compilation, lint, APK/device work, credential access, model/NGA calls, or remote CI queries were performed.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Push feature/ai-summary without querying or waiting for remote build results, per the user instruction.
+
+## Session 59: Streaming AI summaries and folded reasoning
+<!-- trellis-session: v=2 fp=ab705db1271651b0 -->
+
+**Date**: 2026-09-12
+**Task**: Streaming AI summaries and folded reasoning
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+Implemented streamed profile and floor summaries, initially folded reasoning, complete answer-only copy, exact reply-body prompt guidance, and the final shared max_tokens 10000 choice. Fixed partial-content loss around timeout, UTF-8 errors, protocol-prefix buffering, and choice selection. Independent full-scope static review, XML/source checks, and secret isolation passed. The user-requested no-cap GLM probe completed in 49.05 seconds with 2680 input and 3876 output tokens and a 617-character reply; no separate reasoning-token count was recorded. JVM tests, lint, Android builds, device operations, and workflow inspection remained unexecuted per user restrictions. Archived this direct-branch task using the no-PR archive option. User authorized commit, finish-work, and push.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0dcc4d6e` | fix(ai): stream summaries with folded reasoning |
+
+### Status
+
+[OK] **Completed**
 
 ## Session 60: Thread author IP locations and loading usage tips
 <!-- trellis-session: v=2 fp=8e7fc1e866cd34c8 -->
@@ -1345,6 +1563,40 @@ No remaining in-scope implementation or validation work.
 - 功能分支 push 目前只运行 Gradle Wrapper 校验；APK 工作流仅响应 main 或版本标签，尚未为分支增加 APK 构建。
 - 板块动态图标、独立媒体补丁和全局 JSON/SDK 迁移保留在采用清单，按后续批次处理。
 
+## Session 62: AI 查成分提示词选项与参考项目致谢
+<!-- trellis-session: v=2 fp=8a35a6f4678c067a -->
+
+**Date**: 2026-09-12
+**Task**: AI 查成分提示词选项与参考项目致谢
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+完成论坛锐评默认风格、详细分析和自定义提示词设置，兼容旧配置，并补充两个参考项目的致谢。按用户要求直接开发，未创建 Trellis 任务。
+
+### Main Changes
+
+- AI 设置新增查成分提示词入口；保留自定义原文与取消语义，由现有工具栏保存全部配置。
+- 加密配置升级为 v2 并兼容 v1，保留服务地址、Key 和模型；查成分请求使用一致的提示词配置快照。
+- 更新 AI 契约与测试，并在 README 致谢注明 nga-analyzer 和 lnga_harmony 的提示词设计参考。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `69d410029ba55b43122a05c872c53a8dbd8fb4bf` | feat(ai): add profile prompt settings |
+
+### Testing
+
+- [OK] 生产代码与 Android instrumentation 测试源码编译通过；未执行设备测试。
+- [OK] 204 项 AI/设置 JVM 测试全部通过；应用全量 345 项中 4 项既有 ReleaseWorkflowContractTest 断言失败。
+- [OK] 全量 lintDebug 强制重新执行 536 项任务，逐一解析 13 个模块报告，0 Error / 0 Fatal；新增代码没有 lint 发现。
+- [OK] 仓库级 testDebugUnitTest --continue 另有 lib_bu_statistics 缺 JUnit 和 lib_module_debug 示例 KAPT 注解编译失败；lib_core 和 lib_base_ui 本轮通过。
+- [OK] 独立代码复核及 git diff --check 通过；未运行 APK 打包、安装、设备 instrumentation 或真实服务请求。
+
+### Status
+
+[OK] **Completed**
 
 ## Session 63: 所有分支自动构建 APK 与分支同步
 <!-- trellis-session: v=2 fp=c0e694e3e222df2f -->
@@ -1382,3 +1634,24 @@ No remaining in-scope implementation or validation work.
 ### Next Steps
 
 - 正常推送三个分支后，维护者按需查看 GitHub Actions 构建产物；本会话不主动轮询或安装 APK。
+
+## Session 64: AI 查成分正文采样与提示词简化
+<!-- trellis-session: v=2 fp=1b7c3ca562e946dc -->
+
+**Date**: 2026-09-12
+**Task**: AI 查成分正文采样与提示词简化
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+补齐第一页主题主楼正文；主题和回复清理后各保留前1200字符，移除指定固定规则段及锐评风格的强制编号引文要求，保留自定义文本和总输入上限。完成独立 Trellis 审查及规范同步：应用368项测试通过，13个Android模块lint均为零Error/Fatal，Debug构建通过；仓库级测试仅复现lib_bu_statistics和lib_module_debug两处已记录的示例测试编译失败。未进行真实NGA/模型请求或设备操作。本次工作已提交并归档；日志提交后按授权推送feature/ai-summary。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0482795c5d175a13c78dd34be9e79b8c9bcfaf77` | feat(ai): include topic bodies in profile summaries |
+
+### Status
+
+[OK] **Completed**

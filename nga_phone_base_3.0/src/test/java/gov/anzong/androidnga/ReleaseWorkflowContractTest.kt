@@ -154,6 +154,7 @@ class ReleaseWorkflowContractTest {
     @Test
     fun workflowVerifiesUpgradeIdentityAndCleansOnlyItsPublishedChannel() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
+        val publication = stepBody(workflow, "Create GitHub Release", "Remove older channel prereleases")
         val cleanup = workflow.substringAfter("      - name: Remove older channel prereleases")
 
         assertTrue(workflow.contains("manifest application-id"))
@@ -163,7 +164,9 @@ class ReleaseWorkflowContractTest {
         assertTrue(workflow.contains("manifest debuggable"))
         assertTrue(workflow.contains("apksigner\" verify --verbose --print-certs"))
         assertTrue(workflow.contains("test \"\${#source_apks[@]}\" -eq 1"))
-        assertTrue(workflow.contains("test \"\$(find dist -maxdepth 1 -type f | wc -l)\" -eq 2"))
+        assertTrue(publication.contains("expected_dist_files=2"))
+        assertTrue(publication.contains("if [[ \"\$PRERELEASE\" == \"false\" ]]; then\n            expected_dist_files=4"))
+        assertTrue(publication.contains("test \"\$(find dist -maxdepth 1 -type f | wc -l)\" -eq \"\$expected_dist_files\""))
         assertTrue(workflow.contains("sha256sum -c ./*.sha256"))
         assertTrue(cleanup.contains("if: steps.publish.outcome == 'success' && steps.release.outputs.prerelease == 'true'"))
         assertTrue(cleanup.contains("select(.prerelease == true)"))

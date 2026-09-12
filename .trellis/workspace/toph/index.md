@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 63
+- **Total Sessions**: 64
 - **Last Active**: 2026-09-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1384 | Active |
+| `journal-1.md` | ~1657 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,12 +29,22 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 64 | 2026-09-12 | AI 查成分正文采样与提示词简化 | `0482795c5d175a13c78dd34be9e79b8c9bcfaf77` | `feature/ai-summary` |
 | 63 | 2026-09-12 | 所有分支自动构建 APK 与分支同步 | `8ceb57d9e73dd1476cea32ecd21175451c3818bd`, `3d7f5fcbedaf951807915262da9dadfebc923b7b` | `feature/thread-detail-compat-mode` |
+| 62 | 2026-09-12 | AI 查成分提示词选项与参考项目致谢 | `69d410029ba55b43122a05c872c53a8dbd8fb4bf` | `feature/ai-summary` |
 | 61 | 2026-09-12 | 上游八月调研与帖子详情兼容模式适配 | `ade2fd2ea8b7298c5ba6a0f6937073dc659d0bed`, `7acc4e23c6ddc07ba4d03a1c3a9ac7f9a3a41adf` | `feature/thread-detail-compat-mode` |
 | 60 | 2026-09-12 | Thread author IP locations and loading usage tips | `ef77d0c92f6a20f72c418eadd053089642c63698` | `feature/thread-ip-location-loading-tips` |
+| 59 | 2026-09-12 | Streaming AI summaries and folded reasoning | `0dcc4d6e` | `feature/ai-summary` |
+| 58 | 2026-09-11 | Refine profile composition prompt and evidence | `9cf43a82` | `feature/ai-summary` |
 | 57 | 2026-09-11 | 帖子楼层菜单与缓存交互修复 | `6203dad5a9d02891cc7a554f11a18fc4ed9251d8` | `fix/thread-menu-cache` |
+| 56 | 2026-09-11 | Fix AI profile unavailable activity parsing | `1931bc35` | `feature/ai-summary` |
+| 55 | 2026-09-11 | 精简 AI 设置并更新个人资料入口 | `39b27d49` | `feature/ai-summary` |
+| 54 | 2026-09-06 | 完成私有签名存储与双分支收尾 | `f1cdf4b96675af3ed470743e0b4a366ba33cab43` | `feature/ai-summary` |
 | 53 | 2026-09-06 | 完成私有签名存储与双分支收尾 | `87961c47072ef8d60ba67de747c8a2ebc1f0e884` | `main` |
+| 52 | 2026-09-06 | AI summary branch prereleases | `87e096e2`, `3ed2a4d1` | `feature/ai-summary` |
+| 51 | 2026-09-06 | 验证本地发布签名并同步双分支知识 | `c52e045c658815cfb8dbc423b316c48401149d94`, `141c7f4ff53f182203d5ba9e9341666d0050afb9` | `feature/ai-summary` |
 | 50 | 2026-09-06 | 验证本地发布签名并同步双分支知识 | `a8917aaefb002844c106746948122081f60730f0` | `main` |
+| 49 | 2026-09-06 | 完成 BYOK AI 设置与上下文总结 | `edd69f219d7a07bf78278eea4f66eb5934dc4fc5`, `de31004a4db9aae4c75bc5b2c6e4370d62bab050` | `main` |
 | 48 | 2026-09-05 | 修复历史缓存旧图床图片失效并完成收尾 | `1e3e1eda` | `main` |
 | 47 | 2026-08-23 | 长按发帖按钮刷新当前页 | `825d0038` | `main` |
 | 46 | 2026-08-23 | 修复侧滑返回黑屏并发布 5.5.3 | `04bae018`, `7146a697` | `main` |

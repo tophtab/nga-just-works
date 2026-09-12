@@ -1,0 +1,31 @@
+{
+  "id": "ai-profile-author-mismatch",
+  "name": "ai-profile-author-mismatch",
+  "title": "修复 AI查成分的用户内容匹配错误",
+  "description": "定位个人资料 AI查成分在读取 NGA 首屏主题或回复时稳定触发作者不匹配错误的原因，修复兼容性并保留正确用户边界；沿用不跑本地构建的要求。",
+  "status": "completed",
+  "dev_type": "backend",
+  "scope": "ai-profile-summary",
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-11",
+  "completedAt": "2026-09-11",
+  "branch": "feature/ai-summary",
+  "base_branch": "main",
+  "worktree_path": "/home/toph/nga-just-works-ai-summary",
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "nga_phone_base_3.0/src/main/java/sp/phone/ai/summary/NgaProfilePageSource.java",
+    "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/NgaProfilePageSourceTest.java",
+    "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/ProfileSummaryLoaderTest.java",
+    ".trellis/spec/backend/ai-summary-contract.md"
+  ],
+  "notes": "User delegated task decisions, authorized first-page live reads with a supplied Cookie stored under ignored .temp, and requested an additional profile check. Reproduced unavailable topic placeholders causing false author mismatches, plus unavailable replies that must be excluded. Preserve the no-local-build preference and existing commit/finish-work/push authorization. Credentials and real content stay out of tracked artifacts.",
+  "meta": {}
+}

@@ -1,0 +1,9 @@
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"AI 配置从设置、加密存储、独立网络客户端到两个菜单和结果界面，需保持一条清晰数据流。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"两个总结入口必须复用同一配置、客户端、状态和结果界面。"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"遵守当前 Android 构建、测试和实体设备验证基线。"}
+{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"AI 客户端必须与 NGA Cookie、编码、日志及账号 transport 隔离。"}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"资料摘要读取公开主题和回复时仍需遵守现有 NGA 会话、隐私和测试边界。"}
+{"file":".trellis/spec/frontend/android-migration-architecture.md","reason":"沿用现有 Justwen 导航和模块边界，正确管理异步请求生命周期。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"AI 设置、楼层菜单和资料页菜单应保持现有 UI 组件与交互风格。"}
+{"file":".trellis/tasks/07-25-nga-android-advanced/research/nga-harmony-ai-context.md","reason":"本任务已收敛的 BYOK 配置、两个摘要入口、代码锚点和明确排除项。"}
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Current implemented BYOK storage, request, input, UI ownership, and offline validation contracts."}

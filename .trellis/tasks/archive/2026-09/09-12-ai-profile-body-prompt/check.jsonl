@@ -1,0 +1,6 @@
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Review preserved AI lifecycle/configuration boundaries using the task's explicit overrides for topic bodies, 1200-character prefixes, and prompt-rule removal."}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"Check response attribution, bounded reads, encoding, cancellation, and safe errors without live traffic."}
+{"file":".trellis/spec/backend/nga-platform-operation-registry.md","reason":"Check actual TOPIC.LIST and THREAD.PAGE requests against pinned source evidence."}
+{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"Verify session ownership and separation from the AI provider transport."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Required offline/JVM/build/lint verification; no inferred device authorization."}
+{"file":".trellis/tasks/09-12-ai-profile-body-prompt/research/current-behavior.md","reason":"Review the behavior change and call-site evidence without treating dormant reference code or source-derived fixtures as live verification."}

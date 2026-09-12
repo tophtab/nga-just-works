@@ -1,0 +1,3 @@
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Review transport isolation, configuration compatibility, parsing bounds, and lifecycle ownership."}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Require compilation, app unit tests, and zero blocking lint issues without device work."}
+{"file":".trellis/tasks/09-11-ai-settings-simplification/research/current-boundary.md","reason":"User-authorized behavior changes, state edge cases, and narrow change boundary."}

@@ -1,0 +1,9 @@
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查设置值、密钥、请求输入、网络响应和 UI 状态是否端到端一致。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"检查两个入口没有各自复制配置、请求或结果处理逻辑。"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"检查构建、全模块 lint 和单元测试；无当前显式设备授权时不探测或运行设备测试，按项目政策记录。"}
+{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"确认 AI 请求不携带 NGA Cookie，不经过 NGA 编解码或正文日志链。"}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"确认资料摘要只读取目标用户的有限公开数据，自动化测试不访问真实站点。"}
+{"file":".trellis/spec/frontend/android-migration-architecture.md","reason":"检查异步请求取消、迟到结果丢弃和现有导航集成。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"检查三个入口和共用结果界面符合当前 App 的交互风格。"}
+{"file":".trellis/tasks/07-25-nga-android-advanced/research/nga-harmony-ai-context.md","reason":"核对最终实现只有一份用户 API 配置和两个 AI 总结入口，没有恢复已排除功能。"}
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Verify current encrypted storage, single-use model requests, bounded profile input, cancellation, and test evidence."}

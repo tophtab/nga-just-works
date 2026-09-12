@@ -22,6 +22,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +44,7 @@ import sp.phone.http.bean.ReputationData;
 import sp.phone.param.ParamKey;
 import sp.phone.task.JsonProfileLoadTask;
 import sp.phone.theme.ThemeManager;
+import sp.phone.ui.fragment.dialog.AiSummaryDialog;
 import sp.phone.util.ActivityUtils;
 import sp.phone.util.FunctionUtils;
 import sp.phone.util.ImageUtils;
@@ -55,6 +57,8 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
     private static final String TAG = "ProfileActivity";
 
     private ProfileData mProfileData;
+
+    private AiSummaryDialog mAiSummaryDialog;
 
     private ThemeManager mThemeManager = ThemeManager.getInstance();
 
@@ -145,6 +149,9 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
     }
 
     private void refresh() {
+        dismissAiSummary();
+        mProfileData = null;
+        invalidateOptionsMenu();
         ActivityUtils.getInstance().noticeSaying(this);
         mProfileLoadTask = new JsonProfileLoadTask(this);
         mProfileLoadTask.execute(mParams);
@@ -153,6 +160,7 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
 
     @Override
     protected void onDestroy() {
+        dismissAiSummary();
         mProfileLoadTask.cancel();
         super.onDestroy();
     }
@@ -291,6 +299,7 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
 
         menu.findItem(R.id.menu_search_post).setVisible(mProfileData != null);
         menu.findItem(R.id.menu_search_reply).setVisible(mProfileData != null);
+        menu.findItem(R.id.menu_ai_summary).setVisible(mProfileData != null);
         menu.findItem(R.id.menu_send_message).setVisible(mProfileData != null && !mCurrentUser);
         menu.findItem(R.id.menu_modify_avatar).setVisible(mProfileData != null && mCurrentUser);
 
@@ -311,6 +320,9 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_ai_summary:
+                showAiSummary();
+                break;
             case R.id.menu_send_message:
                 sendShortMessage();
                 break;
@@ -379,6 +391,31 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
         intent.putExtra(ParamKey.KEY_SEARCH_POST, 1);
         intent.putExtra(ParamKey.KEY_AUTHOR, mProfileData.getUserName());
         startActivity(intent);
+    }
+
+    private void showAiSummary() {
+        if (mProfileData == null || isFinishing() || isDestroyed()) {
+            return;
+        }
+        dismissAiSummary();
+        final String uid = mProfileData.getUid();
+        final String userName = mProfileData.getUserName();
+        mAiSummaryDialog = AiSummaryDialog.showProfile(this, uid, userName,
+                () -> mProfileData == null || isFinishing() || isDestroyed()
+                        ? null : "profile:" + mProfileData.getUid());
+    }
+
+    private void dismissAiSummary() {
+        if (mAiSummaryDialog != null) {
+            mAiSummaryDialog.dismiss();
+            mAiSummaryDialog = null;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        dismissAiSummary();
+        super.onPause();
     }
 
     @Override
@@ -524,9 +561,13 @@ public class ProfileActivity extends BaseActivity implements OnHttpCallBack<Prof
 
     @Override
     public void onSuccess(ProfileData data) {
+        if (data == null || mProfileData == null || !Objects.equals(data.getUid(), mProfileData.getUid())) {
+            dismissAiSummary();
+        }
         mProfileData = data;
         if (data != null) {
             loadProfileInfo(data);
         }
+        invalidateOptionsMenu();
     }
 }

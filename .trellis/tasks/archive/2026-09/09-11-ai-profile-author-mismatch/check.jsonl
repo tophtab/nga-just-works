@@ -1,0 +1,3 @@
+{"file":".trellis/spec/backend/ai-summary-contract.md","reason":"Review identity, first-page limits, rejection behavior, and prompt boundaries."}
+{"file":".trellis/spec/backend/nga-platform-access-rules.md","reason":"Review evidence-based filtering and credential/content isolation."}
+{"file":".trellis/tasks/09-11-ai-profile-author-mismatch/research/author-mismatch.md","reason":"Check unavailable-item filtering against observed topic/reply structures and edge cases."}

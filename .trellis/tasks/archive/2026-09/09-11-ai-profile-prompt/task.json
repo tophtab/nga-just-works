@@ -1,0 +1,30 @@
+{
+  "id": "ai-profile-prompt",
+  "name": "ai-profile-prompt",
+  "title": "优化 AI查成分的画像提示词",
+  "description": "参考用户指定的 NGA 成分分析器提示词，将个人资料查成分改为有具体证据和标签的论坛发言画像，保持既有首屏采集与弹窗流程；不跑本地构建，不查看远端构建。",
+  "status": "completed",
+  "dev_type": "backend",
+  "scope": "ai-profile-summary",
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-11",
+  "completedAt": "2026-09-11",
+  "branch": "feature/ai-summary",
+  "base_branch": "main",
+  "worktree_path": "/home/toph/nga-just-works-ai-summary",
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "nga_phone_base_3.0/src/main/java/sp/phone/ai/summary/ProfileSummaryInput.java",
+    "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/SummaryInputTest.java",
+    ".trellis/spec/backend/ai-summary-contract.md"
+  ],
+  "notes": "Continuation of the user's AI feature refinement with delegated routine task decisions and standing commit/finish-work/push authorization. Preserve no local builds and the latest instruction not to inspect CI results. Public reference code was read only; no credential or live forum data is needed.",
+  "meta": {}
+}
