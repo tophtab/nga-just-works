@@ -1293,3 +1293,41 @@ Replaced remaining hard-coded dark-mode content colors in the Compose drawer, me
 
 - 功能分支 push 目前只运行 Gradle Wrapper 校验；APK 工作流仅响应 main 或版本标签，尚未为分支增加 APK 构建。
 - 板块动态图标、独立媒体补丁和全局 JSON/SDK 迁移保留在采用清单，按后续批次处理。
+
+
+## Session 63: 所有分支自动构建 APK 与分支同步
+<!-- trellis-session: v=2 fp=c0e694e3e222df2f -->
+
+**Date**: 2026-09-12
+**Task**: 所有分支自动构建 APK 与分支同步
+**Branch**: `feature/thread-detail-compat-mode`
+
+### Summary
+
+复用 AI 分支发布方案，完成全分支 APK 构建、命名和发布隔离；公共配置同步到三个现存分支，保留并行工作，任务已归档。
+
+### Main Changes
+
+- 所有代码分支推送构建签名预览 APK，沿用 AI 文件后缀；纯文档推送继续跳过。
+- 完整原始 ref 摘要隔离大小写不同分支的并发组；仅精确 main 可写缓存；发布成功后仅清理本分支旧预览。
+- 兼容模式公共提交 8ceb57d9；AI 基于最新 5288e895 快进到 dc601c93 并保留新致谢；main 并行合并 b918b4a4 与已验证 CI 树一致。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `8ceb57d9e73dd1476cea32ecd21175451c3818bd` | ci(android): publish APK previews from every branch |
+| `3d7f5fcbedaf951807915262da9dadfebc923b7b` | docs(ci): record all-branch APK rollout and validation |
+
+### Testing
+
+- [OK] 36 项 Python 回归、9 项 JVM 发布契约、actionlint 和 7 段 Bash 语法检查通过，独立审查无剩余问题。
+- [OK] main/AI 各 4 项移植 smoke 检查及公共文件一致性通过；归档后的 JSONL 引用校验通过。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 正常推送三个分支后，维护者按需查看 GitHub Actions 构建产物；本会话不主动轮询或安装 APK。
