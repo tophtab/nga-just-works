@@ -28,7 +28,8 @@ public final class SummaryController {
     }
 
     public interface InputSource {
-        Cancelable load(Callback callback);
+        /** Compose input using this request's validated configuration snapshot. */
+        Cancelable load(AiConfig config, Callback callback);
     }
 
     public interface Model {
@@ -139,7 +140,7 @@ public final class SummaryController {
             return;
         }
         try {
-            Cancelable input = source.load(new Callback() {
+            Cancelable input = source.load(config, new Callback() {
                 @Override
                 public void onSuccess(String prompt) {
                     executor.execute(() -> acceptInput(request, config, prompt));
@@ -261,7 +262,8 @@ public final class SummaryController {
     private static boolean sameConfig(AiConfig first, AiConfig second) {
         return first.getEndpoint().equals(second.getEndpoint())
                 && first.getModel().equals(second.getModel())
-                && first.getApiKey().equals(second.getApiKey());
+                && first.getApiKey().equals(second.getApiKey())
+                && first.getProfilePrompt().equals(second.getProfilePrompt());
     }
 
     private AiConfig loadConfig(Pending request) {

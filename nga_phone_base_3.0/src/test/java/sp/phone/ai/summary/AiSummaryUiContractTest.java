@@ -57,6 +57,21 @@ public class AiSummaryUiContractTest {
     }
 
     @Test
+    public void profileSourceUsesTheControllerConfigurationAndDefersSessionReads() throws IOException {
+        String source = read("java/sp/phone/ai/summary/AiSummarySources.java");
+        String profile = method(source, "InputSource profile(");
+        int deferredLoad = profile.indexOf("return (config, callback) ->");
+        assertTrue(deferredLoad >= 0);
+        assertTrue(profile.indexOf("new NgaProfilePageSource(") > deferredLoad);
+        assertTrue(profile.indexOf("UserManagerImpl.getInstance().getCookie()") > deferredLoad);
+        assertTrue(profile.contains(".load(uid, userName, config.getProfilePrompt(), callback)"));
+        assertFalse(source.contains("AiConfigStore"));
+        String floor = method(source, "InputSource floor(");
+        assertTrue(floor.contains("callback.onSuccess(input.toPrompt())"));
+        assertFalse(floor.contains("getProfilePrompt()"));
+    }
+
+    @Test
     public void sharedDialogIsScrollableAndDismissalCancelsItsController() throws IOException {
         assertTrue(read("res/layout/dialog_ai_summary.xml").contains("<ScrollView"));
         String dialog = read("java/sp/phone/ui/fragment/dialog/AiSummaryDialog.java");

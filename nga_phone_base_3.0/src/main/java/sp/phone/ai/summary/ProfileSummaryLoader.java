@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import sp.phone.ai.AiProfilePrompt;
+
 /** Sequential, first-page-only TOPIC.LIST reads for one frozen profile UID. */
 public final class ProfileSummaryLoader {
 
@@ -40,11 +42,16 @@ public final class ProfileSummaryLoader {
 
     public SummaryController.Cancelable load(String uid, String userName,
                                               SummaryController.Callback callback) {
+        return load(uid, userName, AiProfilePrompt.DEFAULT, callback);
+    }
+
+    public SummaryController.Cancelable load(String uid, String userName, AiProfilePrompt profilePrompt,
+                                              SummaryController.Callback callback) {
         if (uid == null || !uid.matches("[1-9][0-9]{0,18}")) {
             callback.onError("用户资料尚未就绪");
             return SummaryController.Cancelable.NONE;
         }
-        Load load = new Load(uid, userName, callback);
+        Load load = new Load(uid, userName, profilePrompt, callback);
         load.request(Kind.TOPICS);
         return load;
     }
@@ -52,15 +59,18 @@ public final class ProfileSummaryLoader {
     private final class Load implements SummaryController.Cancelable {
         final String uid;
         final String userName;
+        final AiProfilePrompt profilePrompt;
         final SummaryController.Callback callback;
         List<ProfileSummaryInput.Entry> topics;
         SummaryController.Cancelable current = SummaryController.Cancelable.NONE;
         Kind expected;
         boolean stopped;
 
-        Load(String uid, String userName, SummaryController.Callback callback) {
+        Load(String uid, String userName, AiProfilePrompt profilePrompt,
+             SummaryController.Callback callback) {
             this.uid = uid;
             this.userName = userName;
+            this.profilePrompt = profilePrompt;
             this.callback = callback;
         }
 
@@ -112,7 +122,7 @@ public final class ProfileSummaryLoader {
                 if (input.isEmpty()) {
                     callback.onError("没有可用于总结的近期公开内容");
                 } else {
-                    callback.onSuccess(input.toPrompt());
+                    callback.onSuccess(input.toPrompt(profilePrompt));
                 }
             }
         }

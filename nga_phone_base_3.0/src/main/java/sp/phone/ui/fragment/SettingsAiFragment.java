@@ -11,6 +11,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,12 +24,15 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
@@ -43,6 +47,7 @@ import okhttp3.Call;
 import sp.phone.ai.AiConfig;
 import sp.phone.ai.AiConfigStore;
 import sp.phone.ai.AiError;
+import sp.phone.ai.AiProfilePrompt;
 import sp.phone.ai.AiSummaryClient;
 
 /** Keeps the legacy preference navigation while the AI store owns all persistence. */
@@ -51,15 +56,18 @@ public class SettingsAiFragment extends BasePreferenceFragment {
     private static final String KEY_ENDPOINT = "ai_settings_endpoint";
     private static final String KEY_API_KEY = "ai_settings_api_key";
     private static final String KEY_MODEL = "ai_settings_model";
+    private static final String KEY_PROFILE_PROMPT = "ai_settings_profile_prompt";
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final AiModelEditorState mModelEditorState = new AiModelEditorState();
+    private final AiProfilePromptEditorState mProfilePromptEditorState = new AiProfilePromptEditorState();
 
     private AiConfigStore mConfigStore;
     private AiSummaryClient mClient;
     private Preference mEndpointPreference;
     private Preference mKeyPreference;
     private Preference mModelPreference;
+    private Preference mProfilePromptPreference;
     private Preference mTestPreference;
     private AlertDialog mDialog;
     private Call mTestCall;
@@ -92,11 +100,13 @@ public class SettingsAiFragment extends BasePreferenceFragment {
         mEndpointPreference = findPreference(KEY_ENDPOINT);
         mKeyPreference = findPreference(KEY_API_KEY);
         mModelPreference = findPreference(KEY_MODEL);
+        mProfilePromptPreference = findPreference(KEY_PROFILE_PROMPT);
         mTestPreference = findPreference("ai_settings_test");
 
         mEndpointPreference.setOnPreferenceClickListener(this::showFieldEditor);
         mKeyPreference.setOnPreferenceClickListener(this::showFieldEditor);
         mModelPreference.setOnPreferenceClickListener(this::showFieldEditor);
+        mProfilePromptPreference.setOnPreferenceClickListener(this::showFieldEditor);
         mTestPreference.setOnPreferenceClickListener(preference -> {
             testConnection();
             return true;
@@ -131,12 +141,14 @@ public class SettingsAiFragment extends BasePreferenceFragment {
         mHasSavedConfig = false;
         mHasChanges = false;
         mModelEditorState.clearModels();
+        mProfilePromptEditorState.reset(AiProfilePrompt.DEFAULT);
         try {
             AiConfig config = mConfigStore.load();
             mHasSavedConfig = config != null;
             if (config != null) {
                 mEndpoint = config.getEndpoint();
                 mModel = config.getModel();
+                mProfilePromptEditorState.reset(config.getProfilePrompt());
             }
             renderConfiguration();
         } catch (AiConfigStore.StorageException error) {
@@ -150,6 +162,7 @@ public class SettingsAiFragment extends BasePreferenceFragment {
                 ? getString(R.string.ai_settings_endpoint_hint) : mEndpoint);
         mModelPreference.setSummary(TextUtils.isEmpty(mModel)
                 ? getString(R.string.ai_settings_model_hint) : mModel);
+        mProfilePromptPreference.setSummary(profilePromptTitle(mProfilePromptEditorState.getPrompt().getStyle()));
         mKeyPreference.setSummary(!mPendingApiKey.isEmpty() ? R.string.ai_settings_key_pending
                 : mHasSavedConfig ? R.string.ai_settings_key_saved : R.string.ai_settings_key_empty);
     }
@@ -160,6 +173,10 @@ public class SettingsAiFragment extends BasePreferenceFragment {
         String key = preference.getKey();
         if (KEY_MODEL.equals(key)) {
             showModelEditor();
+            return true;
+        }
+        if (KEY_PROFILE_PROMPT.equals(key)) {
+            showProfilePromptEditor();
             return true;
         }
         boolean secret = KEY_API_KEY.equals(key);
@@ -222,6 +239,131 @@ public class SettingsAiFragment extends BasePreferenceFragment {
         input.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.editor_background));
         input.setMinHeight(dp(48));
         return input;
+    }
+
+    private static int profilePromptTitle(AiProfilePrompt.Style style) {
+        switch (style) {
+            case FORUM_ROAST:
+                return R.string.ai_settings_profile_prompt_roast;
+            case DETAILED:
+                return R.string.ai_settings_profile_prompt_detailed;
+            case CUSTOM:
+                return R.string.ai_settings_profile_prompt_custom;
+            default:
+                throw new IllegalStateException("Invalid profile prompt style");
+        }
+    }
+
+    private void showProfilePromptEditor() {
+        final long generation = mProfilePromptEditorState.open();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        Context context = builder.getContext();
+        ScrollView scroll = new ScrollView(context);
+        scroll.setSaveEnabled(false);
+        scroll.setSaveFromParentEnabled(false);
+        LinearLayout container = new LinearLayout(context);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(dp(24), dp(8), dp(24), dp(8));
+        container.setSaveEnabled(false);
+        container.setSaveFromParentEnabled(false);
+        scroll.addView(container);
+
+        RadioGroup choices = new RadioGroup(context);
+        choices.setSaveEnabled(false);
+        container.addView(choices, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        AppCompatEditText input = createInput(context);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        input.setSingleLine(false);
+        input.setImeOptions(EditorInfo.IME_ACTION_NONE | EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
+        input.setGravity(Gravity.TOP | Gravity.START);
+        input.setMinLines(4);
+        input.setMaxLines(8);
+        input.setVerticalScrollBarEnabled(true);
+        input.setHint(R.string.ai_settings_profile_prompt_hint);
+        input.setText(mProfilePromptEditorState.getCustomText());
+        input.setSelection(input.length());
+        input.setVisibility(mProfilePromptEditorState.getSelectedStyle() == AiProfilePrompt.Style.CUSTOM
+                ? View.VISIBLE : View.GONE);
+        container.addView(input, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        for (AiProfilePrompt.Style style : AiProfilePrompt.Style.values()) {
+            AppCompatRadioButton choice = new AppCompatRadioButton(context);
+            choice.setId(View.generateViewId());
+            choice.setText(profilePromptTitle(style));
+            choice.setMinHeight(dp(48));
+            choice.setSaveEnabled(false);
+            choices.addView(choice);
+            choice.setChecked(style == mProfilePromptEditorState.getSelectedStyle());
+            choice.setOnCheckedChangeListener((button, checked) -> {
+                if (!checked || !mProfilePromptEditorState.isActive(generation)) {
+                    return;
+                }
+                mProfilePromptEditorState.selectStyle(style);
+                boolean custom = style == AiProfilePrompt.Style.CUSTOM;
+                input.setVisibility(custom ? View.VISIBLE : View.GONE);
+                InputMethodManager keyboard = (InputMethodManager) context.getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                if (custom) {
+                    input.requestFocus();
+                    if (keyboard != null) {
+                        keyboard.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                } else if (keyboard != null) {
+                    keyboard.hideSoftInputFromWindow(input.getWindowToken(), 0);
+                }
+            });
+        }
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence text, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence text, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable text) {
+                if (mProfilePromptEditorState.isActive(generation)) {
+                    mProfilePromptEditorState.setCustomText(text.toString());
+                }
+            }
+        });
+
+        AlertDialog dialog = builder.setTitle(R.string.ai_settings_profile_prompt_title)
+                .setView(scroll)
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        dialog.setOnDismissListener(ignored -> {
+            if (mDialog == dialog) {
+                mProfilePromptEditorState.close();
+                mDialog = null;
+            }
+            input.setText("");
+        });
+        mDialog = dialog;
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(button -> {
+            if (!mProfilePromptEditorState.isActive(generation)) {
+                return;
+            }
+            try {
+                AiProfilePrompt previous = mProfilePromptEditorState.getPrompt();
+                AiProfilePrompt updated = mProfilePromptEditorState.confirm();
+                mHasChanges |= !previous.equals(updated);
+                renderConfiguration();
+                dialog.dismiss();
+            } catch (IllegalArgumentException error) {
+                input.setError(error.getMessage());
+                ToastUtils.error(error.getMessage());
+            }
+        });
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                    | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        }
     }
 
     private void showModelEditor() {
@@ -418,7 +560,7 @@ public class SettingsAiFragment extends BasePreferenceFragment {
     }
 
     private AiConfig currentConfiguration() throws AiConfigStore.StorageException {
-        return new AiConfig(mEndpoint, currentApiKey(), mModel);
+        return new AiConfig(mEndpoint, currentApiKey(), mModel, mProfilePromptEditorState.getPrompt());
     }
 
     private String currentApiKey() throws AiConfigStore.StorageException {
@@ -513,6 +655,7 @@ public class SettingsAiFragment extends BasePreferenceFragment {
 
     private void dismissEditor() {
         invalidateModelDiscovery();
+        mProfilePromptEditorState.close();
         if (mDialog != null) {
             AlertDialog dialog = mDialog;
             mDialog = null;
@@ -539,6 +682,7 @@ public class SettingsAiFragment extends BasePreferenceFragment {
         dismissEditor();
         mPendingApiKey = "";
         mModelEditorState.clearModels();
+        mProfilePromptEditorState.reset(AiProfilePrompt.DEFAULT);
         mMainHandler.removeCallbacksAndMessages(null);
         super.onDestroyView();
     }

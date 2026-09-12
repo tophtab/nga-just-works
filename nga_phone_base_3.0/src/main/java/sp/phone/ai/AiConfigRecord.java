@@ -14,8 +14,10 @@ import javax.crypto.spec.GCMParameterSpec;
 
 /** Versioned, authenticated record codec; also exercised with real AES-GCM on the JVM. */
 final class AiConfigRecord {
-    static final int MAX_RECORD_BYTES = 16 * 1024;
-    private static final byte[] HEADER = {'N', 'G', 'A', 'I', 1};
+    // Modified UTF may use three bytes per UTF-16 unit, including the 8 Ki custom prompt.
+    static final int MAX_RECORD_BYTES = 48 * 1024;
+    private static final int MAX_LEGACY_RECORD_BYTES = 16 * 1024;
+    private static final byte[] HEADER = {'N', 'G', 'A', 'I', 2};
     private static final int NONCE_BYTES = 12;
     private static final int TAG_BITS = 128;
 
@@ -52,19 +54,31 @@ final class AiConfigRecord {
                 || record.length > MAX_RECORD_BYTES) {
             throw new IOException("Invalid configuration record");
         }
-        for (int i = 0; i < HEADER.length; i++) {
+        for (int i = 0; i < HEADER.length - 1; i++) {
             if (record[i] != HEADER[i]) {
                 throw new IOException("Unsupported configuration record");
             }
         }
+        int version = record[HEADER.length - 1];
+        if (version != 1 && version != 2) {
+            throw new IOException("Unsupported configuration record");
+        }
+        if (version == 1 && record.length > MAX_LEGACY_RECORD_BYTES) {
+            throw new IOException("Invalid configuration record");
+        }
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, key,
                 new GCMParameterSpec(TAG_BITS, record, HEADER.length, NONCE_BYTES));
-        cipher.updateAAD(HEADER);
+        cipher.updateAAD(record, 0, HEADER.length);
         byte[] plaintext = cipher.doFinal(record, HEADER.length + NONCE_BYTES,
                 record.length - HEADER.length - NONCE_BYTES);
         try (DataInputStream input = new DataInputStream(new ByteArrayInputStream(plaintext))) {
-            AiConfig config = new AiConfig(input.readUTF(), input.readUTF(), input.readUTF());
+            String endpoint = input.readUTF();
+            String apiKey = input.readUTF();
+            String model = input.readUTF();
+            AiProfilePrompt prompt = version == 1 ? AiProfilePrompt.DEFAULT
+                    : new AiProfilePrompt(AiProfilePrompt.Style.fromId(input.readUTF()), input.readUTF());
+            AiConfig config = new AiConfig(endpoint, apiKey, model, prompt);
             if (input.available() != 0) {
                 throw new IOException("Unexpected configuration data");
             }
@@ -80,6 +94,8 @@ final class AiConfigRecord {
             output.writeUTF(config.getEndpoint());
             output.writeUTF(config.getApiKey());
             output.writeUTF(config.getModel());
+            output.writeUTF(config.getProfilePrompt().getStyle().getId());
+            output.writeUTF(config.getProfilePrompt().getCustomText());
         }
         return bytes.toByteArray();
     }

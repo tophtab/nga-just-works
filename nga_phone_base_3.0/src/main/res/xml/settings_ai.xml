@@ -22,6 +22,12 @@
         android:title="@string/ai_settings_model_title" />
 
     <Preference
+        android:key="ai_settings_profile_prompt"
+        android:persistent="false"
+        android:summary="@string/ai_settings_profile_prompt_roast"
+        android:title="@string/ai_settings_profile_prompt_title" />
+
+    <Preference
         android:key="ai_settings_test"
         android:persistent="false"
         android:summary="@string/ai_settings_test_summary"

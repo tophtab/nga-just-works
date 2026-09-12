@@ -117,7 +117,9 @@ public class AiSummaryClientTest {
     public void connectionTestKeepsTheShortFixedInputAndSharedTokenBudget() throws Exception {
         server.enqueue(success("连接成功"));
         Result result = new Result();
-        client(5_000).testConnection(config, result);
+        AiConfig custom = new AiConfig(config.getEndpoint(), config.getApiKey(), config.getModel(),
+                new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, "CUSTOM_CONNECTION_SENTINEL\nSecond line"));
+        client(5_000).testConnection(custom, result);
         result.await();
         assertEquals("连接成功", result.text);
         String json = takeRequest().getBody().readUtf8();

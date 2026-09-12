@@ -12,7 +12,7 @@ public final class AiSummarySources {
     }
 
     public static SummaryController.InputSource floor(FloorSummaryInput input) {
-        return callback -> {
+        return (config, callback) -> {
             if (input.getBody().isEmpty()) {
                 callback.onError("当前楼层没有可用于总结的文字");
             } else {
@@ -26,12 +26,12 @@ public final class AiSummarySources {
         // Deferred until SummaryController has checked configuration. Each deliberate retry
         // captures one session for both first-page reads. There are no application retries,
         // pagination, or account rotation; idempotent transport follow-ups retain that snapshot.
-        return callback -> {
+        return (config, callback) -> {
             NgaProfilePageSource source = new NgaProfilePageSource(
                     ForumUtils.getAvailableDomain(),
                     UserManagerImpl.getInstance().getCookie(),
                     RetrofitHelper.getInstance().getUserAgent());
-            return new ProfileSummaryLoader(source).load(uid, userName, callback);
+            return new ProfileSummaryLoader(source).load(uid, userName, config.getProfilePrompt(), callback);
         };
     }
 }

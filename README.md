@@ -61,13 +61,15 @@ AI 总结分支预览版标题带有 `(Debug, feature/ai-summary)`，APK 文件�
 
 **其他 NGA 客户端** — 功能与交互设计的参考
 
-- [nga_harmony](https://github.com/apap6628114/nga_harmony) — HarmonyOS ArkTS 客户端，AI 功能规划的主要参考
+- [lnga_harmony](https://github.com/apap6628114/lnga_harmony) — HarmonyOS ArkTS 客户端，AI 功能规划与论坛锐评提示词设计参考
 - [MNGA](https://github.com/BugenZhao/MNGA)
 - [NGNGA](https://github.com/PoiScript/NGNGA)
 - [NgaLite](https://github.com/fhyxz001/NgaLite)
 - [open-nga](https://github.com/mlzzen/open-nga)
 
 **AI相关**
+
+- [nga-analyzer](https://github.com/noer25/nga-analyzer) — 详细分析提示词设计参考
 - [LINUX DO 社区](https://linux.do/)
 - 给 AI 立规矩的开源框架：[trellis](https://github.com/mindfold-ai/Trellis)
 

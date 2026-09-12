@@ -15,11 +15,20 @@ public final class AiConfig {
     private final String endpoint;
     private final String apiKey;
     private final String model;
+    private final AiProfilePrompt profilePrompt;
 
     public AiConfig(String endpoint, String apiKey, String model) {
+        this(endpoint, apiKey, model, AiProfilePrompt.DEFAULT);
+    }
+
+    public AiConfig(String endpoint, String apiKey, String model, AiProfilePrompt profilePrompt) {
         this.endpoint = normalizeEndpoint(endpoint);
         this.apiKey = normalizeApiKey(apiKey);
         this.model = normalizeModel(model);
+        if (profilePrompt == null) {
+            throw new IllegalArgumentException("请选择查成分提示词");
+        }
+        this.profilePrompt = profilePrompt;
     }
 
     /** The complete HTTP(S) Chat Completions URL, including any user-supplied version prefix. */
@@ -33,6 +42,10 @@ public final class AiConfig {
 
     public String getModel() {
         return model;
+    }
+
+    public AiProfilePrompt getProfilePrompt() {
+        return profilePrompt;
     }
 
     @Override

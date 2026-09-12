@@ -2,6 +2,7 @@ package sp.phone.ai.summary;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayDeque;
@@ -13,6 +14,8 @@ import java.util.concurrent.Executor;
 import org.junit.Test;
 
 import sp.phone.ai.AiConfig;
+import sp.phone.ai.AiProfilePrompt;
+import sp.phone.http.bean.ThreadRowInfo;
 
 public class SummaryControllerTest {
 
@@ -36,6 +39,68 @@ public class SummaryControllerTest {
         assertTrue(test.model.calls.isEmpty());
         assertEquals(SummaryController.Status.ERROR, test.controller.getState().getStatus());
         assertFalse(test.controller.getState().getText().contains("SECRET_SENTINEL"));
+    }
+
+    @Test
+    public void inputReceivesTheValidatedSnapshotWithoutAnExtraConfigurationRead() {
+        Fixture test = new Fixture();
+        test.config = withPrompt(test.config, new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, "Custom input"));
+        test.controller.start(test.target, test.input);
+        assertEquals(1, test.configReads);
+        assertSame(test.config, test.input.configs.get(0));
+        test.input.calls.get(0).callback.onSuccess("Profile input");
+        test.executor.drain();
+        assertEquals(2, test.configReads);
+        assertSame(test.config, test.model.configs.get(0));
+    }
+
+    @Test
+    public void promptStyleOrRetainedCustomChangesRequireANewRequestAndRetryUsesTheLatestValue() {
+        AiProfilePrompt[] before = {
+                AiProfilePrompt.DEFAULT,
+                new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, "First prompt"),
+                new AiProfilePrompt(AiProfilePrompt.Style.FORUM_ROAST, "First retained prompt")
+        };
+        AiProfilePrompt[] after = {
+                new AiProfilePrompt(AiProfilePrompt.Style.DETAILED, ""),
+                new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, "Second prompt"),
+                new AiProfilePrompt(AiProfilePrompt.Style.FORUM_ROAST, "Second retained prompt")
+        };
+        for (int i = 0; i < before.length; i++) {
+            Fixture test = new Fixture();
+            test.config = withPrompt(test.config, before[i]);
+            test.controller.start(test.target, test.input);
+            test.config = withPrompt(test.config, after[i]);
+            test.input.calls.get(0).callback.onSuccess("Stale collected prompt");
+            test.executor.drain();
+            assertEquals(before[i], test.input.configs.get(0).getProfilePrompt());
+            assertTrue(test.model.calls.isEmpty());
+            assertEquals(SummaryController.Status.ERROR, test.controller.getState().getStatus());
+            assertEquals("AI 配置已变化，请重新发起总结", test.controller.getState().getErrorMessage());
+
+            test.startAndProvideInput("Fresh collected prompt");
+            assertEquals(after[i], test.input.configs.get(1).getProfilePrompt());
+            assertEquals(after[i], test.model.configs.get(0).getProfilePrompt());
+            assertEquals("Fresh collected prompt", test.model.prompts.get(0));
+        }
+    }
+
+    @Test
+    public void floorSourceKeepsItsIndependentPromptForEveryProfileStyle() {
+        ThreadRowInfo row = new ThreadRowInfo();
+        row.setContent("Only the selected floor");
+        row.setAuthor("Floor author");
+        FloorSummaryInput input = FloorSummaryInput.fromRow("Topic", row);
+        for (AiProfilePrompt.Style style : AiProfilePrompt.Style.values()) {
+            Fixture test = new Fixture();
+            test.target = input.getTarget();
+            test.config = withPrompt(test.config, new AiProfilePrompt(style, "CUSTOM_FLOOR_SENTINEL"));
+            test.controller.start(test.target, AiSummarySources.floor(input));
+            test.executor.drain();
+            assertEquals(1, test.model.prompts.size());
+            assertEquals(input.toPrompt(), test.model.prompts.get(0));
+            assertFalse(test.model.prompts.get(0).contains("CUSTOM_FLOOR_SENTINEL"));
+        }
     }
 
     @Test
@@ -389,7 +454,7 @@ public class SummaryControllerTest {
                 throw new AssertionError("Configured");
             }
         });
-        controller.start("floor:1", callback -> {
+        controller.start("floor:1", (unused, callback) -> {
             callback.onSuccess("Synchronous input");
             return input;
         });
@@ -409,6 +474,10 @@ public class SummaryControllerTest {
         assertEquals("", state.getCopyText());
     }
 
+    private static AiConfig withPrompt(AiConfig config, AiProfilePrompt prompt) {
+        return new AiConfig(config.getEndpoint(), config.getApiKey(), config.getModel(), prompt);
+    }
+
     private static String repeat(String text, int count) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < count; i++) {
@@ -422,6 +491,7 @@ public class SummaryControllerTest {
         boolean storageFails;
         String target = "profile:42";
         int configurationPrompts;
+        int configReads;
         int successCount;
         Runnable onNextState;
         final List<SummaryController.State> states = new ArrayList<>();
@@ -429,6 +499,7 @@ public class SummaryControllerTest {
         final FakeInput input = new FakeInput();
         final FakeModel model = new FakeModel();
         final SummaryController controller = new SummaryController(() -> {
+            configReads++;
             if (storageFails) {
                 throw new IllegalStateException("SECRET_SENTINEL");
             }
@@ -491,11 +562,13 @@ public class SummaryControllerTest {
 
     private static final class FakeInput implements SummaryController.InputSource {
         final List<Pending> calls = new ArrayList<>();
+        final List<AiConfig> configs = new ArrayList<>();
 
         @Override
-        public SummaryController.Cancelable load(SummaryController.Callback callback) {
+        public SummaryController.Cancelable load(AiConfig config, SummaryController.Callback callback) {
             Pending request = new Pending(callback);
             calls.add(request);
+            configs.add(config);
             return request;
         }
     }
@@ -503,6 +576,7 @@ public class SummaryControllerTest {
     private static final class FakeModel implements SummaryController.Model {
         final List<Pending> calls = new ArrayList<>();
         final List<String> prompts = new ArrayList<>();
+        final List<AiConfig> configs = new ArrayList<>();
 
         @Override
         public SummaryController.Cancelable summarize(AiConfig config, String prompt,
@@ -510,6 +584,7 @@ public class SummaryControllerTest {
             Pending request = new Pending(callback);
             calls.add(request);
             prompts.add(prompt);
+            configs.add(config);
             return request;
         }
     }

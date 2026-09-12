@@ -33,11 +33,11 @@ public class AiSettingsContractTest {
 
         Document aiSettings = readXml("xml/settings_ai.xml");
         for (String key : new String[]{"ai_settings_endpoint", "ai_settings_api_key",
-                "ai_settings_model", "ai_settings_test"}) {
+                "ai_settings_model", "ai_settings_profile_prompt", "ai_settings_test"}) {
             assertNull("AI details must not be expanded on the root page", findPreference(rootSettings, key));
             assertNotNull("Missing AI setting: " + key, findPreference(aiSettings, key));
         }
-        assertEquals(4, aiSettings.getElementsByTagName("Preference").getLength());
+        assertEquals(5, aiSettings.getElementsByTagName("Preference").getLength());
         for (String removed : new String[]{"ai_settings_privacy", "ai_settings_status",
                 "ai_settings_save", "ai_settings_clear"}) {
             assertNull("Removed AI row: " + removed, findPreference(aiSettings, removed));
@@ -59,7 +59,7 @@ public class AiSettingsContractTest {
         assertTrue(source.contains("setHasOptionsMenu(true)"));
         assertTrue(source.contains("inflater.inflate(R.menu.settings_ai_option_menu, menu)"));
         assertTrue(source.contains("item.getItemId() == R.id.menu_ai_settings_save"));
-        assertTrue(source.contains("new AiConfig(mEndpoint, currentApiKey(), mModel)"));
+        assertTrue(source.contains("new AiConfig(mEndpoint, currentApiKey(), mModel, mProfilePromptEditorState.getPrompt())"));
         assertTrue(source.contains("mConfigStore.save(config)"));
     }
 
@@ -130,6 +130,50 @@ public class AiSettingsContractTest {
         assertTrue(completion.contains("mDialog != dialog || !isAdded() || !isResumed()"));
         assertTrue(completion.contains("mModelEditorState.modelsLoaded(generation, models)"));
         assertTrue(source.contains("mModelsCall.cancel()"));
+    }
+
+    @Test
+    public void profilePromptRowOpensACancellableMultilineEditorAndSavesThroughTheToolbar() throws Exception {
+        Element preference = findPreference(readXml("xml/settings_ai.xml"), "ai_settings_profile_prompt");
+        assertNotNull(preference);
+        assertEquals("Preference", preference.getTagName());
+        assertEquals("false", preference.getAttribute("android:persistent"));
+        assertEquals("@string/ai_settings_profile_prompt_title", preference.getAttribute("android:title"));
+        assertEquals("@string/ai_settings_profile_prompt_roast", preference.getAttribute("android:summary"));
+        Document strings = readXml("values/strings_ai_settings.xml");
+        assertEquals("查成分提示词", stringValue(strings, "ai_settings_profile_prompt_title"));
+        assertEquals("论坛锐评风格", stringValue(strings, "ai_settings_profile_prompt_roast"));
+        assertEquals("详细分析风格", stringValue(strings, "ai_settings_profile_prompt_detailed"));
+        assertEquals("自定义", stringValue(strings, "ai_settings_profile_prompt_custom"));
+
+        String source = readSource("sp/phone/ui/fragment/SettingsAiFragment.java");
+        assertTrue(source.contains("mProfilePromptPreference.setOnPreferenceClickListener(this::showFieldEditor)"));
+        assertTrue(source.contains("mProfilePromptEditorState.reset(config.getProfilePrompt())"));
+        assertTrue(source.contains("mProfilePromptPreference.setSummary(profilePromptTitle(mProfilePromptEditorState.getPrompt().getStyle()))"));
+        String editor = source.substring(source.indexOf("private void showProfilePromptEditor()"),
+                source.indexOf("private void showModelEditor()"));
+        assertTrue(editor.contains("AiProfilePrompt.Style.values()"));
+        assertTrue(editor.contains("TYPE_TEXT_FLAG_MULTI_LINE"));
+        assertTrue(editor.contains("input.setSingleLine(false)"));
+        assertTrue(editor.contains("mProfilePromptEditorState.isActive(generation)"));
+        assertTrue(editor.contains("mProfilePromptEditorState.confirm()"));
+        assertTrue(editor.contains("setNegativeButton(android.R.string.cancel, null)"));
+        assertTrue(editor.contains("dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener"));
+        assertTrue(editor.contains("input.setError(error.getMessage())"));
+        assertFalse(editor.contains("mConfigStore.save("));
+        assertFalse(editor.contains("mClient."));
+        assertFalse(editor.contains("LengthFilter"));
+    }
+
+    private static String stringValue(Document document, String name) {
+        NodeList strings = document.getElementsByTagName("string");
+        for (int i = 0; i < strings.getLength(); i++) {
+            Element string = (Element) strings.item(i);
+            if (name.equals(string.getAttribute("name"))) {
+                return string.getTextContent();
+            }
+        }
+        throw new AssertionError("Missing string: " + name);
     }
 
     private static Document readXml(String path) throws Exception {

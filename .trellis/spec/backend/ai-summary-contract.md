@@ -18,9 +18,16 @@ complete.
 
 ```java
 new AiConfig(String endpoint, String apiKey, String model);
+new AiConfig(String endpoint, String apiKey, String model, AiProfilePrompt profilePrompt);
 String AiConfig.getEndpoint(); // Complete normalized Chat Completions URL.
 String AiConfig.getApiKey();   // In-memory use only; never log/serialize the object.
 String AiConfig.getModel();
+AiProfilePrompt AiConfig.getProfilePrompt();
+// The three-argument constructor uses AiProfilePrompt.DEFAULT (FORUM_ROAST).
+// AiProfilePrompt.Style: FORUM_ROAST, DETAILED, CUSTOM.
+AiProfilePrompt.Style AiProfilePrompt.getStyle();
+String AiProfilePrompt.getCustomText();
+String AiProfilePrompt.getInstructions();
 
 new AiConfigStore(Context context);
 AiConfig AiConfigStore.load() throws AiConfigStore.StorageException; // Nullable.
@@ -40,6 +47,13 @@ JSONObject SafeJsonParser.parseObject(String json);
 FloorSummaryInput FloorSummaryInput.fromRow(String title, ThreadRowInfo row);
 SummaryController.Cancelable ProfileSummaryLoader.load(
         String uid, String userName, SummaryController.Callback callback);
+SummaryController.Cancelable ProfileSummaryLoader.load(
+        String uid, String userName, AiProfilePrompt profilePrompt,
+        SummaryController.Callback callback);
+String ProfileSummaryInput.toPrompt(AiProfilePrompt profilePrompt);
+// The compatibility overloads use the default forum-roast style.
+SummaryController.Cancelable SummaryController.InputSource.load(
+        AiConfig config, SummaryController.Callback callback);
 // SummaryController.Callback: default onProgress(String answer, String reasoning),
 // onSuccess(String text), and onError(String message).
 // Progress carries cumulative model-message projections; input sources do not emit it.
@@ -73,10 +87,19 @@ loading and answerless states return an empty string.
 - Persist the whole configuration in `noBackupFilesDir/ai-config.bin` with
   `AtomicFile`, under a shared store transaction lock. Ordinary preferences,
   settings exports, and backup data contain no plaintext Key.
-- The record is `NGAI` + version byte `1`, a random 12-byte nonce, and
-  AES-GCM ciphertext with a 128-bit tag. The header is authenticated as AAD.
-  Reject records above 16 KiB. Android Keystore owns the 256-bit AES key under
+- New records are `NGAI` + version byte `2`, a random 12-byte nonce, and
+  AES-GCM ciphertext with a 128-bit tag. Authenticate the actual record header
+  as AAD. The payload uses `DataOutputStream.writeUTF` fields in this order:
+  endpoint, Key, model, style ID, custom text. Stable style IDs are
+  `forum_roast`, `detailed`, and `custom`; reject unknown IDs and trailing data.
+  The v2 record limit is 48 KiB, sufficient for all validated fields with
+  worst-case modified UTF encoding of the 8,192-unit custom text.
+- Decode existing v1 three-field records with their original 16 KiB limit and
+  supply `AiProfilePrompt.DEFAULT` without changing endpoint, Key, or model.
+  Reading does not rewrite the file; the next deliberate toolbar Save writes
+  v2 atomically. Android Keystore retains the 256-bit AES key under the existing
   alias `sp.phone.ai.config.v1`; encryption obtains its nonce from the provider.
+  Do not rotate the alias merely because the record schema changed.
 - Loading never creates a missing Keystore key. Corrupt records or lost keys
   fail closed and discard invalid material; there is no cached/plaintext
   fallback. Clear attempts both file deletion and key deletion, even if one
@@ -91,11 +114,19 @@ loading and answerless states return an empty string.
 
 ### Settings interaction and model discovery
 
-- There is one AI configuration. The child settings screen contains only API
-  address, API Key, model, and connection-test rows. Do not add instruction,
+- There is one AI configuration. The child settings screen contains API
+  address, API Key, model, profile-prompt, and connection-test rows. Do not add instruction,
   current-configuration, Save, or Clear preferences. The top-right toolbar Save
   action reuses `btn_ic_save` and has an accessible Save title; it persists the
   complete draft through the existing store transaction.
+- The `查成分提示词` row shows the selected style and opens three choices:
+  `论坛锐评风格` (default), `详细分析风格`, and `自定义`. Custom input is
+  multiline. Selecting a preset retains the previously entered custom text;
+  only the selected style determines the next profile prompt. The editor's
+  positive action accepts its local draft, while Cancel, Back, and lifecycle
+  dismissal discard it. The toolbar Save persists prompt settings together
+  with the service configuration. Empty custom instructions cannot be accepted;
+  validation must keep the editor open without replacing the previous draft.
 - Keep endpoint copy to a short example. The Key dialog is a direct password
   input; do not add encryption/local-storage explanations or echo a saved Key.
   Retain the secret-handling safeguards above. Load/save errors use fixed concise
@@ -203,6 +234,14 @@ loading and answerless states return an empty string.
 - Profile summaries use the viewed `mProfileData.uid`, never the active
   account's UID. `AiSummarySources.profile` defers all session lookup and reads
   until the controller confirms a valid AI configuration.
+- Input sources receive the controller's initial configuration snapshot.
+  Profile collection carries its immutable prompt selection through both page
+  reads and composition; it does not independently reload settings. Before
+  sending, the controller retains its second configuration validation and
+  compares the prompt selection and retained custom text as well as endpoint,
+  model, and Key. A changed configuration rejects the collected input; an
+  explicit retry captures the newly saved selection. Floor input and connection
+  tests keep their own instructions.
 - `NgaProfilePageSource` implements the existing `TOPIC.LIST` wire operation:
   `GET thread.php?authorid=<uid>&page=1&lite=js&noprefix`, adding `searchpost=1`
   for replies. Run the topics operation before replies, each capped at 20
@@ -242,10 +281,24 @@ loading and answerless states return an empty string.
 
 ### Profile composition prompt
 
-- `ProfileSummaryInput.toPrompt()` requests a qualitative portrait of public
-  discussion in five plain-text sections: `兴趣关注`, `主要观点`, `发言风格`,
-  `成分总结`, and `标签`. Analyze expressed interests, views, and wording; do not
-  assign scores, rankings, or a personality/credibility total.
+- `AiProfilePrompt` owns the preset instruction definitions and the selected
+  style. `ProfileSummaryInput` appends the bounded public activity once, using
+  the selection passed with the request. The no-argument `toPrompt()` uses
+  `FORUM_ROAST`, including for existing callers and configurations without a
+  stored selection.
+- `FORUM_ROAST` requests roughly 200–350 Chinese characters in three short
+  sections, `画像`, `标签`, and `一句锐评`: a forum-style portrait, supported
+  interest/style tags, and a sharp evidence-grounded punchline. `DETAILED` uses a neutral tone
+  and five plain-text sections: `兴趣关注`, `主要观点`, `发言风格`, `成分总结`,
+  and `标签`. Both analyze expressed interests, views, and wording, without
+  scores, rankings, or a personality/credibility total.
+- `CUSTOM` replaces the preset's style and output-format instructions with
+  the user's exact multiline text. Never append an inactive preset or silently
+  trim/truncate the saved text. The common sample framing and the application's
+  data boundary still apply. Custom text is retained when a preset is selected,
+  but it is not included in a preset request. Accept at most 8,192 UTF-16 code
+  units; blank custom instructions and oversized retained text are validation
+  errors, not reasons to select a different style silently.
 - Include the actual retained topic and reply counts after bounded copying.
   Number entries independently as `[主题1]`, `[主题2]`, and `[回复1]`, `[回复2]`.
   These are local evidence identifiers, not links or additional NGA metadata.
@@ -258,15 +311,17 @@ loading and answerless states return an empty string.
   infer sensitive personal attributes or real-world identity, income, location,
   health, or character from these bounded samples. Source content remains data,
   not instructions to the model.
-- Describe the voice through general traits: deadpan black humor, brisk short
-  sentences, occasional technical metaphors, and satire grounded in actual
+- In the forum-roast preset, describe the voice through general traits: direct
+  forum phrasing, brisk short sentences, rhetorical questions, short analogies,
+  and satire grounded in actual
   wording. Do not request a named living author's individual style. Evidence and
   clarity take priority over humor; do not invent motives, experiences, or
   contradictions for a punchline.
-- Request at most two observations in each of the first three sections, a one-
+- The detailed preset requests at most two observations in each of its first three sections, a one-
   or two-sentence synthesis, and 3–5 supported interest/style tags (fewer when
   evidence is sparse). Use plain text, without BBCode, Markdown tables, or code
-  fences. Both profile and floor prompts contain exactly `回复正文在1000字以内`.
+  fences. Both built-in profile presets and the floor prompt contain exactly
+  `回复正文在1000字以内`.
   This constrains the requested reply body, not thinking, and is prompt guidance
   only. Receive, display, and copy answers above 1,000 characters completely
   within the independent operational resource bounds. The floor-summary prompt
@@ -314,6 +369,12 @@ loading and answerless states return an empty string.
 | Condition | Required outcome |
 | --- | --- |
 | Summary action with no saved config | Open AI settings; no input/model network requests |
+| Existing v1 configuration or a new three-argument `AiConfig` | Default to forum roast while retaining endpoint, Key, and model |
+| Confirm a prompt editor draft, then use toolbar Save | Persist style and retained custom text with the complete AI configuration |
+| Cancel/Back/dismiss prompt editor | Preserve the previously accepted settings draft |
+| Switch custom to a preset and back | Retain custom text; use only the selected style for requests |
+| Custom is blank or retained text exceeds 8,192 UTF-16 code units | Reject without closing the editor or clipping text |
+| Prompt selection/custom text changes during profile collection | Reject stale input before a model request; retry uses the new configuration |
 | Model editor opened with draft address/Key and no model | GET the derived `/models` endpoint; no save or summary request |
 | HTTP LAN endpoint or HTTPS endpoint | Normalize and use the configured scheme and port |
 | Model list is empty or discovery fails | Manual entry stays available; retain same-service cached choices |
@@ -354,6 +415,14 @@ loading and answerless states return an empty string.
   accept only visible entries, validating their actual topic/reply authors.
 - Good: a profile observation cites `[回复2]` and its concrete wording, with
   restrained satire about the statement rather than an invented personal story.
+- Good: save a multiline custom prompt, select detailed analysis, and later
+  return to custom; the same text is restored and only the selected instructions
+  appear before the public sample.
+- Base: an existing encrypted configuration loads with forum roast selected;
+  opening and cancelling the editor changes neither the draft nor stored data.
+- Bad: accepting a custom prompt but composing the request with a hard-coded
+  default, losing custom text when selecting a preset, or saving prompt settings
+  separately from the configuration transaction.
 - Good: reasoning streams into a folded section, then a 1,200-character answer
   streams into the body and is copied in full; a prompt instruction is not a
   substring boundary.
@@ -378,7 +447,13 @@ loading and answerless states return an empty string.
 
 - `AiConfigTest`, `AiConfigRecordTest`, and `AiConfigStoreTest`: endpoint
   normalization, fixed validation errors, real AES-GCM round trips/tampering,
-  atomic failure, reload, lost-key, and partial-clear behavior.
+  atomic failure, reload, lost-key, and partial-clear behavior. Cover v1
+  migration to the forum default, both preset selections, exact multiline
+  custom round trips, retained custom text under presets, worst-case UTF
+  encoding, and an atomic failure preserving all previous fields.
+- `AiProfilePromptTest` and `AiProfilePromptEditorStateTest` cover distinct presets, selected
+  instructions, exact custom text, blank/overlong validation, local draft
+  confirmation/cancellation, and custom-to-preset-to-custom transitions.
 - `AiResponseParserTest` and `AiSummaryClientTest`: bounded/type-safe parsing,
   special keys, UTF-8, request JSON, auth/Cookie isolation, status errors,
   redirects, 503 request count, explicit cancellation, and transport deadlines.
@@ -409,7 +484,10 @@ loading and answerless states return an empty string.
   `SummaryInputTest` also verifies retained counts and independent evidence
   numbering across truncation, null entries, and empty/partial samples; prose
   and tone instructions are source-reviewed rather than duplicated as a string
-  snapshot test. Assert both prompts contain `回复正文在1000字以内`.
+  snapshot test. Assert both built-in profile presets and the floor prompt
+  contain `回复正文在1000字以内`. Exercise saved custom instructions through
+  the configuration-aware source/controller/model path and reject a prompt
+  configuration change before sending.
   Controller cases include progress coalescing, terminal flush, late progress
   after close/same-target retry/target replacement, retained partial errors,
   separate reasoning, and complete answer-only copying above 1,000 characters.
@@ -417,7 +495,9 @@ loading and answerless states return an empty string.
   `AiSummaryUiContractTest`: settings hierarchy/navigation, Key state-saving
   precautions, both floor menus, loaded-profile visibility, shared dialog,
   and pause/refresh cleanup.
-  Settings coverage also asserts the toolbar save icon and model-editor wiring.
+  Settings coverage also asserts the toolbar save icon, model-editor wiring,
+  the fifth profile-prompt row, the three choice labels, multiline custom input,
+  and saving the complete prompt-aware draft through the existing store.
   Shared-dialog coverage asserts separate views, default folding and reset,
   accessible toggle, answer-only copy, and clearing transient text on dismiss.
   `AiModelEditorStateTest` covers model list/custom/error interaction, same-service
@@ -429,6 +509,15 @@ loading and answerless states return an empty string.
   current device authorization; otherwise report not run per project policy.
 
 ## 7. Wrong vs Correct
+
+```java
+// Wrong when saving an edited settings draft: silently resets the prompt selection.
+AiConfig config = new AiConfig(endpoint, apiKey, model);
+
+// Correct: service credentials and the accepted prompt draft share one atomic save.
+AiConfig config = new AiConfig(endpoint, apiKey, model, promptEditor.getPrompt());
+configStore.save(config);
+```
 
 ```java
 // Wrong: reasoning can exhaust the cap before an answer; clipping can lose body text.

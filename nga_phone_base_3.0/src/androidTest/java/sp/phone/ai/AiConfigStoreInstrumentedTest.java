@@ -45,7 +45,8 @@ public class AiConfigStoreInstrumentedTest {
 
     @Test
     public void keystoreCiphertextReopensAndClearDeletesBothSides() throws Exception {
-        AiConfig config = new AiConfig("https://example.test/v1", "synthetic-device-test-key", "synthetic-model");
+        AiProfilePrompt prompt = new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, "自定义第一段\nSecond line 😀\n");
+        AiConfig config = new AiConfig("https://example.test/v1", "synthetic-device-test-key", "synthetic-model", prompt);
         store.save(config);
         assertNull(keys.getExisting().getEncoded());
         String stored = new String(Files.readAllBytes(file.toPath()), StandardCharsets.ISO_8859_1);
@@ -53,6 +54,7 @@ public class AiConfigStoreInstrumentedTest {
         AiConfig reopened = new AiConfigStore(new AndroidAiConfigFile(file), keys).load();
         assertEquals(config.getEndpoint(), reopened.getEndpoint());
         assertEquals(config.getApiKey(), reopened.getApiKey());
+        assertEquals(prompt, reopened.getProfilePrompt());
         store.clear();
         assertFalse(file.exists());
         assertNull(keys.getExisting());

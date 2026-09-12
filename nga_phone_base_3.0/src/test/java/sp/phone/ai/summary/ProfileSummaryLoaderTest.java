@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import sp.phone.ai.AiProfilePrompt;
+
 public class ProfileSummaryLoaderTest {
 
     @Test
@@ -32,6 +34,22 @@ public class ProfileSummaryLoaderTest {
         assertTrue(result.prompt.contains("当前资料页 UID：4200"));
         assertTrue(result.prompt.contains("Topic first page"));
         assertTrue(result.prompt.contains("Actual viewed-user reply"));
+        assertNull(result.error);
+    }
+
+    @Test
+    public void selectedCustomInstructionsAreUsedAfterBothPagesFinish() {
+        FakePages pages = new FakePages();
+        Result result = new Result();
+        String customText = "  Custom style\nSecond line\n";
+        AiProfilePrompt prompt = new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, customText);
+        new ProfileSummaryLoader(pages).load("42", "Viewed user", prompt, result);
+        pages.requests.get(0).succeed("Topic", "");
+        assertNull(result.prompt);
+        pages.requests.get(1).succeed("Reply topic", "Public reply");
+        assertTrue(result.prompt.contains("输出要求：\n" + customText + "\n"));
+        assertTrue(result.prompt.contains("[回复1] Reply topic"));
+        assertFalse(result.prompt.contains(AiProfilePrompt.DEFAULT.getInstructions()));
         assertNull(result.error);
     }
 

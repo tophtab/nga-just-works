@@ -9,6 +9,19 @@ import org.junit.Test;
 
 public class AiConfigTest {
     @Test
+    public void existingCallersDefaultToRoastAndExplicitPromptSettingsAreRetained() {
+        AiConfig defaultConfig = config("https://api.example.test/v1");
+        assertEquals(AiProfilePrompt.DEFAULT, defaultConfig.getProfilePrompt());
+        AiProfilePrompt prompt = new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, "Custom\nPrompt");
+        AiConfig custom = new AiConfig(defaultConfig.getEndpoint(), defaultConfig.getApiKey(),
+                defaultConfig.getModel(), prompt);
+        assertEquals(prompt, custom.getProfilePrompt());
+        assertThrows(IllegalArgumentException.class,
+                () -> new AiConfig(defaultConfig.getEndpoint(), defaultConfig.getApiKey(),
+                        defaultConfig.getModel(), null));
+    }
+
+    @Test
     public void normalizesBaseAndCompleteUrlsWithoutGuessingVersion() {
         assertEquals("https://api.example.test/chat/completions", config("https://api.example.test").getEndpoint());
         assertEquals("https://api.example.test/v1/chat/completions", config("https://api.example.test/v1/").getEndpoint());

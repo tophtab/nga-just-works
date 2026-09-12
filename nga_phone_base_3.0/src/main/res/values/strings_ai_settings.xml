@@ -15,6 +15,11 @@
     <string name="ai_settings_models_loading">正在获取模型…</string>
     <string name="ai_settings_models_empty">未找到模型，可自定义</string>
     <string name="ai_settings_models_failed">获取失败，可自定义</string>
+    <string name="ai_settings_profile_prompt_title">查成分提示词</string>
+    <string name="ai_settings_profile_prompt_roast">论坛锐评风格</string>
+    <string name="ai_settings_profile_prompt_detailed">详细分析风格</string>
+    <string name="ai_settings_profile_prompt_custom">自定义</string>
+    <string name="ai_settings_profile_prompt_hint">输入自定义提示词（最多 8192 个字符）</string>
     <string name="ai_settings_save_title">保存</string>
     <string name="ai_settings_saved">AI 配置已保存</string>
     <string name="ai_settings_test_title">测试连接</string>
