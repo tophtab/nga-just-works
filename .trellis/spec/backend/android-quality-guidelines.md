@@ -205,23 +205,37 @@ cannot model, preserve runtime attributes and use only a documented,
 element-local `tools:ignore`. Do not disable the rule for the file, module, or
 project merely to keep the report green.
 
-Use the repository-wide `testDebugUnitTest --continue` task as the diagnostic
-baseline rather than the aggregate `test` task: the latter enters
+Use the repository-wide `testDebugUnitTest --continue` task as the unit-test
+gate rather than the aggregate `test` task: the latter enters
 release/preview unit-test task graphs and trips the release-signing guard even
-though no local signed APK packaging is authorized. The debug-only diagnostic
-is not the feature gate while these pinned-upstream fixtures remain unchanged:
+though no local signed APK packaging is authorized. The Debug gate must pass;
+historical example-test failures are no longer accepted baseline exceptions.
 
-- `lib_base_ui` and `lib_bu_statistics` example tests compile without a JUnit
-  dependency and fail at `compile*UnitTestJavaWithJavac`;
-- `lib_core:ExampleUnitTest.testQuote` loads Android-dependent code on the host
-  JVM and fails without the Android runtime/context;
-- `lib_module_debug` example tests generate an unresolved KAPT annotation stub.
+Every module whose `src/test` sources import JUnit 4 must declare its own JUnit
+`testImplementation` dependency, for example
+`testImplementation 'junit:junit:4.13.2'`. A dependency on another project does
+not inherit that project's test dependencies. Keep JUnit on the
+test classpath; do not add it as a product dependency or disable test variants
+to hide a missing dependency.
 
-Do not add product dependencies or disable test variants only to mask these
-unrelated upstream fixtures. A task that changes one of those modules must
-either fix its owned test baseline explicitly or obtain a scope decision. For
-favorite/FAB changes, `:nga_phone_base_3.0:testDebugUnitTest` and the focused
-regression class must pass.
+The `lib_bu_statistics` Java example and `lib_module_debug` Kotlin example had
+the same missing-JUnit cause. Java reported `package org.junit does not exist`;
+KAPT represented the unresolved `org.junit.Test` annotation as
+`@error.NonExistentClass()`, then failed with
+`NonExistentClass cannot be converted to Annotation`. For this KAPT symptom,
+inspect the source annotation and `debugUnitTestCompileClasspath` before
+changing processor configuration. Restoring the module's test dependency
+allows the existing example to compile and execute without a KAPT workaround.
+If an incremental build retains the unresolved stub after the classpath is
+corrected, rerun the affected `testDebugUnitTest` tasks with
+`--rerun-tasks --no-build-cache` and confirm the generated annotation becomes
+`@org.junit.Test()`; do not edit generated stubs.
+
+When repairing a test-compilation failure, require the existing tests to
+execute and inspect their XML reports for nonzero test counts and zero
+failures/errors/skips, then run the repository Debug gate. A missing report is
+not a pass. For favorite/FAB changes, the focused regression class must also
+pass.
 
 By default, do not query ADB or run `connectedDebugAndroidTest`, installation,
 instrumentation, or another device gate. Record these checks as not run per
