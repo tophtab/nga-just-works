@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Locate active NGA and Android contracts."}
+{"file": ".trellis/spec/backend/ai-summary-contract.md", "reason": "Preserve isolated model decoding, native input ownership, identities and bounds."}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Preserve source-backed normalization and explicit live-access scope."}
+{"file": ".trellis/tasks/09-12-ai-profile-content-format/research/live-result.md", "reason": "Current two-request reproduction and same-response differential evidence."}
+{"file": ".trellis/tasks/09-12-ai-profile-content-format/research/topic-body-compatibility.md", "reason": "Source anchors, native-format gap and missing regression cases."}

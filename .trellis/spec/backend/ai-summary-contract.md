@@ -294,8 +294,22 @@ loading and answerless states return an empty string.
   unavailable, distinct from a valid empty body. Entry serialization labels
   either case as an application notice, never as a server-authored claim.
   Other floors and user tables are not source material for the prompt. Keep
-  source-backed NGA envelope normalization local and outside quoted text;
-  do not execute it or invoke the legacy renderer/raw-response logger.
+  source-backed NGA envelope normalization local; recognize JS/error-fill
+  markers only outside quoted text. Do not execute the response or invoke the
+  legacy renderer/raw-response logger.
+- Native `THREAD.PAGE` strings may contain literal TAB (U+0009), LF (U+000A),
+  or CR (U+000D). The authorized 2026-09-12 response contained 53 raw TABs;
+  the shared strict JSON preflight rejected it before original-post selection.
+  `NgaTopicBodyParser` converts these three raw string characters to equivalent
+  JSON escapes before shared decoding. Preserve their decoded text and every
+  existing valid escape, including the distinction between an escaped tab and
+  literal backslash-plus-`t`. A lone backslash followed by a raw TAB/LF/CR and
+  all other raw C0 controls remain format errors. Keep this representation
+  adapter local to topic details; do not relax `SafeJsonParser` or model JSON.
+  Controls in ignored metadata receive the same normalization, without making
+  that metadata source material for the prompt. Count escape expansion toward
+  the existing 512-Ki-character normalized-response limit; overflow fails
+  explicitly. Identity, floor, and original-content checks still run afterward.
 - Both topic and reply bodies retain at most the first 1,200 cleaned UTF-16
   code units, preserving the existing surrogate-boundary handling and 64,000
   source-processing bound. The common prompt describes this prefix limit.
@@ -456,6 +470,11 @@ loading and answerless states return an empty string.
 | Profile source lists exceed retained limits | Prompt counts and input labels describe only the retained entries |
 | A topic or reply body exceeds 1,200 cleaned characters | Retain only its prefix without splitting a surrogate pair; framing states the limit |
 | Topic detail includes later or foreign-author floors | Include only the verified original belonging to the requested topic and viewed UID |
+| Literal TAB/LF/CR in a quoted topic-detail body or ignored metadata field | Escape locally, decode equivalent text, and apply all original-post checks |
+| Existing escaped control or literal backslash-plus-letter text in a topic detail | Preserve their distinct decoded values |
+| Lone backslash followed by raw TAB/LF/CR, or another raw C0 string character | Existing NGA format error; no model request |
+| Topic-detail escape expansion exceeds the normalized-response limit | Existing NGA format error; no clipping or partial sample |
+| Raw control character in model-service JSON | Preserve the shared decoder's existing invalid-response result |
 | Original body explicitly unavailable | Keep visible topic metadata with a fixed unavailable-body notice; no denial text or substitute floor |
 | Unmarked original missing/ambiguous or topic/original identity disagrees | Terminal collection error; no model request |
 | Cancellation during topic enrichment | Cancel the active call, schedule no later detail/reply reads, discard late callbacks |
@@ -478,6 +497,13 @@ loading and answerless states return an empty string.
 - Good: a topic entry contains its verified original body's first 1,200 cleaned
   characters, while a reply entry contains the viewed user's `__P` body from
   the reply list. A later floor never substitutes for the original.
+- Good: a native detail with raw tabs in ignored metadata decodes successfully,
+  while only its verified original contributes text to the profile sample.
+- Base: ordinary JSON and already escaped whitespace keep their existing
+  decoded body and identity checks.
+- Bad: feeding the native detail directly to the shared strict preflight,
+  deleting whitespace to make it parse, or accepting the same raw characters
+  in model responses by weakening the shared decoder.
 - Good: save a multiline custom prompt, select detailed analysis, and later
   return to custom; the same text is restored and only the selected instructions
   appear before the public sample.
@@ -551,7 +577,14 @@ loading and answerless states return an empty string.
   Topic-body coverage verifies explicit floor/TID/author identity, unavailable
   originals, wrong/missing/ambiguous originals, request bounds/order, body-only
   projection, envelope handling, and cancellation/late callbacks during
-  enrichment. `SummaryInputTest` covers both body prefixes at 1,199/1,200/1,201
+  enrichment. Inject literal TAB/LF/CR after fixture serialization: a
+  `JSONObject.toJSONString()` fixture alone escapes them and cannot reproduce
+  the native wire failure. Cover controls in the original and ignored metadata,
+  escaped counterparts versus literal backslash text, escaped quotes and
+  backslashes, malformed lone-backslash/control pairs, other raw C0 rejection,
+  and normalization expansion at and beyond the limit. Exercise the complete
+  list/detail/reply composition path with that raw-wire detail, and retain the
+  strict model-decoder regression. `SummaryInputTest` covers both body prefixes at 1,199/1,200/1,201
   characters and surrogate boundaries. `AiSummaryClientTest` sends maximum
   samples with each built-in style without clipping and verifies that an
   oversized custom input fails before any request.
@@ -583,6 +616,15 @@ loading and answerless states return an empty string.
   current device authorization; otherwise report not run per project policy.
 
 ## 7. Wrong vs Correct
+
+```java
+// Wrong: native NGA strings can contain raw tabs that strict JSON rejects.
+JSONObject data = SafeJsonParser.parseObject(rawNgaDetail);
+
+// Correct (summary package): normalize the native representation locally,
+// then preserve the strict decoder and verified-original projection.
+String body = NgaTopicBodyParser.parse(rawNgaDetail, viewedUid, requestedTid);
+```
 
 ```java
 // Wrong: compatibility rows and explicit comments may not have a known floor.

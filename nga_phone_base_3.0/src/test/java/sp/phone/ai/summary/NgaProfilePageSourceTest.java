@@ -485,6 +485,69 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
+    public void nativeStringWhitespacePreservesBodyTextAndExistingEscapeSemantics() throws Exception {
+        String body = "Raw:CONTROL_PLACEHOLDER; escaped:\t\n\r\b\f; literal:\\t \\n \\r; "
+                + "quote:\"CONTROL_PLACEHOLDER\"; backslash:\\CONTROL_PLACEHOLDER; "
+                + "markers:/*$js$*/ /*error fill content; unicode:UNICODE_PLACEHOLDER";
+        for (String control : new String[]{"\t", "\n", "\r"}) {
+            String expected = body.replace("CONTROL_PLACEHOLDER", control)
+                    .replace("UNICODE_PLACEHOLDER", "\t");
+            assertEquals(expected, NgaTopicBodyParser.parse(
+                    detailDocument("7300", post("7300", "42", 0, expected)), "42", "7300"));
+            // Inject after serialization: JSONObject would escape the native wire characters.
+            String raw = detailDocument("7300", post("7300", "42", 0, body))
+                    .replace("CONTROL_PLACEHOLDER", control).replace("UNICODE_PLACEHOLDER", "\\u0009");
+            assertEquals(expected, NgaTopicBodyParser.parse(raw, "42", "7300"));
+        }
+    }
+
+    @Test
+    public void nativeStringWhitespaceInIgnoredMetadataCannotDiscardTheOriginal() throws Exception {
+        JSONObject original = post("7300", "42", 0, "BODY_SENTINEL");
+        original.put("alterinfo", "[edit]CONTROL_PLACEHOLDER ");
+        String template = detailDocument("7300", original)
+                .replace("PROFILE_EMAIL_SENTINEL", "IGNORED_CONTROL_PLACEHOLDER_METADATA");
+        for (String[] controls : new String[][]{{"\t", "\\t"}, {"\n", "\\n"}, {"\r", "\\r"}}) {
+            for (String wireControl : controls) {
+                assertEquals("BODY_SENTINEL", NgaTopicBodyParser.parse(
+                        template.replace("CONTROL_PLACEHOLDER", wireControl), "42", "7300"));
+            }
+        }
+    }
+
+    @Test
+    public void unsupportedStringControlsAndMalformedEscapesStillFailInBodiesAndMetadata() {
+        String body = detailDocument("7300", post("7300", "42", 0, "CONTROL_PLACEHOLDER"));
+        String metadata = detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL"))
+                .replace("PROFILE_EMAIL_SENTINEL", "CONTROL_PLACEHOLDER");
+        for (String template : new String[]{body, metadata}) {
+            for (char control = 0; control < 0x20; control++) {
+                if (control != '\t' && control != '\n' && control != '\r') {
+                    assertBodyFails(template.replace("CONTROL_PLACEHOLDER", String.valueOf(control)));
+                }
+            }
+            for (String malformed : new String[]{"\\\t", "\\\n", "\\\r", "\\", "\\q", "\\u12", "\\u12xz",
+                    "\t\\q", "\\q\t"}) {
+                assertBodyFails(template.replace("CONTROL_PLACEHOLDER", malformed));
+            }
+        }
+    }
+
+    @Test
+    public void nativeWhitespaceExpansionMustFitTheResponseLimit() throws Exception {
+        String template = detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL"));
+        int available = NgaProfilePageSource.MAX_RESPONSE_BYTES
+                - (template.length() - "PROFILE_EMAIL_SENTINEL".length());
+        String metadata = SummaryInputTest.repeat('x', available - "\\t\\n\\r".length()) + "\t\n\r";
+        String raw = template.replace("PROFILE_EMAIL_SENTINEL", metadata);
+        assertEquals(NgaProfilePageSource.MAX_RESPONSE_BYTES - 3, raw.length());
+        assertEquals("BODY_SENTINEL", NgaTopicBodyParser.parse(raw, "42", "7300"));
+        // Both inputs fit the raw limit, but their escaped representation exceeds it.
+        assertBodyFails(template.replace("PROFILE_EMAIL_SENTINEL", metadata + "x"));
+        assertBodyFails(template.replace("PROFILE_EMAIL_SENTINEL", SummaryInputTest.repeat('\t', available)));
+    }
+
+    @Test
     public void malformedOrRejectedDetailEnvelopesFailSafely() {
         String deep = SummaryInputTest.repeat('[', 70) + "0" + SummaryInputTest.repeat(']', 70);
         String valid = detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL"));
@@ -499,13 +562,19 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void firstPageCollectionIncludesVerifiedTopicBodiesAndKeepsSessionDataOutOfThePrompt() throws Exception {
+    public void firstPageCollectionNormalizesNativeStringControlsBeforeComposingThePrompt() throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             server.start();
             server.enqueue(gbkResponse(document(row("42", false))));
-            server.enqueue(gbkResponse(detailDocument("7300",
+            JSONObject original = post("7300", "42", 0,
+                    "[b]示例主题正文[/b]BODY_CONTROLS_PLACEHOLDER第二行[quote]引用文字[/quote]自己的观点");
+            original.put("alterinfo", "[edit]METADATA_CONTROLS_PLACEHOLDER ");
+            String nativeDetail = detailDocument("7300",
                     post("7300", "99", 1, "OTHER_FLOOR_SENTINEL"),
-                    post("7300", "42", 0, "[b]示例主题正文[/b][quote]引用文字[/quote]自己的观点"))));
+                    original).replace("BODY_CONTROLS_PLACEHOLDER", "\r\n\t")
+                    .replace("METADATA_CONTROLS_PLACEHOLDER", "\t\r\n")
+                    .replace("PROFILE_EMAIL_SENTINEL", "PROFILE_EMAIL_SENTINEL\t\n\r");
+            server.enqueue(gbkResponse(nativeDetail));
             server.enqueue(gbkResponse(document(row("42", true))));
             OkHttpClient client = localClient(server, 5000);
             try {
@@ -516,7 +585,8 @@ public class NgaProfilePageSourceTest {
                 assertTrue(result.finished.await(5, TimeUnit.SECONDS));
                 assertNull(result.error);
                 assertTrue(result.prompt.contains("示例回复正文"));
-                assertTrue(result.prompt.contains("主题正文：示例主题正文\n引用：\n引用文字\n引用结束\n自己的观点"));
+                assertTrue(result.prompt.contains("主题正文：示例主题正文\n第二行\n引用：\n引用文字\n引用结束\n自己的观点"));
+                assertFalse(result.prompt.contains("[edit]"));
                 assertFalse(result.prompt.contains("OTHER_FLOOR_SENTINEL"));
                 assertFalse(result.prompt.contains("TOPIC_BODY_SENTINEL"));
                 assertFalse(result.prompt.contains("7300"));

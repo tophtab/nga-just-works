@@ -1,0 +1,30 @@
+{
+  "id": "ai-profile-content-format",
+  "name": "ai-profile-content-format",
+  "title": "修复 AI 查成分内容格式异常并合入 main",
+  "description": "修复已实测复现的 NGA 主题正文控制字符解析故障，补回归测试并将验证后的修改合并到 main。",
+  "status": "in_progress",
+  "dev_type": "backend",
+  "scope": "ai",
+  "package": null,
+  "priority": "P1",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-12",
+  "completedAt": null,
+  "branch": "feature/ai-summary",
+  "base_branch": "main",
+  "worktree_path": "/home/toph/nga-just-works-ai-summary",
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "nga_phone_base_3.0/src/main/java/sp/phone/ai/summary/NgaTopicBodyParser.java",
+    "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/NgaProfilePageSourceTest.java",
+    ".trellis/spec/backend/ai-summary-contract.md"
+  ],
+  "notes": "",
+  "meta": {}
+}

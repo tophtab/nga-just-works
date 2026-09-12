@@ -104,7 +104,7 @@ final class NgaTopicBodyParser {
         }
     }
 
-    /** Source-backed ArticleConvertFactory repairs, applied only outside quoted text. */
+    /** Repairs native envelopes/numeric tokens outside strings and supported whitespace inside them. */
     private static String normalize(String raw) throws NgaProfilePageSource.PageException {
         if (raw == null || raw.length() > NgaProfilePageSource.MAX_RESPONSE_BYTES) {
             throw invalid();
@@ -117,9 +117,8 @@ final class NgaTopicBodyParser {
             } else if (raw.startsWith(ERROR_FILL, index)) {
                 break;
             } else if (raw.charAt(index) == '"') {
-                int end = quotedEnd(raw, index);
+                int end = appendQuoted(raw, index, output);
                 String field = raw.substring(index, end + 1);
-                output.append(field);
                 index = end + 1;
                 if ("\"content\"".equals(field) || "\"subject\"".equals(field)) {
                     int colon = skipWhitespace(raw, index);
@@ -150,10 +149,24 @@ final class NgaTopicBodyParser {
         return output.toString();
     }
 
-    private static int quotedEnd(String text, int start) throws NgaProfilePageSource.PageException {
+    private static int appendQuoted(String text, int start, StringBuilder output)
+            throws NgaProfilePageSource.PageException {
+        output.append('"');
         boolean escaped = false;
         for (int index = start + 1; index < text.length(); index++) {
             char character = text.charAt(index);
+            if (character == '\t' || character == '\n' || character == '\r') {
+                if (escaped) {
+                    // A backslash followed by a raw control is not a valid JSON escape.
+                    throw invalid();
+                }
+                output.append(character == '\t' ? "\\t" : character == '\n' ? "\\n" : "\\r");
+            } else {
+                output.append(character);
+            }
+            if (output.length() > NgaProfilePageSource.MAX_RESPONSE_BYTES) {
+                throw invalid();
+            }
             if (escaped) {
                 escaped = false;
             } else if (character == '\\') {
