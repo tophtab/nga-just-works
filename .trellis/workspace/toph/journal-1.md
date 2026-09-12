@@ -1413,3 +1413,39 @@ Implemented streamed profile and floor summaries, initially folded reasoning, co
 ### Status
 
 [OK] **Completed**
+
+
+## Session 62: AI 查成分提示词选项与参考项目致谢
+<!-- trellis-session: v=2 fp=8a35a6f4678c067a -->
+
+**Date**: 2026-09-12
+**Task**: AI 查成分提示词选项与参考项目致谢
+**Branch**: `feature/ai-summary`
+
+### Summary
+
+完成论坛锐评默认风格、详细分析和自定义提示词设置，兼容旧配置，并补充两个参考项目的致谢。按用户要求直接开发，未创建 Trellis 任务。
+
+### Main Changes
+
+- AI 设置新增查成分提示词入口；保留自定义原文与取消语义，由现有工具栏保存全部配置。
+- 加密配置升级为 v2 并兼容 v1，保留服务地址、Key 和模型；查成分请求使用一致的提示词配置快照。
+- 更新 AI 契约与测试，并在 README 致谢注明 nga-analyzer 和 lnga_harmony 的提示词设计参考。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `69d410029ba55b43122a05c872c53a8dbd8fb4bf` | feat(ai): add profile prompt settings |
+
+### Testing
+
+- [OK] 生产代码与 Android instrumentation 测试源码编译通过；未执行设备测试。
+- [OK] 204 项 AI/设置 JVM 测试全部通过；应用全量 345 项中 4 项既有 ReleaseWorkflowContractTest 断言失败。
+- [OK] 全量 lintDebug 强制重新执行 536 项任务，逐一解析 13 个模块报告，0 Error / 0 Fatal；新增代码没有 lint 发现。
+- [OK] 仓库级 testDebugUnitTest --continue 另有 lib_bu_statistics 缺 JUnit 和 lib_module_debug 示例 KAPT 注解编译失败；lib_core 和 lib_base_ui 本轮通过。
+- [OK] 独立代码复核及 git diff --check 通过；未运行 APK 打包、安装、设备 instrumentation 或真实服务请求。
+
+### Status
+
+[OK] **Completed**
