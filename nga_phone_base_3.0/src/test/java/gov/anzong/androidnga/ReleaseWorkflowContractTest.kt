@@ -42,7 +42,7 @@ class ReleaseWorkflowContractTest {
     }
 
     @Test
-    fun checkoutKeepsMainHistoryAndUsesShallowTagsWithBloblessPartialClone() {
+    fun checkoutKeepsBranchHistoryAndUsesShallowTagsWithBloblessPartialClone() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
         val checkout = stepBody(workflow, "Checkout project sources", "Derive release identity")
         val depthExpression = Regex(
@@ -52,7 +52,7 @@ class ReleaseWorkflowContractTest {
         assertEquals(1, Regex("(?m)^\\s*uses: actions/checkout@v4\\s*$").findAll(checkout).count())
         requireNotNull(depthExpression) { "Checkout depth must branch on stable tag refs" }
         assertEquals("Stable tag checkout must fetch only the tagged commit", 1, depthExpression.groupValues[1].toInt())
-        assertEquals("Main preview checkout must retain complete history", 0, depthExpression.groupValues[2].toInt())
+        assertEquals("Every branch preview checkout must retain complete history", 0, depthExpression.groupValues[2].toInt())
         assertEquals(1, Regex("(?m)^\\s*filter: blob:none\\s*$").findAll(checkout).count())
 
         val identity = stepBody(workflow, "Derive release identity", "Setup Java")
@@ -63,7 +63,8 @@ class ReleaseWorkflowContractTest {
     fun workflowDerivesVersionCodeFromSemanticBaseAndPreviewCommitDistance() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
         val identity = stepBody(workflow, "Derive release identity", "Setup Java")
-        val previewBranchMarker = "\n          else\n            stable_base=\"\""
+        val previewBranchMarker =
+            "\n          elif [[ \"\$GITHUB_EVENT_NAME\" == \"push\" && \"\$GITHUB_REF\" == refs/heads/* ]]; then"
         val previewBranchStart = identity.indexOf(previewBranchMarker)
         assertTrue("Missing preview identity branch", previewBranchStart >= 0)
         val branchEndMarker = "\n          fi\n\n          version_code="
@@ -127,12 +128,14 @@ class ReleaseWorkflowContractTest {
     }
 
     @Test
-    fun mainPublishesDebugNamedPrereleaseAndTagsPublishStableRelease() {
+    fun branchesPublishNamedPreviewsAndTagsPublishStableRelease() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
 
         assertTrue(workflow.contains("version_name=\"\${stable_base}-debug.\${GITHUB_RUN_NUMBER}\""))
-        assertTrue(workflow.contains("release_tag=\"debug-\${short_sha}\""))
+        assertTrue(workflow.contains("preview_tag_prefix=\"debug-\""))
+        assertTrue(workflow.contains("release_tag=\"\${preview_tag_prefix}\${short_sha}\""))
         assertTrue(workflow.contains("release_title=\"NGA Just Works \${version_name} (Debug)\""))
+        assertTrue(workflow.contains("release_title=\"NGA Just Works \${version_name} (Debug, \${branch_name})\""))
         assertTrue(workflow.contains("release_title=\"NGA Just Works \$GITHUB_REF_NAME\""))
         assertTrue(workflow.contains("gradle_tasks=\":nga_phone_base_3.0:assemblePreview\""))
         assertTrue(workflow.contains("apk_dir=preview"))
@@ -141,15 +144,17 @@ class ReleaseWorkflowContractTest {
         assertTrue(workflow.contains("gradle_tasks=\"verifyReleaseTag :nga_phone_base_3.0:assembleRelease\""))
         assertTrue(workflow.contains("apk_dir=release"))
         assertTrue(workflow.contains("expected_debuggable=false"))
-        assertTrue(workflow.contains("release_apk=\"dist/NGA-Just-Works-\${app_version}.apk\""))
+        assertTrue(workflow.contains("ASSET_SUFFIX: \${{ steps.release.outputs.asset_suffix }}"))
+        assertTrue(workflow.contains("release_apk=\"dist/NGA-Just-Works-\${app_version}\${ASSET_SUFFIX}.apk\""))
         assertFalse(workflow.contains("NGA-Just-Works-\${app_version}-debug.apk"))
         assertTrue(workflow.contains("-F prerelease=true"))
         assertTrue(workflow.contains("--prerelease"))
     }
 
     @Test
-    fun workflowVerifiesUpgradeIdentityAndCleansLegacyAndCurrentDebugTags() {
+    fun workflowVerifiesUpgradeIdentityAndCleansOnlyItsPublishedChannel() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
+        val cleanup = workflow.substringAfter("      - name: Remove older channel prereleases")
 
         assertTrue(workflow.contains("manifest application-id"))
         assertTrue(workflow.contains("com.github.tophtab.ngajustworks"))
@@ -160,18 +165,22 @@ class ReleaseWorkflowContractTest {
         assertTrue(workflow.contains("test \"\${#source_apks[@]}\" -eq 1"))
         assertTrue(workflow.contains("test \"\$(find dist -maxdepth 1 -type f | wc -l)\" -eq 2"))
         assertTrue(workflow.contains("sha256sum -c ./*.sha256"))
-        assertTrue(workflow.contains("select(.prerelease == true"))
-        assertTrue(workflow.contains("startswith(\"preview-\")"))
-        assertTrue(workflow.contains("startswith(\"debug-\")"))
-        assertTrue(workflow.contains("--cleanup-tag"))
-        assertTrue(workflow.contains("old_tag\" != \"\$CURRENT_DEBUG_TAG"))
+        assertTrue(cleanup.contains("if: steps.publish.outcome == 'success' && steps.release.outputs.prerelease == 'true'"))
+        assertTrue(cleanup.contains("select(.prerelease == true)"))
+        assertTrue(cleanup.contains("PREVIEW_TAG_PREFIX: \${{ steps.release.outputs.preview_tag_prefix }}"))
+        assertTrue(cleanup.contains("LEGACY_PREVIEW_TAG_PREFIX: \${{ steps.release.outputs.legacy_preview_tag_prefix }}"))
+        assertTrue(cleanup.contains("\"\$old_tag\" == \"\$CURRENT_PRERELEASE_TAG\""))
+        assertTrue(cleanup.contains("\"\$old_tag\" == \"\$PREVIEW_TAG_PREFIX\"*"))
+        assertTrue(cleanup.contains("\"\$old_tag\" == \"\$LEGACY_PREVIEW_TAG_PREFIX\"*"))
+        assertTrue(cleanup.contains("[[ \"\$old_sha\" =~ ^[0-9a-f]{12}$ ]] || continue"))
+        assertTrue(cleanup.contains("--cleanup-tag"))
     }
 
     @Test
     fun stableReleaseUsesValidatedVersionedNotesWhileDebugKeepsGeneratedNotes() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
         val publication = workflow.substringAfter("      - name: Create GitHub Release")
-            .substringBefore("      - name: Remove older debug prereleases")
+            .substringBefore("      - name: Remove older channel prereleases")
         val stableBranchMarker =
             "\n          else\n            release_notes=\"release-notes/\${GITHUB_REF_NAME}.md\""
         val stableBranchStart = publication.indexOf(stableBranchMarker)
@@ -220,7 +229,7 @@ class ReleaseWorkflowContractTest {
         assertTrue(staging.contains("manifest version-code"))
         assertFalse("Staging must not start Gradle", staging.contains("gradlew"))
 
-        val publication = stepBody(workflow, "Create GitHub Release", "Remove older debug prereleases")
+        val publication = stepBody(workflow, "Create GitHub Release", "Remove older channel prereleases")
         assertFalse("Publication must not start Gradle", publication.contains("gradlew"))
     }
 

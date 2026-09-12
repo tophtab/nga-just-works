@@ -7,6 +7,22 @@
 
 本项目是 NGA 三方客户端，与 NGA 及原项目作者不存在隶属、授权或背书关系。
 
+## 下载
+
+在 [GitHub Releases](https://github.com/tophtab/nga-just-works/releases) 下载
+APK。每个分支推送代码后都会自动构建签名预览版，纯 Markdown 或 `.trellis`
+文档改动跳过构建；各分支分别保留最新成功发布的预览版。
+
+- 主分支：标题以 `(Debug)` 结尾，文件名为 `NGA-Just-Works-<版本>.apk`。
+- 功能分支：标题包含完整分支名，文件名增加可读分支后缀，例如
+  `NGA-Just-Works-<版本>-feature-ai-summary.apk` 或
+  `NGA-Just-Works-<版本>-feature-thread-detail-compat-mode.apk`。
+- 正式版：版本标签 `X.Y.Z` 对应 `NGA-Just-Works-X.Y.Z.apk`。
+
+每个 APK 均附带 `.apk.sha256` 校验文件。特殊或较长的分支名会被转换、缩短；
+请以 Release 标题中的完整分支名区分。不同分支使用相同的应用包名和签名，
+安装时会覆盖同一应用，不能并排安装。
+
 ## 功能对比
 
 ### 新增
