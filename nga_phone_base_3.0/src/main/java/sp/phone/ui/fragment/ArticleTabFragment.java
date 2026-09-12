@@ -39,10 +39,12 @@ import sp.phone.common.UserManagerImpl;
 import sp.phone.mvp.presenter.ArticlePageCache;
 import sp.phone.mvp.viewmodel.ArticlePagePrefetchPlanner;
 import sp.phone.mvp.viewmodel.ArticleShareViewModel;
+import sp.phone.mvp.model.thread.ArticleAnchor;
+import sp.phone.mvp.model.thread.ArticlePagingInfo;
+import sp.phone.mvp.model.thread.ArticleQuery;
+import sp.phone.mvp.model.thread.ArticleReaderState;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
-import sp.phone.rxjava.RxBus;
-import sp.phone.rxjava.RxEvent;
 import sp.phone.task.BookmarkTask;
 import sp.phone.theme.ThemeManager;
 import sp.phone.ui.adapter.ArticlePagerAdapter;
@@ -85,6 +87,7 @@ public class ArticleTabFragment extends BaseRxFragment {
     private int mCurrentPage = 1;
 
     private int mTotalPages = 1;
+    private boolean mApplyingState;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -94,18 +97,7 @@ public class ArticleTabFragment extends BaseRxFragment {
             mRequestParam = getArguments().getParcelable(ParamKey.KEY_PARAM);
         }
 
-        ArticleShareViewModel viewModel = getActivityViewModel();
-        viewModel.getReplyCount().observe(this, replyCount -> {
-            mReplyCount = replyCount;
-            int count = (int) Math.ceil(mReplyCount / 20.0f);
-            mTotalPages = count;
-            if (mPagerAdapter != null && count != mPagerAdapter.getCount()) {
-                mPagerAdapter.setCount(count);
-                mTabLayout.setTabOnScreenLimit(count <= 5 ? count : 0);
-                mTabLayout.notifyDataSetChanged();
-            }
-            publishPrefetchPages();
-        });
+        getActivityViewModel().initializeReader(mRequestParam);
     }
 
     @Nullable
@@ -119,13 +111,16 @@ public class ArticleTabFragment extends BaseRxFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
         mPagerAdapter = new ArticlePagerAdapter(getChildFragmentManager(), mRequestParam);
+        mPagerAdapter.updateReaderState(getActivityViewModel().getReaderSession().state());
         mViewPager.setAdapter(mPagerAdapter);
         mViewPager.setOffscreenPageLimit(2);
-        mCurrentPage = mViewPager.getCurrentItem() + 1;
+        mCurrentPage = mPagerAdapter.getActualPage(mViewPager.getCurrentItem());
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                mCurrentPage = position + 1;
+                if (mApplyingState) return;
+                mCurrentPage = mPagerAdapter.getActualPage(position);
+                getActivityViewModel().selectPage(mCurrentPage);
                 publishPrefetchPages();
             }
         });
@@ -139,14 +134,32 @@ public class ArticleTabFragment extends BaseRxFragment {
         mFabRefreshRepeater = new LongPressRepeater(
                 CURRENT_PAGE_REFRESH_REPEAT_INTERVAL_MS, v -> refreshCurrentPage());
         mFabRefreshRepeater.attach(mFab);
-        publishPrefetchPages();
+        getActivityViewModel().getReaderState().observe(getViewLifecycleOwner(), this::renderReaderState);
         super.onViewCreated(view, savedInstanceState);
     }
 
+    private void renderReaderState(ArticleReaderState state) {
+        mApplyingState = true;
+        mPagerAdapter.updateReaderState(state);
+        int selected = mPagerAdapter.positionOfPage(state.currentPage);
+        if (selected >= 0) mViewPager.setCurrentItem(selected, false);
+        mCurrentPage = mPagerAdapter.getActualPage(mViewPager.getCurrentItem());
+        mTotalPages = state.paging == null || state.paging.totalPages == null ? 0 : state.paging.totalPages;
+        mReplyCount = state.paging == null || state.paging.totalRows == null ? 0 : state.paging.totalRows;
+        int count = mPagerAdapter.getCount();
+        mTabLayout.setTabOnScreenLimit(count <= 5 ? count : 0);
+        mTabLayout.notifyDataSetChanged();
+        mApplyingState = false;
+        publishPrefetchPages();
+        if (getActivity() != null) getActivity().invalidateOptionsMenu();
+    }
+
     private void publishPrefetchPages() {
-        if (getActivity() != null) {
+        if (getActivity() != null && getActivityViewModel().getReaderSession().state().canPrefetch()) {
             getActivityViewModel().setPrefetchPages(
                     ArticlePagePrefetchPlanner.plan(mCurrentPage, mTotalPages));
+        } else if (getActivity() != null) {
+            getActivityViewModel().setPrefetchPages(java.util.Collections.emptyList());
         }
     }
 
@@ -209,8 +222,15 @@ public class ArticleTabFragment extends BaseRxFragment {
                 ThemeManager.getInstance().setNightMode(false);
                 break;
             case R.id.menu_download:
-                mRequestParam.page = mViewPager.getCurrentItem() + 1;
-                getActivityViewModel().setCachePage(mRequestParam.page);
+                getActivityViewModel().setCachePage(mCurrentPage);
+                break;
+            case R.id.menu_show_whole_thread:
+                ArticleListFragment selected = mPagerAdapter.getCurrentFragment();
+                ArticleListParam full = selected == null ? null : selected.fullThreadParam();
+                if (full == null) { showToast("尚未确定帖子，请先加载内容"); break; }
+                Intent intent = new Intent(getContext(), PhoneConfiguration.getInstance().articleActivityClass);
+                intent.putExtra(ParamKey.KEY_PARAM, full);
+                startActivity(intent);
                 break;
             case R.id.menu_open_by_browser:
                 ARouterUtils.build(ARouterConstants.ACTIVITY_FRAGMENT_TEMPLATE)
@@ -240,14 +260,7 @@ public class ArticleTabFragment extends BaseRxFragment {
     }
 
     private String getCurrentUrl() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(Utils.getNGAHost()).append("read.php?");
-        if (mRequestParam.pid != 0) {
-            builder.append("pid=").append(mRequestParam.pid);
-        } else {
-            builder.append("tid=").append(mRequestParam.tid);
-        }
-        return builder.toString();
+        return ArticleQuery.from(mRequestParam).browserUrl(Utils.getNGAHost(), mCurrentPage);
     }
 
     private void copyUrl() {
@@ -265,24 +278,22 @@ public class ArticleTabFragment extends BaseRxFragment {
         if (!TextUtils.isEmpty(getActivity().getTitle())) {
             builder.append("《").append(getActivity().getTitle()).append("》 - 艾泽拉斯国家地理论坛，地址：");
         }
-        builder.append(Utils.getNGAHost()).append("read.php?");
-        if (mRequestParam.pid != 0) {
-            builder.append("pid=").append(mRequestParam.pid).append(" (分享自 NGA Just Works)");
-        } else {
-            builder.append("tid=").append(mRequestParam.tid).append(" (分享自 NGA Just Works)");
-        }
+        builder.append(getCurrentUrl()).append(" (分享自 NGA Just Works)");
         ShareUtils.INSTANCE.shareText(getContext(), title, builder.toString());
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.article_list_option_menu, menu);
+        if (mRequestParam.authorId != 0) {
+            menu.add(Menu.NONE, R.id.menu_show_whole_thread, Menu.NONE, R.string.show_whole_thread);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.menu_goto_floor).setVisible(mReplyCount != 0);
+        menu.findItem(R.id.menu_goto_floor).setVisible(mTotalPages > 0 || canGoToFloor());
 
         if (ThemeManager.getInstance().isNightModeFollowSystem()) {
             menu.findItem(R.id.menu_nightmode).setVisible(false);
@@ -297,14 +308,21 @@ public class ArticleTabFragment extends BaseRxFragment {
 
         menu.findItem(R.id.menu_download)
                 .setVisible(ArticlePageCache.isCacheableContext(mRequestParam));
+        ArticleListFragment current = mPagerAdapter == null ? null : mPagerAdapter.getCurrentFragment();
+        menu.findItem(R.id.menu_download).setEnabled(current != null && current.hasCompletePage());
         super.onPrepareOptionsMenu(menu);
     }
 
     private void createGotoDialog() {
 
         Bundle args = new Bundle();
-        args.putInt("page", mPagerAdapter.getCount());
-        args.putInt("floor", mReplyCount);
+        args.putInt("page", mTotalPages);
+        ArticleListFragment current = mPagerAdapter.getCurrentFragment();
+        Integer localMax = current == null ? null : current.maxKnownFloor();
+        int maxFloor = canEstimateFloorPage() ? Math.max(0, mReplyCount - 1) : 0;
+        args.putInt("floor_max", localMax == null ? maxFloor : Math.max(localMax, maxFloor));
+        args.putBoolean("can_page", mTotalPages > 0);
+        args.putBoolean("can_floor", canGoToFloor());
 
         DialogFragment df = new GotoDialogFragment();
         df.setArguments(args);
@@ -320,17 +338,35 @@ public class ArticleTabFragment extends BaseRxFragment {
 
     }
 
+    private boolean canGoToFloor() {
+        ArticleListFragment current = mPagerAdapter == null ? null : mPagerAdapter.getCurrentFragment();
+        return canEstimateFloorPage() || current != null && current.maxKnownFloor() != null;
+    }
+
+    private boolean canEstimateFloorPage() {
+        ArticlePagingInfo paging = getActivityViewModel().getReaderSession().state().paging;
+        return paging != null && paging.canEstimateFloorPage && mReplyCount > 0;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ActivityUtils.REQUEST_CODE_TOPIC_POST && resultCode == Activity.RESULT_OK) {
-            getActivityViewModel().setRefreshPage(mViewPager.getCurrentItem() + 1);
-        } else if (requestCode == ActivityUtils.REQUEST_CODE_JUMP_PAGE) {
+            getActivityViewModel().setRefreshPage(mCurrentPage);
+        } else if (requestCode == ActivityUtils.REQUEST_CODE_JUMP_PAGE && resultCode == Activity.RESULT_OK && data != null) {
             if (data.hasExtra("page")) {
-                mViewPager.setCurrentItem(data.getIntExtra("page", 0));
-            } else {
+                int position = mPagerAdapter.positionOfPage(data.getIntExtra("page", 1));
+                if (position >= 0) mViewPager.setCurrentItem(position);
+            } else if (canGoToFloor()) {
                 int floor = data.getIntExtra("floor", 0);
-                mViewPager.setCurrentItem(floor / 20);
-                RxBus.getInstance().post(new RxEvent(RxEvent.EVENT_ARTICLE_GO_FLOOR, mViewPager.getCurrentItem(), floor % 20));
+                ArticleReaderState state = getActivityViewModel().getReaderSession().state();
+                ArticleListFragment current = mPagerAdapter.getCurrentFragment();
+                Integer page = current != null && current.containsFloor(floor) ? mCurrentPage
+                        : canEstimateFloorPage() ? state.paging.candidatePage(floor) : null;
+                int position = page == null ? -1 : mPagerAdapter.positionOfPage(page);
+                if (position >= 0) {
+                    getActivityViewModel().setPendingAnchor(new ArticleAnchor(state.generation, page, null, floor));
+                    mViewPager.setCurrentItem(position);
+                } else showToast("当前内容中未找到目标楼层，无法确定其他页的位置");
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);

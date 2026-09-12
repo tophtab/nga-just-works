@@ -2,12 +2,12 @@
 
 ## Registry Contract
 
-This registry is the concise operation-level view of the untouched Justwen
-snapshot at `5d807617f8058950f7ea81dda405e38fb0cc37ec`. All source anchors are
-relative to
+The original-operation tables describe the untouched Justwen snapshot at
+`5d807617f8058950f7ea81dda405e38fb0cc37ec`. Their source anchors are relative to
 `references/nga-clients/NGA-CLIENT-VER-OPEN-SOURCE-Justwen`. Every networked
 record is `original-source-observed`; none is live-verified or backed by a
-meaningful original operation test/fixture.
+meaningful original operation test/fixture. Later source-derived additions are
+listed separately with their own commit and current-fork contract.
 
 Unless a row says otherwise, requests use the selected NGA base host, the
 shared browser UA and active-account Cookie injection, and scalar responses
@@ -19,8 +19,10 @@ for transport/session signatures.
 Delta is a `current-fork-delta` label seeded from the 2026-07-26 worktree and
 updated by later task-owned contracts where stated. It does not change the
 original contract. An `unchanged` operation-owner label does not cancel a
-shared transport delta: Retrofit-backed rows inherit the current fork's
-removal of the original official-identity header.
+shared transport delta. The current fork's
+`RetrofitHelper.createOkHttpClientBuilder()` still sends
+`X-User-Agent: Nga_Official`, as required by the network foundation contract;
+the earlier registry claim that this header had been removed was stale.
 
 ## Authentication And Session
 
@@ -40,12 +42,32 @@ production caller and do not define original operations
 | --- | --- | --- | --- | --- |
 | `BOARD.CATEGORIES` | GET `app_api.php?__lib=home&__act=category`. | Fastjson `ForumsListBean`; caches raw response; exception returns null. | `nga_phone_base_3.0/.../compose/board/ForumBoardRepository.kt:15-24,94-125` | `modified`: wire unchanged; fork changes local bookmark persistence in same file. |
 | `TOPIC.LIST` | GET `/thread.php`; optional `authorid`, `searchpost`, `favor`, `content`, GBK `author`, `stid|fid`, UTF-8 `key`, `fidgroup`; `page`, `lite=js`, `noprefix`; optional recommendation ordering. | `TopicConvertFactory`; `ErrorConvertFactory` for null/site errors. Multi-page aggregation sends sequential reads. | `nga_phone_base_3.0/.../mvp/model/TopicListModel.java:130-192,220-265` | `unchanged` |
-| `THREAD.PAGE` | GET `/read.php?page&__output=8&noprefix&v2` plus optional `tid`, `pid`, `authorid`; caller may override Cookie header. | `ArticleConvertFactory`; site/parser/network errors to callback. Server parse failure automatically retries with next account, then may open WebView. | `nga_phone_base_3.0/.../mvp/model/ArticleListModel.java:49-113`; `.../presenter/ArticleListPresenter.java:83-142` | `modified`: wire/model/parser remain unchanged; the online topic Pager adds activity-scoped, non-final-page prefetch through the same model path. See [the prefetch contract](./thread-page-prefetch-contract.md). |
+| `THREAD.PAGE` | GET `/read.php?page&__output=8&noprefix&v2` plus optional `tid`, `pid`, `authorid`; caller may override Cookie header. | `ArticleConvertFactory`; site/parser/network errors to callback. Server parse failure automatically retries with next account, then may open WebView. | `nga_phone_base_3.0/.../mvp/model/ArticleListModel.java:49-113`; `.../presenter/ArticleListPresenter.java:83-142` | `modified`: ordinary wire fields and the normal converter remain. The compatibility-enabled chain uses operation-local bytes and a fixed account/origin; the default-off legacy chain retains its transport with a count-before-next-Cookie guard. Reader generation, explicit query/page metadata and ordinary-only non-final prefetch are governed by the [reader](./thread-detail-compat-contract.md) and [prefetch](./thread-page-prefetch-contract.md) contracts. |
 | `BOARD.SEARCH` | Cleartext GET `http://bbs.nga.cn/forum.php?&__output=8&key=<GBK>`. | Parses `data.0.fid/name`; all failures become null. | `nga_phone_base_3.0/.../task/SearchBoardTask.java:18-57` | `unchanged` |
 | `USER.PROFILE` | GET `nuke.php?__lib=ucp&__act=get&lite=js&noprefix&uid|username`; profile Referer; username GBK encoded. | Removes JS/comments and repairs numeric tokens; parses profile; raw parse failure logged; active avatar URL updated locally. | `nga_phone_base_3.0/.../task/JsonProfileLoadTask.java:47-114`; `.../activity/ProfileActivity.java:125-151,511-515` | `modified`: the profile reader shares envelope normalization and omits its local raw parse-failure log. Delivered online thread pages also request latest public `ipLoc` through a dedicated bounded transport with explicit identity headers, account cache, and one call in flight without fixed pacing. See [the author-location contract](./author-profile-location-contract.md). |
 | `FILTER.GET_REMOTE` | POST `nuke.php`; form `__lib=ucp`, `__act=get_block_word`, `__output=8`, active `uid`; profile Referer. | Fastjson `data` lists or `error.0`; missing account fails locally. | `nga_phone_base_3.0/.../compose/filter/FilterWordModel.kt:107-121` | `unchanged` |
 | `FILTER.SET_REMOTE` | POST `nuke.php`; form `__lib=ucp`, `__act=set_block_word`, `__output=8`, GBK URL-encoded CRLF `data`; hard-coded Host/Origin/length/charset headers. | Fastjson `data.0` or `error.0`; encoded user/word list logged. Mutation result is unknown after transport loss. | `nga_phone_base_3.0/.../compose/filter/FilterWordModel.kt:53-104` | `unchanged` |
 | `POST.TOPIC_CATEGORY` | GET `nuke.php`; `__lib=topic_key`, `__act=get`, `fid`, `__output=8`. | Parses `data.0` category labels; exception to callback error. | `nga_phone_base_3.0/.../mvp/model/TopicPostModel.java:118-149` | `unchanged` |
+
+## August Source-Derived Thread Compatibility
+
+This addition is observed in Justwen commit
+`2becba2acc3f6c85340424cd09bb03fa7d759db0`; it is not attributed to the July
+snapshot above. Upstream's parser demonstration depends on an untracked
+`tem.json` and prints output without assertions. The fork's synthetic/fake
+tests exercise its own adapter contract, not real-service availability.
+
+| Operation | Source request | Source mapping and limits | Evidence at the August commit | Current-fork integration |
+| --- | --- | --- | --- | --- |
+| `THREAD.PAGE.APP_COMPAT` | POST `/app_api.php?__lib=post&__act=list`; form `page` plus nonzero `tid`, `pid`, `authorid`; selected origin and identity headers. No new `searchpost` or `perPage` request field. | `ThreadAppBean` / `ThreadInfoAppParse` map body, subject, author, client, vote markup and basic thread metadata into the native reader. Upstream does not project standalone attachment/hot-reply/parent-comment protocols or calculate score from vote counters. | `nga_phone_base_3.0/.../mvp/model/ArticleListModel.java`, `loadPageWithAppApi`; `lib_core_data/.../data/bean/ThreadAppBean.kt`; `lib_core/.../parse/ThreadInfoAppParse.kt` and `ThreadParseUtils.kt`. | Default-off `pref_show_with_app_api`. Reuses source mapping with explicit query/variable-page handling, complete image prefixes and the existing renderer. An eligible foreground normal-format failure may try App once with the same account/origin; successful source selection persists for that reader. No App prefetch or account rotation. See the [compatibility reader contract](./thread-detail-compat-contract.md). |
+
+The operation-local `ArticleByteClient` is shared by the enabled ordinary and
+App stages so errors and credentials have one boundary. It uses explicit
+Cookie/browser UA/official identity, validated HTTPS project origins, bounded
+strictly decoded bytes, cancellation, and no automatic redirects or connection
+retry. It does not replace the shared Retrofit stack for other operations.
+Source/raw/HTML remain distinct, and owned page replay uses the [cache
+contract](./thread-page-cache-contract.md) without issuing network requests.
 
 ## Posting And Uploads
 

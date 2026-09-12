@@ -1,0 +1,2 @@
+# Local command output is summarized in the committed verification reports.
+*.log

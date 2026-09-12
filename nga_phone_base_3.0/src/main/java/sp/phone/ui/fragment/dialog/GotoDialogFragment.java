@@ -29,12 +29,16 @@ public class GotoDialogFragment extends NoframeDialogFragment {
     private int mMaxFloor;
 
     private int mMaxPage;
+    private boolean mCanPage;
+    private boolean mCanFloor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         mMaxPage = bundle.getInt("page", 1);
-        mMaxFloor = bundle.getInt("floor", 0);
+        mMaxFloor = bundle.getInt("floor_max", Math.max(0, bundle.getInt("floor", 0) - 1));
+        mCanPage = bundle.getBoolean("can_page", mMaxPage > 0);
+        mCanFloor = bundle.getBoolean("can_floor", mMaxFloor > 0);
         super.onCreate(savedInstanceState);
     }
 
@@ -51,7 +55,7 @@ public class GotoDialogFragment extends NoframeDialogFragment {
                         Intent intent = new Intent();
                         dismiss();
                         if (mRadioGroup.getCheckedRadioButtonId() == R.id.page) {
-                            intent.putExtra("page", mNumberPicker.getValue() - 1);
+                            intent.putExtra("page", mNumberPicker.getValue());
                         } else {
                             intent.putExtra("floor", mNumberPicker.getValue());
                         }
@@ -75,20 +79,24 @@ public class GotoDialogFragment extends NoframeDialogFragment {
                 }
             }
         });
-        initPagePicker();
+        view.findViewById(R.id.page).setEnabled(mCanPage);
+        view.findViewById(R.id.floor).setEnabled(mCanFloor);
+        mRadioGroup.check(mCanPage ? R.id.page : R.id.floor);
+        if (mCanPage) initPagePicker(); else initFloorPicker();
         return view;
     }
 
     private void initPagePicker() {
-        mNumberPicker.setMaxValue(mMaxPage);
+        mNumberPicker.setMinValue(0);
+        mNumberPicker.setMaxValue(Math.max(1, mMaxPage));
         mNumberPicker.setMinValue(1);
-        mNumberPicker.setValue(mMaxPage);
+        mNumberPicker.setValue(Math.max(1, mMaxPage));
     }
 
     public void initFloorPicker() {
-        mNumberPicker.setMaxValue(mMaxFloor - 1);
         mNumberPicker.setMinValue(0);
-        mNumberPicker.setValue(mMaxFloor - 1);
+        mNumberPicker.setMaxValue(Math.max(0, mMaxFloor));
+        mNumberPicker.setValue(Math.max(0, mMaxFloor));
     }
 
 }

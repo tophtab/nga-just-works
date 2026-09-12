@@ -635,6 +635,110 @@ that makes it visible is actually reachable.
 suppress long-press text selection: modern Chromium WebView handles the gesture
 in its content layer, outside the `View` long-click path.
 
+## Compatibility reader navigation and row presentation
+
+### 1. Scope / Trigger
+
+Use this section when rendering a normal/App page or changing its native
+navigation. The [compatibility reader contract](../backend/thread-detail-compat-contract.md)
+owns parsing and source selection; UI code consumes its typed facts.
+
+### 2. Signatures
+
+```java
+ArticleReaderSession ArticleShareViewModel.initializeReader(ArticleListParam param)
+LiveData<ArticleReaderState> ArticleShareViewModel.getReaderState()
+void ArticlePagerAdapter.updateReaderState(ArticleReaderState state)
+int ArticlePagerAdapter.getActualPage(int position)
+int ArticlePagerAdapter.positionOfPage(int page)
+ArticleListParam ArticleListFragment.fullThreadParam()
+void ArticleListAdapter.releaseWebViews()
+boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
+```
+
+### 3. Contracts
+
+- Apply a launch page before the first read. A PID entry uses the scoped reply
+  screen; `显示全部` uses the response's resolved tid and a fresh full-query
+  parameter at page 1. Clear PID/author/search/cache disposition together.
+- Pager position is not a server page or global floor. Known totals permit
+  numbered pages; unknown totals display the obtained window under its actual
+  page label. Do not report that the full thread has one page merely because
+  one window is available. Cache tabs retain their independently stored page
+  numbers and one-through-five equal sizing rule.
+- Generation changes retire old page Fragments and READY data. A pending
+  `ArticleAnchor` belongs to a generation/page; scroll only after finding its
+  actual PID or floor in that response. A posted scroll must still refer to
+  the same displayed response and a resumed view. No modulo-based index or
+  silent page scan is allowed.
+- Use `ArticleNavigation.handoffNotice(data, anchor)` before consuming an
+  anchor for a newly adopted page. App data without a reliable matched target
+  says the reading position could not be retained; incomplete-content feedback
+  must not suppress that position information.
+- `ArticleRowPresentation` carries known floor/identity/score/source facts.
+  Hide missing floor/score labels instead of showing `-1` or an invented zero.
+  Restore visibility and clickability on every bind so an App/unknown row does
+  not affect a subsequently recycled ordinary row.
+- Compare meaningful UIDs for the OP badge. Unknown/anonymous identities must
+  not create a badge, profile/filter link or UID-0 quote attribution. A readable
+  body can still be quoted with neutral author text when identity is absent.
+- Explicit comments hide `贴条` and `只看此人`; sparse ordinary rows must not
+  become comments merely because they lack an avatar. Keep the previously
+  removed floor menu actions removed. Source-unavailable rows show an explicit
+  incomplete-content message and disable source-dependent actions.
+- Readable standalone comment/unknown-kind rows with a real own PID retain
+  reply and quote actions. Those actions depend on source/PID availability,
+  not on a blanket ordinary-post kind check. Missing UID still uses neutral
+  attribution; unknown parent metadata cannot replace the row's own PID.
+- Keep source-based composer input separate from `formattedHtmlData`. Preserve
+  original App source for editing; apply the narrow upstream reply-header
+  normalization to renderer/temporary quote input. Do not send the fully
+  rendered document to the composer.
+- Retain `LocalWebView` instances according to the actual row list, including
+  pages larger than 20. Release the previous page's instances when replacing
+  data and on view destruction. Body selection, gestures, FAB behavior and
+  ordinary HTML/image-prefix preparation keep their existing contracts.
+
+### 4. Validation & Error Matrix
+
+| Input / transition | Visible result |
+| --- | --- |
+| PID-only entry resolves to tid T | Show the matched reply; `显示全部` opens T at page 1 |
+| Reported App size is 30 or 40 | Render every returned row without a 20-view array limit |
+| Page has floors 61, 64 and 69 | Locate actual floor 64 at index 1, not `64 % pageSize` |
+| Page size or total is unavailable | Keep readable content; disable only navigation requiring missing facts |
+| Known-score row follows an unknown-score row in a recycled holder | Restore the score label and its real value |
+| Comment or missing identity/source | Hide only the inapplicable actions; do not fabricate identity/content |
+| Independent comment/unknown kind, readable source and known own PID | Allow existing reply/quote actions with their actual source and PID |
+| Pending jump outlives response, generation or resumed view | Do not scroll the replacement/background view |
+
+### 5. Good / Base / Bad Cases
+
+- **Good:** a PID lookup retains its original floor while the response supplies
+  the tid needed to open the full thread.
+- **Base:** normal full-thread tabs, direct reply FAB and existing long-press
+  refresh gestures retain their behavior.
+- **Bad:** use a filtered list position as a global floor, label an unknown
+  score zero, or index a 40-row response into a 20-element WebView array.
+
+### 6. Tests Required
+
+Use synthetic page/row contracts for full, PID and author queries; unknown and
+variable page sizes; actual target lookup; source/generation retirement;
+UID/score/comment facts and quote attribution. Retain the existing menu, tab,
+refresh and image-prefix regressions. Android builds and lint are required;
+offline/source checks are not a claim of device UI verification.
+
+### 7. Wrong vs Correct
+
+```java
+// Wrong: a server floor is not an index into a sparse/filtered list.
+list.scrollToPosition(floor % 20);
+// Correct: use the validated anchor and handle an absent target explicitly.
+int index = anchor.find(data.getRowList());
+if (index >= 0) list.scrollToPosition(index);
+```
+
 ## Article WebView text selection
 
 - WebView has no `setCustomSelectionActionModeCallback`. The only

@@ -1303,13 +1303,44 @@ and [final validation](../../tasks/archive/2026-09/09-11-thread-ip-location-load
 
 No remaining in-scope implementation or validation work.
 
+## Session 61: 上游八月调研与帖子详情兼容模式适配
+<!-- trellis-session: v=2 fp=271b0a7b5263b60b -->
+
+**Date**: 2026-09-12
+**Task**: 上游八月调研与帖子详情兼容模式适配
+**Branch**: `feature/thread-detail-compat-mode`
+
+### Summary
+
+完成上游八月提交调研与兼容模式适配，经过独立审查和本地验证；按用户授权提交并归档两个任务，交付分支为 feature/thread-detail-compat-mode。
+
+### Main Changes
+
+- 默认关闭的兼容模式包含完整帖子、PID 与作者筛选，保留本地分页定位、原生渲染、图床和预取。
+- 完成账号与来源隔离缓存，保留旧缓存；修复异常正文、评论展示/引用、BOM 分类和刷新状态。
+- 调研与适配任务已归档到 .trellis/tasks/archive/2026-09/；规范、采用清单和独立审查报告已保存。
+- 原 main 的规划快照已保留在本地忽略的 .trellis/.runtime/finished-task-snapshots/2026-09-12/，main 产品代码未改。
 
 ### Git Commits
 
 | Hash | Message |
 |------|---------|
 | `ef77d0c92f6a20f72c418eadd053089642c63698` | feat(android): show author IP locations and loading usage tips |
+| `ade2fd2ea8b7298c5ba6a0f6937073dc659d0bed` | docs(upstream): record August changes and adoption decisions |
+| `7acc4e23c6ddc07ba4d03a1c3a9ac7f9a3a41adf` | feat(android): adapt upstream thread detail compatibility mode |
+
+### Testing
+
+- [OK] app 211 + common 62 + core 5 = 278 项单元测试通过，39 suites，无 failure/error/skip。
+- [OK] Debug 构建通过；13 个 Android 模块 lint XML 全部存在且 0 Error/Fatal。
+- [OK] 全工程 debug 诊断仍有 statistics 缺 JUnit 与 module_debug KAPT 示例编译失败，两模块本次未改动；未掩盖旧基线。
+- [OK] 归档后的文档链接、manifest 与任务元数据验证通过；未运行真实 NGA 或设备验证。
 
 ### Status
 
 [OK] **Completed**
+
+### Next Steps
+
+- 功能分支 push 目前只运行 Gradle Wrapper 校验；APK 工作流仅响应 main 或版本标签，尚未为分支增加 APK 构建。
+- 板块动态图标、独立媒体补丁和全局 JSON/SDK 迁移保留在采用清单，按后续批次处理。

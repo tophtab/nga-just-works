@@ -1,16 +1,23 @@
 package sp.phone.http.bean;
 
 import java.util.List;
-import java.util.Map;
 
 import gov.anzong.androidnga.common.base.JavaBean;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
+import sp.phone.mvp.model.thread.ArticlePagingInfo;
 
 public class ThreadData implements JavaBean {
     private List<ThreadRowInfo> rowList;
     private ThreadPageInfo threadInfo;
     private int __ROWS;
     private int rowNum;
+    private ArticlePagingInfo pagingInfo;
+    private boolean contentComplete = true;
+
+    public ArticlePagingInfo getPagingInfo() { return pagingInfo; }
+    public void setPagingInfo(ArticlePagingInfo pagingInfo) { this.pagingInfo = pagingInfo; }
+    public boolean isContentComplete() { return contentComplete; }
+    public void setContentComplete(boolean complete) { contentComplete = complete; }
 
     /**
      * 从服务端获取的原始数据

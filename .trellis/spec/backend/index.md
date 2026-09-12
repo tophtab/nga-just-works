@@ -12,6 +12,7 @@
 | [THREAD.PAGE Topic Pager Prefetch](./thread-page-prefetch-contract.md) | Changing online topic Pager retention, prefetch planning, request reuse, or foreground/background failure behavior | Current-fork prefetch and final-page freshness contract |
 | [THREAD.PAGE Local Page Cache](./thread-page-cache-contract.md) | Changing thread cache eligibility, metadata preparation, or description read-back | Full-thread context, selected-page snapshot, and existing cache format |
 | [USER.PROFILE Author Location](./author-profile-location-contract.md) | Changing supplemental author reads, location cache/queue/session control, or floor metadata | Per-delivery enrichment, bounded transport, cache-only readers, and metadata-only updates |
+| [THREAD.PAGE Compatibility Reader](./thread-detail-compat-contract.md) | App compatibility reads, query/source/page identity, row projection, or native reply/floor navigation | August source-derived operation and current-fork integration contract |
 
 ## Pre-Development Checklist
 

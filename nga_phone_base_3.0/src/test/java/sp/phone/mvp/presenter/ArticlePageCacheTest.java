@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import org.junit.Test;
 
 import sp.phone.http.bean.ThreadData;
+import sp.phone.http.bean.ThreadRowInfo;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.param.ArticleListParam;
 
@@ -281,6 +282,10 @@ public class ArticlePageCacheTest {
 
     private static ThreadData loadedPage() {
         ThreadData page = new ThreadData();
+        ThreadRowInfo row = new ThreadRowInfo();
+        row.setTid(TID);
+        page.setRowList(java.util.Collections.singletonList(row));
+        page.setRowNum(1);
         page.setThreadInfo(threadInfo(TID, SUBJECT));
         page.setRawData("{\"data\":{\"__T\":{\"tid\":" + TID
                 + ",\"subject\":\"" + SUBJECT + "\"},\"__ROWS\":146}}");

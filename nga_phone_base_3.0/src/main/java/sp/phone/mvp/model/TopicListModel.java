@@ -1,11 +1,7 @@
 package sp.phone.mvp.model;
 
-import com.alibaba.fastjson.JSON;
-import com.justwen.androidnga.cloud.CloudServerManager;
 
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -15,10 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import gov.anzong.androidnga.base.util.ContextUtils;
-import gov.anzong.androidnga.base.util.ThreadUtils;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -29,6 +23,9 @@ import sp.phone.mvp.contract.TopicListContract;
 import sp.phone.mvp.model.convert.ErrorConvertFactory;
 import sp.phone.mvp.model.convert.TopicConvertFactory;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
+import sp.phone.mvp.model.thread.ArticleAccounts;
+import sp.phone.mvp.model.thread.ArticleCacheStore;
+import sp.phone.mvp.model.thread.ArticleCacheRecord;
 import sp.phone.mvp.model.entity.TopicListInfo;
 import sp.phone.param.TopicListParam;
 import sp.phone.rxjava.BaseSubscriber;
@@ -62,43 +59,25 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
         }
     }
 
+    private long mCacheSequence;
+
     @Override
     public void loadCache(OnHttpCallBack<TopicListInfo> callBack) {
-        Observable.create((ObservableOnSubscribe<TopicListInfo>) emitter -> {
-            String path = ContextUtils.getContext().getFilesDir().getAbsolutePath() + "/cache/";
-            File[] cacheDirs = new File(path).listFiles();
-
-            if (cacheDirs == null) {
-                emitter.onError(new Exception());
-            } else {
-                TopicListInfo listInfo = new TopicListInfo();
-                for (File dir : cacheDirs) {
-                    File infoFile = new File(dir, dir.getName() + ".json");
-                    if (!infoFile.exists()) {
-                        continue;
-                    }
-                    String rawData = FileUtils.readFileToString(infoFile);
-                    ThreadPageInfo pageInfo = JSON.parseObject(rawData, ThreadPageInfo.class);
-                    if (pageInfo == null) {
-                        CloudServerManager.putCrashData(ContextUtils.getContext(),"rawData", rawData);
-                    } else {
-                        listInfo.addThreadPage(JSON.parseObject(rawData, ThreadPageInfo.class));
-                    }
-                }
-                emitter.onNext(listInfo);
+        final long sequence = ++mCacheSequence;
+        final String owner = ArticleAccounts.currentOwner();
+        Observable.fromCallable(() -> {
+            TopicListInfo list = new TopicListInfo();
+            for (ArticleCacheRecord record : new ArticleCacheStore(ContextUtils.getContext().getFilesDir()).list(owner)) {
+                list.addThreadPage(record.asThreadInfo());
             }
-            emitter.onComplete();
+            return list;
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseSubscriber<TopicListInfo>() {
-                    @Override
-                    public void onNext(TopicListInfo topicListInfo) {
-                        callBack.onSuccess(topicListInfo);
+                    private boolean current() {
+                        return sequence == mCacheSequence && java.util.Objects.equals(owner, ArticleAccounts.currentOwner());
                     }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        callBack.onError("读取缓存失败！");
-                    }
+                    @Override public void onNext(TopicListInfo info) { if (current()) callBack.onSuccess(info); }
+                    @Override public void onError(Throwable error) { if (current()) callBack.onError("读取缓存失败！"); }
                 });
     }
 
@@ -194,27 +173,21 @@ public class TopicListModel extends BaseModel implements TopicListContract.Model
 
     @Override
     public void removeCacheTopic(ThreadPageInfo info, OnHttpCallBack<String> callBack) {
-        ThreadUtils.postOnSubThread(() -> {
-            String path = ContextUtils.getContext().getFilesDir().getAbsolutePath() + "/cache/";
-            File[] cacheDirs = new File(path).listFiles();
-            if (cacheDirs == null) {
-                callBack.onError(null);
-                return;
-            }
-            try {
-                for (File dir : cacheDirs) {
-                    if (dir.getName().equals(String.valueOf(info.getTid()))) {
-                        FileUtils.deleteDirectory(dir);
-                        callBack.onSuccess(null);
-                        return;
+        final String owner = ArticleAccounts.currentOwner();
+        Observable.fromCallable(() -> {
+            if (info.getCacheEntry() == null) throw new IOException("Missing cache handle");
+            new ArticleCacheStore(ContextUtils.getContext().getFilesDir())
+                    .delete(info.getCacheEntry(), ArticleAccounts.currentOwner());
+            return "删除成功！";
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseSubscriber<String>() {
+                    @Override public void onNext(String message) {
+                        if (java.util.Objects.equals(owner, ArticleAccounts.currentOwner())) callBack.onSuccess(message);
                     }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            callBack.onError(null);
-
-        });
+                    @Override public void onError(Throwable error) {
+                        if (java.util.Objects.equals(owner, ArticleAccounts.currentOwner())) callBack.onError("删除失败！");
+                    }
+                });
     }
 
     private String getUrl(int page, TopicListParam requestInfo) {

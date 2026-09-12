@@ -1,0 +1,15 @@
+module | Error/Fatal | warnings
+--- | ---: | ---:
+lib_bu_statistics | 0 | 5
+nga_phone_base_3.0 | 0 | 726
+lib_core | 0 | 8
+lib_base_logger | 0 | 8
+lib_base_common | 0 | 33
+lib_core_data | 0 | 1
+lib_bu_message | 0 | 11
+lib_base_network | 0 | 7
+lib_base_service_api | 0 | 2
+lib_bu_account | 0 | 6
+lib_base_ui_compose | 0 | 12
+lib_base_ui | 0 | 8
+lib_module_debug | 0 | 3

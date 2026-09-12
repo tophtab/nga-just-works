@@ -7,8 +7,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
+import sp.phone.mvp.model.thread.ArticleReaderState;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
 import sp.phone.ui.fragment.ArticleListFragment;
@@ -21,16 +24,18 @@ import sp.phone.ui.fragment.ArticleListFragment;
 public class ArticlePagerAdapter extends FragmentStatePagerAdapter {
 
     private int mCount = 1;
+    private int mSinglePage;
 
     private ArticleListParam mRequestParam;
 
-    private List<String> mPageIndexList;
+    private List<Integer> mPageIndexList;
 
     private ArticleListFragment mCurrentFragment;
 
     public ArticlePagerAdapter(FragmentManager fm, ArticleListParam param) {
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        mRequestParam = param;
+        mRequestParam = (ArticleListParam) param.clone();
+        mSinglePage = Math.max(1, param.page);
     }
 
     @Override
@@ -44,12 +49,41 @@ public class ArticlePagerAdapter extends FragmentStatePagerAdapter {
 
     private ArticleListParam getRequestParam(int position) {
         ArticleListParam param = (ArticleListParam) mRequestParam.clone();
-        if (mPageIndexList != null) {
-            param.page = Integer.parseInt(mPageIndexList.get(position));
-        } else {
-            param.page = position + 1;
-        }
+        param.page = getActualPage(position);
         return param;
+    }
+
+    public int getActualPage(int position) {
+        if (mPageIndexList != null) return mPageIndexList.get(position);
+        return mSinglePage > 0 ? mSinglePage : position + 1;
+    }
+
+    public int positionOfPage(int page) {
+        if (mPageIndexList != null) return mPageIndexList.indexOf(page);
+        if (mSinglePage > 0) return page == mSinglePage ? 0 : -1;
+        return page > 0 && page <= mCount ? page - 1 : -1;
+    }
+
+    public void updateReaderState(ArticleReaderState state) {
+        Integer total = state.paging == null ? null : state.paging.totalPages;
+        int count = total == null ? 1 : total;
+        int singlePage = total == null ? state.currentPage : 0;
+        boolean changed = mRequestParam.readerGeneration != state.generation
+                || mCount != count || mSinglePage != singlePage;
+        if (mRequestParam.readerGeneration != state.generation) mCurrentFragment = null;
+        mRequestParam.readerGeneration = state.generation;
+        mCount = count;
+        mSinglePage = singlePage;
+        if (changed) notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        if (!(object instanceof ArticleListFragment)) return POSITION_NONE;
+        ArticleListFragment fragment = (ArticleListFragment) object;
+        if (fragment.getReaderGeneration() != mRequestParam.readerGeneration) return POSITION_NONE;
+        int position = positionOfPage(fragment.getRequestPage());
+        return position < 0 ? POSITION_NONE : position;
     }
 
     @Override
@@ -57,16 +91,15 @@ public class ArticlePagerAdapter extends FragmentStatePagerAdapter {
         return mCount;
     }
 
-    public void setCount(int count) {
-        if (mCount != count) {
-            mCount = count;
-            notifyDataSetChanged();
-        }
-    }
-
     public void setPageIndexList(List<String> pageIndexList) {
-        mPageIndexList = pageIndexList;
-        setCount(pageIndexList.size());
+        TreeSet<Integer> pages = new TreeSet<>();
+        for (String value : pageIndexList) {
+            int page = Integer.parseInt(value);
+            if (page > 0) pages.add(page);
+        }
+        mPageIndexList = new ArrayList<>(pages);
+        mCount = mPageIndexList.size();
+        notifyDataSetChanged();
     }
 
     @Override
@@ -83,6 +116,6 @@ public class ArticlePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return mPageIndexList == null ? String.valueOf(position + 1) : mPageIndexList.get(position);
+        return String.valueOf(getActualPage(position));
     }
 }

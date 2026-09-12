@@ -46,6 +46,12 @@ transport exercise the same repository on the host JVM.
   independently. There is no all-pages barrier. The current-plus-two planner
   can produce about sixty distinct authors on a cold load; sixty is an estimate,
   not a batch size or request cap. Keep its strict final-page exclusion.
+- Compatibility-reader acceptance precedes retaining, rendering, or enriching
+  a page. Validate generation, effective page, and account/settings environment
+  again before retained-view replay; saved-page replay also checks its owner.
+  Reader invalidation clears retained data and obsolete location consumers.
+  Both normal and prefetched successful callbacks deliver accepted pages while
+  offscreen; foreground checks still govern source changes and failure UI.
 - Saved-page reads and retained-view recreation use `online=false`. Restoring a
   view, binding a holder, or resuming a page must not itself create network work.
   A cache-only subscription must not call the dispatcher, including when a

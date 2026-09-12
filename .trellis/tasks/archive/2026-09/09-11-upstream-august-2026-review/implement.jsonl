@@ -1,0 +1,5 @@
+{"file":".trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review/prd.md","reason":"Approved research scope and observable acceptance criteria; no product migration in this task."}
+{"file":".trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review/research/overview.md","reason":"Complete upstream inventory, current-fork coverage and ranked adoption candidates."}
+{"file":".trellis/spec/backend/network-foundation-contract.md","reason":"Preserve the distinction between upstream source observations and current operation contracts."}
+{"file":".trellis/spec/backend/thread-page-prefetch-contract.md","reason":"Any future adaptation must preserve current foreground/background and request reuse behavior."}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Preserve favorite identity, ordering and persistence when studying upstream board changes."}

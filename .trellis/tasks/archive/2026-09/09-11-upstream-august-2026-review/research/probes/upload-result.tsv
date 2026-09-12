@@ -1,0 +1,6 @@
+quoted	fastjson1_default	PASS
+quoted	fastjson2_default	PASS
+quoted	fastjson2_AllowUnQuotedFieldNames	PASS
+unquoted	fastjson1_default	PASS
+unquoted	fastjson2_default	FAIL:JSONException
+unquoted	fastjson2_AllowUnQuotedFieldNames	PASS

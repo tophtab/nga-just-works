@@ -34,16 +34,18 @@ class TopicPagePrefetchContractTest {
         source("nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/ArticleListModel.java")
 
     @Test
-    fun pagerKeepsTwoOffscreenPagesAndReplansFromRowsAndSelection() {
+    fun pagerKeepsTwoOffscreenPagesAndReplansFromAcceptedPagingAndActualSelection() {
         assertTrue(tabFragmentSource.contains("mViewPager.setOffscreenPageLimit(2);"))
-        assertTrue(tabFragmentSource.contains("mTotalPages = count;"))
-        assertTrue(tabFragmentSource.contains("mCurrentPage = position + 1;"))
+        assertTrue(tabFragmentSource.contains("state.paging.totalPages"))
+        assertTrue(tabFragmentSource.contains("mCurrentPage = mPagerAdapter.getActualPage(position);"))
+        assertTrue(tabFragmentSource.contains("state().canPrefetch()"))
         assertTrue(
             tabFragmentSource.contains(
                 "ArticlePagePrefetchPlanner.plan(mCurrentPage, mTotalPages)",
             ),
         )
-        assertTrue(tabFragmentSource.split("publishPrefetchPages();").size - 1 >= 3)
+        assertTrue(tabFragmentSource.substringAfter("private void renderReaderState").substringBefore("private void publishPrefetchPages").contains("publishPrefetchPages();"))
+        assertFalse(tabFragmentSource.contains("mReplyCount / 20"))
     }
 
     @Test
@@ -75,6 +77,7 @@ class TopicPagePrefetchContractTest {
         assertTrue(listFragmentSource.contains("getParentFragment() instanceof ArticleTabFragment"))
         assertTrue(listFragmentSource.contains("!mRequestParam.loadCache"))
         assertTrue(listFragmentSource.contains("mRequestParam.searchPost == 0"))
+        assertTrue(listFragmentSource.contains("mRequestParam.pid == 0 && mRequestParam.authorId == 0"))
         assertTrue(listFragmentSource.contains("viewModel.getPrefetchPages().observe(this, pages ->"))
         assertTrue(listFragmentSource.contains("pages.contains(mRequestParam.page)"))
         assertTrue(listFragmentSource.contains("mPresenter.prefetchPage();"))
@@ -86,24 +89,24 @@ class TopicPagePrefetchContractTest {
 
     @Test
     fun prefetchUsesTheExistingModelPathAndHasNoForegroundFailureSideEffects() {
-        assertTrue(
-            presenterSource.contains(
-                "mBaseModel.loadPage(mRequestParam, mHeaderMap, mPrefetchCallback);",
-            ),
-        )
+        val prefetch = presenterSource.substringAfter("public void prefetchPage()").substringBefore("private class PrefetchCallback")
+        assertTrue(prefetch.contains("mBaseModel.loadPage((ArticleListParam) mRequestParam.clone(), mHeaderMap, callback);"))
+        assertTrue(prefetch.contains("mBaseModel.loadPage((ArticleListParam) mRequestParam.clone(), operation, callback);"))
+        assertTrue(prefetch.contains("key.source != ArticleSource.READ_PHP"))
+        assertFalse(prefetch.contains("startScoped("))
         assertFalse(presenterSource.contains("RetrofitService"))
         assertFalse(presenterSource.contains("ArticleConvertFactory"))
 
         val silentCallback = presenterSource
             .substringAfter("private class PrefetchCallback")
-            .substringBefore("private final OnHttpCallBack<ThreadData> mRetryCallback")
+            .substringBefore("@OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)")
         assertFalse(silentCallback.contains("showToast"))
         assertFalse(silentCallback.contains("showWithWebView"))
         assertFalse(silentCallback.contains("retryWithNewAccount"))
 
         val silentFailure = presenterSource
             .substringAfter("private void handlePrefetchFailure()")
-            .substringBefore("private void requestForegroundLoad")
+            .substringBefore("@OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)")
         assertTrue(silentFailure.contains("mPageRequestState.failPrefetch()"))
         assertTrue(silentFailure.contains("requestForegroundLoad(false);"))
         assertFalse(silentFailure.contains("showToast"))
@@ -127,13 +130,14 @@ class TopicPagePrefetchContractTest {
         assertTrue(listFragmentSource.contains("mSwipeRefreshLayout.setOnRefreshListener"))
         assertTrue(listFragmentSource.contains("mPresenter.loadPage(mRequestParam);"))
         assertTrue(presenterSource.contains("requestForegroundLoad(true);"))
-        assertTrue(presenterSource.contains("private class RetryCallback extends ArticleCallback"))
+        assertTrue(presenterSource.contains("private class LegacyCallback implements OnHttpCallBack<ThreadData>"))
+        assertTrue(presenterSource.contains("ArticleAttemptPolicy.retryCookie(manager.getUserSize(), originalCookie, manager::getNextCookie)"))
         assertTrue(presenterSource.contains("retryWithNewAccount()"))
         assertTrue(presenterSource.contains("showWithWebView();"))
     }
 
     @Test
-    fun threadPageWireParserAndDetachCancellationStayInTheSingleModelPath() {
+    fun ordinaryAndScopedModelPathsBothCancelAtDetach() {
         assertTrue(
             modelSource.contains(
                 "\"/read.php?\" + \"&page=\" + page + \"&__output=8&noprefix&v2\"",
@@ -141,9 +145,12 @@ class TopicPagePrefetchContractTest {
         )
         assertTrue(modelSource.contains("mService.get(url, header)"))
         assertTrue(modelSource.contains("ArticleConvertFactory.getArticleInfo(s)"))
-        assertEquals(
-            2,
-            Regex("bindUntilEvent\\(FragmentEvent\\.DETACH\\)").findAll(modelSource).count(),
-        )
+        val normal = modelSource.substringAfter("public void loadPage(ArticleListParam param, Map<String, String> header")
+            .substringBefore("public void cachePage")
+        val scoped = modelSource.substringAfter("public void loadScopedPage").substringBefore("public String getUrl")
+        for (path in listOf(normal, scoped)) {
+            assertEquals(2, Regex("bindUntilEvent\\(FragmentEvent\\.DETACH\\)").findAll(path).count())
+        }
+        assertTrue(scoped.contains("new ArticleByteClient().read(operation)"))
     }
 }

@@ -18,7 +18,7 @@ public class ArticlePageRequestStateTest {
         assertEquals(ArticlePageRequestState.State.READY, state.getState());
         assertFalse(state.beginPrefetch());
         assertEquals(
-                ArticlePageRequestState.ForegroundLoadDecision.NONE,
+                ArticlePageRequestState.ForegroundLoadDecision.SHOW_READY_DATA,
                 state.requestForegroundLoad(false));
     }
 
@@ -50,7 +50,7 @@ public class ArticlePageRequestStateTest {
         assertTrue(state.completePrefetch());
         assertEquals(ArticlePageRequestState.State.READY, state.getState());
         assertEquals(
-                ArticlePageRequestState.ForegroundLoadDecision.NONE,
+                ArticlePageRequestState.ForegroundLoadDecision.SHOW_READY_DATA,
                 state.requestForegroundLoad(false));
     }
 
@@ -111,6 +111,26 @@ public class ArticlePageRequestStateTest {
                 ArticlePageRequestState.ForegroundLoadDecision.NONE,
                 state.requestForegroundLoad(true));
         state.failForegroundLoad(true);
+        assertEquals(ArticlePageRequestState.State.READY, state.getState());
+    }
+
+    @Test
+    public void resumeAndRepeatedRefreshCannotRestoreOldDataWhileARequestIsPending() {
+        ArticlePageRequestState state = new ArticlePageRequestState();
+        assertEquals(ArticlePageRequestState.ForegroundLoadDecision.START, state.requestForegroundLoad(false));
+        state.completeForegroundLoad();
+        assertEquals(ArticlePageRequestState.ForegroundLoadDecision.SHOW_READY_DATA, state.requestForegroundLoad(false));
+        assertEquals(ArticlePageRequestState.ForegroundLoadDecision.START, state.requestForegroundLoad(true));
+
+        // Pause/resume and another explicit load still refer to that same unfinished refresh.
+        state.movePrefetchToBackground();
+        for (boolean explicitRefresh : new boolean[]{false, true, false, true}) {
+            assertEquals(ArticlePageRequestState.ForegroundLoadDecision.NONE, state.requestForegroundLoad(explicitRefresh));
+            assertEquals(ArticlePageRequestState.State.FOREGROUND_LOADING, state.getState());
+        }
+
+        state.completeForegroundLoad();
+        assertEquals(ArticlePageRequestState.ForegroundLoadDecision.SHOW_READY_DATA, state.requestForegroundLoad(false));
         assertEquals(ArticlePageRequestState.State.READY, state.getState());
     }
 }

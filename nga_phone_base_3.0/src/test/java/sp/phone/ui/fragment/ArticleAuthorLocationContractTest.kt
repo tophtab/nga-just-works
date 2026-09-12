@@ -31,6 +31,50 @@ class ArticleAuthorLocationContractTest {
     }
 
     @Test
+    fun normalAndPrefetchedCompletionsDeliverToOffscreenPages() {
+        val presenter = source("java/sp/phone/mvp/presenter/ArticleListPresenter.java")
+        val normal = presenter.substringAfter("private void showData(ThreadData data)")
+            .substringBefore("private void finishError")
+        val prefetch = presenter.substringAfter("private class PrefetchCallback")
+            .substringBefore("@Override public void onError")
+        for (completion in listOf(normal, prefetch)) {
+            assertTrue(completion.contains("mBaseView.setData(data)"))
+            val beforeDelivery = completion.substringBefore("mBaseView.setData(data)")
+            // Foreground still controls source adoption and failure UI, not accepted deliveries.
+            assertFalse(Regex("if\\s*\\([^)]*mForeground").containsMatchIn(beforeDelivery))
+        }
+    }
+
+    @Test
+    fun staleReaderDataCannotBeRetainedRenderedOrUsedForAuthorRequests() {
+        val fragment = source("java/sp/phone/ui/fragment/ArticleListFragment.java")
+        val delivery = fragment.substringAfter("public void setData(ThreadData data)")
+            .substringBefore("private void renderData")
+        val acceptance = delivery.indexOf("if (!isCurrentData(data)) return;")
+        assertTrue(acceptance >= 0)
+        assertTrue(acceptance < delivery.indexOf("mDeliveredData = data"))
+        assertTrue(acceptance < delivery.indexOf("renderData(data)"))
+        assertTrue(acceptance < delivery.indexOf("mAuthorLocations.deliver(data,"))
+
+        val validation = fragment.substringAfter("private boolean isCurrentData(ThreadData data)")
+            .substringBefore("public void setData(ThreadData data)")
+        assertTrue(validation.contains("paging.generation == mRequestParam.readerGeneration"))
+        assertTrue(validation.contains("paging.generation == reader.state().generation"))
+        assertTrue(validation.contains("paging.effectivePage == mRequestParam.page"))
+        assertTrue(validation.contains("reader.environmentMatches(ArticleAccounts.fingerprint(), enabled)"))
+        assertTrue(validation.contains("mRequestParam.cacheOwner.equals(ArticleAccounts.currentOwner())"))
+
+        val rebind = fragment.substringAfter("public void onViewCreated(View view, Bundle savedInstanceState)")
+            .substringBefore("public void onDestroyView()")
+        assertTrue(rebind.contains("if (isCurrentData(mDeliveredData))"))
+        assertTrue(rebind.indexOf("isCurrentData(mDeliveredData)") < rebind.indexOf("renderData(mDeliveredData)"))
+        val invalidation = fragment.substringAfter("viewModel.getReaderState().observe(this, state ->")
+            .substringBefore("consumePendingAnchor();")
+        assertTrue(invalidation.contains("mDeliveredData = null"))
+        assertTrue(invalidation.contains("mAuthorLocations.deliver(null, false)"))
+    }
+
+    @Test
     fun metadataPayloadNeverEntersBodyBindingAndChecksGenerationAuthorAndRecycledHolder() {
         val adapter = source("java/sp/phone/ui/adapter/ArticleListAdapter.java")
         val payload = adapter.substringAfter("@NonNull List<Object> payloads)")

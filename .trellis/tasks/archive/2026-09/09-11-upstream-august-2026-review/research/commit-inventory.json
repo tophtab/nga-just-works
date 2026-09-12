@@ -1,0 +1,340 @@
+{
+  "upstream": "Justwen/NGA-CLIENT-VER-OPEN-SOURCE",
+  "main": "8284c703dbde40ab8dcbe0e2dc973d85dc06854a",
+  "master": "cdad1abba80236602dc98999bee53d802412a7e4",
+  "master_release": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
+  "commits": [
+    {
+      "sha": "31c1c8206f2eb03301db5d757e0557009364fca8",
+      "author_date": "2026-08-07T14:02:33+08:00",
+      "commit_date": "2026-08-08T15:15:34+08:00",
+      "subject": "图片域名从服务端返回的结果中取",
+      "files": [
+        "lib_core/src/main/java/gov/anzong/androidnga/core/data/HtmlData.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumImageDecoder.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/http/bean/ThreadRowInfo.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java"
+      ]
+    },
+    {
+      "sha": "4c99051fe1e52be4b2756374c4a912bddf876ff3",
+      "author_date": "2026-08-08T16:22:01+08:00",
+      "commit_date": "2026-08-08T16:22:01+08:00",
+      "subject": "删除一些不需要的代码",
+      "files": [
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ArticleListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/HtmlUtils.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/HttpUtil.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/ImageUtils.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/MD5Util.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/PluginUtils.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/StringUtils.java"
+      ]
+    },
+    {
+      "sha": "86e6e782032210426aea54146a5be0f51dffc8ab",
+      "author_date": "2026-08-08T16:22:19+08:00",
+      "commit_date": "2026-08-08T16:22:19+08:00",
+      "subject": "4.2.3发版",
+      "files": [
+        "build.gradle"
+      ]
+    },
+    {
+      "sha": "1307d324a48c06a5d48e7fcc5e9ccc331e3caa69",
+      "author_date": "2026-08-08T22:44:14+08:00",
+      "commit_date": "2026-08-08T22:51:13+08:00",
+      "subject": "数据类迁移到core_data模块，并且修改命名",
+      "files": [
+        "gradle/libs.versions.toml",
+        "lib_core_data/build.gradle",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadAttachBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadPostBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadInfo.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadPageInfo.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterManager.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/ui/fragment/TopicListBaseFragment.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/ui/fragment/TopicListSimpleFragment.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/common/TopicHistoryManager.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/http/bean/Attachment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/http/bean/ThreadData.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/http/bean/ThreadRowInfo.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/contract/ArticleListContract.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/contract/TopicListContract.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/ArticleListModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicListModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/entity/ThreadPageInfo.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/entity/TopicListInfo.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/ArticleListPresenter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/TopicListPresenter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/param/TopicTitleHelper.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ArticleListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ReplyListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/TopicListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleListFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicCacheFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicFavoriteFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicHistoryFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/FunctionUtils.java"
+      ]
+    },
+    {
+      "sha": "0dbd80b446ed38ebdfd928790570209a8e77a094",
+      "author_date": "2026-08-08T23:44:35+08:00",
+      "commit_date": "2026-08-08T23:47:22+08:00",
+      "subject": "数据类重构",
+      "files": [
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadPostBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadInfo.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/ArticleListPresenter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ArticleListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleListFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/FunctionUtils.java"
+      ]
+    },
+    {
+      "sha": "25652de8dd6fc78646d074080239d3b194c7ddb8",
+      "author_date": "2026-08-09T00:32:43+08:00",
+      "commit_date": "2026-08-09T00:32:43+08:00",
+      "subject": "升级fastjson2",
+      "files": [
+        "build.gradle",
+        "gradle/libs.versions.toml",
+        "lib_base_common/build.gradle",
+        "lib_base_common/src/main/java/gov/anzong/androidnga/base/util/PreferenceUtils.java",
+        "lib_bu_message/src/main/java/com/justwen/androidnga/module/message/MessageConvertFactory.java",
+        "lib_bu_message/src/main/java/com/justwen/androidnga/module/message/compose/post/MessagePostRepository.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/AvatarPostActivity.java",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/SearchModel.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardRepository.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/data/BoardEntity.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterKeyword.java",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterManager.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModel.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/common/TopicHistoryManager.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicListModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicPostModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ErrorConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ForumNotificationFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/MessageConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/proxy/ProxyBridge.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/task/AvatarFileUploadTask.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/task/JsonProfileLoadTask.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/task/LikeTask.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/task/PostCommentTask.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/task/ReportTask.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/task/SearchBoardTask.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicHistoryFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java"
+      ]
+    },
+    {
+      "sha": "0d6e9e5058d47dbf56bd41fd6a9815abb2fdc398",
+      "author_date": "2026-08-09T00:50:04+08:00",
+      "commit_date": "2026-08-09T19:22:57+08:00",
+      "subject": "数据类重构",
+      "files": [
+        "lib_core/build.gradle",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoParse.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadPostBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadInfo.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/ArticleListPresenter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ArticleListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleListFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/FunctionUtils.java"
+      ]
+    },
+    {
+      "sha": "86e3f65dcbb01c627c6fbdd23d4bc8fb46c82506",
+      "author_date": "2026-08-15T15:36:20+08:00",
+      "commit_date": "2026-08-15T15:36:20+08:00",
+      "subject": "数据类重构2",
+      "files": [
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ForumParseUtils.kt",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoParse.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadPageBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadPostBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadInfo.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadPageInfo.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/MessageConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/viewmodel/ArticleShareViewModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ArticleListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleListFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/FunctionUtils.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/StringUtils.java"
+      ]
+    },
+    {
+      "sha": "0035234899853f65ac90432329206778eeaa8341",
+      "author_date": "2026-08-15T18:38:13+08:00",
+      "commit_date": "2026-08-16T23:43:20+08:00",
+      "subject": "数据类重构3",
+      "files": [
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoParse.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadPostBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadInfo.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/contract/ArticleListContract.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/ArticleListPresenter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ArticleListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleListFragment.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/FunctionUtils.java"
+      ]
+    },
+    {
+      "sha": "3596da00f315a0aa224f07c06905fdf02714d970",
+      "author_date": "2026-08-11T16:51:33+08:00",
+      "commit_date": "2026-08-23T23:47:12+08:00",
+      "subject": "数据类重构4",
+      "files": [
+        "lib_core/src/main/java/gov/anzong/androidnga/core/HtmlConvertFactory.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/corebuild/HtmlAttachmentBuilder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/corebuild/HtmlBuilder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/corebuild/HtmlCommentBuilder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/corebuild/HtmlSignatureBuilder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/corebuild/HtmlVoteBuilder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/corebuild/IHtmlBuild.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/data/AttachmentData.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/data/CommentData.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/data/HtmlData.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumAlbumDecoder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumBasicDecoder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumDecoder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumDiceDecoder.kt",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumImageDecoder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumVoteDecoder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/IForumDecoder.java",
+        "lib_core/src/test/java/gov/anzong/androidnga/core/ExampleUnitTest.java",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/html/AttachmentData.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/html/CommentData.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/html/GlobalConfig.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/html/HtmlData.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/ProfileActivity.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/util/FunctionUtils.java"
+      ]
+    },
+    {
+      "sha": "a6e4a89019f9fa7962479c2d6d82a891164a27cc",
+      "author_date": "2026-08-17T13:50:42+08:00",
+      "commit_date": "2026-08-23T23:47:20+08:00",
+      "subject": "数据类重构5",
+      "files": [
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ForumParseUtils.kt",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoParse.kt",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/HtmlConvertFactory.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/IHtmlConfigService.kt",
+        "lib_core_data/build.gradle",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadPostBean.kt",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/model/ThreadInfo.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/service/HtmlConfigService.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/ArticleListModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/adapter/ArticleListAdapter.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/ArticleListFragment.java"
+      ]
+    },
+    {
+      "sha": "93acf42a5b6601f6ee6e257bb31895a3b50ad458",
+      "author_date": "2026-08-19T20:46:12+08:00",
+      "commit_date": "2026-08-23T23:47:21+08:00",
+      "subject": "解决游戏综合讨论区打不开的问题",
+      "files": [
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java"
+      ]
+    },
+    {
+      "sha": "6a78543086cf439aa695d28c56aeca1f8ae8bdd4",
+      "author_date": "2026-08-20T14:08:53+08:00",
+      "commit_date": "2026-08-23T23:47:21+08:00",
+      "subject": "解决版面图标无法显示的问题",
+      "files": [
+        "lib_base_common/src/main/java/gov/anzong/androidnga/common/PreferenceKey.java",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardView.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/data/BoardEntity.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/data/ForumsListBean.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/common/ApiConstants.java"
+      ]
+    },
+    {
+      "sha": "750871b31b533dd74059ade146a084f396020cbe",
+      "author_date": "2026-08-26T12:27:32+08:00",
+      "commit_date": "2026-08-29T22:27:02+08:00",
+      "subject": "解决一些bug",
+      "files": [
+        "lib_core/src/main/assets/html/style.css",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoParse.kt",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumBasicDecoder.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumBasicDecoder.kt",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/ArticleCacheActivity.java",
+        "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardViewModel.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicPostModel.java"
+      ]
+    },
+    {
+      "sha": "2becba2acc3f6c85340424cd09bb03fa7d759db0",
+      "author_date": "2026-08-30T09:54:06+08:00",
+      "commit_date": "2026-08-30T22:52:31+08:00",
+      "subject": "尝试解决跳转浏览器的问题",
+      "files": [
+        "gradle/libs.versions.toml",
+        "lib_base_common/src/main/res/values/donottranslate.xml",
+        "lib_base_network/src/main/java/com/justwen/androidnga/base/network/retrofit/RetrofitService.java",
+        "lib_core/build.gradle",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoAppParse.kt",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadInfoParse.kt",
+        "lib_core/src/main/java/com/client/androidnga/core/parse/ThreadParseUtils.kt",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumBasicDecoder.kt",
+        "lib_core/src/test/java/com/client/androidnga/core/parse/ThreadInfoAppParseTest.kt",
+        "lib_core/src/test/java/gov/anzong/androidnga/core/ExampleUnitTest.java",
+        "lib_core_data/src/main/java/com/client/androidnga/core/data/bean/ThreadAppBean.kt",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/ArticleListModel.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/presenter/ArticleListPresenter.java",
+        "nga_phone_base_3.0/src/main/res/xml/settings_lab.xml"
+      ]
+    },
+    {
+      "sha": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
+      "author_date": "2026-08-30T22:52:38+08:00",
+      "commit_date": "2026-08-30T22:52:38+08:00",
+      "subject": "5.0.2发版，顺便升级下target api",
+      "files": [
+        "build.gradle"
+      ]
+    },
+    {
+      "sha": "8862cdd498c2fb8c131e7a4082baef61ee09285c",
+      "author_date": "2026-08-07T14:02:33+08:00",
+      "commit_date": "2026-08-07T14:41:50+08:00",
+      "subject": "图片域名从服务端返回的结果中取",
+      "files": [
+        "lib_core/src/main/java/gov/anzong/androidnga/core/data/HtmlData.java",
+        "lib_core/src/main/java/gov/anzong/androidnga/core/decode/ForumImageDecoder.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/http/bean/ThreadRowInfo.java",
+        "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java"
+      ]
+    },
+    {
+      "sha": "cdad1abba80236602dc98999bee53d802412a7e4",
+      "author_date": "2026-08-07T14:42:37+08:00",
+      "commit_date": "2026-08-07T14:42:37+08:00",
+      "subject": "补充遗漏的版本更新提交",
+      "files": [
+        "build.gradle"
+      ]
+    }
+  ]
+}

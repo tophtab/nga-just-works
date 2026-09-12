@@ -4,12 +4,12 @@
 
     <item
         android:id="@+id/menu_cache_import"
-        android:title="导入缓存"
+        android:title="导入旧格式缓存"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_cache_export"
-        android:title="导出缓存"
+        android:title="导出旧格式缓存"
         app:showAsAction="never" />
 
 </menu>

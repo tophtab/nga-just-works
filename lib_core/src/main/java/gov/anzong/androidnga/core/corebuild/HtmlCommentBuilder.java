@@ -2,6 +2,9 @@ package gov.anzong.androidnga.core.corebuild;
 
 import android.text.TextUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import gov.anzong.androidnga.common.util.FileUtils;
 import gov.anzong.androidnga.core.data.CommentData;
 import gov.anzong.androidnga.core.data.HtmlData;
@@ -13,6 +16,15 @@ import gov.anzong.androidnga.core.decode.ForumDecoder;
 public class HtmlCommentBuilder implements IHtmlBuild {
 
     private volatile static String sFormattedHtml;
+    private static final Pattern REPLY_HEADER = Pattern.compile(
+            "\\A\\[b\\]Reply to \\[pid=\\d+,\\d+,\\d+\\]Reply\\[/pid\\][\\s\\S]*?\\[/b\\]",
+            Pattern.CASE_INSENSITIVE);
+
+    static String stripReplyHeader(String content) {
+        if (content == null) return "";
+        Matcher header = REPLY_HEADER.matcher(content);
+        return header.find() ? content.substring(header.end()) : content;
+    }
 
 
     private static String getFormattedHtml() {
@@ -35,10 +47,8 @@ public class HtmlCommentBuilder implements IHtmlBuild {
             if (TextUtils.isEmpty(avatarUrl)) {
                 avatarUrl = "file:///android_asset/default_avatar.png";
             }
-            String content = comment.getContent();
-            int end = content.indexOf("[/b]");
+            String content = stripReplyHeader(comment.getContent());
             String time = '(' + comment.getPostTime() + ')';
-            content = content.substring(end + 4);
             content = ForumDecoder.decode(content, htmlData, null);
             ret.append(String.format("<tr><td width='10%%'> <img class='circle' src='%s' />  <span style='font-weight:bold'>%s %s</span>%s</td></tr>",
                     avatarUrl, author, time, content));
