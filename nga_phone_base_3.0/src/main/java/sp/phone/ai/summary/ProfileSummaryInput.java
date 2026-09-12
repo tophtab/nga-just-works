@@ -11,7 +11,7 @@ public final class ProfileSummaryInput {
 
     public static final int MAX_ITEMS_PER_PAGE = 20;
     public static final int MAX_BODY_CHARS = 1200;
-    /** @deprecated Both activity kinds now use the same body limit. */
+    /** @deprecated Use MAX_BODY_CHARS for the reply text limit. */
     @Deprecated
     public static final int MAX_REPLY_CHARS = MAX_BODY_CHARS;
 
@@ -20,27 +20,12 @@ public final class ProfileSummaryInput {
         private final String board;
         private final String date;
         private final String body;
-        private final boolean bodyUnavailable;
 
         public Entry(String title, String board, String date, String body) {
             this.title = SummaryText.plain(title, 200);
             this.board = SummaryText.plain(board, 80);
             this.date = SummaryText.plain(date, 32);
             this.body = SummaryText.plain(body, MAX_BODY_CHARS);
-            this.bodyUnavailable = false;
-        }
-
-        private Entry(Entry metadata, String body) {
-            this.title = metadata.title;
-            this.board = metadata.board;
-            this.date = metadata.date;
-            this.body = SummaryText.plain(body, MAX_BODY_CHARS);
-            this.bodyUnavailable = body == null;
-        }
-
-        /** A null body denotes an explicitly unavailable original post, never server text. */
-        Entry withBody(String body) {
-            return new Entry(this, body);
         }
 
         public String getBody() {
@@ -56,9 +41,10 @@ public final class ProfileSummaryInput {
             output.append(reply ? "[回复" : "[主题").append(index).append("] ")
                     .append(title).append(" | ").append(board)
                     .append(" | ").append(date).append('\n');
-            output.append(reply ? "回复正文：" : "主题正文：");
-            output.append(bodyUnavailable ? "[应用提示：正文不可用]"
-                    : body.isEmpty() ? "[应用提示：未提供可用文字]" : body).append('\n');
+            if (reply) {
+                output.append("回复正文：")
+                        .append(body.isEmpty() ? "[应用提示：未提供可用文字]" : body).append('\n');
+            }
         }
     }
 
@@ -108,7 +94,7 @@ public final class ProfileSummaryInput {
     public String toPrompt(AiProfilePrompt profilePrompt) {
         StringBuilder output = new StringBuilder("请根据下方公开论坛样本，分析该用户的兴趣、明确表达的观点和发言方式。"
                 + "样本仅来自主题第一页和回复第一页，各最多 20 条，不能代表全部历史。"
-                + "主题包含标题、版面、日期及可读取的主楼正文；每条主题和回复正文只保留清理后的前 "
+                + "主题仅包含标题、版面和日期，不包含主题正文；每条回复正文只保留清理后的前 "
                 + MAX_BODY_CHARS + " 个字符。"
                 + "回复所属主题的标题和引用内容不能直接当作该用户本人的立场。"
                 + "区分本人发言、引用和自述经历，自述只能记作自述，不能当作已核实事实。\n");

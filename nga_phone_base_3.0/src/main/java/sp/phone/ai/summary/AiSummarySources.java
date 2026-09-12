@@ -24,8 +24,8 @@ public final class AiSummarySources {
 
     public static SummaryController.InputSource profile(String uid, String userName) {
         // Deferred until SummaryController has checked configuration. Each deliberate retry
-        // captures one session for both first-page samples and their topic-body reads. There are no
-        // application retries, pagination, or account rotation; transport follow-ups keep that snapshot.
+        // captures one session for both first-page samples and their paced empty-result retries.
+        // Pagination and account rotation are excluded; every attempt keeps that snapshot.
         return (config, callback) -> {
             NgaProfilePageSource source = new NgaProfilePageSource(
                     ForumUtils.getAvailableDomain(),

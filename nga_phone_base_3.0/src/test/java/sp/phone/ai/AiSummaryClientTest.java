@@ -494,13 +494,13 @@ public class AiSummaryClientTest {
     }
 
     @Test
-    public void maximumProfileBodiesAndMetadataFitBothPresetsWithoutClipping() throws Exception {
+    public void maximumProfileMetadataAndRepliesFitBothPresetsWithoutClipping() throws Exception {
         ProfileSummaryInput input = maximumProfileInput();
         AiSummaryClient client = client(5_000);
         for (AiProfilePrompt.Style style : new AiProfilePrompt.Style[]{
                 AiProfilePrompt.Style.FORUM_ROAST, AiProfilePrompt.Style.DETAILED}) {
             String prompt = input.toPrompt(new AiProfilePrompt(style, ""));
-            assertTrue(prompt.length() > 60000);
+            assertFalse(prompt.contains("主题正文："));
             assertTrue(prompt.length() <= AiSummaryClient.MAX_PROMPT_CHARS);
             server.enqueue(success("Synthetic summary"));
             Result result = new Result();
@@ -514,18 +514,23 @@ public class AiSummaryClientTest {
     }
 
     @Test
-    public void maximumCustomProfileOverflowRetainsInstructionsAndSendsNoPartialPrompt() {
+    public void maximumCustomProfileFitsWithoutDroppingInstructionsOrReplies() throws Exception {
         String customText = "  " + "文".repeat(AiProfilePrompt.MAX_CUSTOM_PROMPT_CHARS - 4) + "\n\t";
         AiProfilePrompt custom = new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, customText);
         String prompt = maximumProfileInput().toPrompt(custom);
         assertEquals(customText, custom.getInstructions());
         assertTrue(prompt.contains("输出要求：\n" + customText + "\n"));
-        assertTrue(prompt.length() > AiSummaryClient.MAX_PROMPT_CHARS);
+        assertTrue(prompt.length() <= AiSummaryClient.MAX_PROMPT_CHARS);
+        assertFalse(prompt.contains("主题正文："));
         AiSummaryClient client = client(5_000);
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> client.summarize(config, prompt, new Result()));
-        assertEquals("待总结内容为空或过长", error.getMessage());
-        assertEquals(0, server.getRequestCount());
+        server.enqueue(success("Synthetic summary"));
+        Result result = new Result();
+        client.summarize(config, prompt, result);
+        result.await();
+        assertNull(result.error);
+        JSONObject request = SafeJsonParser.parseObject(takeRequest().getBody().readUtf8());
+        assertEquals(prompt, request.getJSONArray("messages").getJSONObject(0).get("content"));
+        assertEquals(1, server.getRequestCount());
     }
 
     private static ProfileSummaryInput maximumProfileInput() {

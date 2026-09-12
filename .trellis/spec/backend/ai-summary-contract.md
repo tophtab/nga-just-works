@@ -55,10 +55,8 @@ SummaryController.Cancelable ProfileSummaryLoader.load(
 String ProfileSummaryInput.toPrompt(AiProfilePrompt profilePrompt);
 // The compatibility overloads use the default forum-roast style.
 String ProfileSummaryInput.Entry.getBody();
-// MAX_BODY_CHARS is 1200; MAX_REPLY_CHARS/getReply() remain compatibility aliases.
-// Internal to the summary package; null means explicitly unavailable:
-String NgaTopicBodyParser.parse(String raw, String uid, String tid)
-        throws NgaProfilePageSource.PageException;
+// MAX_BODY_CHARS is 1200 for reply text; MAX_REPLY_CHARS/getReply() remain compatibility aliases.
+// Topic entries serialize metadata only, even if an Entry carries incidental body text.
 SummaryController.Cancelable SummaryController.InputSource.load(
         AiConfig config, SummaryController.Callback callback);
 // SummaryController.Callback: default onProgress(String answer, String reasoning),
@@ -233,6 +231,11 @@ loading and answerless states return an empty string.
 
 ### Summary inputs and NGA reads
 
+- Keep NGA wire behavior grounded in this fork's pinned upstream contracts.
+  Upstream has no AI profile feature; Harmony and userscript implementations
+  are feature references, not authority for this project's concurrency, retry
+  counts, or input limits. The 500 ms pacing and empty-result retries below
+  implement the maintainer's requested local policy.
 - Freeze the clicked `ThreadRowInfo` into `FloorSummaryInput`. Use only its
   thread title, known floor number, author, and plain-text body (up to 12,000
   characters). Do not traverse `ThreadData`, other floors, signatures, account
@@ -250,7 +253,7 @@ loading and answerless states return an empty string.
   until the controller confirms a valid AI configuration.
 - Input sources receive the controller's initial configuration snapshot.
   Profile collection carries its immutable prompt selection through the list
-  reads, topic-body enrichment, and composition; it does not independently
+  reads and composition; it does not independently
   reload settings. Before sending, the controller retains its second
   configuration validation and compares the prompt selection and retained
   custom text as well as endpoint,
@@ -261,20 +264,46 @@ loading and answerless states return an empty string.
   `GET thread.php?authorid=<uid>&page=1&lite=js&noprefix`, adding `searchpost=1`
   for replies. Run the topics operation before replies, each capped at 20
   accepted entries; skipped unavailable records do not consume this allowance.
-  Retain valid topic IDs privately and enrich the topic sample with at most one
-  `THREAD.PAGE` GET per retained topic:
-  `read.php?page=1&__output=8&noprefix&v2&tid=<tid>`. Project only the verified
-  original post into the topic entry. Never request later activity pages or
-  use topic details to obtain the reply sample, which already has `__P.content`.
-- Capture one Cookie/UA snapshot for all list and detail reads. Permit only
+  Validate topic IDs but collect only topic title, board, and date. Do not
+  issue topic-body requests or serialize topic text; ignore incidental
+  `content` or `__P` fields in topic-list records. Never request `read.php` or later
+  activity pages for profile analysis. Replies use the list's `__P.content`.
+  When both first responses are nonempty, collection needs two list operations
+  instead of the former two lists plus up to 20 original-post reads.
+- Pace profile collection through one process-wide queue shared by source
+  instances. Allow one active collection call at a time; after it finishes and
+  its response is closed, wait at least 500 ms before starting another call.
+  Apply the same cooldown to topics, replies, and empty-result retries. Use
+  monotonic elapsed time and cancellable asynchronous scheduling; never sleep
+  on the UI thread. Reopening analysis or changing the viewed user must not
+  reset the shared cooldown. This queue is specific to profile collection;
+  model requests, ordinary thread reads, and author-location requests retain
+  their own transport behavior. An idle queue with no remaining cooldown may
+  dispatch immediately.
+- Retry a successfully parsed empty topic or reply sample at most twice,
+  keeping the same first page, kind, viewed UID, and Cookie/UA snapshot. This
+  means at most three attempts per kind and six application-scheduled list
+  reads per analysis. A nonempty result ends retries for that kind. Exhausted
+  empty topics still advance to replies; exhausted empty replies still allow
+  the accepted topics to be summarized. If both remain empty, report the
+  existing no-visible-content error without submitting to the model. HTTP,
+  network, access, parse, and identity failures remain terminal; they are not
+  empty results and must not enter this retry path.
+- Capture one Cookie/UA snapshot for both list kinds and all their retries. Permit only
   HTTPS port 443 on the explicit NGA host set in the source, with no userinfo,
-  query, fragment, custom base path, or redirects. There is no application retry or
-  account rotation. Connection retries are disabled; an internal idempotent
-  HTTP follow-up can still repeat the same page. There are at most 22
-  application-scheduled reads (two lists plus 20 topic details), not a claim
-  about the number of underlying network transmissions. Topic enrichment is
-  sequential and retains the list order; its single cancel handle covers the
-  list and all detail calls, including synchronous callbacks and late results.
+  query, fragment, custom base path, or redirects. There is no account rotation.
+  Connection retries are disabled. Prevent OkHttp's otherwise automatic
+  `503 Retry-After: 0` follow-up in the dedicated client's network interceptor:
+  remove `Retry-After` only from 503 responses, retaining the original status
+  and body. Preserve 429 metadata and error handling. This keeps the first
+  failure visible and prevents an internal retry from bypassing the queue's
+  cooldown; do not add a body to the GET request. Preserve the order within
+  each sample. The loader's cancel handle covers active reads, queued
+  reads, and pending retries. Cancellation during a response read must not
+  wait on that read, and the shared queue must retain the active slot until
+  the physical call finishes. Give each attempt its own identity so duplicate
+  or late same-kind callbacks cannot advance retries, publish content, or
+  overwrite the current cancellation handle.
 - Read a maximum of 512 KiB per NGA response. Honor a valid declared charset;
   default to pinned GBK when absent. A present but unparsable Content-Type,
   invalid charset, or invalid encoded bytes is a protocol error, not a reason
@@ -285,38 +314,17 @@ loading and answerless states return an empty string.
   and the correct author on available records. Replies come from each row's
   `__P.content`, `__P.authorid`, and `__P.postdate`.
   Format dates in the device display timezone. Extract only title, board,
-  date, and the selected public body into the prompt, not raw JSON, fetch IDs,
-  or private profile fields.
-- Topic detail parsing requires matching topic identity, an explicit original
-  floor (`lou == 0`), and that original's matching TID and viewed author ID.
-  Array position and Java bean defaults are not proof of an original post.
-  `NgaTopicBodyParser` owns that projection; its null result means explicitly
-  unavailable, distinct from a valid empty body. Entry serialization labels
-  either case as an application notice, never as a server-authored claim.
-  Other floors and user tables are not source material for the prompt. Keep
-  source-backed NGA envelope normalization local; recognize JS/error-fill
-  markers only outside quoted text. Do not execute the response or invoke the
-  legacy renderer/raw-response logger.
-- Native `THREAD.PAGE` strings may contain literal TAB (U+0009), LF (U+000A),
-  or CR (U+000D). The authorized 2026-09-12 response contained 53 raw TABs;
-  the shared strict JSON preflight rejected it before original-post selection.
-  `NgaTopicBodyParser` converts these three raw string characters to equivalent
-  JSON escapes before shared decoding. Preserve their decoded text and every
-  existing valid escape, including the distinction between an escaped tab and
-  literal backslash-plus-`t`. A lone backslash followed by a raw TAB/LF/CR and
-  all other raw C0 controls remain format errors. Keep this representation
-  adapter local to topic details; do not relax `SafeJsonParser` or model JSON.
-  Controls in ignored metadata receive the same normalization, without making
-  that metadata source material for the prompt. Count escape expansion toward
-  the existing 512-Ki-character normalized-response limit; overflow fails
-  explicitly. Identity, floor, and original-content checks still run afterward.
-- Both topic and reply bodies retain at most the first 1,200 cleaned UTF-16
+  date, and reply text into the prompt, not raw JSON, fetch IDs, or private
+  profile fields. Do not execute the response or invoke the legacy
+  renderer/raw-response logger. The removed topic-detail parser is not part
+  of this collection path; keep the shared JSON decoder strict.
+- Reply bodies retain at most the first 1,200 cleaned UTF-16
   code units, preserving the existing surrogate-boundary handling and 64,000
   source-processing bound. The common prompt describes this prefix limit.
   Keep metadata bounds and the 65,536-code-unit whole-prompt client limit.
-  Both built-in styles must fit with maximum retained samples; exceptionally
-  large custom instructions plus metadata still receive the explicit existing
-  over-limit error, without silent extra body/custom truncation.
+  Both built-in styles and maximum-length custom instructions must fit with
+  maximum retained samples. The model client's independent whole-prompt limit
+  still rejects oversized input explicitly, without silent truncation.
 - Authorized first-page reads on 2026-09-11 contained unavailable placeholders
   with nonblank string `denied` or `error` fields. Skip an outer row with either
   marker before author/content validation; for replies, also inspect `__P` for
@@ -324,17 +332,13 @@ loading and answerless states return an empty string.
   unavailable reply can still have a matching author and string content. Neither
   form contributes text to the prompt. Blank/whitespace strings and other value
   types do not establish unavailability; retain ordinary validation for them.
-- An all-unavailable page contributes an empty sample. Available entries from
-  the other kind still permit a summary; if both samples are empty, retain the
-  existing no-visible-content error. Missing/malformed page structures, root
+- An all-unavailable page contributes an empty sample and follows the bounded
+  empty-result retry policy. Available entries from the other kind still
+  permit a summary after those retries; if both samples remain empty, retain
+  the existing no-visible-content error. Missing/malformed page structures, root
   `error`, `data.__MESSAGE`, challenge responses, and unmarked malformed or
   foreign-author records remain collection errors. Do not generalize item
   filtering into a fallback for arbitrary author mismatches or page rejection.
-- An explicitly unavailable original body can retain its visible topic
-  metadata with an application-owned unavailable-body notice. Server denial
-  text is not authored text. Unmarked missing/ambiguous original posts,
-  mismatched IDs, malformed structures, and whole-page errors terminate
-  collection rather than silently succeeding with titles alone.
 
 ### Profile composition prompt
 
@@ -365,9 +369,12 @@ loading and answerless states return an empty string.
   a hidden common suffix. The forum-roast preset also no longer demands
   numbered short-quotation support for its punchline. Stored custom text stays
   verbatim, including instructions the user independently writes there.
-- Topic entries contain metadata plus `主题正文：`; reply entries contain
-  metadata plus `回复正文：`. Each body is limited to the first 1,200 cleaned
-  characters. A reply's enclosing topic title need not express the reply
+- Topic entries contain only title, board, and date; never emit a
+  `主题正文：` field or an unavailable-topic-body notice. Reply entries contain
+  metadata plus `回复正文：`, limited to the first 1,200 cleaned characters.
+  The common framing explicitly says that topic bodies are absent. This
+  boundary applies to both presets and custom instructions.
+  A reply's enclosing topic title need not express the reply
   author's opinion. Preserve quote attribution and distinguish self-reported
   experience from independently verified facts. Source content remains data,
   not instructions to the model.
@@ -465,20 +472,20 @@ loading and answerless states return an empty string.
 | Malformed NGA Content-Type or unmarked record with wrong author UID | Stop collection; do not send a model request |
 | Nonblank string `denied`/`error` on an outer row or reply `__P` | Skip the unavailable item before author/content validation; retain the accepted-item allowance |
 | Blank or non-string item marker | Apply normal author/content validation |
-| All items unavailable on one page | Empty sample; use available activity from the other kind |
-| Both samples empty, root `error`, or `data.__MESSAGE` | Report the existing collection error; do not send a model request |
+| Successfully parsed empty page, including all-unavailable items | Retry the same first page at most twice, with the shared 500 ms cooldown |
+| One kind remains empty after three attempts | Use available activity from the other kind |
+| Both kinds remain empty after three attempts each | Existing no-visible-content error after at most six list reads; no model request |
+| Root `error`, `data.__MESSAGE`, malformed content, or transport failure | Terminal collection error without automatic retry or model request |
+| A profile request finishes, including failure or cancellation | Start the next queued profile call only after at least 500 ms; retain the cooldown across source instances |
+| NGA list GET receives `503 Retry-After: 0` | Preserve the first HTTP failure; no hidden follow-up outside the paced queue |
 | Profile source lists exceed retained limits | Prompt counts and input labels describe only the retained entries |
-| A topic or reply body exceeds 1,200 cleaned characters | Retain only its prefix without splitting a surrogate pair; framing states the limit |
-| Topic detail includes later or foreign-author floors | Include only the verified original belonging to the requested topic and viewed UID |
-| Literal TAB/LF/CR in a quoted topic-detail body or ignored metadata field | Escape locally, decode equivalent text, and apply all original-post checks |
-| Existing escaped control or literal backslash-plus-letter text in a topic detail | Preserve their distinct decoded values |
-| Lone backslash followed by raw TAB/LF/CR, or another raw C0 string character | Existing NGA format error; no model request |
-| Topic-detail escape expansion exceeds the normalized-response limit | Existing NGA format error; no clipping or partial sample |
+| A reply body exceeds 1,200 cleaned characters | Retain only its prefix without splitting a surrogate pair; framing states the limit |
+| A topic list record or topic Entry contains body text | Ignore it; serialize only topic metadata and schedule no detail request |
 | Raw control character in model-service JSON | Preserve the shared decoder's existing invalid-response result |
-| Original body explicitly unavailable | Keep visible topic metadata with a fixed unavailable-body notice; no denial text or substitute floor |
-| Unmarked original missing/ambiguous or topic/original identity disagrees | Terminal collection error; no model request |
-| Cancellation during topic enrichment | Cancel the active call, schedule no later detail/reply reads, discard late callbacks |
-| Custom instructions plus retained sample exceed the whole-prompt bound | Existing explicit input error; no partial model request or custom-text clipping |
+| Cancellation during either list read or the 500 ms wait | Cancel the active/queued work for that load, schedule no later read for it, discard late callbacks |
+| Duplicate/late callback from an earlier attempt of the same kind | Ignore it without advancing retries or replacing the current cancel handle |
+| Maximum custom instructions plus maximum retained profile sample | Send the complete prompt within the existing limit |
+| Another caller supplies a prompt above the client bound | Existing explicit input error; no partial model request or text clipping |
 | Any selected profile prompt style | Compose the same sample framing without the removed fixed rule paragraph; presets do not require source IDs/quotes |
 | Second page-source invocation throws synchronously | Terminal collection error, still retryable |
 | `503 Retry-After: 0` from model | One POST only; preserve server error |
@@ -494,16 +501,17 @@ loading and answerless states return an empty string.
   the model prompt. Switching pages cancels the old operation.
 - Good: a page mixes visible activity with explicitly unavailable placeholders;
   accept only visible entries, validating their actual topic/reply authors.
-- Good: a topic entry contains its verified original body's first 1,200 cleaned
-  characters, while a reply entry contains the viewed user's `__P` body from
-  the reply list. A later floor never substitutes for the original.
-- Good: a native detail with raw tabs in ignored metadata decodes successfully,
-  while only its verified original contributes text to the profile sample.
-- Base: ordinary JSON and already escaped whitespace keep their existing
-  decoded body and identity checks.
-- Bad: feeding the native detail directly to the shared strict preflight,
-  deleting whitespace to make it parse, or accepting the same raw characters
-  in model responses by weakening the shared decoder.
+- Good: two nonempty first-page list reads, separated by at least 500 ms after
+  the first completes, yield up to 20 topic metadata entries and 20 replies
+  containing the viewed user's `__P` text. Synchronous transport completion
+  still respects pacing. Topic-list body fields never enter the prompt.
+- Good: topics are initially empty, then succeed on a paced retry; replies
+  are collected afterwards using the same session snapshot.
+- Base: a profile with only visible topics can be analyzed from its topic
+  metadata after two empty-reply retries; no detail requests are needed.
+- Bad: fetching topic details and then hiding their text at serialization,
+  or adding topic bodies only for a custom prompt. Both violate the shared
+  collection boundary and reintroduce unnecessary requests.
 - Good: save a multiline custom prompt, select detailed analysis, and later
   return to custom; the same text is restored and only the selected instructions
   appear before the public sample.
@@ -563,7 +571,7 @@ loading and answerless states return an empty string.
   immutable and empty results, and malformed/oversized list responses.
 - `SummaryInputTest`, `SummaryControllerTest`, `ProfileSummaryLoaderTest`,
   and `NgaProfilePageSourceTest`: frozen rows, correct UID, two first-page
-  list operations plus bounded original-body reads, topic/reply text, limited
+  list kinds with no detail reads, topic metadata/reply text, limited
   content, date boundaries, charset errors,
   timeout versus user cancellation, synchronous failures, and late callbacks.
   Floor snapshots cover missing floor metadata, explicit comments with a
@@ -572,22 +580,26 @@ loading and answerless states return an empty string.
   Profile parser regressions also cover mixed visible/unavailable topics,
   outer and nested reply markers, both marker names, blank/non-string markers,
   unmarked foreign authors, all-unavailable pages, unchanged whole-page errors,
-  and the 20 accepted-item cap after filtering. Loader tests cover an empty
-  topic sample with available replies and the both-empty error.
-  Topic-body coverage verifies explicit floor/TID/author identity, unavailable
-  originals, wrong/missing/ambiguous originals, request bounds/order, body-only
-  projection, envelope handling, and cancellation/late callbacks during
-  enrichment. Inject literal TAB/LF/CR after fixture serialization: a
-  `JSONObject.toJSONString()` fixture alone escapes them and cannot reproduce
-  the native wire failure. Cover controls in the original and ignored metadata,
-  escaped counterparts versus literal backslash text, escaped quotes and
-  backslashes, malformed lone-backslash/control pairs, other raw C0 rejection,
-  and normalization expansion at and beyond the limit. Exercise the complete
-  list/detail/reply composition path with that raw-wire detail, and retain the
-  strict model-decoder regression. `SummaryInputTest` covers both body prefixes at 1,199/1,200/1,201
-  characters and surrogate boundaries. `AiSummaryClientTest` sends maximum
-  samples with each built-in style without clipping and verifies that an
-  oversized custom input fails before any request.
+  and the 20 accepted-item cap after filtering. Loader tests cover retry
+  success, independent two-retry budgets for topics/replies, exhausted empty
+  samples with activity from the other kind, and the both-empty six-read cap.
+  Transport, parse, and identity failures must never trigger an empty retry.
+  Maximum-sample collection must schedule exactly two list calls, close each
+  response before advancing, and omit incidental topic body fields. Exercise
+  the 499/500 ms cooldown boundary with a deterministic clock/scheduler, slow
+  previous calls, and shared pacing across source instances. Exercise
+  cancellation during either list or a pending cooldown/retry, blocked-read
+  cancellation, timeout versus user cancellation, factory/enqueue failures,
+  and duplicate/late callbacks, including an earlier attempt of the same kind.
+  Use the production NGA client policy with a local 503/zero-retry-hint fixture:
+  exactly one server request, the first failure retained, and any subsequent
+  explicit collection request still observes the 500 ms cooldown.
+  Reply collection failures must not produce a partial topic-only prompt.
+  `SummaryInputTest` excludes nonempty topic Entry bodies for every prompt
+  style and covers reply prefixes at 1,199/1,200/1,201 characters and surrogate
+  boundaries. `AiSummaryClientTest` sends maximum metadata/reply samples with
+  both built-in styles and maximum custom instructions without clipping;
+  separately retain its rejection of an oversized caller-supplied prompt.
   `SummaryInputTest` also verifies retained counts and independent input
   numbering across truncation, null entries, and empty/partial samples; prose
   and tone instructions are source-reviewed rather than duplicated as a string
@@ -618,12 +630,13 @@ loading and answerless states return an empty string.
 ## 7. Wrong vs Correct
 
 ```java
-// Wrong: native NGA strings can contain raw tabs that strict JSON rejects.
-JSONObject data = SafeJsonParser.parseObject(rawNgaDetail);
+// Wrong: topic bodies are outside the profile sample, even when already available.
+output.append("主题正文：").append(entry.getBody());
 
-// Correct (summary package): normalize the native representation locally,
-// then preserve the strict decoder and verified-original projection.
-String body = NgaTopicBodyParser.parse(rawNgaDetail, viewedUid, requestedTid);
+// Correct: serialize the shared metadata, then include text only for replies.
+if (reply) {
+    output.append("回复正文：").append(entry.getBody());
+}
 ```
 
 ```java
@@ -634,16 +647,6 @@ String title = context.getString(R.string.ai_summary_floor_title, input.getFloor
 String title = input.hasFloor()
         ? context.getString(R.string.ai_summary_floor_title, input.getFloor())
         : context.getString(R.string.ai_summary_action);
-```
-
-```java
-// Wrong: response position alone does not establish the requested original post.
-String body = scalar(object(rows.get("0")).get("content"));
-
-// Correct (summary package): verify topic, explicit floor, and author first.
-String body = NgaTopicBodyParser.parse(raw, viewedUid, requestedTid);
-ProfileSummaryInput.Entry enriched = metadata.withBody(body);
-// A null result produces an application-owned unavailable-body notice.
 ```
 
 ```java

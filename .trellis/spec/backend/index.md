@@ -13,7 +13,7 @@
 | [THREAD.PAGE Local Page Cache](./thread-page-cache-contract.md) | Changing thread cache eligibility, metadata preparation, or description read-back | Full-thread context, selected-page snapshot, and existing cache format |
 | [USER.PROFILE Author Location](./author-profile-location-contract.md) | Changing dormant supplemental author helpers or floor metadata; automatic queries are disabled on main | Main integration boundary and retained helper contract; active experiments use `experiment/auto-ip-query` |
 | [THREAD.PAGE Compatibility Reader](./thread-detail-compat-contract.md) | App compatibility reads, query/source/page identity, row projection, or native reply/floor navigation | August source-derived operation and current-fork integration contract |
-| [BYOK AI Settings and Summaries](./ai-summary-contract.md) | Changing AI configuration, encrypted keys, model transport, first-page profile/topic-body inputs, or summary lifecycle | Current-fork BYOK and cancellation contract |
+| [BYOK AI Settings and Summaries](./ai-summary-contract.md) | Changing AI configuration, encrypted keys, model transport, first-page profile inputs, collection pacing/empty-result retries, or summary lifecycle | Current-fork BYOK and cancellation contract |
 
 ## Pre-Development Checklist
 

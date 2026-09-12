@@ -54,31 +54,108 @@ public class ProfileSummaryLoaderTest {
     }
 
     @Test
-    public void eitherEmptyPageStillAllowsVisibleActivityFromTheOtherPage() {
+    public void exhaustedEmptyRetriesStillAllowVisibleActivityFromTheOtherKind() {
         for (ProfileSummaryLoader.Kind emptyKind : ProfileSummaryLoader.Kind.values()) {
             FakePages pages = new FakePages();
             Result result = new Result();
             new ProfileSummaryLoader(pages).load("42", "Viewed user", result);
             if (emptyKind == ProfileSummaryLoader.Kind.TOPICS) {
-                pages.requests.get(0).callback.onSuccess(new ProfileSummaryLoader.Page("42",
-                        ProfileSummaryLoader.Kind.TOPICS, Collections.emptyList()));
+                for (int i = 0; i < 3; i++) {
+                    assertEquals(ProfileSummaryLoader.Kind.TOPICS, pages.requests.get(i).kind);
+                    pages.requests.get(i).empty();
+                }
             } else {
                 pages.requests.get(0).succeed("Visible topic", "");
             }
-            assertEquals(2, pages.requests.size());
             assertNull(result.prompt);
             if (emptyKind == ProfileSummaryLoader.Kind.REPLIES) {
-                pages.requests.get(1).callback.onSuccess(new ProfileSummaryLoader.Page("42",
-                        ProfileSummaryLoader.Kind.REPLIES, Collections.emptyList()));
+                for (int i = 1; i < 4; i++) {
+                    assertEquals(ProfileSummaryLoader.Kind.REPLIES, pages.requests.get(i).kind);
+                    pages.requests.get(i).empty();
+                }
             } else {
-                pages.requests.get(1).succeed("Reply topic", "Visible reply");
+                pages.requests.get(3).succeed("Reply topic", "Visible reply");
             }
+            assertEquals(4, pages.requests.size());
             assertEquals(1, result.successes);
             assertNull(result.error);
             assertTrue(result.prompt.contains(emptyKind == ProfileSummaryLoader.Kind.TOPICS
                     ? "无可见主题" : "无可见回复"));
             assertTrue(result.prompt.contains(emptyKind == ProfileSummaryLoader.Kind.TOPICS
                     ? "Visible reply" : "Visible topic"));
+        }
+    }
+
+    @Test
+    public void eitherKindCanRecoverOnItsFirstOrSecondEmptyRetry() {
+        for (ProfileSummaryLoader.Kind emptyKind : ProfileSummaryLoader.Kind.values()) {
+            for (int empties = 1; empties <= 2; empties++) {
+                FakePages pages = new FakePages();
+                Result result = new Result();
+                new ProfileSummaryLoader(pages).load("42", "Viewed user", result);
+                int next = 0;
+                if (emptyKind == ProfileSummaryLoader.Kind.REPLIES) {
+                    pages.requests.get(next++).succeed("Topic", "");
+                }
+                for (int i = 0; i < empties; i++) {
+                    Request request = pages.requests.get(next++);
+                    assertEquals(emptyKind, request.kind);
+                    request.empty();
+                    assertNull(result.prompt);
+                }
+                pages.requests.get(next++).succeed("Recovered topic", "Recovered reply");
+                if (emptyKind == ProfileSummaryLoader.Kind.TOPICS) {
+                    pages.requests.get(next).succeed("Reply topic", "Visible reply");
+                }
+                assertEquals(2 + empties, pages.requests.size());
+                assertEquals(1, result.successes);
+                assertEquals(0, result.errors);
+                assertTrue(result.prompt.contains("Recovered topic"));
+                assertTrue(result.prompt.contains("样本数量：主题 1 条，回复 1 条"));
+            }
+        }
+    }
+
+    @Test
+    public void bothEmptyKindsStopAfterSixReadsWithoutAProfilePrompt() {
+        FakePages pages = new FakePages();
+        Result result = new Result();
+        new ProfileSummaryLoader(pages).load("42", "Viewed user", result);
+        for (int i = 0; i < 6; i++) {
+            assertEquals(i < 3 ? ProfileSummaryLoader.Kind.TOPICS : ProfileSummaryLoader.Kind.REPLIES,
+                    pages.requests.get(i).kind);
+            pages.requests.get(i).empty();
+            if (i < 5) {
+                assertEquals(0, result.errors);
+            }
+        }
+        assertEquals(6, pages.requests.size());
+        assertEquals(1, result.errors);
+        assertEquals(0, result.successes);
+        assertEquals("没有可用于总结的近期公开内容", result.error);
+        assertNull(result.prompt);
+    }
+
+    @Test
+    public void anErrorAfterAnEmptyResultIsTerminalForEitherKind() {
+        for (ProfileSummaryLoader.Kind emptyKind : ProfileSummaryLoader.Kind.values()) {
+            FakePages pages = new FakePages();
+            Result result = new Result();
+            new ProfileSummaryLoader(pages).load("42", "User", result);
+            int index = 0;
+            if (emptyKind == ProfileSummaryLoader.Kind.REPLIES) {
+                pages.requests.get(index++).succeed("Topic", "");
+            }
+            pages.requests.get(index++).empty();
+            Request retry = pages.requests.get(index);
+            retry.callback.onError("Safe access failure");
+            retry.empty();
+            retry.succeed("LATE_TOPIC", "LATE_REPLY");
+            assertEquals(index + 1, pages.requests.size());
+            assertEquals(1, result.errors);
+            assertEquals(0, result.successes);
+            assertEquals("Safe access failure", result.error);
+            assertNull(result.prompt);
         }
     }
 
@@ -169,6 +246,85 @@ public class ProfileSummaryLoaderTest {
     }
 
     @Test
+    public void staleSameKindCallbacksCannotConsumeRetriesOrReplaceTheirResult() {
+        FakePages pages = new FakePages();
+        Result result = new Result();
+        new ProfileSummaryLoader(pages).load("42", "User", result);
+        for (ProfileSummaryLoader.Kind kind : ProfileSummaryLoader.Kind.values()) {
+            int first = kind == ProfileSummaryLoader.Kind.TOPICS ? 0 : 3;
+            Request original = pages.requests.get(first);
+            original.empty();
+            Request retry = pages.requests.get(first + 1);
+            original.empty();
+            original.succeed("STALE_TOPIC", "STALE_REPLY");
+            original.callback.onError("STALE_ERROR");
+            assertEquals(first + 2, pages.requests.size());
+            retry.empty();
+            retry.empty();
+            retry.callback.onError("STALE_ERROR");
+            assertEquals(first + 3, pages.requests.size());
+            pages.requests.get(first + 2).succeed("Accepted topic", "Accepted reply");
+        }
+        assertEquals(6, pages.requests.size());
+        assertEquals(1, result.successes);
+        assertEquals(0, result.errors);
+        assertFalse(result.prompt.contains("STALE"));
+    }
+
+    @Test
+    public void aSynchronousEmptyAttemptCannotOverwriteTheRetryCancelHandle() {
+        for (ProfileSummaryLoader.Kind emptyKind : ProfileSummaryLoader.Kind.values()) {
+            List<Request> requests = new ArrayList<>();
+            ProfileSummaryLoader loader = new ProfileSummaryLoader((uid, kind, callback) -> {
+                Request request = new Request(uid, kind, callback);
+                requests.add(request);
+                if (kind == ProfileSummaryLoader.Kind.TOPICS && emptyKind == ProfileSummaryLoader.Kind.REPLIES) {
+                    request.succeed("Topic", "");
+                } else if (requests.size() == (emptyKind == ProfileSummaryLoader.Kind.TOPICS ? 1 : 2)) {
+                    request.empty();
+                }
+                return request;
+            });
+            Result result = new Result();
+            SummaryController.Cancelable load = loader.load("42", "User", result);
+            Request retry = requests.get(requests.size() - 1);
+            assertEquals(emptyKind, retry.kind);
+            assertFalse(retry.canceled);
+            assertTrue(requests.get(requests.size() - 2).canceled);
+            int count = requests.size();
+            load.cancel();
+            assertTrue(retry.canceled);
+            retry.empty();
+            retry.callback.onError("LATE_ERROR");
+            assertEquals(count, requests.size());
+            assertEquals(0, result.errors);
+            assertEquals(0, result.successes);
+        }
+    }
+
+    @Test
+    public void anExceptionFromARetiredSynchronousAttemptCannotFailTheNewRetry() {
+        List<Request> requests = new ArrayList<>();
+        ProfileSummaryLoader loader = new ProfileSummaryLoader((uid, kind, callback) -> {
+            Request request = new Request(uid, kind, callback);
+            requests.add(request);
+            if (requests.size() == 1) {
+                request.empty();
+                throw new IllegalStateException("RETIRED_EXCEPTION_SENTINEL");
+            }
+            return request;
+        });
+        Result result = new Result();
+        loader.load("42", "User", result);
+        assertEquals(2, requests.size());
+        assertEquals(0, result.errors);
+        requests.get(1).succeed("Topic", "");
+        requests.get(2).succeed("Topic", "Reply");
+        assertEquals(1, result.successes);
+        assertEquals(0, result.errors);
+    }
+
+    @Test
     public void synchronousSourcesAndEmptyActivityFinishWithoutHanging() {
         List<Request> requests = new ArrayList<>();
         ProfileSummaryLoader loader = new ProfileSummaryLoader((uid, kind, callback) -> {
@@ -179,11 +335,12 @@ public class ProfileSummaryLoaderTest {
         });
         Result result = new Result();
         loader.load("42", "User", result);
-        assertEquals(2, requests.size());
+        assertEquals(6, requests.size());
         assertNotNull(result.error);
         assertNull(result.prompt);
-        assertTrue(requests.get(0).canceled);
-        assertTrue(requests.get(1).canceled);
+        for (Request request : requests) {
+            assertTrue(request.canceled);
+        }
     }
 
     @Test
@@ -232,6 +389,10 @@ public class ProfileSummaryLoaderTest {
                     Collections.singletonList(entry(title, reply))));
         }
 
+        void empty() {
+            callback.onSuccess(new ProfileSummaryLoader.Page(uid, kind, Collections.emptyList()));
+        }
+
         @Override
         public void cancel() {
             canceled = true;
@@ -242,6 +403,7 @@ public class ProfileSummaryLoaderTest {
         String prompt;
         String error;
         int successes;
+        int errors;
 
         @Override
         public void onSuccess(String text) {
@@ -251,6 +413,7 @@ public class ProfileSummaryLoaderTest {
 
         @Override
         public void onError(String safeMessage) {
+            errors++;
             error = safeMessage;
         }
     }

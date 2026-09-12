@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -46,6 +45,7 @@ import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
 import okio.Timeout;
+import sp.phone.ai.summary.ProfileRequestQueueTest.FakeTime;
 
 public class NgaProfilePageSourceTest {
 
@@ -55,8 +55,6 @@ public class NgaProfilePageSourceTest {
                 "synthetic-user-agent", "4200", ProfileSummaryLoader.Kind.TOPICS);
         Request replies = NgaProfilePageSource.buildRequest("https://bbs.nga.cn", "synthetic-session",
                 "synthetic-user-agent", "4200", ProfileSummaryLoader.Kind.REPLIES);
-        Request detail = NgaProfilePageSource.buildTopicRequest("https://bbs.nga.cn", "synthetic-session",
-                "synthetic-user-agent", "7300");
         assertEquals("/thread.php", topics.url().encodedPath());
         assertEquals("4200", topics.url().queryParameter("authorid"));
         assertEquals("4200", replies.url().queryParameter("authorid"));
@@ -68,14 +66,7 @@ public class NgaProfilePageSourceTest {
         assertEquals("synthetic-session", replies.header("Cookie"));
         assertEquals("Nga_Official", replies.header("X-User-Agent"));
         assertNull(replies.header("Authorization"));
-        assertEquals("/read.php?page=1&__output=8&noprefix&v2&tid=7300", detail.url().encodedPath()
-                + "?" + detail.url().encodedQuery());
-        assertNull(detail.url().queryParameter("pid"));
-        assertNull(detail.url().queryParameter("authorid"));
-        assertEquals("synthetic-session", detail.header("Cookie"));
-        assertEquals("synthetic-user-agent", detail.header("User-Agent"));
-        assertEquals("Nga_Official", detail.header("X-User-Agent"));
-        assertNull(detail.header("Authorization"));
+        assertEquals("synthetic-user-agent", replies.header("User-Agent"));
     }
 
     @Test
@@ -88,8 +79,6 @@ public class NgaProfilePageSourceTest {
                     request -> { throw new AssertionError("Invalid origin created a call"); });
             source.loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
             assertNotNull(result.error);
-            assertThrows(IllegalArgumentException.class,
-                    () -> NgaProfilePageSource.buildTopicRequest(domain, "", "UA", "7300"));
         }
         assertThrows(IllegalArgumentException.class, () -> NgaProfilePageSource.buildRequest(
                 "https://bbs.nga.cn", "", "UA", "42&authorid=99", ProfileSummaryLoader.Kind.REPLIES));
@@ -341,7 +330,7 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void invalidTopicIdsFailBeforeAnyDetailRequest() {
+    public void invalidTopicIdsFailBeforeReturningActivity() {
         Object[] invalidIds = {null, "", 0, -1, "07300", "+7300", "7300&pid=1", "1e3",
                 "12345678901234567890", true, new JSONObject(), Collections.singletonList(7300)};
         for (Object tid : invalidIds) {
@@ -349,7 +338,7 @@ public class NgaProfilePageSourceTest {
             row.put("tid", tid);
             FakeCalls calls = new FakeCalls(document(row));
             PageResult result = new PageResult();
-            new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls)
+            new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue)
                     .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
             assertEquals(1, calls.calls.size());
             assertEquals(1, result.errors);
@@ -358,266 +347,7 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void originalBodyUsesExplicitFloorIdentityAndIgnoresOtherTextAndMetadata() throws Exception {
-        JSONObject original = post("7300", "42", 0, "The viewed user's original text");
-        original.put("signature", "SIGNATURE_SENTINEL");
-        original.put("attachs", Collections.singletonList("ATTACHMENT_SENTINEL"));
-        original.put("__P", post("7300", "99", 1, "NESTED_REPLY_SENTINEL"));
-        String raw = detailDocument("7300", post("7300", "99", 8, "OTHER_USER_SENTINEL"),
-                original, post("7300", "42", 9, "LATER_FLOOR_SENTINEL"));
-        assertEquals("The viewed user's original text", NgaTopicBodyParser.parse(raw, "42", "7300"));
-    }
-
-    @Test
-    public void topicAndOriginalIdentitiesMustBePresentAndMatch() {
-        for (String owner : new String[]{"topic", "original"}) {
-            for (String field : new String[]{"tid", "authorid"}) {
-                for (Object value : new Object[]{null, "", 0, -1, "99", true, new JSONObject()}) {
-                    JSONObject root = JSON.parseObject(detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL")));
-                    JSONObject data = root.getJSONObject("data");
-                    JSONObject target = "topic".equals(owner) ? data.getJSONObject("__T")
-                            : data.getJSONObject("__R").getJSONObject("0");
-                    target.put(field, value);
-                    // A topic author may be omitted; explicitly supplied invalid values still fail.
-                    assertBodyFails(JSON.toJSONString(root,
-                            com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue));
-                }
-            }
-        }
-        JSONObject root = JSON.parseObject(detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL")));
-        root.getJSONObject("data").put("tid", "99");
-        assertBodyFails(root.toJSONString());
-        assertBodyFails(detailDocument("7300", post("99", "99", 1, "OTHER_THREAD_SENTINEL"),
-                post("7300", "42", 0, "BODY_SENTINEL")));
-    }
-
-    @Test
-    public void numericIdentitiesAndAnOmittedOptionalTopicAuthorAreAccepted() throws Exception {
-        JSONObject original = post("7300", "42", 0, "Original body");
-        original.put("tid", 7300);
-        original.put("authorid", 42);
-        JSONObject root = JSON.parseObject(detailDocument("7300", original));
-        JSONObject data = root.getJSONObject("data");
-        data.getJSONObject("__T").put("tid", 7300);
-        data.getJSONObject("__T").remove("authorid");
-        data.put("tid", 7300);
-        assertEquals("Original body", NgaTopicBodyParser.parse(root.toJSONString(), "42", "7300"));
-    }
-
-    @Test
-    public void absentOrAmbiguousOriginalFloorsCannotBecomeSuccessfulBodies() {
-        assertBodyFails(detailDocument("7300", post("7300", "42", 1, "LATER_FLOOR_SENTINEL")));
-        assertBodyFails(detailDocument("7300", post("7300", "42", 0, "FIRST_SENTINEL"),
-                post("7300", "42", 0, "SECOND_SENTINEL")));
-        for (Object floor : new Object[]{null, "", -1, "00", "0.0", true, new JSONObject()}) {
-            JSONObject original = post("7300", "42", 0, "BODY_SENTINEL");
-            original.put("lou", floor);
-            assertBodyFails(detailDocument("7300", original));
-        }
-        assertBodyFails(detailDocument("7300"));
-    }
-
-    @Test
-    public void unavailableOriginalMarkersDiscardTheirTextBeforeAuthorshipChecks() throws Exception {
-        for (String marker : new String[]{"denied", "error"}) {
-            JSONObject unavailable = post("99", "99", 0, "UNAVAILABLE_BODY_SENTINEL");
-            unavailable.put(marker, "DENIAL_SENTINEL");
-            assertNull(NgaTopicBodyParser.parse(detailDocument("7300", unavailable,
-                    post("7300", "42", 1, "LATER_FLOOR_SENTINEL")), "42", "7300"));
-            assertBodyFails(detailDocument("7300", unavailable, post("7300", "42", 0, "BODY_SENTINEL")));
-
-            JSONObject placeholder = new JSONObject();
-            placeholder.put(marker, "DENIAL_SENTINEL");
-            assertNull(NgaTopicBodyParser.parse(detailDocument("7300", placeholder), "42", "7300"));
-            placeholder.put("lou", 2);
-            assertBodyFails(detailDocument("7300", placeholder));
-        }
-    }
-
-    @Test
-    public void blankOrNonStringOriginalMarkersDoNotBypassValidation() throws Exception {
-        for (String marker : new String[]{"denied", "error"}) {
-            for (Object value : new Object[]{null, "", " \r\n\t", true, 1, new JSONObject()}) {
-                JSONObject original = post("7300", "42", 0, "Visible original body");
-                original.put(marker, value);
-                assertEquals("Visible original body",
-                        NgaTopicBodyParser.parse(detailDocument("7300", original), "42", "7300"));
-                original.put("authorid", "99");
-                assertBodyFails(detailDocument("7300", original));
-            }
-        }
-    }
-
-    @Test
-    public void emptyOriginalTextIsDistinctFromUnavailableOrMalformedBodyData() throws Exception {
-        assertEquals("", NgaTopicBodyParser.parse(detailDocument("7300", post("7300", "42", 0, "")),
-                "42", "7300"));
-        for (Object content : new Object[]{null, true, new JSONObject(), Collections.singletonList("BODY_SENTINEL")}) {
-            assertBodyFails(detailDocument("7300", post("7300", "42", 0, content)));
-        }
-        JSONObject original = post("7300", "42", 0, "BODY_SENTINEL");
-        original.remove("content");
-        original.put("subject", "TITLE_CANNOT_REPLACE_BODY_SENTINEL");
-        assertBodyFails(detailDocument("7300", original));
-    }
-
-    @Test
-    public void knownWrappersAndNumericBodyTokensPreserveTheirText() throws Exception {
-        for (String number : new String[]{"0", "123", "-42", "1.250", "1e+3", "+123", "00012"}) {
-            String raw = detailDocument("7300", post("7300", "42", 0, "NUMERIC_PLACEHOLDER"))
-                    .replace("\"NUMERIC_PLACEHOLDER\"", number);
-            assertEquals(number, NgaTopicBodyParser.parse("/*$js$*/" + raw
-                    + ";/*error fill content legacy suffix", "42", "7300"));
-        }
-        for (String invalid : new String[]{"0x12", "NaN", "undefined", "+1.2", "--1", "-001"}) {
-            String raw = detailDocument("7300", post("7300", "42", 0, "NUMERIC_PLACEHOLDER"))
-                    .replace("\"NUMERIC_PLACEHOLDER\"", invalid);
-            assertBodyFails(raw);
-        }
-    }
-
-    @Test
-    public void envelopeNormalizationNeverRewritesQuotedMarkersOrNumericLookingText() throws Exception {
-        String body = "Literal /*$js$*/ and /*error fill content plus \\\"content\\\":+0123, \\\\ text";
-        String raw = detailDocument("7300", post("7300", "42", 0, body));
-        assertEquals(body, NgaTopicBodyParser.parse("/*$js$*/window.script_muti_get_var_store="
-                + raw + ";", "42", "7300"));
-    }
-
-    @Test
-    public void nativeStringWhitespacePreservesBodyTextAndExistingEscapeSemantics() throws Exception {
-        String body = "Raw:CONTROL_PLACEHOLDER; escaped:\t\n\r\b\f; literal:\\t \\n \\r; "
-                + "quote:\"CONTROL_PLACEHOLDER\"; backslash:\\CONTROL_PLACEHOLDER; "
-                + "markers:/*$js$*/ /*error fill content; unicode:UNICODE_PLACEHOLDER";
-        for (String control : new String[]{"\t", "\n", "\r"}) {
-            String expected = body.replace("CONTROL_PLACEHOLDER", control)
-                    .replace("UNICODE_PLACEHOLDER", "\t");
-            assertEquals(expected, NgaTopicBodyParser.parse(
-                    detailDocument("7300", post("7300", "42", 0, expected)), "42", "7300"));
-            // Inject after serialization: JSONObject would escape the native wire characters.
-            String raw = detailDocument("7300", post("7300", "42", 0, body))
-                    .replace("CONTROL_PLACEHOLDER", control).replace("UNICODE_PLACEHOLDER", "\\u0009");
-            assertEquals(expected, NgaTopicBodyParser.parse(raw, "42", "7300"));
-        }
-    }
-
-    @Test
-    public void nativeStringWhitespaceInIgnoredMetadataCannotDiscardTheOriginal() throws Exception {
-        JSONObject original = post("7300", "42", 0, "BODY_SENTINEL");
-        original.put("alterinfo", "[edit]CONTROL_PLACEHOLDER ");
-        String template = detailDocument("7300", original)
-                .replace("PROFILE_EMAIL_SENTINEL", "IGNORED_CONTROL_PLACEHOLDER_METADATA");
-        for (String[] controls : new String[][]{{"\t", "\\t"}, {"\n", "\\n"}, {"\r", "\\r"}}) {
-            for (String wireControl : controls) {
-                assertEquals("BODY_SENTINEL", NgaTopicBodyParser.parse(
-                        template.replace("CONTROL_PLACEHOLDER", wireControl), "42", "7300"));
-            }
-        }
-    }
-
-    @Test
-    public void unsupportedStringControlsAndMalformedEscapesStillFailInBodiesAndMetadata() {
-        String body = detailDocument("7300", post("7300", "42", 0, "CONTROL_PLACEHOLDER"));
-        String metadata = detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL"))
-                .replace("PROFILE_EMAIL_SENTINEL", "CONTROL_PLACEHOLDER");
-        for (String template : new String[]{body, metadata}) {
-            for (char control = 0; control < 0x20; control++) {
-                if (control != '\t' && control != '\n' && control != '\r') {
-                    assertBodyFails(template.replace("CONTROL_PLACEHOLDER", String.valueOf(control)));
-                }
-            }
-            for (String malformed : new String[]{"\\\t", "\\\n", "\\\r", "\\", "\\q", "\\u12", "\\u12xz",
-                    "\t\\q", "\\q\t"}) {
-                assertBodyFails(template.replace("CONTROL_PLACEHOLDER", malformed));
-            }
-        }
-    }
-
-    @Test
-    public void nativeWhitespaceExpansionMustFitTheResponseLimit() throws Exception {
-        String template = detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL"));
-        int available = NgaProfilePageSource.MAX_RESPONSE_BYTES
-                - (template.length() - "PROFILE_EMAIL_SENTINEL".length());
-        String metadata = SummaryInputTest.repeat('x', available - "\\t\\n\\r".length()) + "\t\n\r";
-        String raw = template.replace("PROFILE_EMAIL_SENTINEL", metadata);
-        assertEquals(NgaProfilePageSource.MAX_RESPONSE_BYTES - 3, raw.length());
-        assertEquals("BODY_SENTINEL", NgaTopicBodyParser.parse(raw, "42", "7300"));
-        // Both inputs fit the raw limit, but their escaped representation exceeds it.
-        assertBodyFails(template.replace("PROFILE_EMAIL_SENTINEL", metadata + "x"));
-        assertBodyFails(template.replace("PROFILE_EMAIL_SENTINEL", SummaryInputTest.repeat('\t', available)));
-    }
-
-    @Test
-    public void malformedOrRejectedDetailEnvelopesFailSafely() {
-        String deep = SummaryInputTest.repeat('[', 70) + "0" + SummaryInputTest.repeat(']', 70);
-        String valid = detailDocument("7300", post("7300", "42", 0, "BODY_SENTINEL"));
-        for (String raw : new String[]{"[]", "<html>CHALLENGE_SENTINEL</html>",
-                "{\"error\":\"DENIAL_SENTINEL\"}", "{\"data\":{\"__MESSAGE\":\"DENIAL_SENTINEL\"}}",
-                "{\"data\":{\"__T\":{\"tid\":7300}}}", "{\"data\":{\"__R\":{}}}",
-                "{\"data\":" + deep + "}", "/*unknown*/" + valid, valid + ";runSomething()",
-                valid.replace("\"BODY_SENTINEL\"", "{\"$ref\":\"$.data.__T\"}"),
-                SummaryInputTest.repeat('x', NgaProfilePageSource.MAX_RESPONSE_BYTES + 1)}) {
-            assertBodyFails(raw);
-        }
-    }
-
-    @Test
-    public void firstPageCollectionNormalizesNativeStringControlsBeforeComposingThePrompt() throws Exception {
-        try (MockWebServer server = new MockWebServer()) {
-            server.start();
-            server.enqueue(gbkResponse(document(row("42", false))));
-            JSONObject original = post("7300", "42", 0,
-                    "[b]示例主题正文[/b]BODY_CONTROLS_PLACEHOLDER第二行[quote]引用文字[/quote]自己的观点");
-            original.put("alterinfo", "[edit]METADATA_CONTROLS_PLACEHOLDER ");
-            String nativeDetail = detailDocument("7300",
-                    post("7300", "99", 1, "OTHER_FLOOR_SENTINEL"),
-                    original).replace("BODY_CONTROLS_PLACEHOLDER", "\r\n\t")
-                    .replace("METADATA_CONTROLS_PLACEHOLDER", "\t\r\n")
-                    .replace("PROFILE_EMAIL_SENTINEL", "PROFILE_EMAIL_SENTINEL\t\n\r");
-            server.enqueue(gbkResponse(nativeDetail));
-            server.enqueue(gbkResponse(document(row("42", true))));
-            OkHttpClient client = localClient(server, 5000);
-            try {
-                NgaProfilePageSource source = new NgaProfilePageSource("https://bbs.nga.cn",
-                        "COOKIE_SENTINEL", "Synthetic-UA", client);
-                TextResult result = new TextResult();
-                new ProfileSummaryLoader(source).load("42", "Viewed user", result);
-                assertTrue(result.finished.await(5, TimeUnit.SECONDS));
-                assertNull(result.error);
-                assertTrue(result.prompt.contains("示例回复正文"));
-                assertTrue(result.prompt.contains("主题正文：示例主题正文\n第二行\n引用：\n引用文字\n引用结束\n自己的观点"));
-                assertFalse(result.prompt.contains("[edit]"));
-                assertFalse(result.prompt.contains("OTHER_FLOOR_SENTINEL"));
-                assertFalse(result.prompt.contains("TOPIC_BODY_SENTINEL"));
-                assertFalse(result.prompt.contains("7300"));
-                assertFalse(result.prompt.contains("COOKIE_SENTINEL"));
-                assertFalse(result.prompt.contains("PROFILE_EMAIL_SENTINEL"));
-                RecordedRequest topics = server.takeRequest(2, TimeUnit.SECONDS);
-                RecordedRequest detail = server.takeRequest(2, TimeUnit.SECONDS);
-                RecordedRequest replies = server.takeRequest(2, TimeUnit.SECONDS);
-                assertNotNull(topics);
-                assertNotNull(detail);
-                assertNotNull(replies);
-                assertEquals("COOKIE_SENTINEL", topics.getHeader("Cookie"));
-                assertEquals("COOKIE_SENTINEL", replies.getHeader("Cookie"));
-                assertEquals("COOKIE_SENTINEL", detail.getHeader("Cookie"));
-                assertEquals("Synthetic-UA", detail.getHeader("User-Agent"));
-                assertEquals("Nga_Official", detail.getHeader("X-User-Agent"));
-                assertEquals("/read.php?page=1&__output=8&noprefix&v2&tid=7300", detail.getPath());
-                assertEquals("42", topics.getRequestUrl().queryParameter("authorid"));
-                assertEquals("42", replies.getRequestUrl().queryParameter("authorid"));
-                assertEquals("1", topics.getRequestUrl().queryParameter("page"));
-                assertEquals("1", replies.getRequestUrl().queryParameter("page"));
-                assertEquals("1", replies.getRequestUrl().queryParameter("searchpost"));
-                assertEquals(3, server.getRequestCount());
-            } finally {
-                close(client);
-            }
-        }
-    }
-
-    @Test
-    public void maximumCollectionSchedulesTwentyTwoSequentialReadsEvenWithSynchronousCallbacks() {
+    public void maximumCollectionUsesOnlyTwoListReadsEvenWithSynchronousCallbacks() {
         JSONObject[] topics = new JSONObject[23];
         topics[0] = new JSONObject();
         topics[0].put("denied", "UNAVAILABLE_SENTINEL");
@@ -626,36 +356,39 @@ public class NgaProfilePageSourceTest {
             topics[i + 1] = row("42", false);
             topics[i + 1].put("tid", String.valueOf(7300 + i));
             topics[i + 1].put("subject", "Topic " + i);
+            topics[i + 1].put("__P", Collections.singletonMap("content", "NESTED_TOPIC_BODY_SENTINEL"));
             replies[i] = row("42", true);
             replies[i].getJSONObject("__P").put("content", "Reply body " + i);
         }
-        List<String> responses = new ArrayList<>();
-        responses.add(document(topics));
-        for (int i = 0; i < 20; i++) {
-            String tid = String.valueOf(7300 + i);
-            responses.add(detailDocument(tid, post(tid, "42", 0, "Topic body " + i)));
-        }
-        responses.add(document(replies));
-        FakeCalls calls = new FakeCalls(responses.toArray(new String[0]));
+        FakeCalls calls = new FakeCalls(document(topics), document(replies));
         TextResult result = new TextResult();
-        new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "FROZEN_COOKIE", "Frozen-UA", calls))
+        new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "FROZEN_COOKIE", "Frozen-UA", calls, calls.queue))
                 .load("42", "Viewed user", result);
 
+        assertEquals(1, calls.calls.size());
+        assertEquals(0, result.successes);
+        calls.time.advanceBy(499L);
+        assertEquals(1, calls.calls.size());
+        calls.time.advanceBy(1L);
         assertEquals(1, result.successes);
         assertNull(result.error);
-        assertEquals(22, calls.calls.size());
+        assertEquals(2, calls.calls.size());
         assertEquals(1, calls.maxActive);
         assertEquals(0, calls.active);
         assertTrue(result.prompt.contains("样本数量：主题 20 条，回复 20 条"));
         for (int i = 0; i < 20; i++) {
-            assertEquals(String.valueOf(7300 + i), calls.calls.get(i + 1).request.url().queryParameter("tid"));
-            assertTrue(result.prompt.contains("主题正文：Topic body " + i + "\n"));
+            assertTrue(result.prompt.contains("[主题" + (i + 1) + "] Topic " + i + " | Synthetic board |"));
             assertTrue(result.prompt.contains("回复正文：Reply body " + i + "\n"));
         }
-        assertFalse(result.prompt.contains("Topic body 20"));
+        assertFalse(result.prompt.contains("Topic 20 |"));
         assertFalse(result.prompt.contains("Reply body 20"));
-        assertEquals("1", calls.calls.get(21).request.url().queryParameter("searchpost"));
+        assertFalse(result.prompt.contains("主题正文："));
+        assertFalse(result.prompt.contains("SENTINEL"));
+        assertNull(calls.calls.get(0).request.url().queryParameter("searchpost"));
+        assertEquals("1", calls.calls.get(1).request.url().queryParameter("searchpost"));
         for (FakeCall call : calls.calls) {
+            assertEquals("/thread.php", call.request.url().encodedPath());
+            assertEquals("42", call.request.url().queryParameter("authorid"));
             assertEquals("1", call.request.url().queryParameter("page"));
             assertEquals("FROZEN_COOKIE", call.request.header("Cookie"));
             assertEquals("Frozen-UA", call.request.header("User-Agent"));
@@ -665,17 +398,25 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void allUnavailableTopicListsScheduleNoBodyReads() {
+    public void unavailableTopicListsStillAllowRepliesButNotAnEmptySummary() {
         JSONObject unavailable = new JSONObject();
         unavailable.put("denied", "UNAVAILABLE_SENTINEL");
         for (boolean emptyReplies : new boolean[]{false, true}) {
-            FakeCalls calls = new FakeCalls(document(unavailable),
-                    document(emptyReplies ? unavailable : row("42", true)));
+            String empty = document(unavailable);
+            FakeCalls calls = new FakeCalls(empty, empty, empty,
+                    document(emptyReplies ? unavailable : row("42", true)), empty, empty);
             TextResult result = new TextResult();
-            new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls))
+            new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue))
                     .load("42", "User", result);
-            assertEquals(2, calls.calls.size());
-            assertEquals("1", calls.calls.get(1).request.url().queryParameter("searchpost"));
+            calls.time.advanceBy(2_500L);
+            assertEquals(emptyReplies ? 6 : 4, calls.calls.size());
+            assertEquals(1, calls.maxActive);
+            for (int i = 0; i < calls.calls.size(); i++) {
+                assertEquals(i < 3 ? null : "1", calls.calls.get(i).request.url().queryParameter("searchpost"));
+                assertEquals(i * 500L, calls.calls.get(i).startedAt);
+                assertEquals("/thread.php", calls.calls.get(i).request.url().encodedPath());
+                assertEquals("1", calls.calls.get(i).request.url().queryParameter("page"));
+            }
             if (emptyReplies) {
                 assertEquals(1, result.errors);
                 assertNull(result.prompt);
@@ -689,50 +430,125 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void unavailableAndEmptyBodiesUseApplicationNoticesBesideVisibleTopicMetadata() {
-        for (boolean unavailable : new boolean[]{false, true}) {
-            JSONObject original = post("7300", "42", 0, " \n\t");
-            if (unavailable) {
-                original.put("denied", "DENIAL_SENTINEL");
-                original.put("content", "UNAVAILABLE_BODY_SENTINEL");
-                original.put("authorid", "99");
-            }
-            FakeCalls calls = new FakeCalls(document(row("42", false)), detailDocument("7300", original),
-                    document(row("42", true)));
+    public void emptyRetriesForEitherKindArePacedAndCanRecover() {
+        for (ProfileSummaryLoader.Kind emptyKind : ProfileSummaryLoader.Kind.values()) {
+            String topics = document(row("42", false));
+            String replies = document(row("42", true));
+            FakeCalls calls = emptyKind == ProfileSummaryLoader.Kind.TOPICS
+                    ? new FakeCalls(document(), document(), topics, replies)
+                    : new FakeCalls(topics, document(), document(), replies);
             TextResult result = new TextResult();
-            new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls))
-                    .load("42", "User", result);
-            assertEquals(1, result.successes);
-            assertNull(result.error);
+            new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "FROZEN_COOKIE", "Frozen-UA",
+                    calls, calls.queue)).load("42", "User", result);
+            calls.time.advanceBy(1_499L);
             assertEquals(3, calls.calls.size());
-            assertTrue(result.prompt.contains("[主题1] Synthetic topic | Synthetic board |"));
-            assertTrue(result.prompt.contains(unavailable ? "主题正文：[应用提示：正文不可用]"
-                    : "主题正文：[应用提示：未提供可用文字]"));
-            assertTrue(result.prompt.contains("示例回复正文"));
-            assertFalse(result.prompt.contains("SENTINEL"));
+            assertEquals(0, result.successes);
+            calls.time.advanceBy(1L);
+            assertEquals(4, calls.calls.size());
+            assertEquals(1, result.successes);
+            assertEquals(0, result.errors);
+            assertEquals(1, calls.maxActive);
+            assertTrue(result.prompt.contains("样本数量：主题 1 条，回复 1 条"));
+            for (int i = 0; i < calls.calls.size(); i++) {
+                FakeCall call = calls.calls.get(i);
+                assertEquals(i * 500L, call.startedAt);
+                assertEquals("/thread.php", call.request.url().encodedPath());
+                assertEquals("1", call.request.url().queryParameter("page"));
+                assertEquals("42", call.request.url().queryParameter("authorid"));
+                assertEquals("FROZEN_COOKIE", call.request.header("Cookie"));
+                assertEquals("Frozen-UA", call.request.header("User-Agent"));
+            }
         }
     }
 
     @Test
-    public void cancellationAtAnyCollectionStageDiscardsLateCallbacksAndStopsLaterReads() throws Exception {
-        JSONObject second = row("42", false);
-        second.put("tid", "7301");
-        String list = document(row("42", false), second);
-        for (int stage = 0; stage < 3; stage++) {
-            FakeCalls calls = new FakeCalls();
-            PageResult result = new PageResult();
-            SummaryController.Cancelable load = new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls)
-                    .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
-            if (stage >= 1) {
-                calls.calls.get(0).respond(list);
+    public void cancelingWhileWaitingForTheNextKindOrEmptyRetryPreventsThatCall() {
+        for (int scenario = 0; scenario < 3; scenario++) {
+            FakeCalls calls = new FakeCalls(scenario == 1 ? document() : document(row("42", false)), document());
+            TextResult result = new TextResult();
+            SummaryController.Cancelable load = new ProfileSummaryLoader(
+                    new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue))
+                    .load("42", "User", result);
+            if (scenario == 2) {
+                calls.time.advanceBy(500L);
             }
-            if (stage >= 2) {
-                calls.calls.get(1).respond(detailDocument("7300", post("7300", "42", 0, "First body")));
+            int count = calls.calls.size();
+            calls.time.advanceBy(499L);
+            load.cancel();
+            calls.time.advanceBy(10_000L);
+            assertEquals(scenario == 2 ? 2 : 1, count);
+            assertEquals(count, calls.calls.size());
+            assertEquals(0, calls.active);
+            assertEquals(0, result.successes);
+            assertEquals(0, result.errors);
+        }
+    }
+
+    @Test
+    public void separateSourceInstancesShareOneActiveCallAndItsCompletionCooldown() throws Exception {
+        FakeCalls calls = new FakeCalls();
+        PageResult first = new PageResult();
+        PageResult second = new PageResult();
+        new NgaProfilePageSource("https://bbs.nga.cn", "FIRST_COOKIE", "UA", calls, calls.queue)
+                .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, first);
+        new NgaProfilePageSource("https://bbs.nga.cn", "SECOND_COOKIE", "UA", calls, calls.queue)
+                .loadFirstPage("43", ProfileSummaryLoader.Kind.REPLIES, second);
+        calls.time.advanceBy(10_000L);
+        assertEquals(1, calls.calls.size());
+        calls.calls.get(0).respond(document(row("42", false)));
+        assertEquals(1, first.successes);
+        assertEquals(0, calls.active);
+        calls.time.advanceBy(499L);
+        assertEquals(1, calls.calls.size());
+        calls.time.advanceBy(1L);
+        assertEquals(2, calls.calls.size());
+        assertEquals(10_500L, calls.calls.get(1).startedAt);
+        assertEquals("SECOND_COOKIE", calls.calls.get(1).request.header("Cookie"));
+        assertEquals("43", calls.calls.get(1).request.url().queryParameter("authorid"));
+        calls.calls.get(1).respond(document(row("43", true)));
+        assertEquals(1, second.successes);
+        assertEquals(1, calls.maxActive);
+    }
+
+    @Test
+    public void cancelThenReopenWaitsForTheOldCallToFinishAndThenTheCooldown() {
+        FakeCalls calls = new FakeCalls();
+        PageResult canceledResult = new PageResult();
+        SummaryController.Cancelable canceled = new NgaProfilePageSource("https://bbs.nga.cn", "", "UA",
+                calls, calls.queue).loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, canceledResult);
+        canceled.cancel();
+        PageResult reopenedResult = new PageResult();
+        new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue)
+                .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, reopenedResult);
+        calls.time.advanceBy(5_000L);
+        assertEquals(1, calls.calls.size());
+        assertTrue(calls.calls.get(0).canceled);
+        assertEquals(1, calls.active);
+        calls.calls.get(0).fail(new IOException("Synthetic cancellation"));
+        calls.time.advanceBy(499L);
+        assertEquals(1, calls.calls.size());
+        calls.time.advanceBy(1L);
+        assertEquals(2, calls.calls.size());
+        assertEquals(1, calls.maxActive);
+        assertEquals(0, canceledResult.successes);
+        assertEquals(0, canceledResult.errors);
+    }
+
+    @Test
+    public void cancellationAtEitherListDiscardsLateCallbacksAndStopsLaterReads() throws Exception {
+        for (int stage = 0; stage < 2; stage++) {
+            FakeCalls calls = new FakeCalls();
+            TextResult result = new TextResult();
+            SummaryController.Cancelable load = new ProfileSummaryLoader(
+                    new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue))
+                    .load("42", "User", result);
+            if (stage == 1) {
+                calls.calls.get(0).respond(document(row("42", false)));
+                calls.time.advanceBy(500L);
             }
             FakeCall active = calls.calls.get(stage);
             load.cancel();
-            active.respond(stage == 0 ? list : detailDocument(String.valueOf(7299 + stage),
-                    post(String.valueOf(7299 + stage), "42", 0, "LATE_BODY_SENTINEL")));
+            active.respond(document(row("42", stage == 1)));
             active.fail(new IOException("LATE_FAILURE_SENTINEL"));
             assertTrue(active.canceled);
             assertEquals(stage + 1, calls.calls.size());
@@ -743,61 +559,55 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void completedRequestCallbacksCannotAdvanceOrFailTheNextBodyRead() throws Exception {
-        JSONObject second = row("42", false);
-        second.put("tid", "7301");
-        FakeCalls calls = new FakeCalls(document(row("42", false), second));
-        PageResult result = new PageResult();
-        new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls)
-                .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
+    public void completedListCallbacksCannotChangeOrFailTheRemainingCollection() throws Exception {
+        FakeCalls calls = new FakeCalls(document(row("42", false)));
+        TextResult result = new TextResult();
+        new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue))
+                .load("42", "User", result);
+        calls.time.advanceBy(500L);
         assertEquals(2, calls.calls.size());
         calls.calls.get(0).respond(document(row("99", false)));
         calls.calls.get(0).fail(new IOException("STALE_LIST_SENTINEL"));
         assertEquals(2, calls.calls.size());
-        calls.calls.get(1).respond(detailDocument("7300", post("7300", "42", 0, "First body")));
-        assertEquals(3, calls.calls.size());
-        calls.calls.get(1).respond(detailDocument("7300", post("7300", "42", 0, "STALE_BODY_SENTINEL")));
-        calls.calls.get(1).fail(new IOException("STALE_FAILURE_SENTINEL"));
         assertEquals(0, result.errors);
         assertEquals(0, result.successes);
-        calls.calls.get(2).respond(detailDocument("7301", post("7301", "42", 0, "Second body")));
-        calls.calls.get(2).respond(detailDocument("7301", post("7301", "42", 0, "DUPLICATE_BODY_SENTINEL")));
+        calls.calls.get(1).respond(document(row("42", true)));
+        calls.calls.get(1).respond(document(row("99", true)));
+        calls.calls.get(1).fail(new IOException("STALE_REPLY_SENTINEL"));
         assertEquals(1, result.successes);
         assertEquals(0, result.errors);
-        assertEquals(3, calls.calls.size());
+        assertEquals(2, calls.calls.size());
         assertEquals(1, calls.maxActive);
-        assertFalse(prompt(result.page).contains("SENTINEL"));
-        assertTrue(prompt(result.page).contains("主题正文：First body\n"));
-        assertTrue(prompt(result.page).contains("主题正文：Second body\n"));
+        assertFalse(result.prompt.contains("SENTINEL"));
+        assertTrue(result.prompt.contains("[主题1] Synthetic topic | Synthetic board |"));
+        assertTrue(result.prompt.contains("回复正文：示例回复正文\n"));
     }
 
     @Test
-    public void factoryAndEnqueueExceptionsAtEveryStageTerminateOnceWithSafeErrors() {
-        JSONObject second = row("42", false);
-        second.put("tid", "7301");
+    public void factoryAndEnqueueExceptionsAtEitherListTerminateOnceWithSafeErrors() {
         for (boolean factoryFailure : new boolean[]{false, true}) {
-            for (int stage = 0; stage < 3; stage++) {
-                FakeCalls calls = new FakeCalls(document(row("42", false), second),
-                        detailDocument("7300", post("7300", "42", 0, "First body")),
-                        detailDocument("7301", post("7301", "42", 0, "Second body")));
+            for (int stage = 0; stage < 2; stage++) {
+                FakeCalls calls = new FakeCalls(document(row("42", false)), document(row("42", true)));
                 calls.throwAtFactory = factoryFailure ? stage : -1;
                 calls.throwAtEnqueue = factoryFailure ? -1 : stage;
-                PageResult result = new PageResult();
-                new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls)
-                        .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
+                TextResult result = new TextResult();
+                new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue))
+                        .load("42", "User", result);
+                calls.time.advanceBy(500L);
                 assertEquals(1, result.errors);
                 assertEquals(0, result.successes);
                 assertFalse(result.error.contains("SENTINEL"));
                 assertEquals(0, calls.active);
+                assertEquals(factoryFailure ? stage : stage + 1, calls.calls.size());
             }
         }
     }
 
     @Test
     public void cancellationDoesNotWaitForABlockedResponseRead() throws Exception {
-        FakeCalls calls = new FakeCalls(document(row("42", false)));
+        FakeCalls calls = new FakeCalls();
         PageResult result = new PageResult();
-        SummaryController.Cancelable load = new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls)
+        SummaryController.Cancelable load = new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue)
                 .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, result);
         CountDownLatch reading = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
@@ -821,18 +631,32 @@ public class NgaProfilePageSourceTest {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         try {
             Future<?> response = executor.submit(() -> {
-                calls.calls.get(1).respond(ResponseBody.create(MediaType.get("application/json; charset=UTF-8"),
+                calls.calls.get(0).respond(ResponseBody.create(MediaType.get("application/json; charset=UTF-8"),
                         -1, blocked));
                 return null;
             });
             assertTrue(reading.await(2, TimeUnit.SECONDS));
             executor.submit(load::cancel).get(1, TimeUnit.SECONDS);
-            assertTrue(calls.calls.get(1).canceled);
+            assertTrue(calls.calls.get(0).canceled);
+            PageResult next = new PageResult();
+            new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", calls, calls.queue)
+                    .loadFirstPage("43", ProfileSummaryLoader.Kind.TOPICS, next);
+            calls.time.advanceBy(5_000L);
+            assertEquals(1, calls.calls.size());
+            assertEquals(1, calls.active);
             release.countDown();
             response.get(2, TimeUnit.SECONDS);
             assertEquals(0, result.errors);
             assertEquals(0, result.successes);
+            assertEquals(1, calls.calls.size());
+            assertEquals(0, calls.active);
+            calls.time.advanceBy(499L);
+            assertEquals(1, calls.calls.size());
+            calls.time.advanceBy(1L);
             assertEquals(2, calls.calls.size());
+            assertEquals(1, calls.maxActive);
+            calls.calls.get(1).respond(document(row("43", false)));
+            assertEquals(1, next.successes);
         } finally {
             release.countDown();
             executor.shutdownNow();
@@ -860,7 +684,7 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void detailTransportAndParserFailuresStopWithoutAPartialSampleOrFurtherReads() throws Exception {
+    public void replyTransportAndParserFailuresStopWithoutAPartialTopicSample() throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             server.start();
             JSONObject second = row("42", false);
@@ -870,7 +694,7 @@ public class NgaProfilePageSourceTest {
                             .setBody("RAW_ERROR_SENTINEL"),
                     new MockResponse().setResponseCode(403).setBody("RAW_ERROR_SENTINEL"),
                     gbkResponse("{\"data\":{\"__MESSAGE\":\"DENIAL_SENTINEL\"}}"),
-                    gbkResponse(detailDocument("7300", post("7300", "99", 0, "FOREIGN_BODY_SENTINEL"))),
+                    gbkResponse(document(row("99", true))),
                     new MockResponse().setHeader("Content-Type", "application/json; charset=invalid-charset")
                             .setBody("RAW_ERROR_SENTINEL"),
                     new MockResponse().setHeader("Content-Type", "application/json; charset=UTF-8")
@@ -897,7 +721,7 @@ public class NgaProfilePageSourceTest {
     }
 
     @Test
-    public void detailDeadlineTerminatesCollectionWithoutStartingReplies() throws Exception {
+    public void replyDeadlineTerminatesCollectionWithoutProducingAPartialPrompt() throws Exception {
         try (MockWebServer server = new MockWebServer()) {
             server.start();
             server.enqueue(gbkResponse(document(row("42", false))));
@@ -961,6 +785,77 @@ public class NgaProfilePageSourceTest {
                     assertFalse(result.error.contains("RAW_ERROR_SENTINEL"));
                 }
                 assertEquals(codes.length, server.getRequestCount());
+            } finally {
+                close(client);
+            }
+        }
+    }
+
+    @Test
+    public void immediate503RetryHintCannotBypassTheQueueOrReplaceTheFirstError() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            server.enqueue(new MockResponse().setResponseCode(503).setHeader("Retry-After", "0")
+                    .setBody("FIRST_503_BODY_SENTINEL"));
+            server.enqueue(gbkResponse(document(row("42", false))));
+            OkHttpClient client = localClient(server, 5_000L);
+            FakeTime time = new FakeTime();
+            ProfileRequestQueue queue = time.queue();
+            try {
+                TextResult first = new TextResult();
+                new ProfileSummaryLoader(new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", client, queue))
+                        .load("42", "User", first);
+                assertTrue(first.finished.await(5, TimeUnit.SECONDS));
+                assertEquals(1, first.errors);
+                assertEquals(0, first.successes);
+                assertTrue(first.error.contains("服务暂时不可用"));
+                assertFalse(first.error.contains("SENTINEL"));
+                assertEquals(1, server.getRequestCount());
+                RecordedRequest original = server.takeRequest(1, TimeUnit.SECONDS);
+                assertNotNull(original);
+                assertEquals("GET", original.getMethod());
+                assertEquals(0L, original.getBodySize());
+
+                PageResult next = new PageResult();
+                new NgaProfilePageSource("https://bbs.nga.cn", "", "UA", client, queue)
+                        .loadFirstPage("42", ProfileSummaryLoader.Kind.TOPICS, next);
+                time.advanceBy(499L);
+                assertEquals(1, server.getRequestCount());
+                assertEquals(0, next.successes);
+                time.advanceBy(1L);
+                assertTrue(next.finished.await(5, TimeUnit.SECONDS));
+                assertEquals(1, next.successes);
+                assertEquals(0, next.errors);
+                assertEquals(2, server.getRequestCount());
+            } finally {
+                close(client);
+            }
+        }
+    }
+
+    @Test
+    public void profileTransportPreservesFailureStatusBodiesAnd429RetryMetadata() throws Exception {
+        try (MockWebServer server = new MockWebServer()) {
+            server.start();
+            server.enqueue(new MockResponse().setResponseCode(503).setHeader("Retry-After", "0")
+                    .setBody("FIRST_503_BODY"));
+            server.enqueue(new MockResponse().setResponseCode(429).setHeader("Retry-After", "7")
+                    .setBody("FIRST_429_BODY"));
+            OkHttpClient client = localClient(server, 5_000L);
+            Request request = NgaProfilePageSource.buildRequest("https://bbs.nga.cn", "", "UA", "42",
+                    ProfileSummaryLoader.Kind.TOPICS);
+            try {
+                try (Response response = client.newCall(request).execute()) {
+                    assertEquals(503, response.code());
+                    assertEquals("FIRST_503_BODY", response.body().string());
+                }
+                assertEquals(1, server.getRequestCount());
+                try (Response response = client.newCall(request).execute()) {
+                    assertEquals(429, response.code());
+                    assertEquals("7", response.header("Retry-After"));
+                    assertEquals("FIRST_429_BODY", response.body().string());
+                }
+                assertEquals(2, server.getRequestCount());
             } finally {
                 close(client);
             }
@@ -1034,43 +929,6 @@ public class NgaProfilePageSourceTest {
         return JSON.toJSONString(root);
     }
 
-    private static JSONObject post(String tid, String uid, int floor, Object content) {
-        JSONObject post = new JSONObject();
-        post.put("tid", tid);
-        post.put("authorid", uid);
-        post.put("lou", floor);
-        post.put("pid", floor == 0 ? 0 : 100 + floor);
-        post.put("content", content);
-        return post;
-    }
-
-    private static String detailDocument(String tid, JSONObject... posts) {
-        JSONObject topic = new JSONObject();
-        topic.put("tid", tid);
-        topic.put("authorid", "42");
-        topic.put("subject", "DETAIL_TITLE_SENTINEL");
-        JSONObject rows = new JSONObject();
-        for (int i = 0; i < posts.length; i++) {
-            rows.put(String.valueOf(i), posts[i]);
-        }
-        JSONObject data = new JSONObject();
-        data.put("__T", topic);
-        data.put("__R", rows);
-        data.put("__R__ROWS", posts.length);
-        data.put("__U", Collections.singletonMap("42", Collections.singletonMap("email", "PROFILE_EMAIL_SENTINEL")));
-        data.put("__CU", Collections.singletonMap("cookie", "COOKIE_SENTINEL"));
-        JSONObject root = new JSONObject();
-        root.put("data", data);
-        return root.toJSONString();
-    }
-
-    private static void assertBodyFails(String raw) {
-        NgaProfilePageSource.PageException error = assertThrows(NgaProfilePageSource.PageException.class,
-                () -> NgaTopicBodyParser.parse(raw, "42", "7300"));
-        assertFalse(error.getMessage().contains("SENTINEL"));
-        assertNull(error.getCause());
-    }
-
     private static String prompt(ProfileSummaryLoader.Page page) {
         return new ProfileSummaryInput(page.uid, "Viewed user",
                 page.kind == ProfileSummaryLoader.Kind.TOPICS ? page.entries : Collections.emptyList(),
@@ -1084,11 +942,7 @@ public class NgaProfilePageSourceTest {
     }
 
     private static OkHttpClient localClient(MockWebServer server, long timeoutMillis) {
-        return new OkHttpClient.Builder()
-                .cookieJar(CookieJar.NO_COOKIES)
-                .followRedirects(false)
-                .followSslRedirects(false)
-                .retryOnConnectionFailure(false)
+        return NgaProfilePageSource.newClient().newBuilder()
                 .callTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
                 .addInterceptor(chain -> {
                     // Test-only destination override: every socket stays on this loopback server.
@@ -1104,6 +958,8 @@ public class NgaProfilePageSourceTest {
     }
 
     private static final class FakeCalls implements Call.Factory {
+        final FakeTime time = new FakeTime();
+        final ProfileRequestQueue queue = time.queue();
         final List<FakeCall> calls = new ArrayList<>();
         final String[] synchronousBodies;
         int throwAtFactory = -1;
@@ -1134,6 +990,7 @@ public class NgaProfilePageSourceTest {
         Callback callback;
         boolean executed;
         boolean finished;
+        long startedAt;
         volatile boolean canceled;
 
         FakeCall(FakeCalls owner, Request request, int index) {
@@ -1149,10 +1006,11 @@ public class NgaProfilePageSourceTest {
                 throw new IllegalStateException("ENQUEUE_FAILURE_SENTINEL");
             }
             executed = true;
+            startedAt = owner.time.getAsLong();
             owner.active++;
             owner.maxActive = Math.max(owner.maxActive, owner.active);
             if (canceled) {
-                complete();
+                fail(new IOException("Synthetic canceled call"));
                 return;
             }
             if (index < owner.synchronousBodies.length && owner.synchronousBodies[index] != null) {
@@ -1166,21 +1024,24 @@ public class NgaProfilePageSourceTest {
 
         void respond(String raw) throws IOException {
             Buffer bytes = new Buffer().writeUtf8(raw);
-            long length = bytes.size();
-            BufferedSource source = Okio.buffer(new ForwardingSource(bytes) {
-                @Override
-                public void close() throws IOException {
-                    super.close();
-                    complete();
-                }
-            });
-            respond(ResponseBody.create(MediaType.get("application/json; charset=UTF-8"), length, source));
+            respond(ResponseBody.create(MediaType.get("application/json; charset=UTF-8"), bytes.size(), bytes));
         }
 
         void respond(ResponseBody body) throws IOException {
+            BufferedSource source = Okio.buffer(new ForwardingSource(body.source()) {
+                @Override
+                public void close() throws IOException {
+                    try {
+                        super.close();
+                    } finally {
+                        complete();
+                    }
+                }
+            });
+            ResponseBody tracked = ResponseBody.create(body.contentType(), body.contentLength(), source);
             callback.onResponse(this, new Response.Builder().request(request).protocol(Protocol.HTTP_1_1)
                     .code(200).message("OK").header("Content-Type", "application/json; charset=UTF-8")
-                    .body(body).build());
+                    .body(tracked).build());
         }
 
         void fail(IOException error) {
@@ -1205,7 +1066,6 @@ public class NgaProfilePageSourceTest {
         @Override
         public void cancel() {
             canceled = true;
-            complete();
         }
     }
 
