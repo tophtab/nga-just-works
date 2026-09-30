@@ -273,6 +273,24 @@ public class EmoticonUtils {
             },
     };
 
+    /**
+     * Resolves a BBCode category/name to its bundled asset path, or null if unknown.
+     * Uses the built-in tuples, never the user's display-order indices or URL lookup.
+     */
+    public static String resolveAssetPath(String category, String name) {
+        for (int c = 0; c < EMOTICON_LABEL.length; c++) {
+            if (EMOTICON_LABEL[c][0].equals(category)) {
+                for (String[] emoticon : EMOTICON_URL[c]) {
+                    if (emoticon[0].equals(name)) {
+                        return category + "/" + emoticon[1];
+                    }
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
     public static String getPathByURI(String uri) {
         for (int category = 0; category < EMOTICON_URL.length; category++) {
             for (int index = 0; index < EMOTICON_URL[category].length; index++) {

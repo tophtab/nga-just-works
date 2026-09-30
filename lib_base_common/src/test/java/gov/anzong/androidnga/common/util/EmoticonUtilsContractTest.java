@@ -101,6 +101,30 @@ public class EmoticonUtilsContractTest {
         assertEquals(0, EmoticonUtils.getFileNames(EmoticonUtils.EMOTICON_URL.length).length);
     }
 
+    @Test
+    public void resolverKeepsAssetIdentityAfterCustomOrderAndReset() {
+        int count = 0;
+        for (int c = 0; c < EmoticonUtils.EMOTICON_LABEL.length; c++) {
+            String[] files = EmoticonUtils.getFileNames(c);
+            java.util.List<String> saved = new java.util.ArrayList<>(java.util.Arrays.asList(files));
+            java.util.Collections.reverse(saved);
+            for (java.util.List<String> order : java.util.Arrays.asList(saved, java.util.Collections.<String>emptyList())) {
+                for (int index : EmoticonOrderResolver.resolve(files, order)) {
+                    String[] item = EmoticonUtils.EMOTICON_URL[c][index];
+                    assertEquals(categoryId(c) + "/" + item[1],
+                            EmoticonUtils.resolveAssetPath(categoryId(c), item[0]));
+                }
+            }
+            count += files.length;
+        }
+        assertEquals(238, count);
+        assertEquals("ac/ac42.png", EmoticonUtils.resolveAssetPath("ac", "赞同"));
+        assertEquals("ac/ac43.png", EmoticonUtils.resolveAssetPath("ac", "闪光"));
+        org.junit.Assert.assertNull(EmoticonUtils.resolveAssetPath("missing", "哭"));
+        org.junit.Assert.assertNull(EmoticonUtils.resolveAssetPath("ac", "ac42.png"));
+        org.junit.Assert.assertNull(EmoticonUtils.resolveAssetPath(null, null));
+    }
+
     private static String categoryId(int category) {
         return EmoticonUtils.EMOTICON_LABEL[category][0];
     }
