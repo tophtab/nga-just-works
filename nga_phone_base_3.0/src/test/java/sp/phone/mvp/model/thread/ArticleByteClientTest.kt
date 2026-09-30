@@ -203,6 +203,7 @@ class ArticleByteClientTest {
             val body = TestBody("unread synthetic body".toByteArray())
             val (observer, factory) = read(body, status = status)
             failure(observer, kind)
+            assertEquals(status, (observer.errors().single() as ArticleFailure).httpStatus)
             assertFalse((observer.errors().single() as ArticleFailure).allowsAppFallback())
             assertEquals(1, factory.calls.size)
             assertEquals(0L, body.bytesRead)

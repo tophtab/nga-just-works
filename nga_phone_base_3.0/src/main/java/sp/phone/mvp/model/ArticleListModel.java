@@ -137,7 +137,7 @@ public class ArticleListModel extends BaseModel implements ArticleListContract.M
 
                     @Override
                     public void onError(@NonNull Throwable throwable) {
-                        callBack.onError(ErrorConvertFactory.getErrorMessage(throwable), throwable);
+                        callBack.onError(ArticleErrors.legacyMessage(throwable, ErrorConvertFactory.getErrorMessage(throwable)), throwable);
                     }
                 });
     }
