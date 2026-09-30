@@ -1,5 +1,0 @@
-{"file": ".trellis/spec/backend/author-profile-location-contract.md", "reason": "Existing enrichment lifecycle, cache and stop contract"}
-{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "Source and navigation/error boundaries"}
-{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Reader and emoticon UI contracts"}
-{"file": ".trellis/tasks/09-30-reader-access-location-navigation/research/current-behavior.md", "reason": "Five-item source audit and limitations"}
-{"file": ".trellis/tasks/09-30-reader-access-location-navigation/research/followup-script-links-editor.md", "reason": "Latest confirmed choices, Via scheme, exact userscript audit and editor source flow"}

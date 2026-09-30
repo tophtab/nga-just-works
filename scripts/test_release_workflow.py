@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -723,6 +724,29 @@ sys.exit(int(os.environ.get("WORKFLOW_FIXTURE_SIGNER_EXIT", "0")))
         self.assertNotEqual(0, cleanup.returncode)
         self.assertEqual(old_tags[:2], [call[2] for call in self.calls() if call[:2] == ["release", "delete"]])
         self.assertEqual({*old_tags[1:], self.outputs["tag"]}, {r["tag_name"] for r in self.state()["releases"]})
+
+    def test_sdk_setup_avoids_retired_tools_and_installs_required_packages(self) -> None:
+        setup = workflow_step("Setup Android SDK")
+        packages_input = re.search(r"^          packages: (.+)$", setup, re.MULTILINE)
+        self.assertIsNotNone(packages_input, "Explicit packages must override setup-android's retired tools default")
+        bootstrap_packages = shlex.split(packages_input[1])
+        self.assertIn("platform-tools", bootstrap_packages)
+        self.assertNotIn("tools", bootstrap_packages)
+
+        # Execute the real SDK install command against an offline recorder so
+        # shell quoting of semicolon-containing package IDs is also exercised.
+        self.executable(self.bin / "sdkmanager", '''
+import json
+import sys
+print(json.dumps(sys.argv[1:]))
+''')
+        install = workflow_step("Install Android SDK packages")
+        script = re.search(r"^        run: (.+)$", install, re.MULTILINE)[1]
+        result = self.command("bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script)
+        installed_packages = json.loads(result.stdout)
+        self.assertIn("platforms;android-35", installed_packages)
+        self.assertIn("build-tools;35.0.0", installed_packages)
+        self.assertNotIn("tools", installed_packages)
 
     def test_trigger_keeps_all_branch_pushes_tags_and_documentation_skips(self) -> None:
         trigger = re.search(r"(?ms)^on:\n(.*?)(?=^\S)", WORKFLOW)[1]

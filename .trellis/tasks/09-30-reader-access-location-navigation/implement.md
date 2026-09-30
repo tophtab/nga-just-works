@@ -63,3 +63,11 @@ Update relevant project contracts only with approved resulting behavior. Do not 
 ## Final execution status — 2026-09-30
 
 R5 → R2 → R3 → R4 → R1 → R6 implemented and independently checked. All five required commands passed; 724 tests and 13 clean blocking-severity lint reports. Specs synchronized. See integration-verification.md and commit-plan.md. No commits/publication yet.
+
+## Release repair execution
+
+- [x] Set explicit setup packages in .github/workflows/build.yml.
+- [x] Add regression asserting bootstrap avoids tools and retains required SDK packages.
+- [x] Run scripts unit suite and workflow syntax check; independent Trellis check.
+- [x] Update quality spec and 6.1.1 notes; validate version identity.
+- [x] Commit, finish-work and push main/6.1.1.

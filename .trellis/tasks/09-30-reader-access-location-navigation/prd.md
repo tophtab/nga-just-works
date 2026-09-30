@@ -76,3 +76,7 @@
 
 六项产品规则已明确，无待选产品问题。本窗口完成规划摘要审核后，实施留在用户的新会话；不能在当前窗口启动代码工作。
 新会话先读本 PRD、design.md、implement.md 和 handoff.md，确认本轮规划已被批准后激活首个实施子任务。原 R7 的独立调研已归档；其产品修复不纳入本任务。
+
+## Approved release follow-up
+
+Both 6.1.0 and main publishing failed before compilation because setup-android v3 defaults to the removed SDK package tools. User requested repair, commit and push. Explicitly configure the supported bootstrap packages, preserve API35/build-tools35 requirements, and add an offline regression. Product code, R7, signing and runtime SDK levels are unchanged. Release the repair as 6.1.1, retaining the existing 6.1.0 tag.

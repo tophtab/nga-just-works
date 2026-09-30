@@ -479,6 +479,13 @@ package migration is approved.
 
 ### 3. Contracts
 
+- Configure `android-actions/setup-android@v3` with explicit
+  `packages: platform-tools`. Its default `tools platform-tools` includes the
+  removed legacy `tools` package; both main and 6.1.0 failed before compilation
+  on 2026-09-30 with `Failed to find package 'tools'`. Keep the subsequent
+  explicit `sdkmanager "platforms;android-35" "build-tools;35.0.0"` step.
+  Do not ignore SDK setup errors or change compile/target SDK to solve this.
+
 - Release packaging must read all four signing values from the environment.
   Missing or blank values must fail before an unsigned release APK is emitted.
 - Signing files and credentials stay outside the public application repository
@@ -703,6 +710,8 @@ package migration is approved.
 
 ### 6. Tests Required
 
+- Pin explicit supported bootstrap packages and required platform/build-tools
+  installation in the workflow regression suite; omission must fail locally.
 - Parse the workflow YAML and all modified Bash blocks, then run
   `git diff --check`.
 - Run `python3 -m unittest discover -s scripts`. `test_release_workflow.py`

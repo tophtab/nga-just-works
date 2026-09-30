@@ -3,7 +3,7 @@
   "name": "reader-access-location-navigation",
   "title": "帖子访问、属地、回复定位、表情与编辑预览",
   "description": "六项改进：网页唤起、属地生命周期、准确错误、回复定位、表情一致性与编辑媒体预览；原 R7 已拆出为独立调研成果。",
-  "status": "completed",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,8 +11,8 @@
   "creator": "toph",
   "assignee": "toph",
   "createdAt": "2026-09-30",
-  "completedAt": "2026-09-30",
-  "branch": "feat/reader-access-location-navigation",
+  "completedAt": null,
+  "branch": "fix/ci-android-sdk-packages",
   "base_branch": "main",
   "worktree_path": null,
   "commit": "0473b8e7ff3ca8328c91d6e8e3b90fd56124ad13",
@@ -28,7 +28,7 @@
   ],
   "parent": null,
   "relatedFiles": [],
-  "notes": "属地返回自动恢复、网络两次失败后冷却30秒已确认；本窗口仅定稿 PRD，用户另开窗口实施。\n2026-09-30 implementation session: user explicitly approved final PRD R1–R6; R7 and diagnostics remain deferred. Implement/check child tasks sequentially; offline verification only.\n2026-09-30 R7 follow-up: user resumed root-cause investigation and confirmed reusing the existing child task. R1–R6 implementation scope is unchanged; R7/R7-A implementation remains pending.\n2026-09-30 R7 evidence update: 47440211 reproduces a truncated ordinary JSON response and successful compatibility reading. See child research/47440211-truncated-response.md. Product implementation remains unstarted for R7; diagnostics are not a prerequisite for this reproduced sample.\n2026-09-30 latest R7 direction and deferral: user wants ordinary reading repaired before removing compatibility and the internal forum browser, then explicitly shelved all R7 work for later research. Preserve findings; no R7 implementation. R1–R6 scope unchanged.\n2026-09-30 latest task organization: detached R7 and archived its research deliverable at .trellis/tasks/archive/2026-09/09-30-reader-native-loading-research; this parent owns only R1–R6. Research completion does not mean the reader defect was fixed.",
+  "notes": "属地返回自动恢复、网络两次失败后冷却30秒已确认；本窗口仅定稿 PRD，用户另开窗口实施。\n2026-09-30 implementation session: user explicitly approved final PRD R1–R6; R7 and diagnostics remain deferred. Implement/check child tasks sequentially; offline verification only.\n2026-09-30 R7 follow-up: user resumed root-cause investigation and confirmed reusing the existing child task. R1–R6 implementation scope is unchanged; R7/R7-A implementation remains pending.\n2026-09-30 R7 evidence update: 47440211 reproduces a truncated ordinary JSON response and successful compatibility reading. See child research/47440211-truncated-response.md. Product implementation remains unstarted for R7; diagnostics are not a prerequisite for this reproduced sample.\n2026-09-30 latest R7 direction and deferral: user wants ordinary reading repaired before removing compatibility and the internal forum browser, then explicitly shelved all R7 work for later research. Preserve findings; no R7 implementation. R1–R6 scope unchanged.\n2026-09-30 latest task organization: detached R7 and archived its research deliverable at .trellis/tasks/archive/2026-09/09-30-reader-native-loading-research; this parent owns only R1–R6. Research completion does not mean the reader defect was fixed.\n2026-09-30 release follow-up: user reported CI failure and explicitly requested fix, commit and push. Reopen existing parent for narrow release workflow repair; R1–R6 code is unchanged.\nCI repair reviewed: 37 scripts tests, YAML parsing and all 8 Bash blocks pass. Explicit platform-tools replaces removed tools default; no product-code change. User approved commit/push.",
   "meta": {
     "current_scope": [
       "R1",
@@ -50,7 +50,7 @@
     "implementation_complete": true,
     "integration_gate_passed": true,
     "commit_pending": false,
-    "release_version": "6.1.0",
+    "release_version": "6.1.1",
     "code_commits": [
       "5beb093d521d1cb93234f3fa58cb0fd10850a15e",
       "6823070107adc3a54b679f4a39e1c7f39c0a427d",
@@ -58,6 +58,7 @@
       "9f2acd4bea96eaea96fa668e12737ac2d0b3c83c",
       "eca638968260c55db600345832ccf0e4007d7e53",
       "0473b8e7ff3ca8328c91d6e8e3b90fd56124ad13"
-    ]
+    ],
+    "ci_repair_checked": true
   }
 }

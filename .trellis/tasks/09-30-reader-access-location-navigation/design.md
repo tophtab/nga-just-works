@@ -58,3 +58,7 @@ Each child remains independently revertible; final review checks lifecycle, acco
 ## Review status
 
 R2 return behavior and the network-failure cooldown are now selected. No product-choice question remains for R1–R6. Final review is of the six-item summary and linked child artifacts; the user will open a new session for implementation. Archived R7 research is not an R1–R6 dependency or approval to implement its deferred product goal.
+
+## Release workflow repair
+
+The setup action accepts a packages input whose v3 default is tools platform-tools. Explicit packages: platform-tools avoids the removed legacy tools package while the subsequent pinned SDK install step still installs platforms;android-35 and build-tools;35.0.0. No continue-on-error, broad SDK upgrade or signing change.
