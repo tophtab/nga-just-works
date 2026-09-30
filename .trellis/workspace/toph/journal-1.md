@@ -1874,3 +1874,25 @@ Implemented and independently checked all six approved reader requirements: NGA 
 ### Status
 
 [OK] **Completed**
+
+
+## Session 72: Repair Android SDK setup for 6.1.1 release
+<!-- trellis-session: v=2 fp=a1a4ab4219cb9304 -->
+
+**Date**: 2026-09-30
+**Task**: Repair Android SDK setup for 6.1.1 release
+**Branch**: `main`
+
+### Summary
+
+Diagnosed both failed 6.1.0/main runs: setup-android v3 default requested retired tools package before compilation. Explicit platform-tools override preserves pinned API35/build-tools35. Independent check and all 37 scripts tests plus YAML/eight Bash syntax checks passed. 6.1.1 notes validated; user authorized commit/push. Existing 6.1.0 tag and unrelated R7/upstream work preserved. Archive staging used exact paths to exclude unrelated research.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c46a5d35` | fix(ci): avoid retired Android SDK tools package |
+
+### Status
+
+[OK] **Completed**
