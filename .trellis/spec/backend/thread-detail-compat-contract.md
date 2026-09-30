@@ -44,6 +44,7 @@ ArticleQuery.from(param: ArticleListParam): ArticleQuery
 ArticleRequestKey(query: ArticleQuery, generation: Long,
     source: ArticleSource, pageSize: Int?, owner: String?, page: Int)
 ArticleNavigation.showAll(param: ArticleListParam, data: ThreadData?): ArticleListParam?
+ArticleNavigation.launchAnchor(param: ArticleListParam, generation: Long): ArticleAnchor?
 ArticleNavigation.quoteAddress(row: ThreadRowInfo): String
 ArticleNavigation.alignmentPage(anchor: ArticleAnchor?, result: ThreadData): Int?
 ArticleNavigation.handoffNotice(data: ThreadData, anchor: ArticleAnchor?): String?
@@ -52,6 +53,9 @@ ArticleSourceText.renderBody(row: ThreadRowInfo): String?
 ArticleRowPresentation.canReply(row: ThreadRowInfo): Boolean
 ArticleQuote.authorMarkup(row: ThreadRowInfo): String
 ArticleQuote.mention(row: ThreadRowInfo): String?
+ArticleFailure(kind: ArticleFailureKind, httpStatus: Int? = null,
+    reason: ArticleFailureReason? = null)
+ArticleErrors.legacyMessage(error: Throwable, original: String?): String?
 ArticleByteClient.read(operation: ArticleOperation): Observable<String>
 ArticleByteClient.validateOrigin(origin: String): String
 ArticleReaderSession.key(page: Int): ArticleRequestKey
@@ -81,9 +85,14 @@ server response schema.
 - A PID-only result establishes `resolvedTid` from validated matching data.
   Do not derive it from PID arithmetic or an unrelated first result. A lookup
   must contain the target before reporting a successful location.
-- `显示全部` builds a fresh full-thread request at page 1 using resolvedTid;
-  clear PID, author and search disposition. Retain a launch description only
-  after confirming its thread identity. Do not mutate the lookup request.
+- `显示全部` builds a fresh full-thread request using validated resolvedTid;
+  clear query PID, author, search and cache disposition. Carry `targetPid`
+  (0 absent) and `targetFloor` (-1 absent) separately in ArticleListParam,
+  preserving them through parcel/clone. Use the matching accepted reply's
+  trustworthy global floor for an ordinary-source 20-floor candidate page;
+  unknown floor or untargeted entry starts at page 1. Do not reuse a filtered
+  result page or infer tid/floor from PID arithmetic. Retain a launch description
+  only after confirming its thread identity. Do not mutate the lookup request.
 - Server page, global floor and adapter index are different coordinates.
   Preserve row order and original floor/PID. Short pages and floor gaps do not
   independently invalidate readable rows.
@@ -96,7 +105,14 @@ server response schema.
   valid body content or manufacturing a one-page thread.
 - A floor-derived page is a candidate. Scroll only after finding the actual
   PID, or actual floor when PID is unavailable, in the loaded list. Keep pending
-  anchors until their matching generation/page is ready.
+  anchors until their matching generation/page is ready. A positive PID must
+  match exactly; a coincident floor cannot substitute for a missing PID.
+  Initialize launch anchors once per new online FULL session, never for cache
+  replay or cloned page initialization. Preserve them on initial environment
+  binding; later account/environment changes retire them. A posted scroll must
+  validate reader instance, generation/page, response, resumed view and expected
+  anchor identity before consuming it. A missing target produces one notice
+  while leaving the thread readable, with no unlimited lookup.
 - Outgoing quote hints use the established ordinary 20-floor convention when
   an original floor is available; never substitute App or filtered page numbers.
   PID remains the actual reply-link identity.
@@ -166,6 +182,17 @@ server response schema.
   builder strips only a complete recognized reply header; headerless text and
   incomplete/unrelated bold markup remain intact. Never add a fake header just
   to satisfy an unconditional substring operation.
+- Error display evidence is separate from failure kind and recovery policy.
+  Preserve actual HTTP status; 403 displays `无法访问帖子（HTTP 403）` and
+  redirects display their status without claiming validation. Unknown HTML
+  remains an ACCESS stop with neutral `站点返回了网页内容，暂无法读取帖子`.
+  Only existing structured `msg`, `data.__MESSAGE`, and `error` fields may
+  establish finite VALIDATION/DELETED/MISSING/NO_PERMISSION reasons. Never scan
+  normal post content or infer a cause from another browser request. Generic
+  ACCESS is neutral. Retain no raw error body in ArticleFailure.
+  `legacyMessage` translates known HttpException display only; preserve the
+  original Throwable for account/browser decisions and the single presenter
+  error callback. Do not add error-page fetching or R7 diagnostics.
 - Recognized business/auth/access/rate-limit failures win over residual data.
   Unknown numeric `code` gets no invented meaning: independently validate the
   data branch. Empty/scalar/malformed results are not successful thread pages.
@@ -199,6 +226,9 @@ server response schema.
 | Unknown optional sidecar or code with valid data | Preserve source/raw; no fabricated interpretation or blanket veto |
 | Ordinary page 7/size20 switches to App size10 | Keep floor120 anchor; at most one page13 alignment read, then verify actual row |
 | Previous-generation completion or delayed UI callback | No overwrite of current body/title/count/READY/loading |
+| Actual HTTP 403 | Status-based message, original ACCESS policy |
+| 3xx / unknown HTML | Status / neutral webpage message, no invented challenge |
+| Structured deleted/missing/permission/validation | Finite evidenced reason; no normal-post keyword scan |
 | Auth/challenge/rate limit | Stop; no alternate identity or automatic App fallback |
 | Missing core content | Visible unavailable state; no incomplete-page cache |
 | Scoped ordinary content is an object/array with a valid subject | Keep the row visibly incomplete; do not enable source actions or owned cache |
@@ -232,7 +262,11 @@ Use synthetic data and fake transport; never send NGA traffic:
   preserved parent/child identities and incomplete display projection.
 - `ArticleReaderSessionTest`: exact anchors and bounded alignment, old-key
   rejection, background/source handoff, account/settings invalidation,
-  count-before-Cookie retries, show-all navigation and neutral quote attribution.
+  count-before-Cookie retries, targeted/untargeted show-all navigation, unknown
+  floor/deleted PID, source sizes, and neutral quote attribution. Exercise actual
+  ViewModel initialization/retention/reset: cloned pages do not reseed consumed
+  anchors, first binding preserves them, and new same-query launches advance
+  generation. Stale posted UI work cannot consume replacement anchors.
 - `ArticleByteClientTest`: synthetic `Call.Factory` requests/bytes, exact URL/
   form/headers, source/page changes with one account snapshot, guest requests,
   origin/redirect/retry policy, strict charset/size handling, body closure,
@@ -241,7 +275,10 @@ Use synthetic data and fake transport; never send NGA traffic:
   owner/layout isolation, independent windows, metadata, selected-page snapshots,
   damaged-page rejection and legacy archive boundaries.
 - `ArticleErrorsTest`: BOM/outer whitespace classification as HTML/empty/JSON,
-  no fallback for access/empty outcomes, and preserved original raw text.
+  no fallback for access/empty outcomes, preserved original raw text, exact HTTP
+  evidence, finite structured causes, generic restrictions without a false
+  verification claim, successful post prose mentioning deletion/403, and legacy
+  callback display without changing original exception policy.
 - `ArticleRowPresentationTest` and core `HtmlCommentBuilderTest`: action
   eligibility from real source/PID rather than row kind; only complete leading
   reply headers are stripped; short, headerless, unrelated and incomplete

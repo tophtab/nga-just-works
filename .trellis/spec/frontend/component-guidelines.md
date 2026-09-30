@@ -714,6 +714,7 @@ void ArticlePagerAdapter.updateReaderState(ArticleReaderState state)
 int ArticlePagerAdapter.getActualPage(int position)
 int ArticlePagerAdapter.positionOfPage(int page)
 ArticleListParam ArticleListFragment.fullThreadParam()
+void ArticleShareViewModel.resetReader(ArticleListParam param)
 void ArticleListAdapter.releaseWebViews()
 boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
 ```
@@ -721,8 +722,12 @@ boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
 ### 3. Contracts
 
 - Apply a launch page before the first read. A PID entry uses the scoped reply
-  screen; `显示全部` uses the response's resolved tid and a fresh full-query
-  parameter at page 1. Clear PID/author/search/cache disposition together.
+  screen; `显示全部` uses validated resolved tid and a fresh full-query parameter.
+  Clear query PID/author/search/cache disposition together; carry targetPid and
+  targetFloor separately. A trustworthy target floor selects the ordinary
+  20-floor candidate; untargeted or unknown-floor entries start at page 1.
+  Only a real row match permits scrolling. Missing/deleted targets leave the
+  thread readable and produce one positioning notice.
 - Pager position is not a server page or global floor. Known totals permit
   numbered pages; unknown totals display the obtained window under its actual
   page label. Do not report that the full thread has one page merely because
@@ -732,7 +737,10 @@ boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
   `ArticleAnchor` belongs to a generation/page; scroll only after finding its
   actual PID or floor in that response. A posted scroll must still refer to
   the same displayed response and a resumed view. No modulo-based index or
-  silent page scan is allowed.
+  silent page scan is allowed. Consume the expected anchor only inside the valid
+  posted action; a pause before it executes must not lose the pending jump.
+  `resetReader(param)` retires callbacks with a monotonic generation even for
+  the same query. Detach the old Fragment before reset publishes new state.
 - Use `ArticleNavigation.handoffNotice(data, anchor)` before consuming an
   anchor for a newly adopted page. App data without a reliable matched target
   says the reading position could not be retained; incomplete-content feedback
@@ -766,7 +774,7 @@ boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
 
 | Input / transition | Visible result |
 | --- | --- |
-| PID-only entry resolves to tid T | Show the matched reply; `显示全部` opens T at page 1 |
+| PID-only entry resolves to tid T | Show the matched reply; `显示全部` opens full T at the ordinary floor candidate (page 1 if unknown), then verifies actual PID |
 | Reported App size is 30 or 40 | Render every returned row without a 20-view array limit |
 | Page has floors 61, 64 and 69 | Locate actual floor 64 at index 1, not `64 % pageSize` |
 | Page size or total is unavailable | Keep readable content; disable only navigation requiring missing facts |
@@ -900,6 +908,108 @@ emoticon tables, or the order preference.
   order must not change any emitted string.
 - Adding a settings entry changes `DefaultSettingsContractTest`. Update the
   pinned key list deliberately; never relax the assertion.
+
+## External article links
+
+### 1. Scope / Trigger
+
+Apply to `ArticleListActivity` cold/hot external entry and its manifest filters.
+
+### 2. Signatures
+
+`ArticleLinkParser.parse(String link): ArticleListParam` returns null for invalid
+or unsupported links. `ArticleShareViewModel.resetReader(param)` returns void.
+
+### 3. Contracts
+
+Support `nga://openType=2?page=1&tid=47649154&` and type 5 replies. The type
+is the exact authority, not a query key. Type 2 requires positive tid; type 5
+requires positive pid, optionally tid. Page defaults to 1. Recognize only known
+numeric fields; conflicting duplicates, overflow, userinfo, custom paths and
+unsupported authorities do not navigate. Custom author/search extras do not
+become query filters. Existing HTTP(S) read.php entry supports exact project
+hosts and existing tid/pid/page/authorid/searchpost fields. Parsed links create
+local query identities, never arbitrary credential-bearing remote URLs.
+
+Register nga in a separate scheme filter. Cold/hot entry shares parsing. A hot
+Intent must synchronously detach the old Fragment before resetReader publishes
+new state, then install the new page even when query identity is unchanged.
+Defer fragment transactions while state is saved. Preserve internal Parcelable
+launch targets. Registration makes this app an implicit handler candidate;
+Android/browser defaults and explicitly named official packages still govern
+selection. Do not claim verified app links or guaranteed chooser display.
+
+### 4. Validation & Error Matrix
+
+| Input | Result |
+| --- | --- |
+| Supplied Via type2, trailing ampersand | Valid topic |
+| Type5 pid-only | Existing reply lookup |
+| Conflict/overflow/unexpected authority/path | Null, safe finish |
+| New same-query Intent | Retire old generation and old Fragment |
+
+### 5. Good / Base / Bad Cases
+
+Good: pure parser plus one Activity intake path. Base: no saved default, app is
+an eligible implicit handler. Bad: assuming official explicit package intents
+or system chooser behavior can be overridden by a manifest filter.
+
+### 6. Tests Required
+
+Execute parser fixtures for supplied URI/type5, defaults, known web fields,
+unsupported schemes/hosts/types, invalid values and conflicts. Pin independent
+manifest filter and detach-before-reset Activity ordering. Device chooser and
+cold/hot runtime checks remain opt-in; source checks do not establish them.
+
+### 7. Wrong vs Correct
+
+Wrong: read openType from query or convert any external URL into an authenticated request.
+Correct: validate the authority and convert supported fields to ArticleListParam.
+
+## Shared emoticon rendering map
+
+### 1. Scope / Trigger
+
+Use this contract for the picker, article decoders, and editor media previews.
+
+### 2. Signatures
+
+`EmoticonUtils.resolveAssetPath(String category, String name)` returns a relative
+asset path, or `null` for an unknown exact category/name pair.
+
+### 3. Contracts
+
+The six built-in picker tables are the single source for all 238 mappings.
+`[s:ac:赞同]` resolves to `ac/ac42.png`; `[s:ac:闪光]` resolves to
+`ac/ac43.png`. User order remains a separate filename permutation. Main rendering
+and editor lookup must not derive identity from a sorted position. The legacy
+HTML path retains its existing case-insensitive matching and NG/PG dimensions.
+Unknown tokens stay source text; do not swap asset bytes or rewrite posted codes.
+
+### 4. Validation & Error Matrix
+
+| Input | Result |
+| --- | --- |
+| Supported category/name | Matching built-in asset |
+| Unknown/null pair | Null; preserve original token |
+| Reordered panel | Same emitted code and resolved asset |
+| Repeated supported tokens | Each resolves independently |
+
+### 5. Good / Base / Bad Cases
+
+Good: picker and decoder use the same table. Base: unknown text stays literal.
+Bad: maintaining a second positional name array that can silently drift.
+
+### 6. Tests Required
+
+Pin all 238 code/asset pairs, the AC reversed pair, unknown/repeated tokens,
+legacy aliases, and filename-based ordering without table mutation.
+
+### 7. Wrong vs Correct
+
+Wrong: resolve a name with a decoder-specific array index.
+Correct: call `EmoticonUtils.resolveAssetPath(category, name)` and retain source
+when it returns null.
 
 ## Verification
 

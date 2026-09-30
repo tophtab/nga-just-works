@@ -1,0 +1,63 @@
+{
+  "id": "reader-access-location-navigation",
+  "name": "reader-access-location-navigation",
+  "title": "帖子访问、属地、回复定位、表情与编辑预览",
+  "description": "六项改进：网页唤起、属地生命周期、准确错误、回复定位、表情一致性与编辑媒体预览；原 R7 已拆出为独立调研成果。",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-09-30",
+  "completedAt": null,
+  "branch": "feat/reader-access-location-navigation",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": "0473b8e7ff3ca8328c91d6e8e3b90fd56124ad13",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "09-30-reader-web-app-links",
+    "09-30-reader-author-location-lifecycle",
+    "09-30-reader-access-error-messages",
+    "09-30-reader-reply-floor-navigation",
+    "09-30-reader-emoticon-rendering",
+    "09-30-reader-edit-inline-media"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "属地返回自动恢复、网络两次失败后冷却30秒已确认；本窗口仅定稿 PRD，用户另开窗口实施。\n2026-09-30 implementation session: user explicitly approved final PRD R1–R6; R7 and diagnostics remain deferred. Implement/check child tasks sequentially; offline verification only.\n2026-09-30 R7 follow-up: user resumed root-cause investigation and confirmed reusing the existing child task. R1–R6 implementation scope is unchanged; R7/R7-A implementation remains pending.\n2026-09-30 R7 evidence update: 47440211 reproduces a truncated ordinary JSON response and successful compatibility reading. See child research/47440211-truncated-response.md. Product implementation remains unstarted for R7; diagnostics are not a prerequisite for this reproduced sample.\n2026-09-30 latest R7 direction and deferral: user wants ordinary reading repaired before removing compatibility and the internal forum browser, then explicitly shelved all R7 work for later research. Preserve findings; no R7 implementation. R1–R6 scope unchanged.\n2026-09-30 latest task organization: detached R7 and archived its research deliverable at .trellis/tasks/archive/2026-09/09-30-reader-native-loading-research; this parent owns only R1–R6. Research completion does not mean the reader defect was fixed.",
+  "meta": {
+    "current_scope": [
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6"
+    ],
+    "deferred_requirements": [],
+    "implementation_session": "2026-09-30 R1–R6 implemented and independently reviewed",
+    "final_summary_status": "implementation_verified",
+    "implementation_approved": "2026-09-30",
+    "research_scope": [],
+    "detached_research": {
+      "R7": ".trellis/tasks/archive/2026-09/09-30-reader-native-loading-research",
+      "product_work": "deferred; not part of parent acceptance"
+    },
+    "implementation_complete": true,
+    "integration_gate_passed": true,
+    "commit_pending": false,
+    "release_version": "6.1.0",
+    "code_commits": [
+      "5beb093d521d1cb93234f3fa58cb0fd10850a15e",
+      "6823070107adc3a54b679f4a39e1c7f39c0a427d",
+      "49104f8cd2eaec14858f759bc8edd7df7420d144",
+      "9f2acd4bea96eaea96fa668e12737ac2d0b3c83c",
+      "eca638968260c55db600345832ccf0e4007d7e53",
+      "0473b8e7ff3ca8328c91d6e8e3b90fd56124ad13"
+    ]
+  }
+}

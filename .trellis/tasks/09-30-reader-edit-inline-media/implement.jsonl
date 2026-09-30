@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Source-based composer, image settings, and emoticon mapping"}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Media transport and source preservation boundaries"}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "POST.SUBMIT and attachment upload remain unchanged"}
+{"file": ".trellis/tasks/09-30-reader-access-location-navigation/research/followup-script-links-editor.md", "reason": "Latest confirmed choices, Via scheme, exact userscript audit and editor source flow"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Required full Android quality gate; read full file in sections if injection truncates it"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Lifecycle ownership, restoration and rejection of stale callbacks"}
+{"file": ".trellis/spec/frontend/editor-inline-media-contract.md", "reason": "Implemented source-preserving editor, media range and view lifecycle contract"}

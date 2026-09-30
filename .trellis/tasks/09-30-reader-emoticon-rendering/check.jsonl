@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "R5 contract for implementation and review"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "R5 contract for implementation and review"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "R5 contract for implementation and review"}
+{"file": ".trellis/tasks/09-30-reader-access-location-navigation/research/current-behavior.md", "reason": "Current source evidence, user report, and limitations"}
+{"file": ".trellis/tasks/09-30-reader-access-location-navigation/research/followup-script-links-editor.md", "reason": "Latest confirmed choices, Via scheme, exact userscript audit and editor source flow"}

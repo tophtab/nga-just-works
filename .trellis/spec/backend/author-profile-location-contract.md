@@ -4,10 +4,10 @@
 
 The integration of `experiment/auto-ip-query` into `main` restores automatic
 author-location queries. `ArticleListFragment` binds
-`AuthorLocationService` to its view owner and submits accepted online page
+`AuthorLocationService` to its Activity foreground owner and view lifetime, and submits accepted online page
 deliveries, including offscreen prefetch. Saved pages and retained-view
 replays remain cache-only. The repository keeps its body-independent HTTP 503
-stop and a 500 ms pause after each completed request.
+stop and a random 200–500 ms pause after each terminal callback.
 Supplemental reads now use the Web profile route and its embedded `__UCPUSER`
 object, following NGA UserInfo Enhance 2.0.10 and its pinned
 [NGA Library 1414880](https://update.greasyfork.org/scripts/486070/1414880/NGA%20Library.js).
@@ -22,8 +22,9 @@ mean request-start intervals were about 589 ms and 170 ms, with ten seconds
 between rounds. This short repeated-author sample does not establish an Android
 device result, a safe quota, or a comparison with JSON requests at the same rate.
 The cause of the reported 503s remains unverified. The maintainer explicitly
-selected 500 ms after each terminal callback for the Web-route integration;
-the interval is not a guarantee about the server's quota.
+selected 500 ms after each terminal callback for that historical integration;
+the interval is not a guarantee about the server's quota. The 2026-09-30 R2
+revision selects a random inclusive 200–500 ms terminal gap instead.
 
 ## 1. Scope / Trigger
 
@@ -45,7 +46,7 @@ ProfileSession.create(String origin, String uid, String cid, String userAgent)
 ProfileLocationResult ProfileLocationParser.parse(String source, int requestedUid)
 Set<Integer> ArticleAuthorIds.fromPage(ThreadData page)
 AuthorLocationService.Page AuthorLocationService.bind(
-        Context context, LifecycleOwner owner,
+        Context context, LifecycleOwner threadOwner, LifecycleOwner owner,
         Consumer<AuthorLocationRepository.Snapshot> display)
 void AuthorLocationService.Page.deliver(ThreadData data, boolean online)
 void AuthorLocationPage.deliver(ThreadData data, boolean online)
@@ -57,6 +58,9 @@ AuthorLocationRepository.Subscription AuthorLocationRepository.subscribe(
 AuthorLocationRepository.Subscription AuthorLocationRepository.subscribe(
         Collection<Integer> authors, boolean online, Consumer<Snapshot> listener,
         Consumer<Subscription> onRegistered)
+AuthorLocationRepository.Owner AuthorLocationRepository.createOwner()
+void AuthorLocationRepository.Owner.setForeground(boolean foreground)
+void AuthorLocationRepository.Owner.close()
 String AuthorLocationRepository.Snapshot.location(int author, long now)
 void ArticleListAdapter.setAuthorLocations(AuthorLocationRepository.Snapshot locations)
 ```
@@ -138,10 +142,13 @@ transport exercise the same repository on the host JVM.
 - Close obsolete consumers on data replacement/view destruction. Old snapshots
   carry an invalidatable session epoch; expiry is also checked when reading a
   snapshot. View recreation reuses retained thread data and cached observations.
-  Ordinary STARTED/offscreen or Activity-stopped pages keep their view owners
-  and still enrich. If a view was actually destroyed, a later body completion
-  is retained without starting new work for its dead location consumer. Do not
-  turn that owner-destruction guard into a foreground or page-range restriction.
+  All pages of one Activity share one owner; offscreen prefetch stays eligible
+  while that Activity is RESUMED. Activity pause removes dispatch eligibility
+  and cancels orphaned in-flight work; resume restores unfinished online demands
+  with their existing retry count. A cache-only owner cannot dispatch unrelated
+  online work. View destruction closes demand; retained recreation remains
+  cache-only. If a view was actually destroyed, a later body completion
+  is retained without starting new work for its dead location consumer. Do not turn Activity ownership into a page viewport or page-range restriction.
 
 ### Request, identity, and parser
 
@@ -197,19 +204,20 @@ transport exercise the same repository on the host JVM.
 | --- | --- |
 | Key | Normalized origin + viewing-account UID + author UID |
 | Success / valid empty | Retain the latest observation for 24 hours |
-| Ordinary failure | Suppress the author key for 10 minutes |
+| Parse/data failure and legacy persisted FAILURE | Suppress the author key for 10 minutes |
+| Transport I/O failure | One tail retry; after two failures suppress the author key for 30 seconds |
 | HTTP 429 | Pause the origin/account for at least 30 minutes, or longer valid delta-seconds / RFC 1123 `Retry-After` |
 | Authentication / challenge / site rejection / HTTP 503 | Stop the captured immutable session in process memory, including its credentials and UA |
 | Concurrency | One physical supplementary request in flight across all page consumers |
-| Dispatch | Reuse queued/in-flight keys; the first idle request may start immediately, then wait at least 500 ms after each call's terminal callback before starting another |
+| Dispatch | Reuse queued/in-flight keys; the first idle request may start immediately, then wait an independently sampled inclusive 200–500 ms after each terminal callback |
 | Expiry / unpause | Reconsider on later work events; expiry alone does not start a request |
 | Cancellation | Retain the physical slot until the canceled call's terminal callback |
-| Orphaned queued work | Remove an unsent author only when no valid online consumer needs it |
+| Orphaned queued work | Remove an unsent author only when no valid foreground online consumer needs it |
 
 Request pacing is shared by the app-scoped repository across pages, prefetch,
 refreshes, account changes, and origin changes. Use monotonic elapsed time for
 this deadline; wall time still owns cache expiry and server pauses. A slow,
-failed, or canceled call also leaves a full 500 ms gap after completion,
+failed, or canceled call also leaves the sampled 200–500 ms gap after completion,
 so connection setup and cancellation cannot cause back-to-back requests.
 
 Use one cancellable owner-thread wakeup only while eligible online work awaits
@@ -218,6 +226,15 @@ runs. Cancel it when its queue becomes empty or its session is invalidated,
 without resetting the app-wide deadline. Ignore obsolete wakeups. A delayed
 wakeup never catches up with a burst, and pacing never schedules TTL refreshes
 or automatic recovery from a server pause.
+
+Transport I/O uses `NETWORK_FAILURE`; malformed data remains `FAILURE`.
+The first network failure moves the same round to the queue tail. Duplicate
+consumers and owner pause/resume cannot reset its count. The second failure
+finishes current demands and records the 30-second cooldown. Expiry alone,
+replay, and lifecycle churn cannot create a third request; a fresh eligible
+online delivery after expiry may create a new round. Cancellation does not count
+as a failure or cache a cooldown. Keep the canceled physical slot until terminal
+completion, and process late 429/session stops against the captured identity.
 
 HTTP 503 always stops supplemental reads for the captured session before body
 decoding, including an empty, missing, unreadable, oversized, malformed, or
@@ -232,7 +249,12 @@ Persist disposable data at `cacheDir/author-locations-v1.json`, encoded as UTF-8
 {"version":1,"entries":[{"origin":"https://bbs.nga.cn","account":"0","author":42,"kind":"OBSERVATION","location":"广东","observed":1000,"expires":86401000}]}
 ```
 
-`kind` is `OBSERVATION`, `FAILURE`, or `RATE_LIMIT`; `location` is nullable.
+On disk `kind` remains `OBSERVATION`, `FAILURE`, or `RATE_LIMIT`; `location` is nullable.
+New network cooldown records retain the v1 `FAILURE` 10-minute `expires` field
+and add `networkExpires = observed + 30000`. This build validates both and uses
+the short deadline; older builds conservatively see the old failure duration.
+Old failures retain their original TTL. Never discard observations or 429 guards
+merely to introduce the new network policy.
 Rate-limit records use author `0`, while author observations/failures require a
 positive UID. Enforce exact observation/failure durations and the minimum
 rate-limit duration on restore. Bound the store to 1,000 entries and 1 MiB,
@@ -260,7 +282,10 @@ rejections must not block a replacement credential for the same UID.
 | HTML with a valid matching `__UCPUSER` profile and location | Publish metadata and cache for 24 hours |
 | Valid profile with absent / blank location | Cache valid empty; show post count only |
 | Invalid author / session / configured origin | No supplementary request |
-| Located but malformed profile object, invalid location, I/O failure, oversized / undecodable body without an HTTP 503 status | Per-author 10-minute failure cooldown |
+| Located but malformed profile object, invalid location, oversized / undecodable body without an HTTP 503 status | Per-author 10-minute failure cooldown |
+| Transport I/O failure | One tail retry behind other queued authors; second failure ends the round with 30-second suppression |
+| Hidden owner returns | Resume unfinished online demand without resetting attempts; cache-only demand remains cache-only |
+| Cooldown expires | No automatic third request; later fresh online demand may start another round |
 | Redirect, HTTP 401/403, site error, mismatched UID, or text/HTML without a recognized profile assignment | Stop captured session; no redirect, identity rotation, fallback endpoint, or next-author loop |
 | HTTP 429, including a queued completion after view/account invalidation | Persist account pause; preserve longer server delay |
 | HTTP 503 with any body, including absent/unreadable body | Stop captured session before body decoding; never continue with the next author |
@@ -275,7 +300,7 @@ rejections must not block a replacement credential for the same UID.
 | Initial synchronous metadata display closes or null-resets the page | Dispose the registered consumer before request dispatch, including with an idle repository |
 | Equivalent detail text arrives, including a same-session refresh | Keep the existing text; no redundant identical `setText` |
 | Cache-only subscription after a 429 pause expires | Do not resume another page's queue; later real online work may resume it |
-| Fast, slow, failed, or canceled request completes | Next supplemental call starts at least 500 ms after its terminal callback; one physical call remains the concurrency limit |
+| Fast, slow, failed, or canceled request completes | Next supplemental call starts after its sampled inclusive 200–500 ms terminal gap; one physical call remains the concurrency limit |
 | Page/account changes while waiting | Cancel obsolete work; new eligible work still honors the shared pacing deadline |
 | Wall-clock change or delayed wakeup | No shortened interval or catch-up burst |
 | Data/author/view generation changed | Ignore obsolete UI payload; never reload a body WebView |
@@ -284,7 +309,7 @@ rejections must not block a replacement credential for the same UID.
 
 - **Good**: one delivered page needs authors A/B; an independently prefetched
   page needs B/C. B shares queued/in-flight work, and C starts after the
-  physical slot is free and the shared 500 ms pacing deadline passes.
+  physical slot is free and the shared sampled pacing deadline passes.
 - **Base**: an author has a fresh empty observation. The floor shows its post
   count and subsequent deliveries do not repeat that lookup during the TTL.
 - **Bad**: query once per holder, start a separate three-page batch, block a
@@ -300,14 +325,15 @@ rejections must not block a replacement credential for the same UID.
   empty, UID binding, location bounds, exact origins, Cookie-safe input, and
   credential snapshot equality. Keep manual JSON envelope-repair coverage.
 - `AuthorLocationRepositoryTest`: distinct delivered authors, duplicate sharing,
-  immediate first dispatch, exact 499/500 ms pacing boundaries, slow/canceled
+  immediate first dispatch, deterministic 200/500 ms pacing boundaries, slow/canceled
   calls, wall-clock changes, delayed/obsolete wakeups, incremental prefetch,
   fake-clock TTL/failure/429 boundaries,
   persistent late pauses, same-UID credential isolation, obsolete callbacks,
   shared-consumer disposal, and cache-only readers that cannot resume paused
   online work when its pause expires.
 - `AuthorLocationStoreTest`: atomic read-back, corruption/version/bounds, TTL
-  validation, latest observations, and retention of server-pause guards.
+  validation, old FAILURE/new network cooldown coexistence, latest observations,
+  and retention of server-pause guards, including older-build-readable serialization.
 - `ProfileLocationTransportTest`: exact Web URL/Referer and immutable wire
   identity, successful GBK HTML extraction, strict response bounds,
   body-independent HTTP 503 stop classification, Retry-After, and one physical

@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "R1 contract for implementation and review"}
+{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "R1 contract for implementation and review"}
+{"file": ".trellis/tasks/09-30-reader-access-location-navigation/research/current-behavior.md", "reason": "Current source evidence, user report, and limitations"}
+{"file": ".trellis/tasks/09-30-reader-access-location-navigation/research/followup-script-links-editor.md", "reason": "Latest confirmed choices, Via scheme, exact userscript audit and editor source flow"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Required full Android quality gate; read full file in sections if injection truncates it"}

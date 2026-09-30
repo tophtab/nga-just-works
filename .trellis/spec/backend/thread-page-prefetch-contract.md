@@ -101,8 +101,11 @@ request.
   topic Activity. Do not persist it or share it across topics or activities.
 - Successful normal and offscreen-prefetched page deliveries submit their
   accepted authors to the shared supplementary `USER.PROFILE` repository
-  independently, without waiting for other pages. Keep its serialized 500 ms
-  pacing, cache/account boundaries, and HTTP 503 session stop from the
+  independently, without waiting for other pages. All page consumers share their
+  Activity foreground owner: offscreen pages remain eligible while the Activity
+  is resumed; leaving pauses its unfinished demand and cancels orphaned calls.
+  Keep serialized random 200–500 ms terminal pacing, one network tail retry,
+  cache/account boundaries, and HTTP 503 session stop from the
   [author-location contract](./author-profile-location-contract.md).
   Saved-page and retained-view replays remain cache-only. Enrichment does not
   change page selection, retention, or foreground-only loading-tip selection.
