@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 70
-- **Last Active**: 2026-09-12
+- **Total Sessions**: 71
+- **Last Active**: 2026-09-30
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1847 | Active |
+| `journal-1.md` | ~1876 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 71 | 2026-09-30 | R1–R6 reader improvements and 6.1.0 release | `5beb093d`, `68230701`, `49104f8c`, `9f2acd4b`, `eca63896`, `0473b8e7`, `c13f186d`, `05951885` | `main` |
 | 70 | 2026-09-12 | Publish 6.0.0 | `c0dd626f8d42e84fdec8961d3e021bc67142c1f0` | `main` |
 | 69 | 2026-09-12 | 恢复阅读刷新与属地显示稳定性 | `ee4556f889f1f14c886e413e1f7d65e7b336062d` | `main` |
 | 68 | 2026-09-12 | 收尾 AI 模型列表兼容回退 | `6212a0b63103816465381cbe712f65fafc5aee12` | `main` |

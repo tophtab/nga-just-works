@@ -1845,3 +1845,32 @@ Prepared the 6.0.0 release notes, pushed main, and pushed annotated tag 6.0.0 af
 ### Next Steps
 
 - The existing GitHub workflow owns stable APK build and publication; no CI polling or device follow-up was requested.
+
+
+## Session 71: R1–R6 reader improvements and 6.1.0 release
+<!-- trellis-session: v=2 fp=ee579d7352ac56b1 -->
+
+**Date**: 2026-09-30
+**Task**: R1–R6 reader improvements and 6.1.0 release
+**Branch**: `main`
+
+### Summary
+
+Implemented and independently checked all six approved reader requirements: NGA app links, foreground author-location lifecycle and bounded retry, evidence-based errors, original-reply navigation, unified 238 emoticons, and source-preserving editor media. Full gate passed: 724 tests, 13 lint reports with zero Error/Fatal; release scripts 36 tests and 6.1.0/versionCode 60100000 validation passed. Merged to main, archived parent plus six children. User authorized push and stable tag publication; Actions owns packaging. R7 research and upstream task planning remain separate and uncommitted by this session.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5beb093d` | fix: unify emoticon asset mapping |
+| `68230701` | fix: scope author location work to foreground threads |
+| `49104f8c` | fix: display evidence-based article errors |
+| `9f2acd4b` | feat: locate original reply when showing full thread |
+| `eca63896` | feat: handle NGA topic and reply app links |
+| `0473b8e7` | feat: restore source-preserving editor media previews |
+| `c13f186d` | docs: record reader contracts and R1–R6 verification |
+| `05951885` | docs(release): prepare 6.1.0 release notes |
+
+### Status
+
+[OK] **Completed**
