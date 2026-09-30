@@ -27,8 +27,9 @@
             android:text="@string/anony"/>
     </LinearLayout>
 
-    <EditText
+    <sp.phone.view.editor.InlineMediaEditText
         android:id="@+id/reply_body_edittext"
+        android:saveEnabled="false"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="8dp"
@@ -42,7 +43,7 @@
         android:scrollbars="vertical">
 
         <requestFocus/>
-    </EditText>
+    </sp.phone.view.editor.InlineMediaEditText>
 
     <sp.phone.view.toolbar.ToolbarContainer
         android:id="@+id/control_panel"

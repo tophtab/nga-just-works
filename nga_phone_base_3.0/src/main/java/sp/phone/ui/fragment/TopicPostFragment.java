@@ -24,7 +24,8 @@ import sp.phone.mvp.contract.TopicPostContract;
 import sp.phone.mvp.presenter.TopicPostPresenter;
 import sp.phone.param.ParamKey;
 import sp.phone.rxjava.RxEvent;
-import sp.phone.util.StringUtils;
+import sp.phone.view.editor.InlineMediaDecorator;
+import sp.phone.view.editor.InlineMediaEditText;
 import sp.phone.view.toolbar.ToolbarContainer;
 
 public class TopicPostFragment extends BaseMvpFragment<TopicPostPresenter> implements TopicPostContract.View {
@@ -33,7 +34,11 @@ public class TopicPostFragment extends BaseMvpFragment<TopicPostPresenter> imple
 
     private CheckBox mAnonyCheckBox;
 
-    private EditText mBodyEditText;
+    private InlineMediaEditText mBodyEditText;
+
+    private InlineMediaDecorator mMediaDecorator;
+
+    private Bundle mRetainedDraft;
 
     private ProgressBarEx mProgressBar;
 
@@ -79,21 +84,58 @@ public class TopicPostFragment extends BaseMvpFragment<TopicPostPresenter> imple
         mBodyEditText.setOnTouchListener(mToolbarContainer);
         mTitleEditText.setOnTouchListener(mToolbarContainer);
 
-        if (getArguments().containsKey("savedInstanceState")) {
-            Bundle savedData = getArguments().getBundle("savedInstanceState");
-            mBodyEditText.setText(savedData.getString("body"));
-            mTitleEditText.setText(savedData.getString("title"));
-            mAnonyCheckBox.setChecked(savedData.getBoolean("anony"));
+        Bundle draft = mRetainedDraft != null ? mRetainedDraft : savedInstanceState;
+        if (draft == null || !draft.containsKey("body")) {
+            draft = getArguments().getBundle("savedInstanceState");
         }
+        if (draft != null && draft.containsKey("body")) {
+            mBodyEditText.setText(draft.getString("body", ""));
+            mTitleEditText.setText(draft.getString("title", ""));
+            mAnonyCheckBox.setChecked(draft.getBoolean("anony", draft.getBoolean("anoay")));
+            int length = mBodyEditText.length();
+            mBodyEditText.setSelection(Math.max(0, Math.min(length, draft.getInt("selectionStart", length))),
+                    Math.max(0, Math.min(length, draft.getInt("selectionEnd", length))));
+        } else {
+            mBodyEditText.setText(mPresenter.getInitialBody());
+            mTitleEditText.setText(mPresenter.getInitialTitle());
+            mBodyEditText.setSelection(mBodyEditText.length());
+        }
+        mMediaDecorator = new InlineMediaDecorator(mBodyEditText);
         super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("body", mBodyEditText.getText().toString());
-        outState.putString("title", mTitleEditText.getText().toString());
-        outState.putBoolean("anoay", mAnonyCheckBox.isChecked());
+        if (mBodyEditText != null) saveDraft(outState);
+        else if (mRetainedDraft != null) outState.putAll(mRetainedDraft);
+    }
+
+    private void saveDraft(Bundle state) {
+        state.putString("body", mBodyEditText.getText().toString());
+        state.putString("title", mTitleEditText.getText().toString());
+        state.putBoolean("anony", mAnonyCheckBox.isChecked());
+        state.putInt("selectionStart", mBodyEditText.getSelectionStart());
+        state.putInt("selectionEnd", mBodyEditText.getSelectionEnd());
+    }
+
+    @Override
+    public void onDestroyView() {
+        mRetainedDraft = new Bundle();
+        saveDraft(mRetainedDraft);
+        mMediaDecorator.close();
+        mMediaDecorator = null;
+        mBodyEditText = null;
+        mTitleEditText = null;
+        mAnonyCheckBox = null;
+        mToolbarContainer = null;
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onPause() {
+        if (mMediaDecorator != null) mMediaDecorator.suspend();
+        super.onPause();
     }
 
     @Override
@@ -108,18 +150,19 @@ public class TopicPostFragment extends BaseMvpFragment<TopicPostPresenter> imple
 
     @Override
     public void insertBodyText(CharSequence text, int position) {
+        if (mBodyEditText == null) {
+            // An explicit upload may finish while the Fragment has no view.
+            if (mRetainedDraft != null) {
+                String body = mRetainedDraft.getString("body", "");
+                mRetainedDraft.putString("body", body + text);
+            }
+            return;
+        }
         mBodyEditText.requestFocus();
-        int index = mBodyEditText.getSelectionStart();
-        if (mBodyEditText.getText().toString().replaceAll("\\n", "").trim().isEmpty()
-                || index <= 0
-                || index >= mBodyEditText.length()) {
-            mBodyEditText.append(text);
-        } else {
-            mBodyEditText.getText().insert(index, text);
-        }
-        if (position > 0) {
-            mBodyEditText.setSelection(index + position);
-        }
+        int start = Math.max(0, Math.min(mBodyEditText.getSelectionStart(), mBodyEditText.getSelectionEnd()));
+        int end = Math.max(start, Math.max(mBodyEditText.getSelectionStart(), mBodyEditText.getSelectionEnd()));
+        mBodyEditText.getText().replace(start, end, text);
+        mBodyEditText.setSelection(Math.min(mBodyEditText.length(), start + (position > 0 ? position : text.length())));
     }
 
     @Override
@@ -133,31 +176,12 @@ public class TopicPostFragment extends BaseMvpFragment<TopicPostPresenter> imple
 
     @Override
     public void insertFile(String path, CharSequence file) {
-        int index = mBodyEditText.getSelectionStart();
-        String content = mBodyEditText.getText().toString();
-        if (StringUtils.isEmpty(path)) {
-            if (content.replaceAll("\\n", "").trim().isEmpty()) {
-                mBodyEditText.append("[img]./" + file + "[/img]\n");
-            } else if (index > 0 && index < mBodyEditText.length()) {
-                mBodyEditText.getText().insert(index, "[img]./" + file + "[/img]");
-            } else if (mBodyEditText.getText().toString().endsWith("\n")) {
-                mBodyEditText.append("[img]./" + file + "[/img]\n");
-            } else {
-                mBodyEditText.append("\n[img]./" + file + "[/img]\n");
-            }
-        } else if (content.replaceAll("\\n", "").trim().isEmpty()) {
-            mBodyEditText.append(file);
-            mBodyEditText.append("\n");
-        } else if (index > 0 && index < mBodyEditText.length()) {
-            mBodyEditText.getText().insert(index, file);
-        } else if (content.endsWith("\n")) {
-            mBodyEditText.append(file);
-            mBodyEditText.append("\n");
-        } else {
-            mBodyEditText.append("\n");
-            mBodyEditText.append(file);
-            mBodyEditText.append("\n");
-        }
+        insertBodyText(path == null || path.isEmpty() ? "[img]./" + file + "[/img]\n" : file);
+    }
+
+    public void insertUploadedFile(Uri uri, String source) {
+        if (mMediaDecorator != null) mMediaDecorator.registerLocalImage(source, uri);
+        insertBodyText(source + "\n");
     }
 
     @Override
@@ -206,6 +230,7 @@ public class TopicPostFragment extends BaseMvpFragment<TopicPostPresenter> imple
 
     @Override
     public void onResume() {
+        if (mMediaDecorator != null) mMediaDecorator.resume();
         if (mUploadFilePath != null) {
             mPresenter.startUploadTask(mUploadFilePath);
             mUploadFilePath = null;

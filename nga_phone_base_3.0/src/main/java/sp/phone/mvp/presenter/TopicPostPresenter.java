@@ -1,23 +1,11 @@
 package sp.phone.mvp.presenter;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.ImageSpan;
-import android.util.DisplayMetrics;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import gov.anzong.androidnga.R;
-import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.http.OnHttpCallBack;
 import sp.phone.mvp.contract.TopicPostContract;
@@ -38,26 +26,9 @@ public class TopicPostPresenter extends BasePresenter<TopicPostFragment, TopicPo
 
     @Override
     public void setEmoticon(String emotion) {
-        String[] emotions = emotion.split("-");
-        try (InputStream is = mBaseView.getContext().getResources().getAssets().open(emotions[1])) {
-            if (is != null) {
-                Bitmap bitmap = BitmapFactory.decodeStream(is);
-                Drawable drawable = new BitmapDrawable(mBaseView.getContext().getResources(), bitmap);
-                drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
-                        drawable.getIntrinsicHeight());
-                SpannableString spanString = new SpannableString(emotions[0]);
-                ImageSpan span = new ImageSpan(drawable,
-                        ImageSpan.ALIGN_BASELINE);
-                spanString.setSpan(span, 0, emotions[0].length(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                mBaseView.insertBodyText(spanString);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }//
+        int separator = emotion.indexOf('-');
+        if (separator > 0) mBaseView.insertBodyText(emotion.substring(0, separator));
+    }
 
     @Override
     public void setPostParam(PostParam postParam) {
@@ -77,16 +48,9 @@ public class TopicPostPresenter extends BasePresenter<TopicPostFragment, TopicPo
         });
     }
 
-    @Override
-    public void onViewCreated() {
-        if (!TextUtils.isEmpty(mPostParam.getPostSubject())) {
-            mBaseView.insertTitleText(mPostParam.getPostSubject());
-        }
-        if (!TextUtils.isEmpty(mPostParam.getPostContent())) {
-            mBaseView.insertBodyText(mPostParam.getPostContent());
-        }
-        super.onViewCreated();
-    }
+    public String getInitialTitle() { return mPostParam.getPostSubject(); }
+
+    public String getInitialBody() { return mPostParam.getPostContent(); }
 
     @Override
     public void post(String title, String body, boolean isAnony) {
@@ -207,38 +171,7 @@ public class TopicPostPresenter extends BasePresenter<TopicPostFragment, TopicPo
     }
 
     private void finishUpload(String picUrl, Uri uri) {
-        String selectedImagePath2 = FunctionUtils.getPath(mBaseView.getContext(), uri);
-        String spanStr = "[img]./" + picUrl + "[/img]";
-        if (!StringUtils.isEmpty(selectedImagePath2)) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(selectedImagePath2, options);
-            DisplayMetrics dm = ContextUtils.getResources().getDisplayMetrics();
-
-            int screenWidth = (int) (dm.widthPixels * 0.75);
-            int screenHeight = (int) (dm.heightPixels * 0.75);
-            int width = options.outWidth;
-            int height = options.outHeight;
-            float scaleWidth = ((float) screenWidth) / width;
-            float scaleHeight = ((float) screenHeight) / height;
-            if (scaleWidth < scaleHeight && scaleWidth < 1f) {// 不能放大啊,然后主要是哪个小缩放到哪个就行了
-                options.inSampleSize = (int) (1 / scaleWidth);
-            } else if (scaleWidth >= scaleHeight && scaleHeight < 1f) {
-                options.inSampleSize = (int) (1 / scaleHeight);
-            } else {
-                options.inSampleSize = 1;
-            }
-            options.inJustDecodeBounds = false;
-            Bitmap bitmap = BitmapFactory.decodeFile(selectedImagePath2, options);
-            BitmapDrawable bd = new BitmapDrawable(bitmap);
-            bd.setBounds(0, 0, bd.getIntrinsicWidth(), bd.getIntrinsicHeight());
-            SpannableString spanStringS = new SpannableString(spanStr);
-            ImageSpan span = new ImageSpan(bd, ImageSpan.ALIGN_BASELINE);
-            spanStringS.setSpan(span, 0, spanStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mBaseView.insertFile(selectedImagePath2, spanStringS);
-        } else {
-            mBaseView.insertFile(selectedImagePath2, picUrl);
-        }
+        mBaseView.insertUploadedFile(uri, "[img]./" + picUrl + "[/img]");
     }
 
     @Override
