@@ -3,13 +3,13 @@ package sp.phone.profile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -20,7 +20,39 @@ import java.util.function.Supplier;
  */
 public final class AuthorLocationRepository {
 
-    static final long REQUEST_INTERVAL_MILLIS = 500L;
+    /** One thread/Activity owns all of its pages, including offscreen prefetch. */
+    public final class Owner implements AutoCloseable {
+        private boolean foreground;
+        private boolean closed;
+
+        public void setForeground(boolean foreground) {
+            if (closed || this.foreground == foreground) return;
+            this.foreground = foreground;
+            pruneQueue();
+            if (foreground) {
+                boolean onlineDemand = false;
+                for (Subscription subscription : new ArrayList<>(subscriptions)) {
+                    if (subscription.owner == this && subscription.online && subscription.isActive()) {
+                        for (int author : subscription.authors) {
+                            onlineDemand |= subscription.needs(author, true);
+                        }
+                        enqueueMissing(subscription);
+                    }
+                }
+                if (onlineDemand) dispatch();
+            }
+        }
+
+        @Override public void close() {
+            closed = true;
+            foreground = false;
+            for (Subscription subscription : new ArrayList<>(subscriptions)) {
+                if (subscription.owner == this) subscription.close();
+            }
+        }
+    }
+
+    public Owner createOwner() { return new Owner(); }
 
     public interface Cancellation {
         void cancel();
@@ -61,10 +93,12 @@ public final class AuthorLocationRepository {
     public final class Subscription implements AutoCloseable {
         private final Set<Integer> authors;
         private final boolean online;
+        private final Owner owner;
+        private final Set<Integer> finished = new LinkedHashSet<>();
         private final Epoch epoch;
         private Consumer<Snapshot> listener;
 
-        private Subscription(Collection<Integer> authors, boolean online, Consumer<Snapshot> listener) {
+        private Subscription(Collection<Integer> authors, boolean online, Owner owner, Consumer<Snapshot> listener) {
             LinkedHashSet<Integer> eligible = new LinkedHashSet<>();
             for (Integer author : authors) {
                 if (author != null && author > 0) {
@@ -73,12 +107,18 @@ public final class AuthorLocationRepository {
             }
             this.authors = Collections.unmodifiableSet(eligible);
             this.online = online;
+            this.owner = owner;
             this.listener = listener;
             this.epoch = currentEpoch;
         }
 
         private boolean isActive() {
             return listener != null && epoch == currentEpoch && epoch.valid;
+        }
+
+        private boolean needs(int author, boolean foregroundOnly) {
+            return isActive() && online && authors.contains(author) && !finished.contains(author)
+                    && (owner == null || (!owner.closed && (!foregroundOnly || owner.foreground)));
         }
 
         private void publish() {
@@ -111,6 +151,8 @@ public final class AuthorLocationRepository {
         final ProfileSession session;
         final Epoch epoch;
         Cancellation cancellation;
+        boolean cancelled;
+        int networkFailures;
 
         Job(AuthorLocationCache.Key key, ProfileSession session, Epoch epoch) {
             this.key = key;
@@ -136,12 +178,14 @@ public final class AuthorLocationRepository {
     private final Transport transport;
     private final LongSupplier clock;
     private final LongSupplier elapsedClock;
+    private final LongSupplier interval;
     private final Supplier<ProfileSession> sessionSource;
     private final Executor completionExecutor;
     private final Scheduler scheduler;
     private final Consumer<List<AuthorLocationCache.Entry>> persist;
     private final Set<Subscription> subscriptions = new LinkedHashSet<>();
     private final LinkedHashMap<AuthorLocationCache.Key, Job> queue = new LinkedHashMap<>();
+    private final Map<AuthorLocationCache.Key, Job> rounds = new LinkedHashMap<>();
     private final Set<ProfileSession> rejectedSessions = new LinkedHashSet<>();
     private ProfileSession session;
     private Epoch currentEpoch = new Epoch();
@@ -153,6 +197,15 @@ public final class AuthorLocationRepository {
     AuthorLocationRepository(Transport transport, LongSupplier clock, LongSupplier elapsedClock,
                              Supplier<ProfileSession> sessionSource, Executor completionExecutor,
                              Scheduler scheduler, Consumer<List<AuthorLocationCache.Entry>> persist) {
+        this(transport, clock, elapsedClock, sessionSource, completionExecutor, scheduler, persist,
+                () -> ThreadLocalRandom.current().nextLong(200, 501));
+    }
+
+    AuthorLocationRepository(Transport transport, LongSupplier clock, LongSupplier elapsedClock,
+                             Supplier<ProfileSession> sessionSource, Executor completionExecutor,
+                             Scheduler scheduler, Consumer<List<AuthorLocationCache.Entry>> persist,
+                             LongSupplier interval) {
+        this.interval = interval;
         this.transport = transport;
         this.clock = clock;
         this.elapsedClock = elapsedClock;
@@ -184,14 +237,19 @@ public final class AuthorLocationRepository {
     /** A page owns its handle before synchronous publication can close or reset that page. */
     Subscription subscribe(Collection<Integer> authors, boolean online, Consumer<Snapshot> listener,
                            Consumer<Subscription> onRegistered) {
+        return subscribe(authors, online, null, listener, onRegistered);
+    }
+
+    Subscription subscribe(Collection<Integer> authors, boolean online, Owner owner,
+                           Consumer<Snapshot> listener, Consumer<Subscription> onRegistered) {
         synchronizeSession();
-        Subscription subscription = new Subscription(authors, online, listener);
+        Subscription subscription = new Subscription(authors, online, owner, listener);
         subscriptions.add(subscription);
         onRegistered.accept(subscription);
         subscription.publish();
         if (loaded && online && subscription.isActive()) {
             enqueueMissing(subscription);
-            dispatch();
+            if (owner == null || (owner.foreground && !owner.closed)) dispatch();
         }
         return subscription;
     }
@@ -200,6 +258,7 @@ public final class AuthorLocationRepository {
     public void invalidateSession() {
         currentEpoch.valid = false;
         queue.clear();
+        rounds.clear();
         cancelWakeup();
         for (Subscription subscription : new ArrayList<>(subscriptions)) {
             if (subscription.listener != null) {
@@ -232,32 +291,40 @@ public final class AuthorLocationRepository {
         long now = clock.getAsLong();
         for (int author : subscription.authors) {
             AuthorLocationCache.Key key = new AuthorLocationCache.Key(session, author);
-            if (cache.get(key, now) != null || queue.containsKey(key)
-                    || (inFlight != null && inFlight.epoch == currentEpoch && inFlight.key.equals(key))) {
-                continue;
+            AuthorLocationCache.Entry cached = cache.get(key, now);
+            // A cache-satisfied demand is complete. Resuming it after TTL/cooldown expiry
+            // is not a new online delivery and must not create another lookup.
+            if (cached != null) {
+                subscription.finished.add(author);
             }
-            queue.put(key, new Job(key, session, currentEpoch));
+            if (!subscription.needs(author, true) || cached != null || queue.containsKey(key)
+                    || (inFlight != null && !inFlight.cancelled
+                    && inFlight.epoch == currentEpoch && inFlight.key.equals(key))) continue;
+            Job job = rounds.get(key);
+            if (job == null) {
+                job = new Job(key, session, currentEpoch);
+                rounds.put(key, job);
+            }
+            queue.put(key, job);
         }
     }
 
+    private boolean needed(int author, boolean foregroundOnly) {
+        for (Subscription subscription : subscriptions) {
+            if (subscription.needs(author, foregroundOnly)) return true;
+        }
+        return false;
+    }
+
     private void pruneQueue() {
-        Iterator<Map.Entry<AuthorLocationCache.Key, Job>> iterator = queue.entrySet().iterator();
-        while (iterator.hasNext()) {
-            int author = iterator.next().getKey().author;
-            boolean needed = false;
-            for (Subscription subscription : subscriptions) {
-                if (subscription.isActive() && subscription.online && subscription.authors.contains(author)) {
-                    needed = true;
-                    break;
-                }
-            }
-            if (!needed) {
-                iterator.remove();
-            }
+        queue.entrySet().removeIf(entry -> !needed(entry.getKey().author, true));
+        rounds.entrySet().removeIf(entry -> !needed(entry.getKey().author, false));
+        if (inFlight != null && inFlight.epoch == currentEpoch
+                && !needed(inFlight.key.author, true) && !inFlight.cancelled) {
+            inFlight.cancelled = true;
+            if (inFlight.cancellation != null) inFlight.cancellation.cancel();
         }
-        if (queue.isEmpty()) {
-            cancelWakeup();
-        }
+        if (queue.isEmpty()) cancelWakeup();
     }
 
     private void cancelWakeup() {
@@ -297,9 +364,18 @@ public final class AuthorLocationRepository {
             cancelWakeup();
             queue.remove(key);
             inFlight = job;
+            job.cancelled = false;
+            job.cancellation = null;
             try {
                 job.cancellation = transport.fetch(job.session, key.author,
                         result -> completionExecutor.execute(() -> complete(job, result)));
+                // A transport may reenter owner/session state before returning its handle.
+                // Cancel that handle only while this physical request still owns the slot;
+                // a synchronous terminal callback may already have released it.
+                if (inFlight == job && (job.cancelled || job.epoch != currentEpoch)
+                        && job.cancellation != null) {
+                    job.cancellation.cancel();
+                }
             } catch (RuntimeException ignored) {
                 completionExecutor.execute(() -> complete(job, ProfileLocationResult.failure()));
             }
@@ -316,7 +392,8 @@ public final class AuthorLocationRepository {
         // Keep the full pacing interval after every physical call, including failure/cancellation.
         // This app-wide deadline survives page and account changes; wall-clock edits cannot
         // shorten it. Waiting after completion also avoids bursts after a slow connection.
-        nextRequestAt = AuthorLocationCache.addTime(elapsedClock.getAsLong(), REQUEST_INTERVAL_MILLIS);
+        long gap = Math.max(200, Math.min(500, interval.getAsLong()));
+        nextRequestAt = AuthorLocationCache.addTime(elapsedClock.getAsLong(), gap);
         long now = clock.getAsLong();
         // A response can already be queued here when a UI/account signal invalidates its
         // consumers. Server stops still belong to the captured scope/session, not that UI epoch.
@@ -334,6 +411,13 @@ public final class AuthorLocationRepository {
             dispatch();
             return;
         }
+        if (job.cancelled) {
+            // Cancellation neither consumes an attempt nor populates the author cache.
+            // A resume may already have queued this same round while the slot was held.
+            for (Subscription subscription : new ArrayList<>(subscriptions)) enqueueMissing(subscription);
+            dispatch();
+            return;
+        }
         switch (result.kind) {
             case SUCCESS:
                 cache.observe(job.key, result.location, now);
@@ -341,12 +425,29 @@ public final class AuthorLocationRepository {
             case FAILURE:
                 cache.fail(job.key, now);
                 break;
+            case NETWORK_FAILURE:
+                job.networkFailures++;
+                if (job.networkFailures < 2) {
+                    if (needed(job.key.author, true)) queue.put(job.key, job);
+                } else {
+                    cache.failNetwork(job.key, now);
+                }
+                break;
             case RATE_LIMIT:
                 break;
             case SESSION_REJECTED:
                 break;
         }
-        if (result.kind == ProfileLocationResult.Kind.SUCCESS || result.kind == ProfileLocationResult.Kind.FAILURE) {
+        if (result.kind != ProfileLocationResult.Kind.NETWORK_FAILURE || job.networkFailures >= 2) {
+            rounds.remove(job.key);
+            for (Subscription subscription : subscriptions) {
+                if (subscription.online && subscription.authors.contains(job.key.author)) {
+                    subscription.finished.add(job.key.author);
+                }
+            }
+        }
+        if (result.kind == ProfileLocationResult.Kind.SUCCESS || result.kind == ProfileLocationResult.Kind.FAILURE
+                || (result.kind == ProfileLocationResult.Kind.NETWORK_FAILURE && job.networkFailures >= 2)) {
             persist.accept(cache.snapshot());
         }
         for (Subscription subscription : new ArrayList<>(subscriptions)) {

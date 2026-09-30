@@ -3,7 +3,7 @@ package sp.phone.profile;
 /** No raw response or account material crosses the supplemental read boundary. */
 public final class ProfileLocationResult {
 
-    public enum Kind { SUCCESS, FAILURE, RATE_LIMIT, SESSION_REJECTED }
+    public enum Kind { SUCCESS, FAILURE, NETWORK_FAILURE, RATE_LIMIT, SESSION_REJECTED }
 
     public final Kind kind;
     public final String location;
@@ -21,6 +21,10 @@ public final class ProfileLocationResult {
 
     public static ProfileLocationResult failure() {
         return new ProfileLocationResult(Kind.FAILURE, null, 0);
+    }
+
+    public static ProfileLocationResult networkFailure() {
+        return new ProfileLocationResult(Kind.NETWORK_FAILURE, null, 0);
     }
 
     public static ProfileLocationResult rejected() {

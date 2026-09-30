@@ -28,7 +28,7 @@ class ArticleAuthorLocationContractTest {
         assertFalse(delivery.contains("RESUMED"))
         assertFalse(delivery.contains("getCurrentFragment"))
         assertFalse(delivery.contains("getPrefetchPages"))
-        assertTrue(fragment.contains("AuthorLocationService.bind(getContext(), getViewLifecycleOwner()"))
+        assertTrue(fragment.contains("AuthorLocationService.bind(getContext(), requireActivity(), getViewLifecycleOwner()"))
         val rebind = fragment.substringAfter("public void onViewCreated(View view, Bundle savedInstanceState)")
             .substringBefore("public void onDestroyView()")
         assertTrue(rebind.contains("renderData(mDeliveredData)"))
@@ -87,6 +87,22 @@ class ArticleAuthorLocationContractTest {
         val controller = source("java/sp/phone/profile/AuthorLocationPage.java")
         assertTrue(controller.contains("private final WeakReference<AuthorLocationPage> owner"))
         assertFalse(controller.contains("android."))
+    }
+
+    @Test
+    fun wholeActivityForegroundOwnsAllPagesWithoutFragmentVisibilityGates() {
+        val service = source("java/sp/phone/profile/AuthorLocationService.java")
+        val owner = service.substringAfter("private AuthorLocationRepository.Owner threadOwner(")
+            .substringBefore("private void observeAccount")
+        assertTrue(owner.contains("threadOwners.get(lifecycleOwner)"))
+        assertTrue(owner.substringAfter("onResume(").substringBefore("onPause(")
+            .contains("owner.setForeground(true)"))
+        assertTrue(owner.substringAfter("onPause(").substringBefore("onDestroy(")
+            .contains("owner.setForeground(false)"))
+        assertTrue(owner.substringAfter("onDestroy(").contains("owner.close()"))
+        val page = service.substringAfter("public static final class Page")
+        assertFalse(page.contains("onPause("))
+        assertFalse(page.contains("onStop("))
     }
 
     @Test

@@ -90,10 +90,15 @@ final class AuthorLocationStore {
             row.put("origin", entry.key.origin);
             row.put("account", entry.key.account);
             row.put("author", entry.key.author);
-            row.put("kind", entry.kind.name());
+            // Keep v1 readable by older builds: they conservatively retain the legacy failure
+            // duration, while this build recognizes the explicitly bounded network cooldown.
+            boolean network = entry.kind == AuthorLocationCache.Kind.NETWORK_FAILURE;
+            row.put("kind", network ? "FAILURE" : entry.kind.name());
+            if (network) row.put("networkExpires", entry.expiresAt);
             row.put("location", entry.location);
             row.put("observed", entry.observedAt);
-            row.put("expires", entry.expiresAt);
+            row.put("expires", network ? AuthorLocationCache.addTime(entry.observedAt,
+                    AuthorLocationCache.FAILURE_MILLIS) : entry.expiresAt);
             rows.add(row);
         }
         root.put("entries", rows);
@@ -125,6 +130,7 @@ final class AuthorLocationStore {
             Object location = row.get("location");
             if (origin == null || !origin.equals(ProfileSession.normalizeOrigin(origin))
                     || !ProfileSession.isUid(account, true) || observed < 0 || expires <= observed
+                    || kind == AuthorLocationCache.Kind.NETWORK_FAILURE // memory-only kind; wire uses FAILURE
                     || !(location == null || location instanceof String)
                     || (location != null && !ProfileLocationParser.isDisplayableLocation((String) location))
                     || (kind == AuthorLocationCache.Kind.RATE_LIMIT ? author != 0 : author <= 0)
@@ -136,6 +142,15 @@ final class AuthorLocationStore {
                     || (kind == AuthorLocationCache.Kind.RATE_LIMIT
                     && expires < AuthorLocationCache.addTime(observed, AuthorLocationCache.RATE_LIMIT_MILLIS))) {
                 return Collections.emptyList();
+            }
+            if (row.containsKey("networkExpires")) {
+                long networkExpires = row.getLongValue("networkExpires");
+                if (kind != AuthorLocationCache.Kind.FAILURE || networkExpires !=
+                        AuthorLocationCache.addTime(observed, AuthorLocationCache.NETWORK_FAILURE_MILLIS)) {
+                    return Collections.emptyList();
+                }
+                kind = AuthorLocationCache.Kind.NETWORK_FAILURE;
+                expires = networkExpires;
             }
             result.add(new AuthorLocationCache.Entry(
                     new AuthorLocationCache.Key(origin, account, author), kind,

@@ -9,6 +9,7 @@ import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.MutableLiveData;
 
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
@@ -17,6 +18,8 @@ import com.justwent.androidnga.bu.UserManager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -38,6 +41,7 @@ public final class AuthorLocationService {
     private final SharedPreferences preferences;
     // SharedPreferences keeps listeners weakly; keep this app-only listener alive.
     private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener;
+    private final Map<LifecycleOwner, AuthorLocationRepository.Owner> threadOwners = new WeakHashMap<>();
     private boolean sessionPending;
     private long sessionSignal;
 
@@ -74,10 +78,10 @@ public final class AuthorLocationService {
         return instance;
     }
 
-    public static Page bind(Context context, LifecycleOwner owner,
+    public static Page bind(Context context, LifecycleOwner threadOwner, LifecycleOwner owner,
                             Consumer<AuthorLocationRepository.Snapshot> display) {
         AuthorLocationService service = get(context);
-        Page page = new Page(service);
+        Page page = new Page(service, service.threadOwner(threadOwner));
         page.updates.observe(owner, delivery -> {
             if (page.controller.isCurrent(delivery)) {
                 display.accept(delivery.snapshot);
@@ -86,6 +90,27 @@ public final class AuthorLocationService {
         owner.getLifecycle().addObserver(page);
         service.observeAccount(owner);
         return page;
+    }
+
+    private AuthorLocationRepository.Owner threadOwner(LifecycleOwner lifecycleOwner) {
+        AuthorLocationRepository.Owner existing = threadOwners.get(lifecycleOwner);
+        if (existing != null) return existing;
+        AuthorLocationRepository.Owner owner = repository.createOwner();
+        threadOwners.put(lifecycleOwner, owner);
+        lifecycleOwner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+            @Override public void onResume(@NonNull LifecycleOwner source) {
+                owner.setForeground(true);
+            }
+            @Override public void onPause(@NonNull LifecycleOwner source) {
+                owner.setForeground(false);
+            }
+            @Override public void onDestroy(@NonNull LifecycleOwner source) {
+                owner.close();
+                threadOwners.remove(source);
+            }
+        });
+        owner.setForeground(lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED));
+        return owner;
     }
 
     private void observeAccount(LifecycleOwner owner) {
@@ -174,10 +199,10 @@ public final class AuthorLocationService {
         private final MutableLiveData<AuthorLocationPage.Delivery> updates = new MutableLiveData<>();
         private final AuthorLocationPage controller;
 
-        private Page(AuthorLocationService service) {
+        private Page(AuthorLocationService service, AuthorLocationRepository.Owner threadOwner) {
             this.service = service;
             controller = new AuthorLocationPage(service.repository, service::whenSessionSettled,
-                    () -> service.sessionSignal, updates::setValue);
+                    () -> service.sessionSignal, updates::setValue, threadOwner);
         }
 
         /** Accepts fresh page data; READY replays only restore the current metadata. */

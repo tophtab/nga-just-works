@@ -76,7 +76,7 @@ final class ProfileLocationTransport implements AuthorLocationRepository.Transpo
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException error) {
-                callback.accept(ProfileLocationResult.failure());
+                callback.accept(ProfileLocationResult.networkFailure());
             }
 
             @Override
@@ -84,7 +84,9 @@ final class ProfileLocationTransport implements AuthorLocationRepository.Transpo
                 ProfileLocationResult result;
                 try (Response closeable = response) {
                     result = readResponse(closeable, author, clock.getAsLong());
-                } catch (IOException | RuntimeException ignored) {
+                } catch (IOException ignored) {
+                    result = ProfileLocationResult.networkFailure();
+                } catch (RuntimeException ignored) {
                     result = ProfileLocationResult.failure();
                 }
                 callback.accept(result);

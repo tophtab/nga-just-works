@@ -26,6 +26,54 @@ import sp.phone.http.bean.ThreadRowInfo;
 public class AuthorLocationRepositoryTest {
 
     @Test
+    public void reentrantPauseBeforeFetchReturnsCancelsHandleAndKeepsPhysicalSlot() {
+        for (boolean invalidateSession : new boolean[]{false, true}) {
+            AuthorLocationRepository[] repository = new AuthorLocationRepository[1];
+            AuthorLocationRepository.Owner[] owner = new AuthorLocationRepository.Owner[1];
+            List<Consumer<ProfileLocationResult>> callbacks = new ArrayList<>();
+            int[] cancellations = {0};
+            repository[0] = new AuthorLocationRepository((session, author, callback) -> {
+                callbacks.add(callback);
+                if (invalidateSession) repository[0].invalidateSession();
+                else {
+                    owner[0].setForeground(false);
+                    owner[0].setForeground(true);
+                }
+                return () -> cancellations[0]++;
+            }, () -> 1000L, () -> 0L,
+                    () -> ProfileSession.create("https://bbs.nga.cn", "7", "fixture", "UA"),
+                    Runnable::run, (action, delay) -> () -> { }, entries -> { }, () -> 200L);
+            repository[0].restore(Collections.emptyList());
+            owner[0] = repository[0].createOwner();
+            owner[0].setForeground(true);
+            repository[0].subscribe(Arrays.asList(41, 42), true, owner[0],
+                    snapshot -> { }, registered -> { });
+            assertEquals(1, cancellations[0]);
+            owner[0].setForeground(true);
+            repository[0].subscribe(Collections.singletonList(43), true, snapshot -> { });
+            assertEquals(1, callbacks.size());
+            callbacks.get(0).accept(ProfileLocationResult.networkFailure());
+            assertEquals(1, callbacks.size()); // terminal callback starts the pacing interval
+        }
+    }
+
+    @Test
+    public void synchronousCompletionDoesNotCancelAlreadyFinishedHandle() {
+        int[] cancellations = {0};
+        AuthorLocationRepository repository = new AuthorLocationRepository((session, author, callback) -> {
+            callback.accept(ProfileLocationResult.success("广东"));
+            return () -> cancellations[0]++;
+        }, () -> 1000L, () -> 0L,
+                () -> ProfileSession.create("https://bbs.nga.cn", "7", "fixture", "UA"),
+                Runnable::run, (action, delay) -> () -> { }, entries -> { }, () -> 200L);
+        repository.restore(Collections.emptyList());
+        AuthorLocationRepository.Subscription subscription = repository.subscribe(
+                Collections.singletonList(41), true, snapshot -> { });
+        subscription.close();
+        assertEquals(0, cancellations[0]);
+    }
+
+    @Test
     public void fastCompletionCannotStartNextAuthorWithin500Millis() {
         for (ProfileLocationResult result : Arrays.asList(
                 ProfileLocationResult.success("广东"), ProfileLocationResult.failure())) {
@@ -513,10 +561,11 @@ public class AuthorLocationRepositoryTest {
         h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
         assertEquals(remainingEvents, alive.results.size());
         assertEquals(2, h.transport.authors().size());
-        // An already sent request can finish into the same valid cache after view destruction.
+        // An orphaned physical call is cancelled and cannot populate cache, even if its
+        // success was already queued. A genuinely new online delivery starts a new call.
         Page revisited = h.deliver(page(43), true);
-        assertEquals("上海", revisited.latest().location(43, h.now));
-        assertEquals(2, h.transport.authors().size());
+        assertNull(revisited.latest().location(43, h.now));
+        assertEquals(3, h.transport.authors().size());
     }
 
     @Test
@@ -584,6 +633,153 @@ public class AuthorLocationRepositoryTest {
         assertNull(page.latest().location(41, h.now));
     }
 
+    @Test
+    public void threadPauseCancelsPhysicalCallAndResumePreservesRetryRound() {
+        Harness h = new Harness();
+        AuthorLocationRepository.Owner owner = h.repository.createOwner();
+        owner.setForeground(true);
+        h.deliver(owner, true, 41, 42);
+        h.completeAndWaitInterval(ProfileLocationResult.networkFailure());
+        assertEquals(Arrays.asList(41, 42), h.transport.authors());
+        owner.setForeground(false);
+        assertTrue(h.transport.active.cancelled);
+        owner.setForeground(true);
+        h.advanceElapsedBy(1000);
+        assertEquals(2, h.transport.authors().size());
+        h.completeAndWaitInterval(ProfileLocationResult.networkFailure()); // cancelled 42
+        assertTrue(h.persisted.isEmpty());
+        // Demand order may change on resume, but 41 still has exactly one retry left.
+        assertEquals(41, h.transport.active.author);
+        h.completeAndWaitInterval(ProfileLocationResult.networkFailure());
+        assertEquals(AuthorLocationCache.Kind.NETWORK_FAILURE, h.persisted.get(0).kind);
+        assertEquals(30_000, h.persisted.get(0).expiresAt - h.persisted.get(0).observedAt);
+        h.completeAndWaitInterval(ProfileLocationResult.success("上海"));
+        h.now += 30_000;
+        owner.setForeground(false);
+        owner.setForeground(true);
+        assertEquals(Arrays.asList(41, 42, 41, 42), h.transport.authors());
+        h.deliver(owner, true, 41);
+        assertEquals(Arrays.asList(41, 42, 41, 42, 41), h.transport.authors());
+    }
+
+    @Test
+    public void sharedForegroundOwnerKeepsCallAndOfflineOwnerNeverResumesWork() {
+        Harness h = new Harness();
+        AuthorLocationRepository.Owner first = h.repository.createOwner();
+        AuthorLocationRepository.Owner second = h.repository.createOwner();
+        first.setForeground(true);
+        second.setForeground(true);
+        h.deliver(first, true, 41, 42);
+        h.deliver(second, true, 41, 43);
+        first.setForeground(false);
+        assertFalse(h.transport.active.cancelled);
+        h.completeAndWaitInterval(ProfileLocationResult.success("广东"));
+        assertEquals(Arrays.asList(41, 43), h.transport.authors());
+        second.close();
+        assertTrue(h.transport.active.cancelled);
+        h.completeAndWaitInterval(ProfileLocationResult.failure());
+        h.deliver(first, false, 99);
+        first.setForeground(true);
+        assertEquals(Arrays.asList(41, 43, 42), h.transport.authors());
+        h.completeAndWaitInterval(ProfileLocationResult.success(null));
+        assertNull(h.transport.active);
+        first.close();
+    }
+
+    @Test
+    public void networkRetryGoesToTailOnceAndCooldownChurnCannotCreateThirdAttempt() {
+        Harness h = new Harness();
+        AuthorLocationRepository.Owner owner = h.repository.createOwner();
+        owner.setForeground(true);
+        h.deliver(owner, true, 41, 42, 43);
+        h.complete(ProfileLocationResult.networkFailure());
+        h.deliver(owner, true, 41);
+        h.advanceElapsedBy(500);
+        h.completeAndWaitInterval(ProfileLocationResult.success(null));
+        h.completeAndWaitInterval(ProfileLocationResult.success(null));
+        assertEquals(Arrays.asList(41, 42, 43, 41), h.transport.authors());
+        h.completeAndWaitInterval(ProfileLocationResult.networkFailure());
+        h.deliver(owner, true, 41); // born inside cooldown, cannot become a new round on resume
+        assertEquals(0, h.scheduledCount());
+        h.now += 30_000;
+        h.advanceElapsedBy(30_000);
+        owner.setForeground(false);
+        owner.setForeground(true);
+        assertEquals(4, h.transport.authors().size());
+        h.deliver(owner, true, 41);
+        assertEquals(5, h.transport.authors().size());
+    }
+
+    @Test
+    public void bothRandomIntervalEndpointsApplyOnlyAfterTerminalCallback() {
+        for (long gap : new long[]{200, 500}) {
+            Harness h = new Harness();
+            h.interval = gap;
+            h.deliver(page(41, 42), true);
+            assertEquals(Collections.singletonList(0L), h.transport.startTimes());
+            h.advanceElapsedBy(900);
+            h.complete(ProfileLocationResult.success(null));
+            h.advanceElapsedBy(gap - 1);
+            assertEquals(1, h.transport.authors().size());
+            h.advanceElapsedBy(1);
+            assertEquals(Arrays.asList(0L, 900 + gap), h.transport.startTimes());
+        }
+    }
+
+    @Test
+    public void pausedOwnersStillRecordLateServerStopsBeforeDiscardingCancelledResults() {
+        for (ProfileLocationResult stop : Arrays.asList(ProfileLocationResult.rejected(),
+                ProfileLocationResult.rateLimit(0))) {
+            Harness h = new Harness();
+            AuthorLocationRepository.Owner owner = h.repository.createOwner();
+            owner.setForeground(true);
+            h.deliver(owner, true, 41, 42);
+            h.networkCompleted(stop);
+            owner.setForeground(false);
+            owner.setForeground(true);
+            h.drainCompletions();
+            h.advanceElapsedBy(500);
+            h.deliver(owner, true, 43);
+            assertEquals(Collections.singletonList(41), h.transport.authors());
+            assertEquals(0, h.scheduledCount());
+            if (stop.kind == ProfileLocationResult.Kind.RATE_LIMIT) {
+                assertEquals(AuthorLocationCache.Kind.RATE_LIMIT, h.persisted.get(0).kind);
+            }
+        }
+    }
+
+    @Test
+    public void resumeAfterFirstFailureStillOnlyHasOneRetryEvenWithDuplicateConsumer() {
+        Harness h = new Harness();
+        AuthorLocationRepository.Owner owner = h.repository.createOwner();
+        owner.setForeground(true);
+        h.deliver(owner, true, 41);
+        h.complete(ProfileLocationResult.networkFailure());
+        owner.setForeground(false); // retry waiting for deadline
+        h.deliver(owner, true, 41);
+        h.advanceElapsedBy(1000);
+        assertNull(h.transport.active);
+        owner.setForeground(true);
+        h.completeAndWaitInterval(ProfileLocationResult.networkFailure());
+        assertEquals(Arrays.asList(41, 41), h.transport.authors());
+        assertEquals(AuthorLocationCache.Kind.NETWORK_FAILURE, h.persisted.get(0).kind);
+    }
+
+    @Test
+    public void cacheOnlyOwnerResumeDoesNotUnpauseAnotherThreadsQueue() {
+        Harness h = new Harness();
+        h.deliver(page(41, 42), true);
+        h.completeAndWaitInterval(ProfileLocationResult.rateLimit(0));
+        h.now += AuthorLocationCache.RATE_LIMIT_MILLIS;
+        AuthorLocationRepository.Owner offline = h.repository.createOwner();
+        offline.setForeground(true);
+        h.deliver(offline, false, 99);
+        offline.setForeground(false);
+        offline.setForeground(true);
+        assertEquals(Collections.singletonList(41), h.transport.authors());
+        assertEquals(0, h.scheduledCount());
+    }
+
     private static ThreadData page(int... authors) {
         ThreadData page = new ThreadData();
         List<ThreadRowInfo> rows = new ArrayList<>();
@@ -609,13 +805,14 @@ public class AuthorLocationRepositoryTest {
     private static final class Harness {
         long now = 1_700_000_000_000L;
         long elapsed;
+        long interval = 500;
         ProfileSession session = ProfileSession.create("https://bbs.nga.cn", "7", "fixture-session", "Fixture UA");
         List<AuthorLocationCache.Entry> persisted = Collections.emptyList();
         final FakeTransport transport = new FakeTransport(() -> elapsed);
         final Queue<Runnable> completions = new ArrayDeque<>();
         final List<ScheduledAction> timers = new ArrayList<>();
         final AuthorLocationRepository repository = new AuthorLocationRepository(transport, () -> now,
-                () -> elapsed, () -> session, completions::add, this::schedule, entries -> persisted = entries);
+                () -> elapsed, () -> session, completions::add, this::schedule, entries -> persisted = entries, () -> interval);
 
         Harness() {
             this(Collections.emptyList());
@@ -635,6 +832,10 @@ public class AuthorLocationRepositoryTest {
             Page page = new Page();
             page.subscription = repository.subscribe(ArticleAuthorIds.fromPage(data), online, page.results::add);
             return page;
+        }
+
+        void deliver(AuthorLocationRepository.Owner owner, boolean online, Integer... authors) {
+            repository.subscribe(Arrays.asList(authors), online, owner, snapshot -> { }, registered -> { });
         }
 
         void complete(ProfileLocationResult result) {

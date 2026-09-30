@@ -436,7 +436,7 @@ public class AuthorLocationPageTest {
                     Timer timer = new Timer(action, elapsed + delay);
                     timers.add(timer);
                     return () -> timer.cancelled = true;
-                }, entries -> { });
+                }, entries -> { }, () -> 500L);
 
         Harness() { repository.restore(Collections.emptyList()); }
 

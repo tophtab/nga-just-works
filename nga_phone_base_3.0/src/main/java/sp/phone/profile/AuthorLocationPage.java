@@ -21,6 +21,7 @@ final class AuthorLocationPage implements AutoCloseable {
     }
 
     private final AuthorLocationRepository repository;
+    private final AuthorLocationRepository.Owner threadOwner;
     private final Executor whenSessionSettled;
     private final LongSupplier sessionSignal;
     private final Consumer<Delivery> display;
@@ -33,6 +34,13 @@ final class AuthorLocationPage implements AutoCloseable {
 
     AuthorLocationPage(AuthorLocationRepository repository, Executor whenSessionSettled,
                        LongSupplier sessionSignal, Consumer<Delivery> display) {
+        this(repository, whenSessionSettled, sessionSignal, display, null);
+    }
+
+    AuthorLocationPage(AuthorLocationRepository repository, Executor whenSessionSettled,
+                       LongSupplier sessionSignal, Consumer<Delivery> display,
+                       AuthorLocationRepository.Owner threadOwner) {
+        this.threadOwner = threadOwner;
         this.repository = repository;
         this.whenSessionSettled = whenSessionSettled;
         this.sessionSignal = sessionSignal;
@@ -72,7 +80,7 @@ final class AuthorLocationPage implements AutoCloseable {
         long version = ++generation;
         AuthorLocationRepository.Subscription previous = subscription;
         subscription = null;
-        AuthorLocationRepository.Subscription replacement = repository.subscribe(authors, online,
+        AuthorLocationRepository.Subscription replacement = repository.subscribe(authors, online, threadOwner,
                 new DeliverySink(this, version, previous), registered -> {
                     if (!closed && generation == version) subscription = registered;
                     else registered.close();

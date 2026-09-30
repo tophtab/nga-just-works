@@ -71,6 +71,36 @@ public class AuthorLocationStoreTest {
     }
 
     @Test
+    public void networkCooldownCoexistsWithLegacyFailuresObservationsAndPause() throws Exception {
+        File file = directory.newFile();
+        AuthorLocationCache cache = new AuthorLocationCache();
+        cache.observe(new AuthorLocationCache.Key(session, 41), "广东", now);
+        cache.fail(new AuthorLocationCache.Key(session, 42), now);
+        cache.failNetwork(new AuthorLocationCache.Key(session, 43), now);
+        cache.pause(session, now, 0);
+        AuthorLocationStore store = new AuthorLocationStore(file);
+        store.write(cache.snapshot());
+        AuthorLocationCache restored = new AuthorLocationCache();
+        restored.restore(store.read(), now);
+        assertEquals(4, restored.snapshot().size());
+        assertEquals(AuthorLocationCache.Kind.NETWORK_FAILURE,
+                restored.get(new AuthorLocationCache.Key(session, 43), now + 29_999).kind);
+        assertNull(restored.get(new AuthorLocationCache.Key(session, 43), now + 30_000));
+        assertNotNull(restored.get(new AuthorLocationCache.Key(session, 42), now + 30_000));
+        assertEquals("广东", restored.get(new AuthorLocationCache.Key(session, 41), now + 30_000).location);
+        assertTrue(restored.isPaused(session, now + 30_000));
+        JSONObject root = JSON.parseObject(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8));
+        JSONObject network = root.getJSONArray("entries").getJSONObject(2);
+        assertEquals("FAILURE", network.getString("kind"));
+        assertEquals(now + AuthorLocationCache.FAILURE_MILLIS, network.getLongValue("expires"));
+        // Removing the optional extension models an old build retaining its legacy cooldown.
+        network.remove("networkExpires");
+        Files.write(file.toPath(), root.toJSONString().getBytes(StandardCharsets.UTF_8));
+        assertEquals(4, store.read().size());
+        assertEquals(AuthorLocationCache.Kind.FAILURE, store.read().get(2).kind);
+    }
+
+    @Test
     public void cacheKeepsOnlyLatestObservationAndBoundsOldestEntries() {
         AuthorLocationCache cache = new AuthorLocationCache();
         for (int uid = 1; uid <= 1005; uid++) {

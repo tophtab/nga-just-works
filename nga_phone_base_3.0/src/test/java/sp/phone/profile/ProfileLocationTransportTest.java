@@ -139,6 +139,28 @@ public class ProfileLocationTransportTest {
     }
 
     @Test
+    public void transportIoFailuresAreRetryableWhileMalformedProfilesAreNot() throws Exception {
+        for (boolean networkFailure : new boolean[]{true, false}) {
+            CountDownLatch done = new CountDownLatch(1);
+            AtomicReference<ProfileLocationResult> result = new AtomicReference<>();
+            OkHttpClient offline = ProfileLocationTransport.newClient().newBuilder()
+                    .addInterceptor(chain -> {
+                        if (networkFailure) throw new java.net.SocketTimeoutException("offline fixture");
+                        return response(chain.request(), 200, ResponseBody.create(null,
+                                "<script>__UCPUSER={uid:42,ipLoc:123};</script>"
+                                        .getBytes(StandardCharsets.US_ASCII)));
+                    }).build();
+            new ProfileLocationTransport(offline, () -> now).fetch(
+                    ProfileSession.create("https://bbs.nga.cn", "7", "fixture-session", "Fixture UA"),
+                    42, value -> { result.set(value); done.countDown(); });
+            assertTrue(done.await(5, TimeUnit.SECONDS));
+            assertEquals(networkFailure ? ProfileLocationResult.Kind.NETWORK_FAILURE
+                    : ProfileLocationResult.Kind.FAILURE, result.get().kind);
+            offline.dispatcher().executorService().shutdown();
+        }
+    }
+
+    @Test
     public void redirectAndAccessResponsesStopWithoutReadingTheirBodies() throws IOException {
         for (int code : new int[]{301, 302, 307, 401, 403, 404}) {
             Response response = response(request(), code, unreadableBody(1)).newBuilder()

@@ -10,11 +10,12 @@ import java.util.Objects;
 public final class AuthorLocationCache {
 
     public static final long FRESH_MILLIS = 24 * 60 * 60 * 1000L;
+    public static final long NETWORK_FAILURE_MILLIS = 30_000L;
     public static final long FAILURE_MILLIS = 10 * 60 * 1000L;
     public static final long RATE_LIMIT_MILLIS = 30 * 60 * 1000L;
     public static final int MAX_ENTRIES = 1000;
 
-    enum Kind { OBSERVATION, FAILURE, RATE_LIMIT }
+    enum Kind { OBSERVATION, FAILURE, NETWORK_FAILURE, RATE_LIMIT }
 
     static final class Key {
         final String origin;
@@ -98,6 +99,10 @@ public final class AuthorLocationCache {
 
     void fail(Key key, long now) {
         put(new Entry(key, Kind.FAILURE, null, now, addTime(now, FAILURE_MILLIS)));
+    }
+
+    void failNetwork(Key key, long now) {
+        put(new Entry(key, Kind.NETWORK_FAILURE, null, now, addTime(now, NETWORK_FAILURE_MILLIS)));
     }
 
     void pause(ProfileSession session, long now, long retryAt) {

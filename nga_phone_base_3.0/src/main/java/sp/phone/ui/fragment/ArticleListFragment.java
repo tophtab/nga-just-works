@@ -375,7 +375,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         mListView.setLayoutManager(new LinearLayoutManager(getContext()));
         mListView.setItemViewCacheSize(20);
         mListView.setAdapter(mArticleAdapter);
-        mAuthorLocations = AuthorLocationService.bind(getContext(), getViewLifecycleOwner(),
+        mAuthorLocations = AuthorLocationService.bind(getContext(), requireActivity(), getViewLifecycleOwner(),
                 mArticleAdapter::setAuthorLocations);
         mListView.setEmptyView(view.findViewById(R.id.empty_view));
         applyReplyFabClearance();
