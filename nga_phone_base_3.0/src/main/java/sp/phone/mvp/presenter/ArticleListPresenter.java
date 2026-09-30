@@ -138,7 +138,11 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
         mActiveKey = key;
         ThreadData handoff = explicitRefresh ? null : reader().takeHandoff(key.generation, key.page);
         if (handoff != null) {
-            String notice = ArticleNavigation.handoffNotice(handoff, reader().state().pendingAnchor);
+            ArticleAnchor anchor = reader().state().pendingAnchor;
+            String notice = ArticleNavigation.handoffNotice(handoff, anchor);
+            // This notice owns a failed App handoff; the view must not announce it a second time.
+            if (handoff.getPagingInfo().source == ArticleSource.APP_API && anchor != null
+                    && anchor.find(handoff.getRowList()) < 0) reader().consumeAnchor(anchor);
             mPageRequestState.requestForegroundLoad(false);
             showData(handoff);
             if (notice != null && mBaseView != null && mForeground) mBaseView.showToast(notice);

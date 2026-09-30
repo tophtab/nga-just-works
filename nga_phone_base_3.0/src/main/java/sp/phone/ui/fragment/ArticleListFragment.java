@@ -249,13 +249,13 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
     private void initData() {
         ArticleShareViewModel viewModel = getActivityViewModelProvider().get(ArticleShareViewModel.class);
         viewModel.getRefreshPage().observe(this, page -> {
-            if (page == mRequestParam.page) {
+            if (page != null && page == mRequestParam.page) {
                 loadPage();
             }
         });
 
         viewModel.getCachePage().observe(this, page -> {
-            if (page == mRequestParam.page) {
+            if (page != null && page == mRequestParam.page) {
                 mPresenter.cachePage();
             }
         });
@@ -333,17 +333,23 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         if (mRequestParam.loadCache || mDisplayedData == null || mListView == null || !isResumed()) return;
         ArticleReaderSession reader = getReaderViewModel().getReaderSession();
         if (mDisplayedData.getPagingInfo() == null || mDisplayedData.getPagingInfo().generation != reader.state().generation) return;
-        ArticleAnchor anchor = reader.consumeAnchor(mRequestParam.readerGeneration, mRequestParam.page);
-        if (anchor == null) return;
+        ArticleAnchor anchor = reader.state().pendingAnchor;
+        if (anchor == null || anchor.generation != mRequestParam.readerGeneration
+                || anchor.page != mRequestParam.page || reader.state().currentPage != anchor.page) return;
         int index = anchor.find(mDisplayedData.getRowList());
         if (index >= 0) {
             ThreadData displayed = mDisplayedData;
-            mListView.post(() -> {
-                if (mListView != null && isResumed() && mDisplayedData == displayed
+            View listView = mListView;
+            listView.post(() -> {
+                if (mListView == listView && isResumed() && mDisplayedData == displayed
+                        && getReaderViewModel().getReaderSession() == reader
                         && mRequestParam.readerGeneration == reader.state().generation
-                        && anchor.find(displayed.getRowList()) == index) mListView.scrollToPosition(index);
+                        && anchor.find(displayed.getRowList()) == index
+                        && reader.consumeAnchor(anchor)) mListView.scrollToPosition(index);
             });
-        } else showToast("未找到目标回复或楼层，阅读位置未能保留");
+        } else if (reader.consumeAnchor(anchor)) {
+            showToast("未找到目标回复或楼层，阅读位置未能保留");
+        }
     }
 
     @Override public void onResume() {

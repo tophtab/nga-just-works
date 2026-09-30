@@ -16,8 +16,8 @@ data class ArticleReaderState(
     fun canPrefetch() = source == ArticleSource.READ_PHP && query.kind == ArticleQueryKind.FULL && paging?.totalPages != null
 }
 
-class ArticleReaderSession(query: ArticleQuery, initialPage: Int) {
-    private var state = ArticleReaderState(query, currentPage = initialPage.coerceAtLeast(1))
+class ArticleReaderSession @JvmOverloads constructor(query: ArticleQuery, initialPage: Int, initialGeneration: Long = 1) {
+    private var state = ArticleReaderState(query, generation = initialGeneration, currentPage = initialPage.coerceAtLeast(1))
     private var accountFingerprint: String? = null
     private var compatEnabled = false
     private var origin: String? = null
@@ -36,7 +36,8 @@ class ArticleReaderSession(query: ArticleQuery, initialPage: Int) {
         if (origin == null) origin = modelOrigin
         handoff = null
         state = ArticleReaderState(state.query, if (initial) state.generation else state.generation + 1,
-            owner = if (enabled) owner else null, currentPage = page.coerceAtLeast(1))
+            owner = if (enabled) owner else null, currentPage = page.coerceAtLeast(1),
+            pendingAnchor = if (initial) state.pendingAnchor else null)
         return !initial
     }
 
@@ -56,6 +57,14 @@ class ArticleReaderSession(query: ArticleQuery, initialPage: Int) {
         if (anchor.generation != generation || anchor.page != page) return null
         state = state.copy(pendingAnchor = null)
         return anchor
+    }
+
+    /** Posted UI work must not consume a replacement jump, even to the same row. */
+    fun consumeAnchor(expected: ArticleAnchor): Boolean {
+        if (state.pendingAnchor !== expected || expected.generation != state.generation ||
+            expected.page != state.currentPage) return false
+        state = state.copy(pendingAnchor = null)
+        return true
     }
 
     /** 0 rejected; 1 delivered to this page; 2 handed to a recreated page of the new generation. */

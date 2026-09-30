@@ -36,6 +36,18 @@ class ArticleReaderUiContractTest {
         assertFalse(waiting.contains("showData("))
     }
 
+    @Test fun missingAppHandoffHasOneNoticeAndLegacyDataStillReachesTheAnchorConsumer() {
+        val handoff = presenter.substringAfter("if (handoff != null) {")
+            .substringBefore("ArticlePageRequestState.ForegroundLoadDecision decision")
+        assertTrue(handoff.indexOf("ArticleNavigation.handoffNotice") < handoff.indexOf("reader().consumeAnchor(anchor)"))
+        assertTrue(handoff.indexOf("reader().consumeAnchor(anchor)") < handoff.indexOf("showData(handoff)"))
+        assertTrue(handoff.contains("anchor.find(handoff.getRowList()) < 0"))
+        assertTrue(handoff.contains("source == ArticleSource.APP_API"))
+        val legacy = presenter.substringAfter("private class LegacyCallback").substringBefore("@Override public void onError(String message)")
+        assertTrue(legacy.contains("ArticlePagingInfo.normal(key.query, key.page, data)"))
+        assertTrue(legacy.contains("viewModel().adoptPage(key, data, mForeground)"))
+    }
+
     @Test fun localFloorLookupAndDelayedScrollUseActualRowsAndDisplayedDataIdentity() {
         val tab = source("sp/phone/ui/fragment/ArticleTabFragment")
         assertTrue(tab.contains("current.containsFloor(floor)"))
@@ -46,6 +58,10 @@ class ArticleReaderUiContractTest {
         assertTrue(anchor.contains("anchor.find(mDisplayedData.getRowList())"))
         assertTrue(anchor.contains("isResumed() && mDisplayedData == displayed"))
         assertTrue(anchor.contains("anchor.find(displayed.getRowList()) == index"))
+        assertTrue(anchor.contains("mListView == listView"))
+        assertTrue(anchor.contains("getReaderViewModel().getReaderSession() == reader"))
+        assertFalse(anchor.substringBefore("listView.post(").contains("consumeAnchor("))
+        assertTrue(anchor.substringAfter("listView.post(").contains("reader.consumeAnchor(anchor)"))
     }
 
     @Test fun rowBindingResetsUnknownScoreIdentityAndVariableWebViewRetention() {
