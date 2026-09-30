@@ -6,15 +6,17 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import sp.phone.param.ArticleListParam;
+import sp.phone.param.ArticleLinkParser;
+import sp.phone.mvp.viewmodel.ArticleShareViewModel;
 import sp.phone.param.ParamKey;
 import sp.phone.ui.fragment.ArticleSearchFragment;
 import sp.phone.ui.fragment.ArticleTabFragment;
-import sp.phone.util.StringUtils;
 
 /**
  * 帖子详情页, 是否MD都用这个
@@ -23,6 +25,7 @@ import sp.phone.util.StringUtils;
 public class ArticleListActivity extends BaseActivity {
 
     private ArticleListParam mRequestParam;
+    private boolean mPendingLaunch;
 
     private void setupFragment() {
         FragmentManager fm = getSupportFragmentManager();
@@ -50,12 +53,7 @@ public class ArticleListActivity extends BaseActivity {
         String url = getIntent().getDataString();
         ArticleListParam param = null;
         if (url != null) {
-            param = new ArticleListParam();
-            param.tid = StringUtils.getUrlParameter(url, "tid");
-            param.pid = StringUtils.getUrlParameter(url, "pid");
-            param.authorId = StringUtils.getUrlParameter(url, "authorid");
-            param.page = StringUtils.getUrlParameter(url, "page");
-            param.searchPost = StringUtils.getUrlParameter(url,ParamKey.KEY_SEARCH_POST);
+            param = ArticleLinkParser.parse(url);
         } else if (bundle != null) {
             param = bundle.getParcelable(ParamKey.KEY_PARAM);
             if (param == null) {
@@ -82,15 +80,48 @@ public class ArticleListActivity extends BaseActivity {
             finish();
             return;
         }
+        openReader(savedInstanceState == null);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        mRequestParam = getArticleListParam();
+        if (mRequestParam == null) {
+            finish();
+            return;
+        }
+        mPendingLaunch = true;
+        if (!getSupportFragmentManager().isStateSaved()) openReader(true);
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPendingLaunch && !isFinishing()) openReader(true);
+    }
+
+    private void openReader(boolean newLaunch) {
+        mPendingLaunch = false;
+        if (newLaunch) {
+            FragmentManager fm = getSupportFragmentManager();
+            fm.executePendingTransactions();
+            Fragment old = fm.findFragmentById(android.R.id.content);
+            // resetReader publishes synchronously: retire every old view observer first.
+            if (old != null) fm.beginTransaction().remove(old).commitNow();
+            new ViewModelProvider(this).get(ArticleShareViewModel.class).resetReader(mRequestParam);
+        }
         setupFragment();
-        if (mRequestParam.title != null) {
-            setTitle(mRequestParam.title);
+        if (newLaunch || mRequestParam.title != null) {
+            setTitle(mRequestParam.title == null ? "" : mRequestParam.title);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        getSupportFragmentManager().findFragmentById(android.R.id.content).onActivityResult(requestCode, resultCode, data);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(android.R.id.content);
+        if (fragment != null) fragment.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
     }
 }
