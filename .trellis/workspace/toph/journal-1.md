@@ -1896,3 +1896,45 @@ Diagnosed both failed 6.1.0/main runs: setup-android v3 default requested retire
 ### Status
 
 [OK] **Completed**
+
+
+## Session 73: Complete upstream adoption U1–U4 for 6.2.0
+<!-- trellis-session: v=2 fp=cbe89e230c984ff4 -->
+
+**Date**: 2026-10-01
+**Task**: Complete upstream adoption U1–U4 for 6.2.0
+**Branch**: `feat/upstream-adoption`
+
+### Summary
+
+Completed approved board icons, relative video, JSON2/data-layer B0–B5 and SDK36 adoption. Integrated main reply-search fix; all five tasks archived. Release 6.2.0 prepared for authorized atomic main/tag push from isolated worktree; source main test-simplification WIP preserved.
+
+### Main Changes
+
+- Preserved old data formats and immutable parity goldens; lifecycle-owned panel-first back handling; SDK36 with min29 and original app/signing identities.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `345db9cb` | docs(task): preserve approved upstream adoption plans and U1 evidence |
+| `4ccd7564` | feat(board): refresh derived icons from category metadata |
+| `88ce8be3` | feat(reader): support relative video tags and intrinsic layout |
+| `05c2602e` | test(json): pin legacy storage and parser baselines |
+| `1b4f8ade` | refactor(json): expose operation-local decode seams |
+| `4a4296c2` | refactor(json): migrate runtime consumers to fastjson2 |
+| `758aa6b9` | refactor(reader): add typed ordinary-read wire decoder |
+| `5595c8ed` | refactor(reader): map typed wire data through legacy facade |
+| `0eebe1e5` | Merge main reply-search fix into upstream adoption |
+| `c2131fe9` | refactor(reader): retire superseded parsing helpers |
+| `7d5ef21b` | feat(android): adopt SDK 36 and lifecycle-owned system back |
+| `965b42e9` | docs(release): finalize upstream adoption for 6.2.0 |
+
+### Testing
+
+- [OK] 820 JVM tests and 37 Python tests passed; all 13 fresh lint XMLs have zero Error/Fatal. Actual app R8, Preview Kotlin/Java, three manifests, new APK native ELF/ZIP16KB and R8 bean fixture passed independent review.
+- [OK] Only existing signing configuration loaded privately for guarded resource/R8/compile tasks; no Release/Preview APK packaging, device operations or real NGA traffic. CI publication is tag-driven and not polled after push.
+
+### Status
+
+[OK] **Completed**
