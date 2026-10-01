@@ -1,6 +1,6 @@
 package sp.phone.mvp.model.thread
 
-import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson2.JSON
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -33,7 +33,7 @@ class ArticleCacheStoreTest {
         try { block(); fail("Expected invalid cache operation") }
         catch (_: IllegalArgumentException) { }
         catch (_: java.io.IOException) { }
-        catch (_: com.alibaba.fastjson.JSONException) { }
+        catch (_: com.alibaba.fastjson2.JSONException) { }
     }
 
     @Test fun frozenOldWindowEnvelopeKeepsNullNumericTypesAndRawBytes() {
@@ -48,6 +48,12 @@ class ArticleCacheStoreTest {
             null, null, ArticlePageBasis.REQUESTED, false, owner = "42", generation = 99)
         val encoded = ArticleCacheCodec.encode(ArticleCacheWrite(entry, 7, topic, decoded.raw, page))
         assertEquals(tree, JSON.parseObject(encoded))
+        val oldRead = com.alibaba.fastjson.JSON.parseObject(encoded)
+        assertEquals(com.alibaba.fastjson.JSON.parseObject(golden), oldRead)
+        val oldReencoded = com.alibaba.fastjson.JSON.toJSONString(oldRead,
+            com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue)
+        assertEquals(decoded.raw, ArticleCacheCodec.decode(oldReencoded, entry, 7).raw)
+        assertEquals(decoded.raw, ArticleCacheCodec.decode(encoded, entry, 7).raw)
         assertTrue(JSON.parseObject(encoded).containsKey("pageSize"))
         for (key in listOf("version", "tid", "page", "requestedPage")) {
             assertTrue(JSON.parseObject(encoded)[key] is Int)

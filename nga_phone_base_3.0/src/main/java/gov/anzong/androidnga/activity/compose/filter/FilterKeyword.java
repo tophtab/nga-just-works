@@ -3,7 +3,7 @@ package gov.anzong.androidnga.activity.compose.filter;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONField;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

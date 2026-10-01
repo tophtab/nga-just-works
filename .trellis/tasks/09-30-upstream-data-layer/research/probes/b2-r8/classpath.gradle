@@ -1,0 +1,13 @@
+allprojects { p ->
+    afterEvaluate {
+        if (p.name == 'nga_phone_base_3.0') {
+            tasks.register('u3FixtureClasspath') {
+                dependsOn 'compileDebugUnitTestJavaWithJavac'
+                doLast {
+                    def t = tasks.named('testDebugUnitTest').get()
+                    file('/tmp/u3-b2-test-classpath.txt').text = t.classpath.files.collect { it.absolutePath }.join('\n')
+                }
+            }
+        }
+    }
+}

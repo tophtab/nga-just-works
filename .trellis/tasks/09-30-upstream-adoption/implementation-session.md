@@ -34,3 +34,9 @@
 - `05c2602e`：15项新增测试、9份旧格式golden，43生产/14测试消费者清单与逐存储/网络覆盖表。
 - 相关747项测试通过；独立check加固属地writer目标文件测试，9项类测试重跑通过；无产品改动。
 - 后续待补的Android回调/错误路径明确记录。B1开始，保持旧库，提取必要局部decode测试入口。
+
+## U3 B1 checkpoint
+
+- `1b4f8ade`：主题/NGA上传/外部头像上传三处局部decode入口，14项测试及6份jdata样本。
+- Debug构建、778项全模块测试、13模块lint 0 Error/Fatal、独立check PASS。
+- B2开始原子JSON2切换、完整存储三方向兼容与反射/R8验证；旧库仍只能作为测试oracle，不进入新runtime。

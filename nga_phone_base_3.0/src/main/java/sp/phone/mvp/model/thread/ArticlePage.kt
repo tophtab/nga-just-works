@@ -134,7 +134,7 @@ object ArticleNavigation {
             title = data?.threadInfo?.subject ?: param.title
             // Keep the launch description only after checking its identity. The save path fills gaps.
             topicInfo = param.topicInfo?.takeIf {
-                try { com.alibaba.fastjson.JSON.parseObject(it).getIntValue("tid") == tid }
+                try { com.alibaba.fastjson2.JSON.parseObject(it).getIntValue("tid") == tid }
                 catch (_: RuntimeException) { false }
             }
         }

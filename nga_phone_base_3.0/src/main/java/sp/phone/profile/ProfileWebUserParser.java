@@ -1,9 +1,8 @@
 package sp.phone.profile;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
 
 import java.util.Locale;
 
@@ -66,9 +65,8 @@ final class ProfileWebUserParser {
                         String json = userObject(html, cursor, scriptEnd);
                         if (json != null) {
                             if (close < 0) throw malformedData();
-                            int features = Feature.AutoCloseSource.mask | Feature.DisableSpecialKeyDetect.mask
-                                    | Feature.UseBigDecimal.mask;
-                            Object decoded = JSON.parse(json, new ParserConfig(), features);
+                            Object decoded = JSON.parse(json, JSONReader.Feature.AllowUnQuotedFieldNames,
+                    JSONReader.Feature.DisableReferenceDetect, JSONReader.Feature.DisableSingleQuote);
                             if (!(decoded instanceof JSONObject)) throw malformedData();
                             return (JSONObject) decoded;
                         }

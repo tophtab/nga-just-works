@@ -1,7 +1,7 @@
 package sp.phone.ai;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;

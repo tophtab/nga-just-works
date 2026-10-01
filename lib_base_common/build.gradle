@@ -55,7 +55,7 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    api "com.alibaba:fastjson:$fastJson_version"
+    api(libs.fastjson2)
     api "io.reactivex.rxjava2:rxandroid:$project.rxAndroid"
 
     implementation 'commons-io:commons-io:2.11.0'

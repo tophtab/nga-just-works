@@ -1,0 +1,28 @@
+
+> Configure project :lib_base_common
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+The current default is 'false'.
+It will be removed in version 9.0 of the Android Gradle plugin.
+To keep using this feature, add the following to your module-level build.gradle files:
+    android.buildFeatures.buildConfig = true
+or from Android Studio, click: `Refactor` > `Migrate BuildConfig to Gradle Build Files`.
+
+> Task :nga_phone_base_3.0:dependencyInsight
+com.alibaba:fastjson:1.2.69
+  Variant runtime:
+    | Attribute Name             | Provided     | Requested     |
+    |----------------------------|--------------|---------------|
+    | org.gradle.category        | library      |               |
+    | org.gradle.libraryelements | jar          |               |
+    | org.gradle.status          | release      |               |
+    | org.gradle.usage           | java-runtime | java-runtime  |
+    | artifactType               |              | processed-jar |
+
+com.alibaba:fastjson:1.2.69
+\--- com.alibaba:arouter-compiler:1.5.2
+     \--- kapt
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed

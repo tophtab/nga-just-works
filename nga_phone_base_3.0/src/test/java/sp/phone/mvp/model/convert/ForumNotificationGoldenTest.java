@@ -26,4 +26,9 @@ public class ForumNotificationGoldenTest {
     @Test public void emptyArraysRemainEmptyLists() {
         assertTrue(ForumNotificationFactory.buildRecentReplyList("{\"data\":{\"0\":{\"unread\":0,\"0\":[]}}}").isEmpty());
     }
+    @Test public void malformedAndBusinessErrorsStayAtTheExistingCatchBoundary() {
+        assertThrows(RuntimeException.class, () -> ForumNotificationFactory.decodeNotificationData("{"));
+        assertThrows(RuntimeException.class, () -> ForumNotificationFactory.decodeNotificationData("{\"error\":{\"0\":\"denied\"}}"));
+        assertNull(ForumNotificationFactory.decodeNotificationData("{\"data\":{}}"));
+    }
 }

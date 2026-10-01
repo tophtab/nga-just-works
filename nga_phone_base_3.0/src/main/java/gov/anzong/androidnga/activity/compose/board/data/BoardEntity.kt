@@ -4,7 +4,7 @@ import androidx.annotation.IntDef
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.alibaba.fastjson.annotation.JSONField
+import com.alibaba.fastjson2.annotation.JSONField
 import gov.anzong.androidnga.common.base.JavaBean
 
 class BoardEntity : JavaBean {

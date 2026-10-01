@@ -2,8 +2,8 @@ package sp.phone.mvp.model.convert;
 
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +113,7 @@ public class ArticleConvertFactory {
             return null;
         }
         try {
-            return JSONObject.toJavaObject(subObj, ThreadPageInfo.class);
+            return subObj.toJavaObject(ThreadPageInfo.class, com.alibaba.fastjson2.JSONReader.Feature.SupportSmartMatch);
         } catch (RuntimeException e) {
             // Invalid optional metadata must not leak the response to logs.
         }
@@ -172,7 +172,7 @@ public class ArticleConvertFactory {
                 if (invalidSubject) projected.remove("subject");
                 if (!isSourceScalar(projected.get("alterinfo"))) projected.remove("alterinfo");
             }
-            ThreadRowInfo row = JSONObject.toJavaObject(projected, ThreadRowInfo.class);
+            ThreadRowInfo row = projected.toJavaObject(ThreadRowInfo.class, com.alibaba.fastjson2.JSONReader.Feature.SupportSmartMatch);
             buildRowHotReplay(row, rowObj);
             buildRowComment(row, rowObj, userInfoMap, attachmentsPrefix, renderer, blacklist, topic, strict);
             buildRowClientInfo(row, rowObj);

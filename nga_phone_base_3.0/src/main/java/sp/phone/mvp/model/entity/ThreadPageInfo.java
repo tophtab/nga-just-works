@@ -1,7 +1,7 @@
 package sp.phone.mvp.model.entity;
 
 import androidx.annotation.NonNull;
-import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONField;
 import java.util.Objects;
 import sp.phone.mvp.model.thread.ArticleCacheEntry;
 
@@ -63,10 +63,12 @@ public class ThreadPageInfo implements JavaBean {
         return mMirrorBoard;
     }
 
+    @JSONField(alternateNames = {"postdate"})
     public int getPostDate() {
         return mPostDate;
     }
 
+    @JSONField(alternateNames = {"postdate"})
     public void setPostDate(int postDate) {
         mPostDate = postDate;
     }
@@ -95,18 +97,22 @@ public class ThreadPageInfo implements JavaBean {
         mFid = fid;
     }
 
+    @JSONField(alternateNames = {"authorid"})
     public int getAuthorId() {
         return mAuthorId;
     }
 
+    @JSONField(alternateNames = {"authorid"})
     public void setAuthorId(int authorId) {
         mAuthorId = authorId;
     }
 
+    @JSONField(alternateNames = {"lastposter"})
     public String getLastPoster() {
         return mLastPoster;
     }
 
+    @JSONField(alternateNames = {"lastposter"})
     public void setLastPoster(String lastPoster) {
         mLastPoster = lastPoster;
     }
@@ -127,10 +133,12 @@ public class ThreadPageInfo implements JavaBean {
         mSubject = subject;
     }
 
+    @JSONField(alternateNames = {"titlefont"})
     public String getTitleFont() {
         return mTitleFont;
     }
 
+    @JSONField(alternateNames = {"titlefont"})
     public void setTitleFont(String titleFont) {
         mTitleFont = titleFont;
     }
@@ -143,10 +151,12 @@ public class ThreadPageInfo implements JavaBean {
         mType = type;
     }
 
+    @JSONField(alternateNames = {"topic_misc"})
     public String getTopicMisc() {
         return mTopicMisc;
     }
 
+    @JSONField(alternateNames = {"topic_misc"})
     public void setTopicMisc(String topicMisc) {
         mTopicMisc = topicMisc;
     }

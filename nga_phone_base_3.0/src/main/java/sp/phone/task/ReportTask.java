@@ -1,6 +1,6 @@
 package sp.phone.task;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 
 import java.util.Map;
 
@@ -13,7 +13,7 @@ import sp.phone.rxjava.BaseSubscriber;
 
 public class ReportTask {
 
-    public static class ResultBean {
+    public static class ResultBean implements gov.anzong.androidnga.common.base.JavaBean {
 
         /**
          * error : {"0":"你在217秒后方可举报"}
@@ -62,12 +62,7 @@ public class ReportTask {
                 .subscribe(new BaseSubscriber<String>() {
                     @Override
                     public void onNext(String s) {
-                        ResultBean resultBean = JSON.parseObject(s, ResultBean.class);
-                        if (resultBean.error != null) {
-                            callBack.onError(resultBean.error.get("0"));
-                        } else if (resultBean.data != null) {
-                            callBack.onSuccess(resultBean.data.get("0"));
-                        }
+                        deliverResult(s, callBack);
                     }
 
                     @Override
@@ -77,5 +72,14 @@ public class ReportTask {
                 });
     }
 
+
+    static void deliverResult(String payload, OnHttpCallBack<String> callBack) {
+        ResultBean resultBean = JSON.parseObject(payload, ResultBean.class);
+        if (resultBean.error != null) {
+            callBack.onError(resultBean.error.get("0"));
+        } else if (resultBean.data != null) {
+            callBack.onSuccess(resultBean.data.get("0"));
+        }
+    }
 
 }

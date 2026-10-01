@@ -1,7 +1,7 @@
 package sp.phone.mvp.model.thread
 
-import com.alibaba.fastjson.JSONArray
-import com.alibaba.fastjson.JSONObject
+import com.alibaba.fastjson2.JSONArray
+import com.alibaba.fastjson2.JSONObject
 
 /**
  * Adapted from Justwen/NGA-CLIENT-VER-OPEN-SOURCE, GPL-3.0,

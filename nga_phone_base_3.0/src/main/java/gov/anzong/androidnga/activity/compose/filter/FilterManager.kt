@@ -1,6 +1,6 @@
 package gov.anzong.androidnga.activity.compose.filter
 
-import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson2.JSON
 import gov.anzong.androidnga.base.kv.DataStore
 import gov.anzong.androidnga.base.util.PreferenceUtils
 import sp.phone.common.User

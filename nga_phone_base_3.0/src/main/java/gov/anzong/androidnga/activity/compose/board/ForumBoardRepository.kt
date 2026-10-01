@@ -1,9 +1,9 @@
 package gov.anzong.androidnga.activity.compose.board
 
 import android.content.Context
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONArray
-import com.alibaba.fastjson.JSONObject
+import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONArray
+import com.alibaba.fastjson2.JSONObject
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper
 import gov.anzong.androidnga.Utils
 import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel.BOARD_REMOTE_REQUEST_TIME_KEY
@@ -263,7 +263,7 @@ object ForumBoardRepository {
             if (!hasValidRemoteMembers(categories)) return null
             // Validate the raw field before Fastjson can coerce numbers/objects to String.
             val prefix = BoardIconUrlResolver.normalize(envelope.remove("forum_icon_pre"))
-            JSON.toJavaObject(envelope, ForumsListBean::class.java)?.apply {
+            envelope.toJavaObject(ForumsListBean::class.java)?.apply {
                 forum_icon_pre = prefix
             }
         } catch (_: Exception) {

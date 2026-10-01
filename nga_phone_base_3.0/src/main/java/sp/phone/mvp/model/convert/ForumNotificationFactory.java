@@ -1,8 +1,8 @@
 package sp.phone.mvp.model.convert;
 
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +22,7 @@ public class ForumNotificationFactory {
         List<RecentReplyInfo> infoList = new ArrayList<>();
 
         try {
-            JSONObject obj = JSONObject.parseObject(content);
-            obj = obj.getJSONObject("data").getJSONObject("0");
+            JSONObject obj = decodeNotificationData(content);
             JSONArray array = obj.getJSONArray("0");
             int unread = obj.getInteger("unread");
             if (array != null) {
@@ -37,6 +36,10 @@ public class ForumNotificationFactory {
             NLog.e("buildRecentReplyList error" + e.getMessage());
         }
         return infoList;
+    }
+
+    static JSONObject decodeNotificationData(String payload) {
+        return JSONObject.parseObject(payload).getJSONObject("data").getJSONObject("0");
     }
 
     private static RecentReplyInfo buildRecentReplyInfo(JSONObject obj) {
@@ -70,8 +73,7 @@ public class ForumNotificationFactory {
         List<NotificationInfo> infoList = new ArrayList<>();
 
         try {
-            JSONObject obj = JSONObject.parseObject(content);
-            obj = obj.getJSONObject("data").getJSONObject("0");
+            JSONObject obj = decodeNotificationData(content);
             if (obj != null) {
                 int unread = obj.getInteger("unread");
                 JSONArray array = obj.getJSONArray("0");

@@ -2,8 +2,8 @@ package sp.phone.mvp.model.convert;
 
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,7 +58,9 @@ public class TopicConvertFactory {
 
     /** Decode only; wrapper handling and display/filter policy remain with the caller. */
     static TopicListBean decodeTopicList(String payload) {
-        return JSON.parseObject(payload, TopicListBean.class);
+        JSONObject tree = JSON.parseObject(payload, com.alibaba.fastjson2.JSONReader.Feature.DisableReferenceDetect);
+        return tree == null ? null : tree.toJavaObject(TopicListBean.class,
+                com.alibaba.fastjson2.JSONReader.Feature.SupportSmartMatch);
     }
 
     private void filter(TopicListInfo data) {

@@ -63,11 +63,12 @@ public class TopicConvertFactoryDecodeTest {
         }
     }
 
-    @Test public void oldTypedReaderRejectsAnUnknownTypeInAnUnusedExtension() {
-        // B1 characterization only. B2's approved local tree decoder must treat these as
-        // ordinary extension data; SafeJsonParser/ProfileWebUserParser already do so.
-        assertThrows(RuntimeException.class, () -> TopicConvertFactory.decodeTopicList(
+    @Test public void unusedSpecialKeysDoNotReplaceConsumedFieldsOrLoadTypes() {
+        // Approved B2 delta: the old typed reader rejected this unused extension.
+        TopicListBean bean = TopicConvertFactory.decodeTopicList(
             "{\"extension\":{\"@type\":\"not.a.LoadableClass\",\"$ref\":\"$\"},"
-            + "\"data\":{\"__F\":{\"name\":\"synthetic\",\"fid\":1},\"__T\":{}},\"time\":1}"));
+            + "\"data\":{\"__F\":{\"name\":\"synthetic\",\"fid\":1},\"__T\":{}},\"time\":1}");
+        assertEquals("synthetic", bean.getData().get__F().name);
+        assertEquals(1, bean.getTime());
     }
 }

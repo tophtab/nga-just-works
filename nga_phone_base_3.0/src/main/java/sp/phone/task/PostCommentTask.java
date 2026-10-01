@@ -4,8 +4,8 @@ import android.os.AsyncTask;
 
 import androidx.fragment.app.FragmentActivity;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import org.apache.commons.io.IOUtils;
 
@@ -108,32 +108,38 @@ public class PostCommentTask extends AsyncTask<String, Integer, String> {
     }
 
     protected String getPostResult(String html) {
-        String js = StringUtils.getStringBetween(html, 0,
-                "window.script_muti_get_var_store=", "</script>").result;
-        if (StringUtils.isEmpty(js)) {
-            return "未知错误";
-        }
-        try {
-            JSONObject o = (JSONObject) JSON.parseObject(js);
-            o = (JSONObject) o.get("data");
-            o = (JSONObject) o.get("__MESSAGE");
-            String result = o.getString("1");
-            if (StringUtils.isEmpty(result)) {
-                return "大概没权限,二哥滚粗";
-            } else {
-                if (o.getInteger("3") == 200) {
-                    if (result.indexOf("发贴完毕") >= 0) {
-                        success = true;
-                    }
-                    return result.replace("发贴完毕", "贴条成功").trim();
-                } else {
-                    return result;
-                }
-            }
-        } catch (Exception e) {
+        Response result = Response.decode(html);
+        success |= result.success;
+        return result.message;
+    }
 
+    static final class Response {
+        final String message;
+        final boolean success;
+
+        private Response(String message, boolean success) {
+            this.message = message;
+            this.success = success;
         }
-        return "未知错误";
+
+        static Response decode(String html) {
+            String js = StringUtils.getStringBetween(html, 0,
+                    "window.script_muti_get_var_store=", "</script>").result;
+            if (StringUtils.isEmpty(js)) return new Response("未知错误", false);
+            try {
+                JSONObject data = (JSONObject) JSON.parseObject(js).get("data");
+                JSONObject message = (JSONObject) data.get("__MESSAGE");
+                String result = message.getString("1");
+                if (StringUtils.isEmpty(result)) return new Response("大概没权限,二哥滚粗", false);
+                if (message.getInteger("3") == 200) {
+                    return new Response(result.replace("发贴完毕", "贴条成功").trim(),
+                            result.indexOf("发贴完毕") >= 0);
+                }
+                return new Response(result, false);
+            } catch (Exception e) {
+                return new Response("未知错误", false);
+            }
+        }
     }
 
     @Override

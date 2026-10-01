@@ -1,0 +1,14 @@
+Fresh lintDebug --continue --rerun-tasks, 536 tasks executed, 34s.
+lib_base_common: 0 Error/Fatal; 37 total issues
+lib_base_logger: 0 Error/Fatal; 8 total issues
+lib_base_network: 0 Error/Fatal; 7 total issues
+lib_base_service_api: 0 Error/Fatal; 2 total issues
+lib_base_ui: 0 Error/Fatal; 8 total issues
+lib_base_ui_compose: 0 Error/Fatal; 12 total issues
+lib_bu_account: 0 Error/Fatal; 6 total issues
+lib_bu_message: 0 Error/Fatal; 13 total issues
+lib_bu_statistics: 0 Error/Fatal; 6 total issues
+lib_core: 0 Error/Fatal; 9 total issues
+lib_core_data: 0 Error/Fatal; 1 total issues
+lib_module_debug: 0 Error/Fatal; 4 total issues
+nga_phone_base_3.0: 0 Error/Fatal; 729 total issues

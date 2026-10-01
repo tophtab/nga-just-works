@@ -1,7 +1,7 @@
 package sp.phone.mvp.presenter;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONException;
 
 import sp.phone.http.bean.ThreadData;
 import sp.phone.mvp.model.entity.ThreadPageInfo;

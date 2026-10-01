@@ -1,6 +1,6 @@
 package sp.phone.ai.summary;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;

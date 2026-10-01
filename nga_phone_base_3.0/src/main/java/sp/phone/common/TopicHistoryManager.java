@@ -3,7 +3,7 @@ package sp.phone.common;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 
 import java.util.ArrayList;
 import java.util.List;

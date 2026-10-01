@@ -1,0 +1,189 @@
+[
+  {
+    "class": "sp.phone.http.bean.TopicListBean",
+    "input": {
+      "time": 1700000000,
+      "data": {
+        "__CU": {
+          "uid": 42,
+          "group_bit": 7
+        },
+        "__F": {
+          "fid": -7,
+          "name": "fixture"
+        },
+        "__T__ROWS_PAGE": 20,
+        "__T": {
+          "0": {
+            "tid": 120002,
+            "authorid": 42,
+            "lastposter": "last",
+            "topic_misc": "misc",
+            "__P": {
+              "pid": 50012,
+              "authorid": 43,
+              "content": "reply"
+            }
+          }
+        }
+      }
+    },
+    "expected": {
+      "time": 1700000000,
+      "data": {
+        "__CU": {
+          "uid": 42,
+          "group_bit": 7
+        },
+        "__F": {
+          "fid": -7,
+          "name": "fixture"
+        },
+        "__T__ROWS_PAGE": 20,
+        "__T": {
+          "0": {
+            "tid": 120002,
+            "authorid": "42",
+            "lastposter": "last",
+            "topic_misc": "misc",
+            "__P": {
+              "pid": 50012,
+              "authorid": "43",
+              "content": "reply"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "class": "sp.phone.mvp.model.entity.ThreadPageInfo",
+    "input": {
+      "tid": 120002,
+      "authorid": 42,
+      "lastposter": "last",
+      "titlefont": "b",
+      "topic_misc": "misc",
+      "postdate": 1700000000,
+      "replyInfo": {
+        "pidStr": "50012",
+        "authorId": "43",
+        "content": "reply"
+      },
+      "cacheSummary": "must disappear",
+      "cacheEntry": {
+        "tid": 1
+      }
+    },
+    "expected": {
+      "tid": 120002,
+      "authorId": 42,
+      "lastPoster": "last",
+      "titleFont": "b",
+      "topicMisc": "misc",
+      "postDate": 1700000000,
+      "replyInfo": {
+        "pidStr": "50012",
+        "authorId": "43",
+        "content": "reply"
+      }
+    },
+    "absent": [
+      "cacheEntry",
+      "cacheSummary"
+    ],
+    "calls": {
+      "getAuthorId": 42,
+      "getCacheEntry": null,
+      "getCacheSummary": null
+    }
+  },
+  {
+    "class": "gov.anzong.androidnga.core.board.data.BoardEntity",
+    "input": {
+      "id": "f:-7",
+      "name": "fixture",
+      "fid": -7,
+      "parentId": "derived",
+      "iconUrl": "must disappear",
+      "children": [
+        {
+          "id": "s:123",
+          "name": "child",
+          "stid": 123
+        }
+      ]
+    },
+    "expected": {
+      "id": "f:-7",
+      "name": "fixture",
+      "fid": -7
+    },
+    "absent": [
+      "parentId",
+      "iconUrl"
+    ],
+    "calls": {
+      "getIconUrl": ""
+    }
+  },
+  {
+    "class": "gov.anzong.androidnga.activity.compose.filter.FilterKeyword",
+    "input": {
+      "keyword": "fixture.*",
+      "enabled": true
+    },
+    "expected": {
+      "keyword": "fixture.*",
+      "enabled": true
+    },
+    "absent": [
+      "mPattern",
+      "pattern"
+    ],
+    "calls": {
+      "getKeyword": "fixture.*",
+      "isEnabled": true
+    },
+    "stringCalls": {
+      "match": [
+        "fixture content",
+        true
+      ]
+    }
+  },
+  {
+    "class": "sp.phone.task.ReportTask$ResultBean",
+    "input": {
+      "error": {
+        "0": "wait"
+      },
+      "data": {
+        "0": "done"
+      },
+      "time": 1700000000
+    },
+    "expected": {
+      "error": {
+        "0": "wait"
+      },
+      "data": {
+        "0": "done"
+      },
+      "time": 1700000000
+    }
+  },
+  {
+    "class": "sp.phone.task.AvatarFileUploadTask$NonameUploadResponse",
+    "input": {
+      "error": true,
+      "errorinfo": "denied",
+      "data": "fixture-path"
+    },
+    "expected": {
+      "error": true,
+      "errorinfo": "denied",
+      "data": "fixture-path"
+    }
+  }
+]

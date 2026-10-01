@@ -2,7 +2,7 @@ package sp.phone.mvp.model.convert;
 
 import static org.junit.Assert.assertEquals;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 import org.junit.Before;
 import org.junit.Test;

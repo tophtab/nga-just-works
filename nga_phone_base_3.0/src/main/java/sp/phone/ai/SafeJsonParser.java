@@ -1,9 +1,8 @@
 package sp.phone.ai;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
-import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
 
 /** Bounded JSON-object decoding without global parser options, type loading, or reference resolution. */
 public final class SafeJsonParser {
@@ -17,9 +16,8 @@ public final class SafeJsonParser {
         checkNesting(json);
         final Object decoded;
         try {
-            int features = Feature.AutoCloseSource.mask | Feature.DisableSpecialKeyDetect.mask
-                    | Feature.UseBigDecimal.mask;
-            decoded = JSON.parse(json, new ParserConfig(), features);
+            decoded = JSON.parse(json, JSONReader.Feature.AllowUnQuotedFieldNames,
+                    JSONReader.Feature.DisableReferenceDetect, JSONReader.Feature.DisableSingleQuote);
         } catch (RuntimeException ignored) {
             // Parser exceptions can contain the whole response. Do not retain them as causes.
             throw invalidJson();

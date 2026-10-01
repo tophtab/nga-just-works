@@ -1,6 +1,6 @@
 package sp.phone.json
 
-import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson2.JSON
 import gov.anzong.androidnga.activity.compose.filter.FilterKeyword
 import org.junit.Assert.*
 import org.junit.Test
@@ -15,7 +15,32 @@ import sp.phone.mvp.model.thread.ArticleCacheEntry
 class LegacyStorageGoldenTest {
     private fun fixture(name: String) = javaClass.getResource("/json-legacy/$name.json")!!.readText()
     private fun golden(name: String, value: Any) {
-        assertEquals(name, JSON.parse(fixture(name)), JSON.parse(JSON.toJSONString(value)))
+        val encoded = JSON.toJSONString(value)
+        assertEquals(name, JSON.parse(fixture(name)), JSON.parse(encoded)) // old write → new read/write
+        assertEquals(name, com.alibaba.fastjson.JSON.parse(fixture(name)),
+            com.alibaba.fastjson.JSON.parse(encoded)) // new write → old parser
+        if (value is List<*> && value.isNotEmpty() && value[0] != null) {
+            val type = value[0]!!.javaClass
+            val oldRead = com.alibaba.fastjson.JSON.parseArray(encoded, type)
+            if (type == Board::class.java) {
+                // Read-only BoardKey is not restored by the original reader; migration uses these fields.
+                val expected = value as List<Board>
+                val actual = oldRead as List<Board>
+                assertEquals(expected.map { listOf(it.fid, it.stid, it.name, it.boardHead) },
+                    actual.map { listOf(it.fid, it.stid, it.name, it.boardHead) })
+            } else {
+                assertEquals(name, JSON.parse(encoded), JSON.parse(JSON.toJSONString(oldRead)))
+            }
+            val newRead = JSON.parseArray(encoded, type)
+            if (type != Board::class.java) {
+                assertEquals(name, JSON.parse(encoded), JSON.parse(JSON.toJSONString(newRead)))
+            }
+        } else if (value is Attachment) {
+            assertEquals(JSON.parse(encoded), JSON.parse(JSON.toJSONString(
+                com.alibaba.fastjson.JSON.parseObject(encoded, Attachment::class.java))))
+            assertEquals(JSON.parse(encoded), JSON.parse(JSON.toJSONString(
+                JSON.parseObject(encoded, Attachment::class.java))))
+        }
     }
 
     @Test fun topicHistoryAndNavigationPreserveEveryPersistedProperty() {
@@ -96,6 +121,8 @@ class LegacyStorageGoldenTest {
         golden("board-tree", roots)
         val encoded = gov.anzong.androidnga.activity.compose.board.ForumBoardRepository.encodeBookmarkBoards(roots)
         assertEquals(JSON.parse(input), JSON.parse(encoded))
+        val oldRead = com.alibaba.fastjson.JSON.parseArray(encoded, gov.anzong.androidnga.core.board.data.BoardEntity::class.java)
+        assertEquals(JSON.parse(input), JSON.parse(JSON.toJSONString(oldRead)))
         val restored = gov.anzong.androidnga.activity.compose.board.ForumBoardRepository.decodeBookmarkBoards(encoded)
         assertEquals("重复", restored[0].children!![1].name)
         assertEquals(-7, restored[0].children!![0].fid)

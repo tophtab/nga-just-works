@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,6 +47,9 @@ public class AuthorLocationStoreTest {
         assertTrue(output.isFile());
         JSONObject written = JSON.parseObject(new String(Files.readAllBytes(output.toPath()), StandardCharsets.UTF_8));
         assertEquals(JSON.parseObject(golden), written);
+        String outputText = new String(Files.readAllBytes(output.toPath()), StandardCharsets.UTF_8);
+        assertEquals(com.alibaba.fastjson.JSON.parseObject(golden), com.alibaba.fastjson.JSON.parseObject(outputText));
+        assertEquals(5, new AuthorLocationStore(output).read().size());
         assertTrue(written.getJSONArray("entries").getJSONObject(0).get("observed") instanceof Long);
         assertFalse(written.getJSONArray("entries").getJSONObject(1).containsKey("location"));
     }

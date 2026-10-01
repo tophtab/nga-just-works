@@ -17,8 +17,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import org.apache.commons.io.IOUtils;
 
@@ -64,6 +64,14 @@ public class AvatarPostActivity extends BaseActivity implements
     private boolean loading;
     private AvatarFileUploadTask uploadTask = null;
     private ButtonCommitListener commitListener = null;
+
+    static JSONObject decodeResultData(String payload, String field) {
+        return (JSONObject) JSON.parseObject(payload).get(field);
+    }
+
+    static String selectReplyResult(JSONObject selected) {
+        return selected == null ? "发送失败" : selected.getString("0");
+    }
 
     /**
      * Get the value of the data column for this Uri. This is useful for
@@ -399,22 +407,19 @@ public class AvatarPostActivity extends BaseActivity implements
             js = js.replaceAll("/\\*\\$js\\$\\*/", "");
             JSONObject o = null;
             try {
-                o = (JSONObject) JSON.parseObject(js).get("data");
+                o = decodeResultData(js, "data");
             } catch (Exception e) {
                 NLog.e("TAG", "can not parse :\n" + js);
             }
             if (o == null) {
                 try {
-                    o = (JSONObject) JSON.parseObject(js).get("error");
+                    o = decodeResultData(js, "error");
                 } catch (Exception e) {
                     NLog.e("TAG", "can not parse :\n" + js);
                 }
-                if (o == null) {
-                    return "发送失败";
-                }
-                return o.getString("0");
+                return selectReplyResult(o);
             }
-            return o.getString("0");
+            return selectReplyResult(o);
         }
 
         @Override

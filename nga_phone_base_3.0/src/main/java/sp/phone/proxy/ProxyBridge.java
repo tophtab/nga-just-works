@@ -5,8 +5,8 @@ import android.os.AsyncTask;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import org.apache.commons.io.IOUtils;
 
@@ -88,28 +88,12 @@ public final class ProxyBridge {
                         js = js.replaceAll("window.script_muti_get_var_store=", "");
                         JSONObject o = null, oerror = null;
                         try {
-                            o = (JSONObject) JSON.parseObject(js).get("data");
-                            oerror = (JSONObject) JSON.parseObject(js).get("error");
+                            o = decodeResultData(js, "data");
+                            oerror = decodeResultData(js, "error");
                         } catch (Exception e) {
                             NLog.e("ProxyBridge", "can not parse :\n" + js);
                         }
-                        if (o == null) {
-                            if (oerror == null) {
-                                return "请重新登录";
-                            } else {
-                                if (!StringUtils.isEmpty(oerror.getString("0"))) {
-                                    return oerror.getString("0");
-                                } else {
-                                    return "二哥又开始乱搞了";
-                                }
-                            }
-                        } else {
-                            if (!StringUtils.isEmpty(o.getString("0"))) {
-                                return o.getString("0");
-                            } else {
-                                return "二哥又开始乱搞了";
-                            }
-                        }
+                        return selectResult(o, oerror);
                     } else {
                         return "二哥在用服务器下毛片";
                     }
@@ -118,6 +102,17 @@ public final class ProxyBridge {
                 return "";
             }
         }).execute(url);
+    }
+
+    static JSONObject decodeResultData(String payload, String field) {
+        return (JSONObject) JSON.parseObject(payload).get(field);
+    }
+
+    static String selectResult(JSONObject data, JSONObject error) {
+        JSONObject selected = data == null ? error : data;
+        if (selected == null) return "请重新登录";
+        String message = selected.getString("0");
+        return StringUtils.isEmpty(message) ? "二哥又开始乱搞了" : message;
     }
 
 }

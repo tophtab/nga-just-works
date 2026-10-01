@@ -1,6 +1,6 @@
 package sp.phone.task;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 import org.reactivestreams.Subscription;
 

@@ -1,8 +1,8 @@
 package sp.phone.profile;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -80,13 +80,13 @@ final class AuthorLocationStore {
     }
 
     private static String encode(List<AuthorLocationCache.Entry> entries) {
-        JSONObject root = new JSONObject(true);
+        JSONObject root = new JSONObject();
         root.put("version", VERSION);
         JSONArray rows = new JSONArray();
         int first = Math.max(0, entries.size() - AuthorLocationCache.MAX_ENTRIES);
         for (int i = first; i < entries.size(); i++) {
             AuthorLocationCache.Entry entry = entries.get(i);
-            JSONObject row = new JSONObject(true);
+            JSONObject row = new JSONObject();
             row.put("origin", entry.key.origin);
             row.put("account", entry.key.account);
             row.put("author", entry.key.author);

@@ -1,8 +1,8 @@
 package sp.phone.mvp.model.thread
 
-import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONObject
-import com.alibaba.fastjson.serializer.SerializerFeature
+import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONObject
+import com.alibaba.fastjson2.JSONWriter
 import sp.phone.http.bean.ThreadData
 import sp.phone.mvp.model.convert.ArticleConvertFactory
 import sp.phone.mvp.model.entity.ThreadPageInfo
@@ -96,13 +96,13 @@ object ArticleCacheCodec {
     @JvmStatic fun encode(write: ArticleCacheWrite): String {
         val paging = requireNotNull(write.paging)
         require(!write.entry.isLegacy())
-        val envelope = JSONObject(true).apply {
+        val envelope = JSONObject().apply {
             put("schema", "thread-page"); put("version", 1); put("format", paging.source.format)
             put("owner", write.entry.owner); put("tid", write.entry.tid); put("queryKind", "FULL")
             put("layoutId", write.entry.layoutId); put("page", write.page); put("requestedPage", paging.requestedPage)
             put("pageSize", paging.pageSize); put("pageBasis", paging.pageBasis.name); put("raw", write.raw)
         }
-        return JSON.toJSONString(envelope, SerializerFeature.WriteMapNullValue)
+        return JSON.toJSONString(envelope, JSONWriter.Feature.WriteMapNullValue)
     }
 
     @JvmStatic fun decode(text: String, entry: ArticleCacheEntry, page: Int): ArticleStoredPage {
@@ -178,7 +178,7 @@ class ArticleCacheStore(filesDir: File) {
                 validateTopic(metadata, entry.tid)
                 val pages = pages(entry, currentOwner)
                 if (pages.isEmpty()) null else ArticleCacheRecord(entry, metadata, pages)
-            } catch (_: IOException) { null } catch (_: IllegalArgumentException) { null } catch (_: com.alibaba.fastjson.JSONException) { null }
+            } catch (_: IOException) { null } catch (_: IllegalArgumentException) { null } catch (_: com.alibaba.fastjson2.JSONException) { null }
         }
     }
 

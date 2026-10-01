@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 
 import org.junit.Test;
 
@@ -89,6 +89,10 @@ public class ArticlePageCacheTest {
         assertEquals("offline-replier", restored.getLastPoster());
         assertEquals(145, restored.getReplies());
         assertEquals(1700000000, restored.getPostDate());
+        ThreadPageInfo oldReader = com.alibaba.fastjson.JSON.parseObject(saved.topicInfo, ThreadPageInfo.class);
+        assertEquals(JSON.parseObject(saved.topicInfo), JSON.parseObject(JSON.toJSONString(oldReader)));
+        assertEquals(23, oldReader.getAuthorId());
+
         assertEquals(7, saved.page);
         assertNull(param.topicInfo);
         assertSame(rawData, page.getRawData());

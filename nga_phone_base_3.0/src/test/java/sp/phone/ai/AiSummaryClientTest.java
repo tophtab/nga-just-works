@@ -8,7 +8,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 import org.junit.After;
 import org.junit.Before;
@@ -173,7 +173,7 @@ public class AiSummaryClientTest {
     public void jsonFallbackPublishesReasoningAndRetainsTheEntireAnswer() throws Exception {
         String answer = " " + "完整回答".repeat(500) + "\n";
         String body = "{\"choices\":[{\"message\":{\"content\":"
-                + com.alibaba.fastjson.JSON.toJSONString(answer)
+                + com.alibaba.fastjson2.JSON.toJSONString(answer)
                 + ",\"reasoning\":\"synthetic thought\"}}]}";
         server.enqueue(new MockResponse().addHeader("Content-Type", "application/json").setBody(body));
         Result result = new Result();

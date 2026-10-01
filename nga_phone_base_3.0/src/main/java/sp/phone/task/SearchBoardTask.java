@@ -1,7 +1,7 @@
 package sp.phone.task;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
 
 import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel;
@@ -26,9 +26,9 @@ public class SearchBoardTask {
                 .observeOn(Schedulers.io())
                 .map(s -> {
                     try {
-                        JSONObject obj = JSON.parseObject(s).getJSONObject("data").getJSONObject("0");
-                        int fid = obj.getInteger("fid");
-                        String title = obj.getString("name");
+                        SearchResult decoded = decodeBoard(s);
+                        int fid = decoded.fid;
+                        String title = decoded.title;
                         BoardEntity board = ForumBoardViewModel.INSTANCE.findBoard(fid, 0);
                         if (board == null) {
                             board = new BoardEntity();
@@ -54,5 +54,15 @@ public class SearchBoardTask {
                         callBack.onResult(null);
                     }
                 });
+    }
+    static SearchResult decodeBoard(String payload) {
+        JSONObject obj = JSON.parseObject(payload).getJSONObject("data").getJSONObject("0");
+        return new SearchResult(obj.getInteger("fid"), obj.getString("name"));
+    }
+
+    static final class SearchResult {
+        final int fid;
+        final String title;
+        private SearchResult(int fid, String title) { this.fid = fid; this.title = title; }
     }
 }

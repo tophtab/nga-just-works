@@ -6,8 +6,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.trello.rxlifecycle2.android.FragmentEvent;
 
 import org.apache.commons.io.IOUtils;
@@ -96,8 +96,7 @@ public class TopicPostModel extends BaseModel implements TopicPostContract.Model
                 .map((String s) -> {
                     NLog.d(s);
                     s = s.replace("window.script_muti_get_var_store=", "");
-                    TopicPostBean bean = JSON.parseObject(s, TopicPostBean.class);
-                    postParam.setAuthCode(bean.getData().getAuth());
+                    postParam.setAuthCode(decodePreflight(s));
                     return postParam;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -126,12 +125,7 @@ public class TopicPostModel extends BaseModel implements TopicPostContract.Model
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .map(s -> {
-                    JSONObject obj = JSON.parseObject(s).getJSONObject("data").getJSONObject("0");
-                    List<String> ret = new ArrayList<>();
-                    for (int index = 0; obj.containsKey(String.valueOf(index)); index++) {
-                        ret.add(obj.getJSONObject(String.valueOf(index)).getString("0"));
-                    }
-                    return ret;
+                    return decodeTopicCategories(s);
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new BaseSubscriber<List<String>>() {
@@ -242,9 +236,24 @@ public class TopicPostModel extends BaseModel implements TopicPostContract.Model
                 });
     }
 
+    static String decodePreflight(String payload) {
+        TopicPostBean bean = JSON.parseObject(payload, TopicPostBean.class,
+                com.alibaba.fastjson2.JSONReader.Feature.SupportSmartMatch);
+        return bean.getData().getAuth();
+    }
+
+    static List<String> decodeTopicCategories(String payload) {
+        JSONObject obj = JSON.parseObject(payload).getJSONObject("data").getJSONObject("0");
+        List<String> result = new ArrayList<>();
+        for (int index = 0; obj.containsKey(String.valueOf(index)); index++) {
+            result.add(obj.getJSONObject(String.valueOf(index)).getString("0"));
+        }
+        return result;
+    }
+
     /** Pure response selection; the caller still owns compression, mutation and callbacks. */
     static UploadResponse decodeUploadResponse(String payload, boolean compressed) {
-        JSONObject object = JSON.parseObject(payload);
+        JSONObject object = JSON.parseObject(payload, com.alibaba.fastjson2.JSONReader.Feature.AllowUnQuotedFieldNames);
         if (object.containsKey("error_code")) {
             int errorCode = object.getInteger("error_code");
             if (errorCode == 9 && !compressed) {
