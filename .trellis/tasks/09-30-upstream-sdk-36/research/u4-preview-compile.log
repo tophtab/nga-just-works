@@ -1,0 +1,305 @@
+
+> Configure project :lib_base_common
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+The current default is 'false'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+To keep using this feature, add the following to your module-level build.gradle files:
+    android.buildFeatures.buildConfig = true
+or from Android Studio, click: `Refactor` > `Migrate BuildConfig to Gradle Build Files`.
+
+> Configure project :nga_phone_base_3.0
+WARNING: DSL element 'isRenderscriptDebuggable' is obsolete and should be removed.
+It will be removed in version 9.0 of the Android Gradle plugin.
+
+> Task :lib_base_ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_network:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_ui_compose:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_service_api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_logger:preBuild UP-TO-DATE
+> Task :lib_base_common:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_bu_account:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_logger:preReleaseBuild UP-TO-DATE
+> Task :lib_base_service_api:preBuild UP-TO-DATE
+> Task :lib_base_ui:preBuild UP-TO-DATE
+> Task :lib_base_ui_compose:preBuild UP-TO-DATE
+> Task :lib_base_service_api:preReleaseBuild UP-TO-DATE
+> Task :lib_base_common:preBuild UP-TO-DATE
+> Task :lib_base_ui:preReleaseBuild UP-TO-DATE
+> Task :lib_base_common:preReleaseBuild UP-TO-DATE
+> Task :lib_bu_account:preBuild UP-TO-DATE
+> Task :lib_base_network:preBuild UP-TO-DATE
+> Task :lib_bu_account:preReleaseBuild UP-TO-DATE
+> Task :lib_base_network:preReleaseBuild UP-TO-DATE
+> Task :lib_base_ui_compose:preReleaseBuild UP-TO-DATE
+> Task :lib_bu_message:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_bu_message:preBuild UP-TO-DATE
+> Task :lib_core_data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_bu_account:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_bu_statistics:preBuild UP-TO-DATE
+> Task :lib_bu_message:preReleaseBuild UP-TO-DATE
+> Task :lib_module_debug:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_common:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_core_data:preBuild UP-TO-DATE
+> Task :lib_bu_statistics:preReleaseBuild UP-TO-DATE
+> Task :lib_core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_network:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_base_service_api:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_base_logger:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_module_debug:preBuild UP-TO-DATE
+> Task :lib_core_data:preReleaseBuild UP-TO-DATE
+> Task :lib_base_ui:generateReleaseBuildConfig UP-TO-DATE
+> Task :nga_phone_base_3.0:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_ui_compose:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_bu_account:generateReleaseResValues UP-TO-DATE
+> Task :lib_core:preBuild UP-TO-DATE
+> Task :lib_module_debug:preReleaseBuild UP-TO-DATE
+> Task :lib_base_service_api:generateReleaseResValues UP-TO-DATE
+> Task :lib_bu_message:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_module_debug:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_base_common:generateReleaseResValues UP-TO-DATE
+> Task :lib_bu_message:generateReleaseResValues UP-TO-DATE
+> Task :lib_base_service_api:generateReleaseResources UP-TO-DATE
+> Task :lib_core:preReleaseBuild UP-TO-DATE
+> Task :lib_bu_statistics:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_base_network:generateReleaseResValues UP-TO-DATE
+> Task :lib_bu_account:generateReleaseResources UP-TO-DATE
+> Task :lib_base_ui_compose:generateReleaseResValues UP-TO-DATE
+> Task :lib_bu_message:generateReleaseResources UP-TO-DATE
+> Task :lib_bu_statistics:generateReleaseResValues UP-TO-DATE
+> Task :lib_base_network:generateReleaseResources UP-TO-DATE
+> Task :lib_core:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_base_logger:generateReleaseResValues UP-TO-DATE
+> Task :lib_base_ui:generateReleaseResValues UP-TO-DATE
+> Task :lib_base_ui_compose:generateReleaseResources UP-TO-DATE
+> Task :lib_base_service_api:packageReleaseResources UP-TO-DATE
+> Task :lib_core_data:generateReleaseBuildConfig UP-TO-DATE
+> Task :lib_bu_statistics:generateReleaseResources UP-TO-DATE
+> Task :lib_module_debug:generateReleaseResValues UP-TO-DATE
+> Task :lib_bu_message:packageReleaseResources UP-TO-DATE
+> Task :lib_base_ui:generateReleaseResources UP-TO-DATE
+> Task :lib_base_network:packageReleaseResources UP-TO-DATE
+> Task :lib_base_ui_compose:packageReleaseResources UP-TO-DATE
+> Task :lib_base_common:generateReleaseResources UP-TO-DATE
+> Task :lib_module_debug:generateReleaseResources UP-TO-DATE
+> Task :lib_core_data:generateReleaseResValues UP-TO-DATE
+> Task :lib_base_ui:packageReleaseResources UP-TO-DATE
+> Task :lib_base_logger:generateReleaseResources UP-TO-DATE
+> Task :nga_phone_base_3.0:preBuild UP-TO-DATE
+> Task :lib_core_data:generateReleaseResources UP-TO-DATE
+> Task :lib_core:generateReleaseResValues UP-TO-DATE
+> Task :nga_phone_base_3.0:prePreviewBuild UP-TO-DATE
+> Task :lib_base_common:packageReleaseResources UP-TO-DATE
+> Task :lib_bu_account:packageReleaseResources UP-TO-DATE
+> Task :lib_bu_statistics:packageReleaseResources UP-TO-DATE
+> Task :lib_module_debug:packageReleaseResources UP-TO-DATE
+> Task :lib_base_logger:packageReleaseResources UP-TO-DATE
+> Task :lib_core_data:packageReleaseResources UP-TO-DATE
+> Task :lib_base_service_api:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_network:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_bu_message:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_core:generateReleaseResources UP-TO-DATE
+> Task :lib_base_ui:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_service_api:generateReleaseRFile UP-TO-DATE
+> Task :lib_base_network:generateReleaseRFile UP-TO-DATE
+> Task :lib_bu_account:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_bu_message:generateReleaseRFile UP-TO-DATE
+> Task :lib_base_ui:generateReleaseRFile UP-TO-DATE
+> Task :lib_base_ui_compose:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_logger:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_core:packageReleaseResources UP-TO-DATE
+> Task :lib_bu_account:generateReleaseRFile UP-TO-DATE
+> Task :lib_module_debug:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_network:javaPreCompileRelease UP-TO-DATE
+> Task :lib_core_data:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_common:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_ui_compose:generateReleaseRFile UP-TO-DATE
+> Task :lib_bu_statistics:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_logger:generateReleaseRFile UP-TO-DATE
+> Task :lib_base_network:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_core_data:generateReleaseRFile UP-TO-DATE
+> Task :lib_module_debug:generateReleaseRFile UP-TO-DATE
+> Task :lib_base_network:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_base_common:generateReleaseRFile UP-TO-DATE
+> Task :lib_bu_statistics:generateReleaseRFile UP-TO-DATE
+> Task :lib_base_logger:javaPreCompileRelease UP-TO-DATE
+> Task :lib_base_ui_compose:javaPreCompileRelease UP-TO-DATE
+> Task :lib_core:parseReleaseLocalResources UP-TO-DATE
+> Task :lib_base_network:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_core_data:javaPreCompileRelease UP-TO-DATE
+> Task :lib_base_logger:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_base_ui_compose:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_bu_statistics:javaPreCompileRelease UP-TO-DATE
+> Task :lib_core_data:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_base_logger:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_bu_statistics:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_base_ui_compose:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_core_data:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_core:generateReleaseRFile UP-TO-DATE
+> Task :lib_base_network:processReleaseManifest UP-TO-DATE
+> Task :lib_bu_statistics:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_base_logger:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_base_ui_compose:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_core_data:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_bu_statistics:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_core:javaPreCompileRelease UP-TO-DATE
+> Task :lib_base_ui_compose:processReleaseManifest UP-TO-DATE
+> Task :lib_base_logger:processReleaseManifest UP-TO-DATE
+> Task :lib_core_data:processReleaseManifest UP-TO-DATE
+> Task :lib_bu_statistics:processReleaseManifest UP-TO-DATE
+> Task :lib_core:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_core:writeReleaseAarMetadata UP-TO-DATE
+> Task :nga_phone_base_3.0:generatePreviewBuildConfig
+> Task :lib_core:extractDeepLinksRelease UP-TO-DATE
+> Task :nga_phone_base_3.0:generatePreviewResValues UP-TO-DATE
+> Task :lib_bu_message:javaPreCompileRelease UP-TO-DATE
+> Task :lib_base_ui:javaPreCompileRelease UP-TO-DATE
+> Task :lib_module_debug:javaPreCompileRelease UP-TO-DATE
+> Task :lib_core:processReleaseManifest UP-TO-DATE
+> Task :lib_bu_message:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_base_ui:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_module_debug:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_base_ui:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_bu_message:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_module_debug:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_bu_message:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_base_ui:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_module_debug:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_bu_message:processReleaseManifest UP-TO-DATE
+> Task :lib_base_ui:processReleaseManifest UP-TO-DATE
+> Task :lib_module_debug:processReleaseManifest UP-TO-DATE
+> Task :lib_bu_account:javaPreCompileRelease UP-TO-DATE
+> Task :lib_bu_account:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_bu_account:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_bu_account:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_bu_account:processReleaseManifest UP-TO-DATE
+> Task :lib_base_service_api:compileReleaseKotlin UP-TO-DATE
+> Task :lib_base_service_api:javaPreCompileRelease UP-TO-DATE
+> Task :lib_base_service_api:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_base_service_api:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_base_service_api:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_base_service_api:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_base_service_api:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_base_service_api:processReleaseManifest UP-TO-DATE
+> Task :lib_base_common:compileReleaseKotlin UP-TO-DATE
+> Task :lib_base_common:javaPreCompileRelease UP-TO-DATE
+> Task :lib_base_common:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_base_common:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_base_common:compileReleaseLibraryResources UP-TO-DATE
+> Task :lib_base_common:writeReleaseAarMetadata UP-TO-DATE
+> Task :lib_base_common:extractDeepLinksRelease UP-TO-DATE
+> Task :lib_base_common:processReleaseManifest UP-TO-DATE
+> Task :lib_base_logger:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_bu_statistics:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_bu_statistics:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_base_logger:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_base_ui:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:mapPreviewSourceSetPaths
+> Task :lib_core_data:compileReleaseKotlin UP-TO-DATE
+> Task :lib_base_ui:kaptReleaseKotlin UP-TO-DATE
+> Task :lib_core_data:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_core_data:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_base_ui:compileReleaseKotlin UP-TO-DATE
+> Task :lib_base_network:compileReleaseKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:checkPreviewAarMetadata
+> Task :lib_base_network:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :nga_phone_base_3.0:generatePreviewResources
+> Task :lib_base_network:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_base_ui:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_base_ui:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_base_ui_compose:compileReleaseKotlin UP-TO-DATE
+> Task :lib_core:compileReleaseKotlin UP-TO-DATE
+> Task :lib_base_ui_compose:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_base_ui_compose:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_core:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_core:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_bu_account:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+> Task :lib_module_debug:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+> Task :lib_bu_message:kaptGenerateStubsReleaseKotlin UP-TO-DATE
+> Task :lib_module_debug:kaptReleaseKotlin UP-TO-DATE
+> Task :lib_bu_message:kaptReleaseKotlin UP-TO-DATE
+> Task :lib_bu_account:kaptReleaseKotlin UP-TO-DATE
+> Task :lib_module_debug:compileReleaseKotlin UP-TO-DATE
+> Task :lib_bu_account:compileReleaseKotlin UP-TO-DATE
+> Task :lib_bu_message:compileReleaseKotlin UP-TO-DATE
+> Task :lib_module_debug:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_bu_message:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_bu_account:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :lib_bu_message:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_module_debug:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :lib_bu_account:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :nga_phone_base_3.0:packagePreviewResources
+> Task :nga_phone_base_3.0:parsePreviewLocalResources FROM-CACHE
+> Task :nga_phone_base_3.0:createPreviewCompatibleScreenManifests
+> Task :nga_phone_base_3.0:extractDeepLinksPreview UP-TO-DATE
+> Task :nga_phone_base_3.0:processPreviewMainManifest UP-TO-DATE
+> Task :nga_phone_base_3.0:processPreviewManifest
+> Task :nga_phone_base_3.0:javaPreCompilePreview FROM-CACHE
+> Task :nga_phone_base_3.0:processPreviewManifestForPackage
+> Task :nga_phone_base_3.0:mergePreviewResources
+> Task :nga_phone_base_3.0:processPreviewResources
+> Task :nga_phone_base_3.0:kaptGenerateStubsPreviewKotlin
+
+> Task :nga_phone_base_3.0:kaptPreviewKotlin
+[WARN] Issue detected with com.alibaba.android.arouter.compiler.processor.InterceptorProcessor. Expected 1 originating source file when generating /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/build/generated/source/kapt/preview/com/alibaba/android/arouter/routes/ARouter$$Interceptors$$nga_phone_base_30.java, but detected 0: [].
+[WARN] Issue detected with com.alibaba.android.arouter.compiler.processor.RouteProcessor. Expected 1 originating source file when generating /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/build/generated/source/kapt/preview/com/alibaba/android/arouter/routes/ARouter$$Group$$activity.java, but detected 0: [].
+Note: [1] Wrote GeneratedAppGlideModule with: []
+Note: ARouter::Compiler The user has configuration the module name, it was [nga_phone_base_30]
+Note: ARouter::Compiler >>> AutowiredProcessor init. <<<
+Note: ARouter::Compiler The user has configuration the module name, it was [nga_phone_base_30]
+Note: ARouter::Compiler >>> InterceptorProcessor init. <<<
+Note: ARouter::Compiler >>> Found interceptors, size is 1 <<<
+Note: ARouter::Compiler A interceptor verify over, its gov.anzong.androidnga.arouter.ActivityInterceptor
+Note: ARouter::Compiler >>> Interceptor group write over. <<<
+Note: ARouter::Compiler The user has configuration the module name, it was [nga_phone_base_30]
+Note: ARouter::Compiler >>> RouteProcessor init. <<<
+Note: ARouter::Compiler >>> Found routes, start... <<<
+Note: ARouter::Compiler >>> Found routes, size is 8 <<<
+Note: ARouter::Compiler >>> Found activity route: gov.anzong.androidnga.activity.RecentNotificationActivity <<<
+Note: ARouter::Compiler >>> Start categories, group = activity, path = /activity/notification <<<
+Note: ARouter::Compiler >>> Found activity route: gov.anzong.androidnga.activity.ProfileActivity <<<
+Note: ARouter::Compiler >>> Start categories, group = activity, path = /activity/profile <<<
+Note: ARouter::Compiler >>> Found activity route: gov.anzong.androidnga.activity.PostActivity <<<
+Note: ARouter::Compiler >>> Start categories, group = activity, path = /activity/post <<<
+Note: ARouter::Compiler >>> Found activity route: gov.anzong.androidnga.activity.ArticleListActivity <<<
+Note: ARouter::Compiler >>> Start categories, group = activity, path = /activity/topic_content <<<
+Note: ARouter::Compiler >>> Found activity route: gov.anzong.androidnga.activity.TopicListActivity <<<
+Note: ARouter::Compiler >>> Start categories, group = activity, path = /activity/topic_list <<<
+Note: ARouter::Compiler >>> Found provider route: gov.anzong.androidnga.service.UserManagerService <<<
+Note: ARouter::Compiler >>> Start categories, group = service, path = /service/user <<<
+Note: ARouter::Compiler >>> Found provider route: gov.anzong.androidnga.service.ThemeManagerService <<<
+Note: ARouter::Compiler >>> Start categories, group = service, path = /service/theme <<<
+Note: ARouter::Compiler >>> Found activity route: gov.anzong.androidnga.activity.compose.SearchActivity <<<
+Note: ARouter::Compiler >>> Start categories, group = activity, path = /activity/search <<<
+Note: ARouter::Compiler >>> Generated group: activity<<<
+Note: ARouter::Compiler >>> Generated group: service<<<
+Note: ARouter::Compiler >>> Generated provider map, name is ARouter$$Providers$$nga_phone_base_30 <<<
+Note: ARouter::Compiler >>> Generated root, name is ARouter$$Root$$nga_phone_base_30 <<<
+
+> Task :nga_phone_base_3.0:compilePreviewKotlin
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt:10:8 'class Board : JavaBean' is deprecated.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt:133:43 'class Board : JavaBean' is deprecated.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterManager.kt:34:47 'val DEPRECATED_FILTER_USER_LIST: String' is deprecated. 错误的Key.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:65:29 Unchecked cast of 'List<FilterState<out Any>>' to 'List<FilterState<Any>>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:77:41 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:78:41 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:103:41 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:104:41 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:135:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:137:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:147:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:149:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:159:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:161:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:168:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordViewModel.kt:170:33 Unchecked cast of 'FilterState<Any>' to 'FilterState<String>'.
+w: file:///home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/ui/fragment/TopicListBaseFragment.kt:39:44 'fun <T : Parcelable!> getParcelable(p0: String?): T?' is deprecated. Deprecated in Java.
+
+> Task :nga_phone_base_3.0:compilePreviewJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+[Incubating] Problems report is available at: file:///home/toph/nga-just-works-upstream-adoption/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 13s
+193 actionable tasks: 14 executed, 2 from cache, 177 up-to-date

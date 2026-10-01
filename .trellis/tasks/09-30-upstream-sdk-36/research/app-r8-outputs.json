@@ -1,0 +1,211 @@
+{
+  "outputs": [
+    {
+      "path": "nga_phone_base_3.0/build/outputs/mapping/release/usage.txt",
+      "size": 5319508,
+      "sha256": "59d98f3eb27e3ff26df47e504a6ac7a8cbfa4b4953012deca678bdc95dea7ef7"
+    },
+    {
+      "path": "nga_phone_base_3.0/build/outputs/mapping/release/seeds.txt",
+      "size": 8223135,
+      "sha256": "dd7acce3b24f1e0ba55c68fc5fbcc4ed235c2f3c4dbc7e5f8a8ceb46b86283b8"
+    },
+    {
+      "path": "nga_phone_base_3.0/build/outputs/mapping/release/configuration.txt",
+      "size": 54987,
+      "sha256": "c2c635b538dd9f8a36ad8f5dc015d759d8730ffba99efb37894a3b9a14d2e058"
+    },
+    {
+      "path": "nga_phone_base_3.0/build/outputs/mapping/release/mapping.txt",
+      "size": 64137688,
+      "sha256": "1339c2711fc45b100bde467ebfdfab8415c2ace9c1bc3bfaf20c43f1fa1283b4"
+    },
+    {
+      "path": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex",
+      "size": 9141460,
+      "sha256": "9a51fb262b63cc60189ecff4366a9fbfc9c42c06aa5957755483e7797c277203"
+    },
+    {
+      "path": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "size": 4493236,
+      "sha256": "fb74a25cfb809176cd537ee29771c8de6c6494ff8b9546c0c3bff7a941701bdb"
+    }
+  ],
+  "retained_classes": {
+    "gov.anzong.androidnga.activity.compose.filter.FilterKeyword": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [],
+      "member_annotations": {
+        "mPattern": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ]
+      }
+    },
+    "gov.anzong.androidnga.core.board.data.BoardEntity": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [],
+      "member_annotations": {
+        "children": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "parentId": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "getChildren": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "getIconUrl": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setChildren": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "setIconUrl": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ]
+      }
+    },
+    "sp.phone.http.bean.ThreadData": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [],
+      "member_annotations": {
+        "rowList": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "getRowList": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "setRowList": [
+          "Ldalvik/annotation/Signature;"
+        ]
+      }
+    },
+    "sp.phone.http.bean.ThreadRowInfo": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [],
+      "member_annotations": {
+        "attachs": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "comments": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "hotReplies": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "mImageUrlList": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "getAttachs": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "getComments": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "getImageUrls": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "setAttachs": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "setComments": [
+          "Ldalvik/annotation/Signature;"
+        ]
+      }
+    },
+    "sp.phone.http.bean.TopicListBean": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [
+        "Ldalvik/annotation/MemberClasses;"
+      ],
+      "member_annotations": {}
+    },
+    "sp.phone.mvp.model.entity.ThreadPageInfo": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [
+        "Ldalvik/annotation/MemberClasses;"
+      ],
+      "member_annotations": {
+        "getAuthorId": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "getCacheEntry": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "getCacheSummary": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "getLastPoster": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "getPostDate": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "getTitleFont": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "getTopicMisc": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setAuthorId": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setCacheEntry": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setCacheSummary": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setLastPoster": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setPostDate": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setTitleFont": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ],
+        "setTopicMisc": [
+          "Lcom/alibaba/fastjson2/annotation/JSONField;"
+        ]
+      }
+    },
+    "sp.phone.task.AvatarFileUploadTask$NonameUploadResponse": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [
+        "Ldalvik/annotation/EnclosingClass;",
+        "Ldalvik/annotation/InnerClass;"
+      ],
+      "member_annotations": {}
+    },
+    "sp.phone.task.ReportTask$ResultBean": {
+      "dex": "nga_phone_base_3.0/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex",
+      "class_annotations": [
+        "Ldalvik/annotation/EnclosingClass;",
+        "Ldalvik/annotation/InnerClass;"
+      ],
+      "member_annotations": {
+        "data": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "error": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "getData": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "getError": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "setData": [
+          "Ldalvik/annotation/Signature;"
+        ],
+        "setError": [
+          "Ldalvik/annotation/Signature;"
+        ]
+      }
+    }
+  },
+  "production_contracts": "JavaBean, Parcelable, JSON2, ARouter, Signature and annotations present in merged rules",
+  "execution_limit": "static app DEX inspection; classfile reflection is a separate fixture"
+}

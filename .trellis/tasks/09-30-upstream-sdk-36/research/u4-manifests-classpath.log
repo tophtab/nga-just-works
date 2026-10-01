@@ -1,0 +1,337 @@
+
+> Configure project :lib_base_common
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+The current default is 'false'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+To keep using this feature, add the following to your module-level build.gradle files:
+    android.buildFeatures.buildConfig = true
+or from Android Studio, click: `Refactor` > `Migrate BuildConfig to Gradle Build Files`.
+
+> Configure project :nga_phone_base_3.0
+WARNING: DSL element 'isRenderscriptDebuggable' is obsolete and should be removed.
+It will be removed in version 9.0 of the Android Gradle plugin.
+U4_MODULE :lib_base_common compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_base_logger compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_base_network compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_base_service_api compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_base_ui compileSdk=36 minSdk=29 targetSdk=null javaSource=17 javaTarget=17
+U4_MODULE :lib_base_ui_compose compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_bu_account compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_bu_message compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_bu_statistics compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_core compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_core_data compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :lib_module_debug compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+U4_MODULE :nga_phone_base_3.0 compileSdk=36 minSdk=29 targetSdk=36 javaSource=17 javaTarget=17
+
+> Task :lib_base_network:preBuild UP-TO-DATE
+> Task :lib_base_ui:preBuild UP-TO-DATE
+> Task :lib_base_service_api:preBuild UP-TO-DATE
+> Task :lib_base_common:preBuild UP-TO-DATE
+> Task :lib_base_logger:preBuild UP-TO-DATE
+> Task :lib_base_common:preReleaseBuild UP-TO-DATE
+> Task :lib_base_ui_compose:preBuild UP-TO-DATE
+> Task :lib_base_network:preReleaseBuild UP-TO-DATE
+> Task :lib_base_service_api:preReleaseBuild UP-TO-DATE
+> Task :lib_bu_account:preBuild UP-TO-DATE
+> Task :lib_base_ui_compose:preReleaseBuild UP-TO-DATE
+> Task :lib_base_ui:preReleaseBuild UP-TO-DATE
+> Task :lib_base_logger:preReleaseBuild UP-TO-DATE
+> Task :lib_bu_account:preReleaseBuild UP-TO-DATE
+> Task :lib_bu_message:preBuild UP-TO-DATE
+> Task :lib_bu_statistics:preBuild UP-TO-DATE
+> Task :lib_core:preBuild UP-TO-DATE
+> Task :lib_bu_message:preReleaseBuild UP-TO-DATE
+> Task :lib_core_data:preBuild UP-TO-DATE
+> Task :lib_module_debug:preBuild UP-TO-DATE
+> Task :lib_bu_statistics:preReleaseBuild UP-TO-DATE
+> Task :lib_core_data:preReleaseBuild UP-TO-DATE
+> Task :lib_module_debug:preReleaseBuild UP-TO-DATE
+> Task :lib_core:preReleaseBuild UP-TO-DATE
+> Task :nga_phone_base_3.0:preBuild UP-TO-DATE
+> Task :nga_phone_base_3.0:preReleaseBuild UP-TO-DATE
+> Task :nga_phone_base_3.0:generateReleaseResValues FROM-CACHE
+> Task :lib_base_service_api:generateReleaseResValues FROM-CACHE
+> Task :lib_base_common:generateReleaseResValues FROM-CACHE
+> Task :lib_base_ui_compose:generateReleaseResValues FROM-CACHE
+> Task :lib_base_network:generateReleaseResValues FROM-CACHE
+> Task :lib_core:generateReleaseResValues FROM-CACHE
+> Task :lib_module_debug:generateReleaseResValues FROM-CACHE
+> Task :lib_bu_statistics:generateReleaseResValues FROM-CACHE
+> Task :lib_base_logger:generateReleaseResValues FROM-CACHE
+> Task :lib_bu_account:generateReleaseResValues FROM-CACHE
+> Task :lib_core_data:generateReleaseResValues FROM-CACHE
+> Task :lib_bu_message:generateReleaseResValues FROM-CACHE
+> Task :lib_base_ui:generateReleaseResValues FROM-CACHE
+> Task :lib_base_ui_compose:extractDeepLinksRelease FROM-CACHE
+> Task :lib_base_logger:extractDeepLinksRelease FROM-CACHE
+> Task :nga_phone_base_3.0:extractDeepLinksRelease FROM-CACHE
+> Task :lib_base_common:extractDeepLinksRelease FROM-CACHE
+> Task :lib_base_service_api:extractDeepLinksRelease FROM-CACHE
+> Task :nga_phone_base_3.0:prePreviewBuild UP-TO-DATE
+> Task :lib_base_network:extractDeepLinksRelease FROM-CACHE
+> Task :lib_core:extractDeepLinksRelease FROM-CACHE
+> Task :lib_bu_message:extractDeepLinksRelease FROM-CACHE
+> Task :lib_bu_statistics:extractDeepLinksRelease FROM-CACHE
+> Task :lib_core_data:extractDeepLinksRelease FROM-CACHE
+> Task :lib_module_debug:extractDeepLinksRelease FROM-CACHE
+> Task :lib_bu_account:extractDeepLinksRelease FROM-CACHE
+> Task :lib_base_ui:extractDeepLinksRelease FROM-CACHE
+> Task :nga_phone_base_3.0:generatePreviewResValues FROM-CACHE
+> Task :lib_base_ui_compose:processReleaseManifest FROM-CACHE
+> Task :nga_phone_base_3.0:extractDeepLinksPreview FROM-CACHE
+> Task :lib_base_ui_compose:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :nga_phone_base_3.0:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_ui_compose:preDebugBuild UP-TO-DATE
+> Task :lib_base_common:processReleaseManifest FROM-CACHE
+> Task :nga_phone_base_3.0:preDebugBuild UP-TO-DATE
+> Task :lib_base_common:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_common:preDebugBuild UP-TO-DATE
+> Task :nga_phone_base_3.0:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_common:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugBuildConfig UP-TO-DATE
+> Task :nga_phone_base_3.0:generateDebugResValues UP-TO-DATE
+> Task :lib_base_common:generateDebugResValues UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugResValues UP-TO-DATE
+> Task :nga_phone_base_3.0:generateDebugResources UP-TO-DATE
+> Task :lib_base_common:generateDebugResources UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugResources UP-TO-DATE
+> Task :lib_base_service_api:processReleaseManifest FROM-CACHE
+> Task :lib_core_data:processReleaseManifest FROM-CACHE
+> Task :lib_base_service_api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_service_api:preDebugBuild UP-TO-DATE
+> Task :lib_core:processReleaseManifest FROM-CACHE
+> Task :nga_phone_base_3.0:packageDebugResources UP-TO-DATE
+> Task :lib_core_data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_core_data:preDebugBuild UP-TO-DATE
+> Task :lib_base_common:packageDebugResources UP-TO-DATE
+> Task :lib_bu_message:processReleaseManifest FROM-CACHE
+> Task :lib_base_ui_compose:packageDebugResources UP-TO-DATE
+> Task :lib_base_service_api:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core:preDebugBuild UP-TO-DATE
+> Task :lib_core_data:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_bu_message:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_bu_message:preDebugBuild UP-TO-DATE
+> Task :lib_base_service_api:generateDebugResValues UP-TO-DATE
+> Task :lib_bu_statistics:processReleaseManifest FROM-CACHE
+> Task :lib_core_data:generateDebugResValues UP-TO-DATE
+> Task :lib_core:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_module_debug:processReleaseManifest FROM-CACHE
+> Task :lib_core:generateDebugResValues UP-TO-DATE
+> Task :lib_base_service_api:generateDebugResources UP-TO-DATE
+> Task :lib_bu_statistics:preDebugBuild UP-TO-DATE
+> Task :lib_core_data:generateDebugResources UP-TO-DATE
+> Task :lib_base_logger:processReleaseManifest FROM-CACHE
+> Task :lib_module_debug:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_bu_message:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core:generateDebugResources UP-TO-DATE
+> Task :lib_base_ui:processReleaseManifest FROM-CACHE
+> Task :lib_module_debug:preDebugBuild UP-TO-DATE
+> Task :lib_base_network:processReleaseManifest FROM-CACHE
+> Task :lib_base_common:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_message:generateDebugResValues UP-TO-DATE
+> Task :lib_base_ui_compose:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_account:processReleaseManifest FROM-CACHE
+> Task :lib_module_debug:generateDebugBuildConfig UP-TO-DATE
+> Task :nga_phone_base_3.0:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_service_api:packageDebugResources UP-TO-DATE
+> Task :lib_base_logger:preDebugBuild UP-TO-DATE
+> Task :lib_base_ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_common:generateDebugRFile UP-TO-DATE
+> Task :lib_base_logger:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_bu_account:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_module_debug:generateDebugResValues UP-TO-DATE
+> Task :nga_phone_base_3.0:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :lib_core:packageDebugResources UP-TO-DATE
+> Task :lib_module_debug:generateDebugResources UP-TO-DATE
+> Task :lib_core_data:packageDebugResources UP-TO-DATE
+> Task :nga_phone_base_3.0:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_account:preDebugBuild UP-TO-DATE
+> Task :lib_base_service_api:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_ui:preDebugBuild UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugRFile UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugResValues UP-TO-DATE
+> Task :lib_core:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_logger:generateDebugResValues UP-TO-DATE
+> Task :lib_bu_account:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_network:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_service_api:generateDebugRFile UP-TO-DATE
+> Task :lib_base_logger:generateDebugResources UP-TO-DATE
+> Task :lib_bu_message:generateDebugResources UP-TO-DATE
+> Task :lib_core:generateDebugRFile UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugResources UP-TO-DATE
+> Task :lib_base_ui_compose:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_logger:packageDebugResources UP-TO-DATE
+> Task :lib_module_debug:packageDebugResources UP-TO-DATE
+> Task :lib_bu_account:generateDebugResValues UP-TO-DATE
+> Task :lib_base_network:preDebugBuild UP-TO-DATE
+> Task :lib_core:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_ui_compose:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_network:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_network:generateDebugResValues UP-TO-DATE
+> Task :lib_base_network:generateDebugResources UP-TO-DATE
+> Task :lib_core_data:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_ui_compose:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_ui:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_bu_statistics:packageDebugResources UP-TO-DATE
+> Task :lib_bu_message:packageDebugResources UP-TO-DATE
+> Task :lib_base_logger:parseDebugLocalResources UP-TO-DATE
+> Task :lib_module_debug:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_account:generateDebugResources UP-TO-DATE
+> Task :lib_core_data:generateDebugRFile UP-TO-DATE
+> Task :lib_base_network:packageDebugResources UP-TO-DATE
+> Task :lib_base_ui:generateDebugResValues UP-TO-DATE
+> Task :lib_base_ui_compose:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_module_debug:generateDebugRFile UP-TO-DATE
+> Task :lib_core:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_account:packageDebugResources UP-TO-DATE
+> Task :lib_base_logger:generateDebugRFile UP-TO-DATE
+> Task :lib_base_ui:generateDebugResources UP-TO-DATE
+> Task :lib_base_network:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_logger:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_statistics:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_message:parseDebugLocalResources UP-TO-DATE
+> Task :lib_core_data:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_ui_compose:processDebugManifest UP-TO-DATE
+> Task :lib_base_logger:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_ui:packageDebugResources UP-TO-DATE
+> Task :lib_core_data:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_network:generateDebugRFile UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugRFile UP-TO-DATE
+> Task :lib_core_data:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_bu_account:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_message:generateDebugRFile UP-TO-DATE
+> Task :lib_base_logger:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_core:processDebugManifest UP-TO-DATE
+> Task :lib_base_network:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_account:generateDebugRFile UP-TO-DATE
+> Task :lib_core_data:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_network:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_bu_statistics:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_ui:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_logger:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_network:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_ui:generateDebugRFile UP-TO-DATE
+> Task :lib_bu_statistics:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_logger:processDebugManifest UP-TO-DATE
+> Task :lib_core_data:processDebugManifest UP-TO-DATE
+> Task :lib_bu_statistics:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_network:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_statistics:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_statistics:processDebugManifest UP-TO-DATE
+> Task :lib_base_network:processDebugManifest UP-TO-DATE
+> Task :lib_module_debug:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_message:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_ui:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_message:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_module_debug:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_ui:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_bu_message:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_ui:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_bu_message:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_ui:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_module_debug:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_module_debug:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_message:processDebugManifest UP-TO-DATE
+> Task :lib_base_ui:processDebugManifest UP-TO-DATE
+> Task :lib_module_debug:processDebugManifest UP-TO-DATE
+> Task :lib_bu_account:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_account:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_bu_account:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_bu_account:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_account:processDebugManifest UP-TO-DATE
+> Task :lib_base_service_api:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_service_api:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_service_api:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_service_api:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_service_api:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_service_api:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_service_api:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_service_api:processDebugManifest UP-TO-DATE
+> Task :lib_base_common:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_common:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_common:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_common:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_common:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_common:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_common:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_common:processDebugManifest UP-TO-DATE
+> Task :lib_base_ui:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_bu_statistics:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_logger:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_logger:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_bu_statistics:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_core_data:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_ui:kaptDebugKotlin UP-TO-DATE
+> Task :lib_core_data:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_core_data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_ui:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_network:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_ui:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_ui:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_network:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_network:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_core:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_ui_compose:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_ui_compose:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_core:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_core:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_ui_compose:bundleLibCompileToJarDebug UP-TO-DATE
+
+> Task :nga_phone_base_3.0:processReleaseMainManifest
+package="gov.anzong.androidnga" found in source AndroidManifest.xml: /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="gov.anzong.androidnga" from the source AndroidManifest.xml: /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/AndroidManifest.xml.
+/home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/AndroidManifest.xml:15:5-94 Warning:
+	uses-permission#android.permission.READ_PHONE_STATE was tagged at AndroidManifest.xml:15 to remove other declarations but no other declaration present
+
+> Task :lib_bu_account:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_bu_message:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:kaptDebugKotlin UP-TO-DATE
+> Task :lib_bu_message:kaptDebugKotlin UP-TO-DATE
+> Task :lib_bu_account:kaptDebugKotlin UP-TO-DATE
+> Task :lib_bu_account:compileDebugKotlin UP-TO-DATE
+> Task :lib_bu_message:compileDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:compileDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_bu_message:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_bu_account:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_module_debug:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_bu_account:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_bu_message:bundleLibCompileToJarDebug UP-TO-DATE
+
+> Task :nga_phone_base_3.0:processPreviewMainManifest
+package="gov.anzong.androidnga" found in source AndroidManifest.xml: /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="gov.anzong.androidnga" from the source AndroidManifest.xml: /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/AndroidManifest.xml.
+/home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/src/main/AndroidManifest.xml:15:5-94 Warning:
+	uses-permission#android.permission.READ_PHONE_STATE was tagged at AndroidManifest.xml:15 to remove other declarations but no other declaration present
+
+> Task :nga_phone_base_3.0:checkDebugAarMetadata UP-TO-DATE
+> Task :nga_phone_base_3.0:mapDebugSourceSetPaths UP-TO-DATE
+> Task :nga_phone_base_3.0:mergeDebugResources UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugMainManifest UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugManifest UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugManifestForPackage UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugResources UP-TO-DATE
+> Task :nga_phone_base_3.0:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:kaptDebugKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:compileDebugKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:javaPreCompileDebug UP-TO-DATE
+> Task :nga_phone_base_3.0:compileDebugJavaWithJavac UP-TO-DATE
+> Task :nga_phone_base_3.0:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :nga_phone_base_3.0:kaptGenerateStubsDebugUnitTestKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:kaptDebugUnitTestKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :nga_phone_base_3.0:preDebugUnitTestBuild UP-TO-DATE
+> Task :nga_phone_base_3.0:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :nga_phone_base_3.0:compileDebugUnitTestJavaWithJavac UP-TO-DATE
+> Task :nga_phone_base_3.0:u3FixtureClasspath
+
+BUILD SUCCESSFUL in 2s
+242 actionable tasks: 3 executed, 40 from cache, 199 up-to-date

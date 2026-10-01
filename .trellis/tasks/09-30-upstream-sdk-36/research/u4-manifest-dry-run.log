@@ -1,0 +1,152 @@
+
+> Configure project :lib_base_common
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+The current default is 'false'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+To keep using this feature, add the following to your module-level build.gradle files:
+    android.buildFeatures.buildConfig = true
+or from Android Studio, click: `Refactor` > `Migrate BuildConfig to Gradle Build Files`.
+
+> Configure project :nga_phone_base_3.0
+WARNING: DSL element 'isRenderscriptDebuggable' is obsolete and should be removed.
+It will be removed in version 9.0 of the Android Gradle plugin.
+U4_TASK :lib_base_common:preBuild
+U4_TASK :lib_base_common:preReleaseBuild
+U4_TASK :lib_base_common:generateReleaseResValues
+U4_TASK :lib_base_common:extractDeepLinksRelease
+U4_TASK :lib_base_common:processReleaseManifest
+U4_TASK :lib_base_logger:preBuild
+U4_TASK :lib_base_logger:preReleaseBuild
+U4_TASK :lib_base_logger:generateReleaseResValues
+U4_TASK :lib_base_logger:extractDeepLinksRelease
+U4_TASK :lib_base_logger:processReleaseManifest
+U4_TASK :lib_base_network:preBuild
+U4_TASK :lib_base_network:preReleaseBuild
+U4_TASK :lib_base_network:generateReleaseResValues
+U4_TASK :lib_base_network:extractDeepLinksRelease
+U4_TASK :lib_base_network:processReleaseManifest
+U4_TASK :lib_base_service_api:preBuild
+U4_TASK :lib_base_service_api:preReleaseBuild
+U4_TASK :lib_base_service_api:generateReleaseResValues
+U4_TASK :lib_base_service_api:extractDeepLinksRelease
+U4_TASK :lib_base_service_api:processReleaseManifest
+U4_TASK :lib_base_ui:preBuild
+U4_TASK :lib_base_ui:preReleaseBuild
+U4_TASK :lib_base_ui:generateReleaseResValues
+U4_TASK :lib_base_ui:extractDeepLinksRelease
+U4_TASK :lib_base_ui:processReleaseManifest
+U4_TASK :lib_base_ui_compose:preBuild
+U4_TASK :lib_base_ui_compose:preReleaseBuild
+U4_TASK :lib_base_ui_compose:generateReleaseResValues
+U4_TASK :lib_base_ui_compose:extractDeepLinksRelease
+U4_TASK :lib_base_ui_compose:processReleaseManifest
+U4_TASK :lib_bu_account:preBuild
+U4_TASK :lib_bu_account:preReleaseBuild
+U4_TASK :lib_bu_account:generateReleaseResValues
+U4_TASK :lib_bu_account:extractDeepLinksRelease
+U4_TASK :lib_bu_account:processReleaseManifest
+U4_TASK :lib_bu_message:preBuild
+U4_TASK :lib_bu_message:preReleaseBuild
+U4_TASK :lib_bu_message:generateReleaseResValues
+U4_TASK :lib_bu_message:extractDeepLinksRelease
+U4_TASK :lib_bu_message:processReleaseManifest
+U4_TASK :lib_bu_statistics:preBuild
+U4_TASK :lib_bu_statistics:preReleaseBuild
+U4_TASK :lib_bu_statistics:generateReleaseResValues
+U4_TASK :lib_bu_statistics:extractDeepLinksRelease
+U4_TASK :lib_bu_statistics:processReleaseManifest
+U4_TASK :lib_core:preBuild
+U4_TASK :lib_core:preReleaseBuild
+U4_TASK :lib_core:generateReleaseResValues
+U4_TASK :lib_core:extractDeepLinksRelease
+U4_TASK :lib_core:processReleaseManifest
+U4_TASK :lib_core_data:preBuild
+U4_TASK :lib_core_data:preReleaseBuild
+U4_TASK :lib_core_data:generateReleaseResValues
+U4_TASK :lib_core_data:extractDeepLinksRelease
+U4_TASK :lib_core_data:processReleaseManifest
+U4_TASK :lib_module_debug:preBuild
+U4_TASK :lib_module_debug:preReleaseBuild
+U4_TASK :lib_module_debug:generateReleaseResValues
+U4_TASK :lib_module_debug:extractDeepLinksRelease
+U4_TASK :lib_module_debug:processReleaseManifest
+U4_TASK :nga_phone_base_3.0:preBuild
+U4_TASK :nga_phone_base_3.0:preReleaseBuild
+U4_TASK :nga_phone_base_3.0:generateReleaseResValues
+U4_TASK :nga_phone_base_3.0:extractDeepLinksRelease
+U4_TASK :nga_phone_base_3.0:processReleaseMainManifest
+U4_TASK :nga_phone_base_3.0:prePreviewBuild
+U4_TASK :nga_phone_base_3.0:generatePreviewResValues
+U4_TASK :nga_phone_base_3.0:extractDeepLinksPreview
+U4_TASK :nga_phone_base_3.0:processPreviewMainManifest
+:lib_base_common:preBuild SKIPPED
+:lib_base_common:preReleaseBuild SKIPPED
+:lib_base_common:generateReleaseResValues SKIPPED
+:lib_base_common:extractDeepLinksRelease SKIPPED
+:lib_base_common:processReleaseManifest SKIPPED
+:lib_base_logger:preBuild SKIPPED
+:lib_base_logger:preReleaseBuild SKIPPED
+:lib_base_logger:generateReleaseResValues SKIPPED
+:lib_base_logger:extractDeepLinksRelease SKIPPED
+:lib_base_logger:processReleaseManifest SKIPPED
+:lib_base_network:preBuild SKIPPED
+:lib_base_network:preReleaseBuild SKIPPED
+:lib_base_network:generateReleaseResValues SKIPPED
+:lib_base_network:extractDeepLinksRelease SKIPPED
+:lib_base_network:processReleaseManifest SKIPPED
+:lib_base_service_api:preBuild SKIPPED
+:lib_base_service_api:preReleaseBuild SKIPPED
+:lib_base_service_api:generateReleaseResValues SKIPPED
+:lib_base_service_api:extractDeepLinksRelease SKIPPED
+:lib_base_service_api:processReleaseManifest SKIPPED
+:lib_base_ui:preBuild SKIPPED
+:lib_base_ui:preReleaseBuild SKIPPED
+:lib_base_ui:generateReleaseResValues SKIPPED
+:lib_base_ui:extractDeepLinksRelease SKIPPED
+:lib_base_ui:processReleaseManifest SKIPPED
+:lib_base_ui_compose:preBuild SKIPPED
+:lib_base_ui_compose:preReleaseBuild SKIPPED
+:lib_base_ui_compose:generateReleaseResValues SKIPPED
+:lib_base_ui_compose:extractDeepLinksRelease SKIPPED
+:lib_base_ui_compose:processReleaseManifest SKIPPED
+:lib_bu_account:preBuild SKIPPED
+:lib_bu_account:preReleaseBuild SKIPPED
+:lib_bu_account:generateReleaseResValues SKIPPED
+:lib_bu_account:extractDeepLinksRelease SKIPPED
+:lib_bu_account:processReleaseManifest SKIPPED
+:lib_bu_message:preBuild SKIPPED
+:lib_bu_message:preReleaseBuild SKIPPED
+:lib_bu_message:generateReleaseResValues SKIPPED
+:lib_bu_message:extractDeepLinksRelease SKIPPED
+:lib_bu_message:processReleaseManifest SKIPPED
+:lib_bu_statistics:preBuild SKIPPED
+:lib_bu_statistics:preReleaseBuild SKIPPED
+:lib_bu_statistics:generateReleaseResValues SKIPPED
+:lib_bu_statistics:extractDeepLinksRelease SKIPPED
+:lib_bu_statistics:processReleaseManifest SKIPPED
+:lib_core:preBuild SKIPPED
+:lib_core:preReleaseBuild SKIPPED
+:lib_core:generateReleaseResValues SKIPPED
+:lib_core:extractDeepLinksRelease SKIPPED
+:lib_core:processReleaseManifest SKIPPED
+:lib_core_data:preBuild SKIPPED
+:lib_core_data:preReleaseBuild SKIPPED
+:lib_core_data:generateReleaseResValues SKIPPED
+:lib_core_data:extractDeepLinksRelease SKIPPED
+:lib_core_data:processReleaseManifest SKIPPED
+:lib_module_debug:preBuild SKIPPED
+:lib_module_debug:preReleaseBuild SKIPPED
+:lib_module_debug:generateReleaseResValues SKIPPED
+:lib_module_debug:extractDeepLinksRelease SKIPPED
+:lib_module_debug:processReleaseManifest SKIPPED
+:nga_phone_base_3.0:preBuild SKIPPED
+:nga_phone_base_3.0:preReleaseBuild SKIPPED
+:nga_phone_base_3.0:generateReleaseResValues SKIPPED
+:nga_phone_base_3.0:extractDeepLinksRelease SKIPPED
+:nga_phone_base_3.0:processReleaseMainManifest SKIPPED
+:nga_phone_base_3.0:prePreviewBuild SKIPPED
+:nga_phone_base_3.0:generatePreviewResValues SKIPPED
+:nga_phone_base_3.0:extractDeepLinksPreview SKIPPED
+:nga_phone_base_3.0:processPreviewMainManifest SKIPPED
+
+BUILD SUCCESSFUL in 1s

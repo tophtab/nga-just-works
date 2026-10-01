@@ -254,7 +254,7 @@ sys.exit(int(os.environ.get("WORKFLOW_FIXTURE_SIGNER_EXIT", "0")))
             "version-name": self.env["CI_VERSION_NAME"],
             "version-code": self.env["CI_VERSION_CODE"],
             "min-sdk": "29",
-            "target-sdk": "35",
+            "target-sdk": "36",
             "debuggable": self.outputs["expected_debuggable"],
             **manifest_overrides,
         }))
@@ -674,7 +674,7 @@ sys.exit(int(os.environ.get("WORKFLOW_FIXTURE_SIGNER_EXIT", "0")))
             ("application-id", "com.github.tophtab.ngajustworks.debug"),
             ("version-name", "5.6.1-debug.51-feature-ai-summary"),
             ("version-code", "1"), ("debuggable", "false"),
-            ("min-sdk", "26"), ("target-sdk", "34"),
+            ("min-sdk", "26"), ("target-sdk", "34"), ("target-sdk", "35"),
         ):
             with self.subTest(field=field):
                 self.assertNotEqual(0, self.stage(**{field: value}).returncode)
@@ -744,7 +744,7 @@ print(json.dumps(sys.argv[1:]))
         script = re.search(r"^        run: (.+)$", install, re.MULTILINE)[1]
         result = self.command("bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script)
         installed_packages = json.loads(result.stdout)
-        self.assertIn("platforms;android-35", installed_packages)
+        self.assertIn("platforms;android-36", installed_packages)
         self.assertIn("build-tools;35.0.0", installed_packages)
         self.assertNotIn("tools", installed_packages)
 

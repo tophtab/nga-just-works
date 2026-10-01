@@ -1,6 +1,6 @@
 [versions]
-gradle = "8.6.1"
-kotlin = "2.0.21"
+gradle = "8.10.1"
+kotlin = "2.2.21"
 fastjson2 = "2.0.59.android8"
 
 [plugins]

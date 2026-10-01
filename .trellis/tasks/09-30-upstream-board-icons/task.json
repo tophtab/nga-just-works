@@ -29,9 +29,9 @@
     "research/state-persistence-ui.md",
     "research/upstream-refresh-and-url.md"
   ],
-  "notes": "2026-10-01 U1实现及独立check通过，等待父任务联合验收/归档。交付见delivery.md与check.md。",
+  "notes": "已完成本次批准实施及独立check；SDK36全工程820测试/37脚本测试/13模块lint、实际app R8、Preview编译、manifest与原生对齐均通过，等待本轮finish-work归档。",
   "meta": {
-    "planning_status": "implementation_checked",
+    "planning_status": "implementation_complete",
     "task_creation_authorized_at": "2026-09-30",
     "implementation_approved": true,
     "upstream_baseline": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
@@ -50,6 +50,11 @@
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "557f7bea398ed7a7702a876ec99d92eff5d7672e",
     "quality_gate": "740 tests; 13 module lint 0 Error/Fatal; independent check PASS",
-    "implementation_complete": true
+    "implementation_complete": true,
+    "pending_acceptance": [],
+    "acceptance_status": "passed",
+    "final_integration_tests": 820,
+    "final_lint_modules": 13,
+    "final_lint_errors": 0
   }
 }

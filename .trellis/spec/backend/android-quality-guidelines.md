@@ -62,11 +62,13 @@ The application uses the identical fully-qualified runner name.
 - JUnit 4 tests are discovered from the Android test APK and report their
   actual count; a zero-test result caused by a runner startup failure is not a
   pass.
-- The release declarations are `minSdk 29`, `compileSdk 35`, and
-  `targetSdk 35`. For explicitly authorized device validation, API 35 is the
-  primary runtime gate. API 29 is the declared installation-floor smoke
-  target; API 36 may run the target-35 APK as a separately labelled
-  forward-compatibility check.
+- The release declarations are `minSdk 29`, `compileSdk 36`, and
+  `targetSdk 36`. The toolchain is AGP 8.10.1, Gradle 8.11.1, Kotlin and
+  Compose compiler 2.2.21, JDK/bytecode 17, and Build Tools 35.0.0. All modules
+  inherit the root compile SDK. For explicitly authorized device validation,
+  API 35 remains the maintainer's primary compatibility runtime; API 29 is the
+  declared installation-floor smoke target, and API 36 covers target-specific
+  behavior. Label each result with both target and runtime API.
 - For explicitly authorized local device verification, prefer the physical
   device named by the maintainer. Always pass its exact `ANDROID_SERIAL`; do
   not silently substitute an emulator when the physical device disconnects.
@@ -83,7 +85,7 @@ explicitly authorized the corresponding operation.
 | Process crashes/ANRs before test discovery | Inspect logcat and fail the quality gate |
 | API 35 primary test fails | Fix or explicitly document an external blocker; never mask/skip it |
 | API 29 floor smoke fails | Fix before claiming Android 10 support, or explicitly narrow the published installation floor |
-| Target-35 APK fails on API 36 | Record a forward-compatibility finding; do not claim target-36 certification |
+| Target-36 APK fails on API 36 | Record the failing target/runtime behavior; Debug or static checks do not certify device behavior |
 | Test report has zero tests unexpectedly | Investigate runner/package wiring |
 | A physical device disappears during install or test | Classify the run as an ADB/environment blocker, preserve the partial report, and stop without waiting for or requesting reconnection; do not relabel it as a product pass |
 
@@ -92,7 +94,7 @@ explicitly authorized the corresponding operation.
 - **Good**: every test APK uses `AndroidJUnitRunner`. In an explicitly
   authorized device matrix, API 35 reports the full expected suite, API 29
   completes the minimum install/core-flow smoke, and an API 36 run is labelled
-  `target35-on-api36`.
+  `target36-on-api36`.
 - **Base**: A module without `src/androidTest` may omit the runner until it
   gains device tests.
 - **Bad**: Relying on the default `android.test.InstrumentationTestRunner`.
@@ -110,10 +112,10 @@ explicitly authorized the corresponding operation.
 - When the maintainer explicitly includes API 29 release-device validation,
   run a focused install and core-flow smoke there. This replaces the abandoned
   API 26 matrix; a release event by itself does not authorize the run.
-- When the maintainer explicitly includes API 36 forward-compatibility
-  validation, run the target-35 APK there and label the report
-  `target35-on-api36`; device availability alone does not authorize this, and
-  it does not replace a future target-36 gate.
+- When the maintainer explicitly includes API 36 runtime validation, run the
+  target-36 APK there and label the report `target36-on-api36`; device
+  availability alone does not authorize this, and an API 35 result does not
+  replace target-specific API 36 runtime evidence.
 - For every library test APK, inspect the UTP configuration or manifest when
   diagnosing a startup failure; the runner must be AndroidX.
 - Keep a focused regression test for each security-sensitive UI policy (for
@@ -483,7 +485,7 @@ package migration is approved.
   `packages: platform-tools`. Its default `tools platform-tools` includes the
   removed legacy `tools` package; both main and 6.1.0 failed before compilation
   on 2026-09-30 with `Failed to find package 'tools'`. Keep the subsequent
-  explicit `sdkmanager "platforms;android-35" "build-tools;35.0.0"` step.
+  explicit `sdkmanager "platforms;android-36" "build-tools;35.0.0"` step.
   Do not ignore SDK setup errors or change compile/target SDK to solve this.
 
 - Release packaging must read all four signing values from the environment.
@@ -716,7 +718,9 @@ package migration is approved.
   `git diff --check`.
 - Run `python3 -m unittest discover -s scripts`. `test_release_workflow.py`
   executes the actual workflow Bash against local Git/APK fixtures and a stub
-  GitHub CLI, including partial output from failed API calls.
+  GitHub CLI, including partial output from failed API calls. Keep the app's
+  mirrored `ReleaseWorkflowContractTest` SDK/identity assertions synchronized;
+  target 36 fixtures must pass and target 35 output must be rejected.
 - Run the release-notes validator against committed valid notes and missing,
   duplicate, out-of-order, blank-section, malformed-heading, indented-code,
   and fenced-code pseudo-list cases. Assert stable publication uses the

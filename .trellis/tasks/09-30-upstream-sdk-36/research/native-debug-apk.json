@@ -1,0 +1,38 @@
+{
+  "apk": "/home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/build/outputs/apk/debug/nga_phone_base_3.0-debug.apk",
+  "size": 50127573,
+  "sha256": "4ba2a71bcf6bedf85a5a4e4daebafd22d720cd2132b837368a464183f1ed227b",
+  "libraries": [
+    {
+      "path": "lib/arm64-v8a/libBugly_Native.so",
+      "elf_load_alignments": [
+        65536,
+        65536
+      ],
+      "zip_offset": 42942464,
+      "compressed": false,
+      "sha256": "119ee21151537ae6a173882fdb4e21491a27f220a4250fe4a4fa84fdea616178"
+    },
+    {
+      "path": "lib/arm64-v8a/libandroidx.graphics.path.so",
+      "elf_load_alignments": [
+        16384,
+        16384,
+        16384
+      ],
+      "zip_offset": 43139072,
+      "compressed": false,
+      "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6"
+    },
+    {
+      "path": "lib/arm64-v8a/libumeng-spy.so",
+      "elf_load_alignments": [
+        65536,
+        65536
+      ],
+      "zip_offset": 43155456,
+      "compressed": false,
+      "sha256": "3fd428644673e23b232c6eab6043d8cef82590df965a3a495b0cffafe3e106c9"
+    }
+  ]
+}

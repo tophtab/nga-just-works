@@ -27,6 +27,10 @@ public class PostActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         setupToolbar();
+        getOnBackPressedDispatcher().addCallback(this, new FragmentBackCallback(
+                () -> mPostFragment != null && mPostFragment.isAdded() && mPostFragment.getView() != null,
+                () -> mPostFragment.onBackPressed(),
+                () -> getOnBackPressedDispatcher().onBackPressed()));
         PostParam act = getPostParam();
         if (act.getPostAction() == null) {
             finish();
@@ -90,12 +94,5 @@ public class PostActivity extends BaseActivity {
         act.setPostSubject(title);
         act.setStid(stid);
         return act;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (!mPostFragment.onBackPressed()) {
-            super.onBackPressed();
-        }
     }
 }

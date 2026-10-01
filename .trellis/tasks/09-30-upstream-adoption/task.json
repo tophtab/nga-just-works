@@ -39,10 +39,10 @@
     "research/workspace-isolation.md",
     "review.md"
   ],
-  "notes": "U1/U2已交付，U3逐批实施；用户追加完成后commit、finish-work、push及新版本发布授权。Android15为主要兼容目标，R7产品修复不在范围。",
+  "notes": "已完成本次批准实施及独立check；SDK36全工程820测试/37脚本测试/13模块lint、实际app R8、Preview编译、manifest与原生对齐均通过，等待本轮finish-work归档。",
   "meta": {
     "task_creation_authorized_at": "2026-09-30",
-    "planning_status": "implementation_in_progress",
+    "planning_status": "implementation_complete",
     "implementation_approved": true,
     "requirement_ids": [
       "U1",
@@ -67,6 +67,11 @@
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "557f7bea398ed7a7702a876ec99d92eff5d7672e",
     "release_authorized": true,
-    "planned_release": "6.2.0"
+    "planned_release": "6.2.0",
+    "pending_acceptance": [],
+    "acceptance_status": "passed",
+    "final_integration_tests": 820,
+    "final_lint_modules": 13,
+    "final_lint_errors": 0
   }
 }

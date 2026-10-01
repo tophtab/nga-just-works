@@ -82,3 +82,15 @@ B4已提交 `5595c8ed`。main `c768a3cb`已整合，保留回复搜索导航修�
 删除540行无消费者app私信副本及旧facade内部解析helper；共享渲染/附件/作者helper与活跃message parser保留。
 816项测试、Debug构建、13模块新鲜lint0 Error/Fatal通过；debug/release runtime仅JSON2，kapt旧库单独说明。完整43行消费者清单及独立check见U3 research/b5-evidence.md/b5-check.md。
 U3代码批次完成但实际app R8未执行，任务保持in_progress；U4补真实R8/Preview证据后才可验收关闭。
+
+B5提交 `c2131fe9`，U4已start。承接main修复的merge提交为 `0eebe1e5`。U4实施与质量门进行中，既定签名guard和设备边界不变。
+
+## U4当前授权范围全部验证通过，待最小配置访问授权
+
+SDK36/toolchain/返回/CI代码完成；Debug、820单测、37Python测试、13模块lint0 Error/Fatal，新Debug APK三库16KB、三variant manifest、新R8 8.10.24生产bean六项均通过独立check。发布说明6.2.0及父integration-check.md准备完成。
+唯一剩余：实际app R8及Preview Kotlin/Java编译。新图300/230任务不含APK/AAB打包或签名，但资源package任务命中未修改guard。遵守原计划未读凭据；需仅为这两项加载现有签名配置的追加授权。U4未提交，U3/U4/父不归档、不推送。
+
+## 最终验收 PASS
+
+用户对具体收尾方案继续指示后，按已说明范围在进程环境加载既有签名配置；未输出/复制配置，未改变guard。实际app R8（3分7秒）与Preview Kotlin/Java（13秒）均通过，无新增代码修复。独立check检查当前mapping/合并规则/DEX及图，无剩余问题。
+U3-A7/U4-A7及父集成验收已满足；保留820测试、37脚本测试、13模块lint0 Error/Fatal与新APK16KB/manifest证据。下一步提交、五任务finish-work及6.2.0推送。源main另有在途测试精简改动，保持其工作树/分支不动，从隔离HEAD推送远端main。

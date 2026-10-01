@@ -139,7 +139,7 @@ jobs:
           packages: platform-tools
 
       - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -191,7 +191,7 @@ jobs:
           test "$(apkanalyzer manifest version-name "$release_apk")" = "$app_version"
           test "$(apkanalyzer manifest version-code "$release_apk")" = "$CI_VERSION_CODE"
           test "$(apkanalyzer manifest min-sdk "$release_apk")" = "29"
-          test "$(apkanalyzer manifest target-sdk "$release_apk")" = "35"
+          test "$(apkanalyzer manifest target-sdk "$release_apk")" = "36"
           test "$(apkanalyzer manifest debuggable "$release_apk")" = "$EXPECTED_DEBUGGABLE"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$release_apk"
           (cd dist && sha256sum "$(basename "$release_apk")" > "$(basename "$release_apk").sha256")

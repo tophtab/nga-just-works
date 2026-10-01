@@ -1,0 +1,63 @@
+
+> Configure project :lib_base_common
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+The current default is 'false'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+To keep using this feature, add the following to your module-level build.gradle files:
+    android.buildFeatures.buildConfig = true
+or from Android Studio, click: `Refactor` > `Migrate BuildConfig to Gradle Build Files`.
+
+> Configure project :nga_phone_base_3.0
+WARNING: DSL element 'isRenderscriptDebuggable' is obsolete and should be removed.
+It will be removed in version 9.0 of the Android Gradle plugin.
+
+> Task :nga_phone_base_3.0:dependencyInsight
+com.alibaba.fastjson2:fastjson2:2.0.59.android8
+  Variant runtime:
+    | Attribute Name                                  | Provided     | Requested    |
+    |-------------------------------------------------|--------------|--------------|
+    | org.gradle.libraryelements                      | jar          |              |
+    | org.gradle.status                               | release      |              |
+    | org.gradle.category                             | library      | library      |
+    | org.gradle.usage                                | java-runtime | java-runtime |
+    | com.android.build.api.attributes.AgpVersionAttr |              | 8.10.1       |
+    | com.android.build.api.attributes.BuildTypeAttr  |              | release      |
+    | org.gradle.jvm.environment                      |              | android      |
+    | org.jetbrains.kotlin.platform.type              |              | androidJvm   |
+
+com.alibaba.fastjson2:fastjson2:2.0.59.android8
++--- project :lib_base_common
+|    +--- releaseRuntimeClasspath
+|    +--- project :lib_bu_message
+|    |    \--- releaseRuntimeClasspath
+|    +--- project :lib_bu_account
+|    |    \--- releaseRuntimeClasspath
+|    +--- project :lib_module_debug
+|    |    \--- releaseRuntimeClasspath
+|    +--- project :lib_base_ui_compose
+|    |    +--- releaseRuntimeClasspath
+|    |    +--- project :lib_bu_message (*)
+|    |    +--- project :lib_bu_account (*)
+|    |    \--- project :lib_module_debug (*)
+|    +--- project :lib_bu_statistics
+|    |    \--- releaseRuntimeClasspath
+|    +--- project :lib_base_network
+|    |    +--- releaseRuntimeClasspath
+|    |    \--- project :lib_bu_message (*)
+|    +--- project :lib_base_logger
+|    |    +--- releaseRuntimeClasspath
+|    |    +--- project :lib_module_debug (*)
+|    |    \--- project :lib_base_network (*)
+|    \--- project :lib_core_data
+|         +--- releaseRuntimeClasspath
+|         +--- project :lib_bu_message (*)
+|         \--- project :lib_core
+|              \--- releaseRuntimeClasspath
+\--- project :lib_core (*)
+
+(*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed

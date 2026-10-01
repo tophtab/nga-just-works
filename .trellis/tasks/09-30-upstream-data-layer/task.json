@@ -29,9 +29,9 @@
     "research/planning-review.md",
     "research/probes/README.md"
   ],
-  "notes": "B0–B5代码批次完成；Debug/816测试/13模块lint通过，实际app Release R8验收留待U4，当前不归档。",
+  "notes": "已完成本次批准实施及独立check；SDK36全工程820测试/37脚本测试/13模块lint、实际app R8、Preview编译、manifest与原生对齐均通过，等待本轮finish-work归档。",
   "meta": {
-    "planning_status": "implementation_in_progress",
+    "planning_status": "implementation_complete",
     "task_creation_authorized_at": "2026-09-30",
     "implementation_approved": true,
     "upstream_baseline": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
@@ -49,17 +49,21 @@
     "proposed_branch": "feat/upstream-adoption",
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "88ce8be3",
-    "current_batch": "B5_code_complete_pending_U4_R8",
+    "current_batch": "B0-B5_complete",
     "batch_commits": {
       "B0": "05c2602e",
       "B1": "1b4f8ade",
       "B2": "4a4296c2",
       "B3": "758aa6b9",
-      "B4": "5595c8ed"
+      "B4": "5595c8ed",
+      "B5": "c2131fe9"
     },
-    "pending_acceptance": [
-      "Actual app Release R8: existing signing guard blocks packageReleaseResources; recheck U4"
-    ],
-    "integrated_main_commit": "c768a3cbf7db4101472f15f3a7ea5b3b846de6d1"
+    "pending_acceptance": [],
+    "integrated_main_commit": "c768a3cbf7db4101472f15f3a7ea5b3b846de6d1",
+    "acceptance_status": "passed",
+    "final_integration_tests": 820,
+    "final_lint_modules": 13,
+    "final_lint_errors": 0,
+    "actual_app_r8": "passed_in_U4_AGP8.10.1_R8_8.10.24"
   }
 }

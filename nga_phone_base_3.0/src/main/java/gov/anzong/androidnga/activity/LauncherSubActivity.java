@@ -19,6 +19,10 @@ public class LauncherSubActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_toolbar_template);
         setupToolbar();
+        getOnBackPressedDispatcher().addCallback(this, new FragmentBackCallback(
+                () -> mBaseFragment != null && mBaseFragment.isAdded() && mBaseFragment.getView() != null,
+                () -> mBaseFragment.onBackPressed(),
+                () -> getOnBackPressedDispatcher().onBackPressed()));
         String fragmentStr = intent.getStringExtra("fragment");
         if (fragmentStr != null) {
             commitFragment(fragmentStr);
@@ -42,13 +46,6 @@ public class LauncherSubActivity extends BaseActivity {
             }
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mBaseFragment == null || !mBaseFragment.onBackPressed()) {
-            super.onBackPressed();
         }
     }
 }

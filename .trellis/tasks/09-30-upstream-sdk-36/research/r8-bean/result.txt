@@ -1,0 +1,66 @@
+WORK /tmp/u3-b2-r8-iocn2jz6
+R8 8.10.24 (build 797269e8b303243d4ef999fa1817bd64a1f2de0b from go/r8bot (luci-r8-custom-ci-archive-0-7amw))
+R8_SHA256 b15ca05ef1d85fb2d69a7dae912ab93548b1cb6d7d1f190626a235694fa77bb4
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 28, column 1:
+Proguard configuration rule does not match anything: `-keep class * implements android.os.Parcelable {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 29, column 1:
+Proguard configuration rule does not match anything: `-keep class * implements java.io.Serializable {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 31, column 1:
+Proguard configuration rule does not match anything: `-keep public class * extends android.app.Application {
+  <init>();
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 32, column 1:
+Proguard configuration rule does not match anything: `-keep public class * extends android.app.Activity {
+  <init>();
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 34, column 1:
+Proguard configuration rule does not match anything: `-keep class sp.phone.view.webview.LocalWebView {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 36, column 1:
+Proguard configuration rule does not match anything: `-keep public class com.alibaba.android.arouter.routes.** {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 37, column 1:
+Proguard configuration rule does not match anything: `-keep public class com.alibaba.android.arouter.facade.** {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 38, column 1:
+Proguard configuration rule does not match anything: `-keep class * implements com.alibaba.android.arouter.facade.template.ISyringe {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 41, column 1:
+Proguard configuration rule does not match anything: `-keep interface * implements com.alibaba.android.arouter.facade.template.IProvider {
+  <init>();
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 47, column 1:
+Proguard configuration rule does not match anything: `-keep class com.alibaba.fastjson2.** {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 50, column 1:
+Proguard configuration rule does not match anything: `-keep class retrofit2.** {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 56, column 1:
+Proguard configuration rule does not match anything: `-keep class com.justwen.androidnga.base.network.retrofit.RetrofitService {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/nga_phone_base_3.0/proguard.cfg at line 57, column 1:
+Proguard configuration rule does not match anything: `-keep class com.justwen.androidnga.base.network.retrofit.RetrofitServiceKt {
+  *;
+}`
+Info in /home/toph/nga-just-works-upstream-adoption/lib_base_common/consumer-rules.pro at line 1, column 1:
+Proguard configuration rule does not match anything: `-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}`
+PASS sp.phone.http.bean.TopicListBean {"data":{"__CU":{"group_bit":7,"rvrc":0,"uid":42},"__F":{"fid":-7,"name":"fixture"},"__R__ROWS_PAGE":0,"__T":{"0":{"__P":{"authorid":"43","content":"reply","pid":50012,"postdate":0,"tid":0,"type":0},"admin_ui":0,"authorid":"42","fid":0,"lastmodify":0,"lastpost":0,"lastposter":"last","postdate":0,"quote_from":0,"recommend":0,"replies":0,"tid":120002,"topic_misc":"misc","type":0}},"__T__ROWS":0,"__T__ROWS_PAGE":20},"time":1700000000}
+PASS sp.phone.mvp.model.entity.ThreadPageInfo {"anonymity":false,"authorId":42,"fid":0,"lastPoster":"last","mirrorBoard":false,"page":0,"pid":0,"position":0,"postDate":1700000000,"replies":0,"replyInfo":{"authorId":"43","content":"reply","pidStr":"50012"},"tid":120002,"titleFont":"b","topicMisc":"misc","type":0}
+PASS gov.anzong.androidnga.core.board.data.BoardEntity {"children":[{"fid":0,"id":"s:123","name":"child","stid":123,"type":0}],"fid":-7,"id":"f:-7","name":"fixture","stid":0,"type":0}
+PASS gov.anzong.androidnga.activity.compose.filter.FilterKeyword {"enabled":true,"keyword":"fixture.*"}
+PASS sp.phone.task.ReportTask$ResultBean {"data":{"0":"done"},"error":{"0":"wait"},"time":1700000000}
+PASS sp.phone.task.AvatarFileUploadTask$NonameUploadResponse {"data":"fixture-path","error":true,"errorinfo":"denied"}
+PASS production keep rules; mapping/configuration: /tmp/u3-b2-r8-iocn2jz6

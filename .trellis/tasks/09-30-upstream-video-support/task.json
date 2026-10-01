@@ -27,9 +27,9 @@
     "research/media-design-evidence.md",
     "research/planning-review.md"
   ],
-  "notes": "U2已实现并独立check通过，保留目录供后续联合验收。",
+  "notes": "已完成本次批准实施及独立check；SDK36全工程820测试/37脚本测试/13模块lint、实际app R8、Preview编译、manifest与原生对齐均通过，等待本轮finish-work归档。",
   "meta": {
-    "planning_status": "implementation_checked",
+    "planning_status": "implementation_complete",
     "task_creation_authorized_at": "2026-09-30",
     "implementation_approved": true,
     "upstream_baseline": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
@@ -48,6 +48,11 @@
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "4ccd7564",
     "implementation_complete": true,
-    "quality_gate": "749 tests; 13 module lint 0 Error/Fatal; 72 offline layouts; independent PASS"
+    "quality_gate": "749 tests; 13 module lint 0 Error/Fatal; 72 offline layouts; independent PASS",
+    "pending_acceptance": [],
+    "acceptance_status": "passed",
+    "final_integration_tests": 820,
+    "final_lint_modules": 13,
+    "final_lint_errors": 0
   }
 }

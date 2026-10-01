@@ -1,0 +1,240 @@
+# compiler: R8
+# compiler_version: 8.10.24
+# common_typos_disable
+# {"id":"com.android.tools.r8.mapping","version":"2.2"}
+# pg_map_id: f1daf61
+# pg_map_hash: SHA-256 f1daf6127d5547b757bb0b8bec4489aa6f6b68a23120f8990f3ffaafd6889017
+ReflectionProbe -> ReflectionProbe:
+# {"id":"sourceFile","fileName":"ReflectionProbe.java"}
+    1:4:void subset(com.alibaba.fastjson2.JSONObject,com.alibaba.fastjson2.JSONObject):39:42 -> a
+    5:5:void subset(com.alibaba.fastjson2.JSONObject,com.alibaba.fastjson2.JSONObject):42:42 -> a
+    1:17:void main(java.lang.String[]):11:27 -> main
+    18:24:void main(java.lang.String[]):27:33 -> main
+    25:27:void main(java.lang.String[]):33:35 -> main
+gov.anzong.androidnga.activity.compose.filter.FilterKeyword -> gov.anzong.androidnga.activity.compose.filter.FilterKeyword:
+# {"id":"sourceFile","fileName":"FilterKeyword.java"}
+    1:1:void <init>():21:21 -> <init>
+    2:3:void <init>(java.lang.String):24:25 -> <init>
+    1:1:boolean equals(java.lang.Object):30:30 -> equals
+    1:1:java.lang.String getKeyword():47:47 -> getKeyword
+    1:1:boolean isEnabled():49:49 -> isEnabled
+    1:5:boolean match(java.lang.String):34:38 -> match
+    1:1:void setEnabled(boolean):50:50 -> setEnabled
+    1:1:void setKeyword(java.lang.String):48:48 -> setKeyword
+    1:1:java.lang.String toString():44:44 -> toString
+gov.anzong.androidnga.core.board.data.BoardEntity -> gov.anzong.androidnga.core.board.data.BoardEntity:
+# {"id":"sourceFile","fileName":"BoardEntity.kt"}
+    1:1:void <init>():10:10 -> <init>
+    2:2:void setId(java.lang.String):14:14 -> <init>
+    2:2:void <init>():14 -> <init>
+    3:3:void setIconUrl(java.lang.String):33:33 -> <init>
+    3:3:void <init>():33 -> <init>
+    1:2:boolean equals(java.lang.Object):54:55 -> equals
+    1:1:void setChildren(java.util.List):27:27 -> getChildren
+    1:1:java.util.List getChildren():27 -> getChildren
+    1:1:void setFid(int):23:23 -> getFid
+    1:1:int getFid():23 -> getFid
+    1:1:void setHead(java.lang.String):29:29 -> getHead
+    1:1:java.lang.String getHead():29 -> getHead
+    1:1:void setIconUrl(java.lang.String):33:33 -> getIconUrl
+    1:1:java.lang.String getIconUrl():33 -> getIconUrl
+    2:2:java.lang.String getIconUrl():66:66 -> getIconUrl
+    1:1:void setId(java.lang.String):14:14 -> getId
+    1:1:java.lang.String getId():14 -> getId
+    1:1:void setName(java.lang.String):12:12 -> getName
+    1:1:java.lang.String getName():12 -> getName
+    1:1:void setParentId(java.lang.String):18:18 -> getParentId
+    1:1:java.lang.String getParentId():18 -> getParentId
+    1:1:void setStid(int):25:25 -> getStid
+    1:1:int getStid():25 -> getStid
+    1:1:void setType(int):21:21 -> getType
+    1:1:int getType():21 -> getType
+    1:1:int hashCode():62:62 -> hashCode
+    1:1:void setChildren(java.util.List):27:27 -> setChildren
+    1:1:void setFid(int):23:23 -> setFid
+    1:1:void setHead(java.lang.String):29:29 -> setHead
+    1:35:void setIconUrl(java.lang.String):33:67 -> setIconUrl
+    1:1:void setId(java.lang.String):14:14 -> setId
+    1:1:void setName(java.lang.String):12:12 -> setName
+    1:1:void setParentId(java.lang.String):18:18 -> setParentId
+    1:1:void setStid(int):25:25 -> setStid
+    1:1:void setType(int):21:21 -> setType
+sp.phone.http.bean.TopicListBean -> sp.phone.http.bean.TopicListBean:
+# {"id":"sourceFile","fileName":"TopicListBean.java"}
+    1:1:void <init>():11:11 -> <init>
+    1:1:sp.phone.http.bean.TopicListBean$DataBean getData():24:24 -> getData
+    1:1:java.lang.String getEncode():32:32 -> getEncode
+    1:1:int getTime():40:40 -> getTime
+    1:1:void setData(sp.phone.http.bean.TopicListBean$DataBean):28:28 -> setData
+    1:1:void setEncode(java.lang.String):36:36 -> setEncode
+    1:1:void setTime(int):44:44 -> setTime
+sp.phone.http.bean.TopicListBean$DataBean -> sp.phone.http.bean.TopicListBean$DataBean:
+# {"id":"sourceFile","fileName":"TopicListBean.java"}
+    1:1:void <init>():47:47 -> <init>
+    1:1:sp.phone.http.bean.TopicListBean$DataBean$CUBean get__CU():69:69 -> get__CU
+    1:1:sp.phone.http.bean.TopicListBean$DataBean$FBean get__F():85:85 -> get__F
+    1:1:java.lang.String get__GLOBAL():77:77 -> get__GLOBAL
+    1:1:java.lang.String get__ROWS():93:93 -> get__ROWS
+    1:1:int get__R__ROWS_PAGE():125:125 -> get__R__ROWS_PAGE
+    1:1:java.util.Map get__T():101:101 -> get__T
+    1:1:int get__T__ROWS():109:109 -> get__T__ROWS
+    1:1:int get__T__ROWS_PAGE():117:117 -> get__T__ROWS_PAGE
+    1:1:void set__CU(sp.phone.http.bean.TopicListBean$DataBean$CUBean):73:73 -> set__CU
+    1:1:void set__F(sp.phone.http.bean.TopicListBean$DataBean$FBean):89:89 -> set__F
+    1:1:void set__GLOBAL(java.lang.String):81:81 -> set__GLOBAL
+    1:1:void set__ROWS(java.lang.String):97:97 -> set__ROWS
+    1:1:void set__R__ROWS_PAGE(int):129:129 -> set__R__ROWS_PAGE
+    1:1:void set__T(java.util.Map):105:105 -> set__T
+    1:1:void set__T__ROWS(int):113:113 -> set__T__ROWS
+    1:1:void set__T__ROWS_PAGE(int):121:121 -> set__T__ROWS_PAGE
+sp.phone.http.bean.TopicListBean$DataBean$CUBean -> sp.phone.http.bean.TopicListBean$DataBean$CUBean:
+# {"id":"sourceFile","fileName":"TopicListBean.java"}
+    1:1:void <init>():132:132 -> <init>
+    1:1:java.lang.String getAdmincheck():162:162 -> getAdmincheck
+    1:1:int getGroup_bit():154:154 -> getGroup_bit
+    1:1:int getRvrc():170:170 -> getRvrc
+    1:1:int getUid():146:146 -> getUid
+    1:1:void setAdmincheck(java.lang.String):166:166 -> setAdmincheck
+    1:1:void setGroup_bit(int):158:158 -> setGroup_bit
+    1:1:void setRvrc(int):174:174 -> setRvrc
+    1:1:void setUid(int):150:150 -> setUid
+sp.phone.http.bean.TopicListBean$DataBean$FBean -> sp.phone.http.bean.TopicListBean$DataBean$FBean:
+# {"id":"sourceFile","fileName":"TopicListBean.java"}
+    1:1:void <init>():178:178 -> <init>
+    1:1:int getFid():190:190 -> getFid
+    1:1:java.lang.String getSub_forums():206:206 -> getSub_forums
+    1:1:java.lang.String getTopped_topic():198:198 -> getTopped_topic
+    1:1:void setFid(int):194:194 -> setFid
+    1:1:void setSub_forums(java.lang.String):210:210 -> setSub_forums
+    1:1:void setTopped_topic(java.lang.String):202:202 -> setTopped_topic
+sp.phone.http.bean.TopicListBean$DataBean$TBean -> sp.phone.http.bean.TopicListBean$DataBean$TBean:
+# {"id":"sourceFile","fileName":"TopicListBean.java"}
+    1:1:void <init>():214:214 -> <init>
+    1:1:int getAdmin_ui():395:395 -> getAdmin_ui
+    1:1:java.lang.String getAuthor():307:307 -> getAuthor
+    1:1:java.lang.String getAuthorid():315:315 -> getAuthorid
+    1:1:int getFid():275:275 -> getFid
+    1:1:int getLastmodify():371:371 -> getLastmodify
+    1:1:int getLastpost():347:347 -> getLastpost
+    1:1:java.lang.String getLastposter():355:355 -> getLastposter
+    1:1:int getPostdate():339:339 -> getPostdate
+    1:1:int getQuote_from():283:283 -> getQuote_from
+    1:1:java.lang.String getQuote_to():291:291 -> getQuote_to
+    1:1:int getRecommend():379:379 -> getRecommend
+    1:1:int getReplies():363:363 -> getReplies
+    1:1:java.lang.String getSubject():323:323 -> getSubject
+    1:1:int getTid():267:267 -> getTid
+    1:1:java.lang.String getTitlefont():387:387 -> getTitlefont
+    1:1:java.lang.String getTopic_misc():299:299 -> getTopic_misc
+    1:1:java.lang.String getTpcurl():403:403 -> getTpcurl
+    1:1:int getType():331:331 -> getType
+    1:1:sp.phone.http.bean.TopicListBean$DataBean$TBean$PBean get__P():411:411 -> get__P
+    1:1:void setAdmin_ui(int):399:399 -> setAdmin_ui
+    1:1:void setAuthor(java.lang.String):311:311 -> setAuthor
+    1:1:void setAuthorid(java.lang.String):319:319 -> setAuthorid
+    1:1:void setFid(int):279:279 -> setFid
+    1:1:void setLastmodify(int):375:375 -> setLastmodify
+    1:1:void setLastpost(int):351:351 -> setLastpost
+    1:1:void setLastposter(java.lang.String):359:359 -> setLastposter
+    1:1:void setPostdate(int):343:343 -> setPostdate
+    1:1:void setQuote_from(int):287:287 -> setQuote_from
+    1:1:void setQuote_to(java.lang.String):295:295 -> setQuote_to
+    1:1:void setRecommend(int):383:383 -> setRecommend
+    1:1:void setReplies(int):367:367 -> setReplies
+    1:1:void setSubject(java.lang.String):327:327 -> setSubject
+    1:1:void setTid(int):271:271 -> setTid
+    1:1:void setTitlefont(java.lang.String):391:391 -> setTitlefont
+    1:1:void setTopic_misc(java.lang.String):303:303 -> setTopic_misc
+    1:1:void setTpcurl(java.lang.String):407:407 -> setTpcurl
+    1:1:void setType(int):335:335 -> setType
+    1:1:void set__P(sp.phone.http.bean.TopicListBean$DataBean$TBean$PBean):415:415 -> set__P
+    1:1:java.lang.String toString():420:420 -> toString
+sp.phone.http.bean.TopicListBean$DataBean$TBean$PBean -> sp.phone.http.bean.TopicListBean$DataBean$TBean$PBean:
+# {"id":"sourceFile","fileName":"TopicListBean.java"}
+    1:1:void <init>():429:429 -> <init>
+    1:1:java.lang.String getAuthorid():465:465 -> getAuthorid
+    1:1:java.lang.String getContent():497:497 -> getContent
+    1:1:int getPid():457:457 -> getPid
+    1:1:int getPostdate():481:481 -> getPostdate
+    1:1:java.lang.String getSubject():489:489 -> getSubject
+    1:1:int getTid():449:449 -> getTid
+    1:1:int getType():473:473 -> getType
+    1:1:void setAuthorid(java.lang.String):469:469 -> setAuthorid
+    1:1:void setContent(java.lang.String):501:501 -> setContent
+    1:1:void setPid(int):461:461 -> setPid
+    1:1:void setPostdate(int):485:485 -> setPostdate
+    1:1:void setSubject(java.lang.String):493:493 -> setSubject
+    1:1:void setTid(int):453:453 -> setTid
+    1:1:void setType(int):477:477 -> setType
+sp.phone.mvp.model.entity.ThreadPageInfo -> sp.phone.mvp.model.entity.ThreadPageInfo:
+# {"id":"sourceFile","fileName":"ThreadPageInfo.java"}
+    1:1:void <init>():10:10 -> <init>
+    1:4:boolean equals(java.lang.Object):278:281 -> equals
+    1:1:java.lang.String getAuthor():85:85 -> getAuthor
+    1:1:int getAuthorId():102:102 -> getAuthorId
+    1:1:java.lang.String getBoard():205:205 -> getBoard
+    1:1:sp.phone.mvp.model.thread.ArticleCacheEntry getCacheEntry():49:49 -> getCacheEntry
+    1:1:java.lang.String getCacheSummary():53:53 -> getCacheSummary
+    1:1:int getFid():93:93 -> getFid
+    1:1:java.lang.String getLastPoster():112:112 -> getLastPoster
+    1:1:int getPage():165:165 -> getPage
+    1:1:int getPid():173:173 -> getPid
+    1:1:int getPosition():181:181 -> getPosition
+    1:1:int getPostDate():68:68 -> getPostDate
+    1:1:int getReplies():121:121 -> getReplies
+    1:1:sp.phone.mvp.model.entity.ThreadPageInfo$ReplyInfo getReplyInfo():197:197 -> getReplyInfo
+    1:1:java.lang.String getSubject():129:129 -> getSubject
+    1:1:int getTid():77:77 -> getTid
+    1:1:java.lang.String getTitleFont():138:138 -> getTitleFont
+    1:1:java.lang.String getTopicMisc():156:156 -> getTopicMisc
+    1:1:int getType():147:147 -> getType
+    1:1:int hashCode():284:284 -> hashCode
+    1:1:boolean isAnonymity():189:189 -> isAnonymity
+    1:1:boolean isMirrorBoard():63:63 -> isMirrorBoard
+    1:1:void setAnonymity(boolean):193:193 -> setAnonymity
+    1:1:void setAuthor(java.lang.String):89:89 -> setAuthor
+    1:1:void setAuthorId(int):107:107 -> setAuthorId
+    1:2:void setBoard(java.lang.String):209:210 -> setBoard
+    1:1:void setCacheEntry(sp.phone.mvp.model.thread.ArticleCacheEntry):51:51 -> setCacheEntry
+    1:1:void setCacheSummary(java.lang.String):55:55 -> setCacheSummary
+    1:1:void setFid(int):97:97 -> setFid
+    1:1:void setLastPoster(java.lang.String):117:117 -> setLastPoster
+    1:1:void setPage(int):169:169 -> setPage
+    1:1:void setPid(int):177:177 -> setPid
+    1:1:void setPosition(int):185:185 -> setPosition
+    1:1:void setPostDate(int):73:73 -> setPostDate
+    1:1:void setReplies(int):125:125 -> setReplies
+    1:1:void setReplyInfo(sp.phone.mvp.model.entity.ThreadPageInfo$ReplyInfo):201:201 -> setReplyInfo
+    1:1:void setSubject(java.lang.String):133:133 -> setSubject
+    1:1:void setTid(int):81:81 -> setTid
+    1:1:void setTitleFont(java.lang.String):143:143 -> setTitleFont
+    1:1:void setTopicMisc(java.lang.String):161:161 -> setTopicMisc
+    1:1:void setType(int):151:151 -> setType
+    1:1:java.lang.String toString():289:289 -> toString
+sp.phone.mvp.model.entity.ThreadPageInfo$ReplyInfo -> sp.phone.mvp.model.entity.ThreadPageInfo$ReplyInfo:
+# {"id":"sourceFile","fileName":"ThreadPageInfo.java"}
+    1:1:void <init>():213:213 -> <init>
+    1:1:java.lang.String getAuthorId():260:260 -> getAuthorId
+    1:1:java.lang.String getContent():236:236 -> getContent
+    1:1:java.lang.String getPidStr():228:228 -> getPidStr
+    1:1:java.lang.String getPostDate():252:252 -> getPostDate
+    1:1:java.lang.String getSubject():244:244 -> getSubject
+    1:1:java.lang.String getTidStr():268:268 -> getTidStr
+    1:1:void setAuthorId(java.lang.String):264:264 -> setAuthorId
+    1:1:void setContent(java.lang.String):240:240 -> setContent
+    1:1:void setPidStr(java.lang.String):232:232 -> setPidStr
+    1:1:void setPostDate(java.lang.String):256:256 -> setPostDate
+    1:1:void setSubject(java.lang.String):248:248 -> setSubject
+    1:1:void setTidStr(java.lang.String):272:272 -> setTidStr
+sp.phone.task.AvatarFileUploadTask$NonameUploadResponse -> sp.phone.task.AvatarFileUploadTask$NonameUploadResponse:
+# {"id":"sourceFile","fileName":"AvatarFileUploadTask.java"}
+    1:1:void <init>():255:255 -> <init>
+sp.phone.task.ReportTask$ResultBean -> sp.phone.task.ReportTask$ResultBean:
+# {"id":"sourceFile","fileName":"ReportTask.java"}
+    1:1:void <init>():16:16 -> <init>
+    1:1:java.util.Map getData():33:33 -> getData
+    1:1:java.util.Map getError():29:29 -> getError
+    1:1:int getTime():45:45 -> getTime
+    1:1:void setData(java.util.Map):37:37 -> setData
+    1:1:void setError(java.util.Map):41:41 -> setError
+    1:1:void setTime(int):49:49 -> setTime

@@ -1,0 +1,32 @@
+[
+  {
+    "variant": "debug",
+    "path": "nga_phone_base_3.0/build/intermediates/merged_manifests/debug/processDebugManifest/AndroidManifest.xml",
+    "package": "com.github.tophtab.ngajustworks.debug",
+    "minSdk": "29",
+    "targetSdk": "36",
+    "debuggable": "true",
+    "versionName": "4.5.0",
+    "versionCode": "4050"
+  },
+  {
+    "variant": "release",
+    "path": "nga_phone_base_3.0/build/intermediates/merged_manifests/release/processReleaseManifest/AndroidManifest.xml",
+    "package": "com.github.tophtab.ngajustworks",
+    "minSdk": "29",
+    "targetSdk": "36",
+    "debuggable": "false",
+    "versionName": "4.5.0",
+    "versionCode": "4050"
+  },
+  {
+    "variant": "preview",
+    "path": "nga_phone_base_3.0/build/intermediates/merged_manifests/preview/processPreviewManifest/AndroidManifest.xml",
+    "package": "com.github.tophtab.ngajustworks",
+    "minSdk": "29",
+    "targetSdk": "36",
+    "debuggable": "true",
+    "versionName": "4.5.0",
+    "versionCode": "4050"
+  }
+]
