@@ -1,0 +1,554 @@
+URL: https://developer.android.com/about/versions/16/setup-sdk
+Retrieved: 2026-09-30
+Set up the Android 16 SDK  |  Android Developers
+Skip to main content
+Essentials
+Build AI experiences
+Build AI-powered Android apps with Gemini APIs and more.
+Get started
+Get started
+Create your first app. Use Compose for UI and adaptive app development to support multiple device form factors.
+Hello, world!
+Developer Verification
+Adaptive apps
+Compose for UI
+AI-powered IDE
+Training
+Monetization with Play ↗️
+Optimize by form factor
+Build apps that optimize the user experience on phones, tablets, foldables, cars, XR, and more.
+Phones, tablets, foldables
+Android for Cars
+Android TV
+Android XR
+Googlebook
+ChromeOS
+Wear OS
+Build by category
+Learn to build for your use case by following Google's prescriptive and opinionated guidance.
+Games
+Camera & media
+Social & messaging
+Health & fitness
+Productivity
+Enterprise apps
+Get the latest
+Stay in touch with the latest releases throughout the year, join our preview programs, and give us your feedback.
+Latest updates
+Experimental updates
+Android Studio preview
+Jetpack & Compose libraries
+Wear OS releases
+Privacy Sandbox ↗️
+Design & Plan
+Excellent Experiences
+Build the best experiences for your best users.
+Learn more
+UI Design
+Design a beautiful user interface using Android best practices.
+Design for Android
+Mobile
+Desktop experiences
+XR Headsets & XR Glasses
+AI Glasses
+Widgets
+Wear OS
+Android TV
+Android for Cars
+Architecture
+Design robust, testable, and maintainable app logic and services.
+Introduction
+Libraries
+Navigation
+Modularization
+Testing
+Kotlin Multiplatform
+Quality
+Plan for app quality and align with Play store guidelines.
+Overview
+Core value
+User experience
+Accessibility
+Technical quality
+Excellent Experiences
+Security
+Safeguard users against threats and ensure a secure Android experience.
+Overview
+Privacy
+Permissions
+Identity
+Fraud prevention
+Develop
+Gemini in Android Studio
+Your AI development companion for Android development.
+Learn more
+Get Android Studio
+Core areas
+Get the samples and docs for the features you need.
+Samples
+Multidevice support
+User interfaces
+Background work
+Data and files
+Connectivity
+All core areas ⤵️
+Tools and workflow
+Use the IDE to write and build your app, or create your own pipeline.
+Write and debug code
+Build projects
+Test your app
+Performance
+Command-line tools
+Gradle plugin API
+Android Bench
+Device tech
+Write code for form factors. Connect devices and share data.
+Phones, tablets, foldables
+ChromeOS
+Android for Cars
+Android TV
+Android XR
+Wear OS
+Android Health
+Better Together
+All devices ⤵️
+Libraries
+Browse API reference documentation with all the details.
+Android platform
+Jetpack libraries
+Compose libraries
+Google Play services ↗️
+Google Play SDK index ↗️
+Google Play
+Play Console
+Publish your app or game and grow your business on Google Play.
+Go to Play Console
+Learn more ↗️
+Fundamentals
+Learn how to engage users, monitize, and secure your app.
+Play Monetization
+Play Integrity
+Android vitals
+Play Policies
+Play Programs ↗️
+Games Dev Center
+Develop and deliver games. Get tools, downloads, and samples.
+Overview
+Play Asset Delivery
+Play Games Services
+Play Games on PC
+Level Up guidelines
+All Play guides ⤵️
+Libraries
+Browse API reference documentation with all the details.
+Play Feature Delivery
+Play In-app Updates
+Play In-app Reviews
+Play Install Referrer
+Google Play services ↗️
+Google Play SDK index ↗️
+All Play libraries ⤵️
+Tools & resources
+Tools for publishing, promoting, and managing your app.
+Android App Bundles
+Brand & marketing
+Play Console APIs ↗️
+Blog
+the Android Developer's Blog
+Read the latest
+Explore the authors →
+Explore categories
+Product News
+Stay in the loop with the latest updates, feature releases, and behind-the-scenes looks at how we’re evolving.
+Community
+Discover stories from our users, spotlight features, and the collaborative projects that bring us all together.
+How-tos
+From quick tips to deep-dive tutorials, these step-by-step guides are designed to help you work smarter and faster.
+Case Studies
+Real-world results from real-world users. Explore how different teams use our tools to achieve their goals.
+Events & Programs
+Get the details on upcoming webinars, workshops, meetups, and special initiatives designed to help you grow.
+Documentation
+Access detailed manuals, API references, and technical specifications to help you build and integrate with confidence.
+/
+English
+Deutsch
+Español – América Latina
+Français
+Indonesia
+Italiano
+Polski
+Português – Brasil
+Tiếng Việt
+Türkçe
+Русский
+עברית
+العربيّة
+فارسی
+हिंदी
+বাংলা
+ภาษาไทย
+中文 – 简体
+中文 – 繁體
+日本語
+한국어
+Android Studio
+Sign in
+Platform
+Overview
+Releases
+Technology
+Essentials
+More
+Overview
+Releases
+Technology
+Design & Plan
+More
+Develop
+More
+Google Play
+More
+Blog
+More
+Android Studio
+All Android releases
+Android 16
+Home
+Features and changes list
+Get your apps ready
+Migrate your apps
+Get Android 16
+Set up the Android 16 SDK
+Flash a factory image
+Apply an OTA image
+Get a Generic System Image (GSI)
+Review behavior changes for apps
+All apps
+Apps targeting Android 16
+Non-SDK restrictions
+Explore new features and APIs
+Overview
+Progress-centric notifications
+Reference updates
+API diffs - Beta 2 → 36 ⍈
+API diffs - API 35 → API 36 ⍈
+Compatibility framework changes
+QPR3 Beta
+Release notes
+Get QPR beta builds
+Feedback and issue tracker
+Flash a factory image
+OTA images
+Generic System Images (GSIs)
+App compatibility
+About app compatibility ⍈
+Compatibility framework tools ⍈
+Restrictions on non-SDK interfaces ⍈
+More
+Dashboards ⍈
+QPR2 Beta
+Overview
+About the Beta program
+Release notes
+Feedback and issue tracker
+Get Android 16 QPR2
+Set up the Android 16 QPR2 SDK
+Flash a factory image
+Apply an OTA image
+Get a Generic System Image (GSI)
+Reference updates
+API diffs - Beta 2 → 36.1 ⍈
+API diffs - 36 → 36.1 ⍈
+QPR1 Beta
+Release notes
+Get QPR beta builds
+Feedback and issue tracker
+OTA images
+Generic System Images (GSIs)
+App compatibility
+About app compatibility ⍈
+Compatibility framework tools ⍈
+Restrictions on non-SDK interfaces ⍈
+More
+Dashboards ⍈
+Build AI experiences
+Get started
+Get started
+Hello, world!
+Developer Verification
+Adaptive apps
+Compose for UI
+AI-powered IDE
+Training
+Monetization with Play ↗️
+Optimize by form factor
+Phones, tablets, foldables
+Android for Cars
+Android TV
+Android XR
+Googlebook
+ChromeOS
+Wear OS
+Build by category
+Games
+Camera & media
+Social & messaging
+Health & fitness
+Productivity
+Enterprise apps
+Get the latest
+Latest updates
+Experimental updates
+Android Studio preview
+Jetpack & Compose libraries
+Wear OS releases
+Privacy Sandbox ↗️
+Excellent Experiences
+Learn more
+UI Design
+Design for Android
+Mobile
+Desktop experiences
+XR Headsets & XR Glasses
+AI Glasses
+Widgets
+Wear OS
+Android TV
+Android for Cars
+Architecture
+Introduction
+Libraries
+Navigation
+Modularization
+Testing
+Kotlin Multiplatform
+Quality
+Overview
+Core value
+User experience
+Accessibility
+Technical quality
+Excellent Experiences
+Security
+Overview
+Privacy
+Permissions
+Identity
+Fraud prevention
+Gemini in Android Studio
+Learn more
+Get Android Studio
+Core areas
+Samples
+Multidevice support
+User interfaces
+Background work
+Data and files
+Connectivity
+All core areas ⤵️
+Tools and workflow
+Write and debug code
+Build projects
+Test your app
+Performance
+Command-line tools
+Gradle plugin API
+Android Bench
+Device tech
+Phones, tablets, foldables
+ChromeOS
+Android for Cars
+Android TV
+Android XR
+Wear OS
+Android Health
+Better Together
+All devices ⤵️
+Libraries
+Android platform
+Jetpack libraries
+Compose libraries
+Google Play services ↗️
+Google Play SDK index ↗️
+Play Console
+Go to Play Console
+Learn more ↗️
+Fundamentals
+Play Monetization
+Play Integrity
+Android vitals
+Play Policies
+Play Programs ↗️
+Games Dev Center
+Overview
+Play Asset Delivery
+Play Games Services
+Play Games on PC
+Level Up guidelines
+All Play guides ⤵️
+Libraries
+Play Feature Delivery
+Play In-app Updates
+Play In-app Reviews
+Play Install Referrer
+Google Play services ↗️
+Google Play SDK index ↗️
+All Play libraries ⤵️
+Tools & resources
+Android App Bundles
+Brand & marketing
+Play Console APIs ↗️
+the Android Developer's Blog
+Read the latest
+Explore the authors →
+Explore categories
+Product News
+Community
+How-tos
+Case Studies
+Events & Programs
+Documentation
+Android Developers
+Essentials
+Releases
+#
+Set up the Android 16 SDK
+Stay organized with collections
+Save and categorize content based on your preferences.
+To develop with Android 16 APIs and test your app with the Android 16 behavior
+changes, you need to set up the Android 16 SDK. Follow the instructions on this
+page to set up the Android 16 SDK in Android Studio and build and run your app
+on Android 16.
+# get-studio Get Android Studio
+The Android 16 SDK includes changes that are not compatible with some lower
+versions of Android Studio. For the best development experience with the Android
+16 SDK, use Android Studio Meerkat | 2024.3.1 or higher.
+Get Android Studio
+# config Update your app's build configuration
+Warning: If your project does not use Android Gradle plugin 8.9.0-rc01 or
+higher, first run the Android Gradle plugin Upgrade Assistant to upgrade to
+at least AGP 8.9.0-rc01.
+To access Android 16 APIs, open your app's build.gradle or build.gradle.kts
+file and update the compileSdk for Android 16 as follows:
+# groovy Groovy
+android {
+compileSdk = 36
+}
+# kts Kotlin
+android {
+compileSdk = 36
+}
+Android Studio can provide contextual information about the
+behavior changes through the
+Android SDK Upgrade Assistant.
+Once you're ready to opt in to the new runtime behaviours for Android 16,
+update your app's targetSdk as follows:
+# groovy Groovy
+android {
+defaultConfig {
+targetSdk = 36
+}
+}
+# kts Kotlin
+android {
+defaultConfig {
+targetSdk = 36
+}
+}
+# install-sdk Manually install the SDK
+Within Android Studio, you can install the Android 16 SDK as follows:
+Click Tools > SDK Manager.
+In the SDK Platforms tab, expand the Android Baklava Preview
+section and select the Android SDK Platform Baklava package.
+In the SDK Tools tab, expand the Android SDK Build-Tools 36 section
+and select the latest 36.x.x version.
+Click OK to install the SDK.
+# next-steps Next steps
+To learn about the changes that might affect your app, and to learn how to test
+these changes in your app, read the following topics:
+Behavior changes that affect all apps
+Behavior changes that affect only apps that target Android 16
+To learn more about new APIs and features available in Android 16, read Android
+16 features.
+Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.
+Last updated 2026-09-16 UTC.
+[[["Easy to understand","easyToUnderstand","thumb-up"],["Solved my problem","solvedMyProblem","thumb-up"],["Other","otherUp","thumb-up"]],[["Missing the information I need","missingTheInformationINeed","thumb-down"],["Too complicated / too many steps","tooComplicatedTooManySteps","thumb-down"],["Out of date","outOfDate","thumb-down"],["Samples / code issue","samplesCodeIssue","thumb-down"],["Other","otherDown","thumb-down"]],["Last updated 2026-09-16 UTC."],[],[]]
+X
+Follow @AndroidDev on X
+YouTube
+Check out Android Developers on YouTube
+LinkedIn
+Connect with the Android Developers community on LinkedIn
+#  More Android
+Android
+Android for Enterprise
+Security
+Source
+News
+Blog
+Podcasts
+#  Discover
+Gaming
+Machine Learning
+Health & Fitness
+Camera & Media
+Privacy
+5G
+#  Android Devices
+Large screens
+Wear OS
+ChromeOS devices
+Android for cars
+Android TV
+#  Releases
+Android 17
+Android 16
+Android 15
+Android 14
+Android 13
+Android 12
+Android 11
+#  Documentation and Downloads
+Android Studio guide
+Developers guides
+API reference
+Download Studio
+Android NDK
+#  Support
+Report platform bug
+Report documentation bug
+Google Play support
+Join research studies
+Android
+Chrome
+Firebase
+Google Cloud Platform
+All products
+Privacy
+License
+Brand guidelines
+Manage cookies
+Get news and tips by email
+Subscribe
+English
+Deutsch
+Español – América Latina
+Français
+Indonesia
+Italiano
+Polski
+Português – Brasil
+Tiếng Việt
+Türkçe
+Русский
+עברית
+العربيّة
+فارسی
+हिंदी
+বাংলা
+ภาษาไทย
+中文 – 简体
+中文 – 繁體
+日本語
+한국어

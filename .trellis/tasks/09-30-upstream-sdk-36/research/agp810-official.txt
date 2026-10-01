@@ -1,0 +1,106 @@
+URL: https://developer.android.com/build/releases/past-releases/agp-8-10-0-release-notes
+Retrieved: 2026-09-30
+Snapshot: main-content excerpt; navigation/footer omitted.
+#
+Android Gradle Plugin 8.10.0 (May 2025)
+Stay organized with collections
+Save and categorize content based on your preferences.
+Android Gradle Plugin 8.10.0 is a major release that includes a variety of new
+features and improvements.
+# compatibility Compatibility
+The maximum API level that Android Gradle Plugin 8.10 supports is API level 36.
+Here is other compatibility info:
+Minimum version
+Default version
+Notes
+Gradle
+8.11.1
+8.11.1
+To learn more, see updating Gradle.
+SDK Build Tools
+35.0.0
+35.0.0
+Install or configure SDK Build Tools.
+NDK
+N/A
+27.0.12077973
+Install or configure a different version of the NDK.
+JDK
+17
+17
+To learn more, see setting the JDK version.
+# api API changes
+Android Gradle plugin 8.10.0 contains the following notable API changes:
+Source level breaking change: finalizeDsl now requires use of parameterized types.
+# fixed_issues Fixed issues
+# fixed-issues-agp-8.10.1 Android Gradle plugin 8.10.1
+Fixed Issues
+Android Gradle Plugin
+Issue #390602110
+Explicitly enabling device tests in a non-default build type using AGP does not work
+Shrinker (R8)
+Issue #406300397
+NullPointerException when compiling instant app after updating Kotlin to 2.1.20
+Issue #406525499
+[AGP]: ERROR: R8: java.lang.OutOfMemoryError: Required array length 2147483638 + 196 is too large
+# fixed-issues-agp-8.10.0 Android Gradle plugin 8.10.0
+Fixed Issues
+Android Gradle Plugin
+Issue #344016691
+AGP should claim that it supports API 35 that is about to ship
+Issue #393189008
+AndroidComponentsExtension.addSourceSetConfigurations broken when stats are enabled
+Issue #389951197
+Project ':app' cannot access 'Project.group' and 'Project.version' with isolated project setup in AGP 8.8.0
+Issue #394384907
+Initialization script 'C:\Users\mypc\AppData\Local\Temp\ijresolvers2.gradle' line: 162
+Issue #394384907
+Initialization script 'C:\Users\mypc\AppData\Local\Temp\ijresolvers2.gradle' line: 162
+Issue #353554169
+Unable to strip the following libraries, packaging them as they are
+Issue #319065197
+Add support for passing "isolated splits" info to R8
+Issue #390736538
+App crashes with NoClassDefFoundError and ClassNotFoundException when running app from Android Studio
+Issue #395798193
+Android Gradle Plugin: Avoid overriding Sync.getDestinationDir() in PackageRenderscriptTask and ProcessJavaResTask
+Issue #118690729
+Use merged java resources for unit tests
+Issue #400492927
+Isolated project: DeclarativeSchemaModel serialization error
+Dexer (D8)
+Issue #401489623
+Backporting of android.os.Build.VERSION_CODES_FULL incorrect for Baklava
+Issue #401147877
+AutoClosable desugaring no longer reports ExecutorService.close as supported
+Lint
+Issue #389023409
+Wrong lint warning for `@Parcelize` annotation on sealed interfaces
+Issue #382396705
+AS 2024.3.1.4 hang intermittently when editing kotlin texts.
+Issue #385394934
+False positive lint error for CredentialManagerSignInWithGoogle
+Issue #395836302
+ConcurrentModificationException in Aligned16KB lint check
+Issue #396584142
+Lint: AGP 8.10.0-alpha05 triggers lots of false positive SyntheticAccessor
+Issue #398807363
+Make it possible to enable NewApi on test sources
+Issue #396647876
+What is the effect of pressing button "LintIdeFix" after code inspection in Android Studio
+Issue #399692455
+Error in the text of the warning message: "Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.O` is *never* true here (`SDK_INT` ≥ 26 and < 31)"
+Shrinker (R8)
+Issue #401546693
+Unable to Generate Signed APK after updating to AGP 8.9.0
+Issue #397737234
+Analyze written-before-read property at allocation sites encounters error when generating classfile
+Issue #389737060
+Problem regarding Java SPI in R8 shrinker of versions 8.6.*, 8.7.*, 8.8.0
+Issue #401515589
+ClassCastException from a safe cast in class init
+Issue #404745556
+Resource Shrinking Issue in AGP 8.9 Causing Missing Resources in Dynamic Feature Modules
+Issue #400746842
+Cannot invoke com.android.tools.r8.internal.H5.x()
+Last updated 2026-09-24 UTC.

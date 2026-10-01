@@ -1,0 +1,450 @@
+commit 25652de8dd6fc78646d074080239d3b194c7ddb8
+Author: Justwen <yyhshrrr@126.com>
+Date:   Sun Aug 9 00:32:43 2026 +0800
+
+    升级fastjson2
+
+diff --git a/build.gradle b/build.gradle
+index 83acce6c..672d245a 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -7,7 +7,6 @@ buildscript {
+         appcompat_version = "1.7.1"
+         androidx_material_version = '1.12.0'
+         lifecycle_version = "2.6.2"
+-        fastJson_version = '1.1.71.android'
+         retrofit_version = '2.6.0'
+         paging_version = '3.3.0'
+         arouter_version = '1.5.2'
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+index a41555ae..b38fc66d 100644
+--- a/gradle/libs.versions.toml
++++ b/gradle/libs.versions.toml
+@@ -2,6 +2,7 @@
+ gradle = "8.6.1"
+ kotlin = "2.0.21"
+ fastjson2 = "2.0.59.android8"
++fastjson2-kotlin = "2.0.59.android8"
+ annotation = "1.10.0"
+ 
+ [plugins]
+@@ -20,4 +21,5 @@ gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+ 
+ # fastJson
+ fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2", version.ref = "fastjson2" }
++fastjson2-kotlin = { group = "com.alibaba.fastjson2", name = "fastjson2-kotlin", version.ref = "fastjson2-kotlin" }
+ annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+\ No newline at end of file
+diff --git a/lib_base_common/build.gradle b/lib_base_common/build.gradle
+index 4f341fb2..20e1ff3b 100644
+--- a/lib_base_common/build.gradle
++++ b/lib_base_common/build.gradle
+@@ -55,7 +55,8 @@ dependencies {
+         exclude group: 'com.android.support'
+     }
+ 
+-    api "com.alibaba:fastjson:$fastJson_version"
++    api(libs.fastjson2)
++
+     api "io.reactivex.rxjava2:rxandroid:$project.rxAndroid"
+ 
+     implementation 'commons-io:commons-io:2.11.0'
+diff --git a/lib_base_common/src/main/java/gov/anzong/androidnga/base/util/PreferenceUtils.java b/lib_base_common/src/main/java/gov/anzong/androidnga/base/util/PreferenceUtils.java
+index 952d2bfa..dd88050e 100644
+--- a/lib_base_common/src/main/java/gov/anzong/androidnga/base/util/PreferenceUtils.java
++++ b/lib_base_common/src/main/java/gov/anzong/androidnga/base/util/PreferenceUtils.java
+@@ -6,7 +6,8 @@ import android.text.TextUtils;
+ 
+ import androidx.preference.PreferenceManager;
+ 
+-import com.alibaba.fastjson.JSON;
++
++import com.alibaba.fastjson2.JSON;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff --git a/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/MessageConvertFactory.java b/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/MessageConvertFactory.java
+index e833bf51..403caa0e 100644
+--- a/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/MessageConvertFactory.java
++++ b/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/MessageConvertFactory.java
+@@ -2,8 +2,8 @@ package com.justwen.androidnga.module.message;
+ 
+ import android.util.Pair;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ import com.justwen.androidnga.core.data.MessageArticlePageInfo;
+ import com.justwen.androidnga.core.data.MessageDetailInfo;
+ import com.justwen.androidnga.core.data.MessageListInfo;
+diff --git a/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/compose/post/MessagePostRepository.kt b/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/compose/post/MessagePostRepository.kt
+index 0d67586f..243594fa 100644
+--- a/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/compose/post/MessagePostRepository.kt
++++ b/lib_bu_message/src/main/java/com/justwen/androidnga/module/message/compose/post/MessagePostRepository.kt
+@@ -1,7 +1,7 @@
+ package com.justwen.androidnga.module.message.compose.post
+ 
+-import com.alibaba.fastjson.JSON
+-import com.alibaba.fastjson.JSONObject
++import com.alibaba.fastjson2.JSON
++import com.alibaba.fastjson2.JSONObject
+ import com.justwen.androidnga.base.network.retrofit.RetrofitHelper
+ import com.justwen.androidnga.base.network.retrofit.RetrofitServiceKt
+ import java.net.URLEncoder
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/AvatarPostActivity.java b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/AvatarPostActivity.java
+index 54665633..98b62e34 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/AvatarPostActivity.java
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/AvatarPostActivity.java
+@@ -17,8 +17,8 @@ import android.widget.EditText;
+ import android.widget.ImageView;
+ import android.widget.TextView;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import org.apache.commons.io.IOUtils;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/SearchModel.kt b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/SearchModel.kt
+index 92adea4b..85a2d4db 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/SearchModel.kt
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/SearchModel.kt
+@@ -1,6 +1,6 @@
+ package gov.anzong.androidnga.activity.compose
+ 
+-import com.alibaba.fastjson.JSON
++import com.alibaba.fastjson2.JSON
+ import gov.anzong.androidnga.activity.compose.SearchViewModel.Companion.SEARCH_MODE_BOARD
+ import gov.anzong.androidnga.activity.compose.SearchViewModel.Companion.SEARCH_MODE_TOPIC
+ import gov.anzong.androidnga.activity.compose.SearchViewModel.Companion.SEARCH_MODE_USER
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt
+index 5d0f19c2..5cb7a4c4 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardModel.kt
+@@ -1,6 +1,6 @@
+ package gov.anzong.androidnga.activity.compose.board
+ 
+-import com.alibaba.fastjson.JSON
++import com.alibaba.fastjson2.JSON
+ import gov.anzong.androidnga.base.util.ContextUtils
+ import gov.anzong.androidnga.base.util.PreferenceUtils
+ import gov.anzong.androidnga.base.utils.ThreadProvider
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardRepository.kt b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardRepository.kt
+index dfee5e19..7f944eaa 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardRepository.kt
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/ForumBoardRepository.kt
+@@ -1,7 +1,7 @@
+ package gov.anzong.androidnga.activity.compose.board
+ 
+ import android.content.Context
+-import com.alibaba.fastjson.JSON
++import com.alibaba.fastjson2.JSON
+ import com.justwen.androidnga.base.network.retrofit.RetrofitHelper
+ import gov.anzong.androidnga.Utils
+ import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel.BOARD_REMOTE_REQUEST_TIME_KEY
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/data/BoardEntity.kt b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/data/BoardEntity.kt
+index 6d98cf3f..d653d063 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/data/BoardEntity.kt
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/board/data/BoardEntity.kt
+@@ -1,7 +1,7 @@
+ package gov.anzong.androidnga.core.board.data
+ 
+ import androidx.annotation.IntDef
+-import com.alibaba.fastjson.annotation.JSONField
++import com.alibaba.fastjson2.annotation.JSONField
+ import gov.anzong.androidnga.common.base.JavaBean
+ 
+ class BoardEntity : JavaBean {
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterKeyword.java b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterKeyword.java
+index cc9c7ac6..79774e2b 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterKeyword.java
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterKeyword.java
+@@ -3,7 +3,7 @@ package gov.anzong.androidnga.activity.compose.filter;
+ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ 
+-import com.alibaba.fastjson.annotation.JSONField;
++import com.alibaba.fastjson2.annotation.JSONField;
+ 
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterManager.kt b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterManager.kt
+index 96da52a2..89fb79d7 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterManager.kt
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterManager.kt
+@@ -1,6 +1,6 @@
+ package gov.anzong.androidnga.activity.compose.filter
+ 
+-import com.alibaba.fastjson.JSON
++import com.alibaba.fastjson2.JSON
+ import gov.anzong.androidnga.base.kv.DataStore
+ import gov.anzong.androidnga.base.util.PreferenceUtils
+ import sp.phone.common.User
+diff --git a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModel.kt b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModel.kt
+index 95e52703..28796588 100644
+--- a/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModel.kt
++++ b/nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModel.kt
+@@ -1,6 +1,6 @@
+ package gov.anzong.androidnga.activity.compose.filter
+ 
+-import com.alibaba.fastjson.JSON
++import com.alibaba.fastjson2.JSON
+ import com.justwen.androidnga.base.network.retrofit.RetrofitHelper
+ import com.justwen.androidnga.base.network.retrofit.RetrofitServiceKt
+ import com.justwent.androidnga.bu.UserManager
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/common/TopicHistoryManager.java b/nga_phone_base_3.0/src/main/java/sp/phone/common/TopicHistoryManager.java
+index 1b3162ee..fba3706a 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/common/TopicHistoryManager.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/common/TopicHistoryManager.java
+@@ -3,7 +3,7 @@ package sp.phone.common;
+ import android.content.Context;
+ import android.preference.PreferenceManager;
+ 
+-import com.alibaba.fastjson.JSON;
++import com.alibaba.fastjson2.JSON;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicListModel.java b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicListModel.java
+index d946ebdf..429cedfa 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicListModel.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicListModel.java
+@@ -1,6 +1,6 @@
+ package sp.phone.mvp.model;
+ 
+-import com.alibaba.fastjson.JSON;
++import com.alibaba.fastjson2.JSON;
+ import com.justwen.androidnga.cloud.CloudServerManager;
+ 
+ import org.apache.commons.io.FileUtils;
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicPostModel.java b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicPostModel.java
+index b85d8c61..2a4d1ebb 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicPostModel.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/TopicPostModel.java
+@@ -6,8 +6,8 @@ import android.content.Context;
+ import android.net.Uri;
+ import android.os.ParcelFileDescriptor;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ import com.trello.rxlifecycle2.android.FragmentEvent;
+ 
+ import org.apache.commons.io.IOUtils;
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java
+index 9fd8b55d..ec421c30 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ArticleConvertFactory.java
+@@ -2,8 +2,8 @@ package sp.phone.mvp.model.convert;
+ 
+ import android.text.TextUtils;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+@@ -82,7 +82,7 @@ public class ArticleConvertFactory {
+             return null;
+         }
+         try {
+-            return JSONObject.toJavaObject(subObj, ThreadPageInfo.class);
++            return subObj.toJavaObject(ThreadPageInfo.class);
+         } catch (RuntimeException e) {
+             NLog.e(TAG, subObj.toJSONString());
+         }
+@@ -112,7 +112,7 @@ public class ArticleConvertFactory {
+             } else {
+                 continue;
+             }
+-            ThreadPostBean row = JSONObject.toJavaObject(rowObj, ThreadPostBean.class);
++            ThreadPostBean row = rowObj.toJavaObject(ThreadPostBean.class);
+             row.attachmentHost = getAttachmentHost(global);
+             buildRowHotReplay(row, rowObj);
+             buildRowComment(row, rowObj, userInfoMap, global);
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ErrorConvertFactory.java b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ErrorConvertFactory.java
+index 3b9d18d2..bf122da4 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ErrorConvertFactory.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ErrorConvertFactory.java
+@@ -1,7 +1,7 @@
+ package sp.phone.mvp.model.convert;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import java.net.UnknownHostException;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ForumNotificationFactory.java b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ForumNotificationFactory.java
+index 0f81dfc9..f07c8165 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ForumNotificationFactory.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/ForumNotificationFactory.java
+@@ -1,8 +1,8 @@
+ package sp.phone.mvp.model.convert;
+ 
+ 
+-import com.alibaba.fastjson.JSONArray;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSONArray;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/MessageConvertFactory.java b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/MessageConvertFactory.java
+index a1874676..f7b6eb47 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/MessageConvertFactory.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/MessageConvertFactory.java
+@@ -1,7 +1,7 @@
+ package sp.phone.mvp.model.convert;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ import com.justwen.androidnga.core.data.MessageListInfo;
+ import com.justwen.androidnga.core.data.MessageThreadPageInfo;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java
+index 3a28f931..e2ed40a4 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java
+@@ -2,8 +2,8 @@ package sp.phone.mvp.model.convert;
+ 
+ import android.text.TextUtils;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import java.util.Collections;
+ import java.util.Comparator;
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/proxy/ProxyBridge.java b/nga_phone_base_3.0/src/main/java/sp/phone/proxy/ProxyBridge.java
+index 972c7f8a..33fdf2ac 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/proxy/ProxyBridge.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/proxy/ProxyBridge.java
+@@ -5,8 +5,8 @@ import android.os.AsyncTask;
+ import android.webkit.JavascriptInterface;
+ import android.widget.Toast;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import org.apache.commons.io.IOUtils;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/task/AvatarFileUploadTask.java b/nga_phone_base_3.0/src/main/java/sp/phone/task/AvatarFileUploadTask.java
+index 0e95af9e..2e9bba4b 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/task/AvatarFileUploadTask.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/task/AvatarFileUploadTask.java
+@@ -8,7 +8,7 @@ import android.net.Uri;
+ import android.os.AsyncTask;
+ import android.os.ParcelFileDescriptor;
+ 
+-import com.alibaba.fastjson.JSON;
++import com.alibaba.fastjson2.JSON;
+ 
+ import org.apache.commons.io.IOUtils;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/task/JsonProfileLoadTask.java b/nga_phone_base_3.0/src/main/java/sp/phone/task/JsonProfileLoadTask.java
+index f716da40..91475998 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/task/JsonProfileLoadTask.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/task/JsonProfileLoadTask.java
+@@ -1,7 +1,7 @@
+ package sp.phone.task;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import org.reactivestreams.Subscription;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/task/LikeTask.java b/nga_phone_base_3.0/src/main/java/sp/phone/task/LikeTask.java
+index 8427296a..f5fb8c18 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/task/LikeTask.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/task/LikeTask.java
+@@ -1,7 +1,7 @@
+ package sp.phone.task;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import java.util.HashMap;
+ import java.util.Map;
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/task/PostCommentTask.java b/nga_phone_base_3.0/src/main/java/sp/phone/task/PostCommentTask.java
+index 7a5c1b51..16ecae58 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/task/PostCommentTask.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/task/PostCommentTask.java
+@@ -4,8 +4,8 @@ import android.os.AsyncTask;
+ 
+ import androidx.fragment.app.FragmentActivity;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ 
+ import org.apache.commons.io.IOUtils;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/task/ReportTask.java b/nga_phone_base_3.0/src/main/java/sp/phone/task/ReportTask.java
+index 3e143935..92c3e281 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/task/ReportTask.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/task/ReportTask.java
+@@ -1,6 +1,6 @@
+ package sp.phone.task;
+ 
+-import com.alibaba.fastjson.JSON;
++import com.alibaba.fastjson2.JSON;
+ 
+ import java.util.Map;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/task/SearchBoardTask.java b/nga_phone_base_3.0/src/main/java/sp/phone/task/SearchBoardTask.java
+index 9deca578..3687efb3 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/task/SearchBoardTask.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/task/SearchBoardTask.java
+@@ -1,7 +1,7 @@
+ package sp.phone.task;
+ 
+-import com.alibaba.fastjson.JSON;
+-import com.alibaba.fastjson.JSONObject;
++import com.alibaba.fastjson2.JSON;
++import com.alibaba.fastjson2.JSONObject;
+ import com.justwen.androidnga.base.network.retrofit.RetrofitHelper;
+ 
+ import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel;
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicHistoryFragment.java b/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicHistoryFragment.java
+index d9b866b3..2075080a 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicHistoryFragment.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicHistoryFragment.java
+@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
+ import androidx.recyclerview.widget.LinearLayoutManager;
+ import androidx.recyclerview.widget.RecyclerView;
+ 
+-import com.alibaba.fastjson.JSON;
++import com.alibaba.fastjson2.JSON;
+ 
+ import java.util.List;
+ 
+diff --git a/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java b/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java
+index 540e1ef8..7c32ebaa 100644
+--- a/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java
++++ b/nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java
+@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
+ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+ 
+ import com.alibaba.android.arouter.launcher.ARouter;
+-import com.alibaba.fastjson.JSON;
++import com.alibaba.fastjson2.JSON;
+ 
+ import butterknife.BindView;
+ import butterknife.ButterKnife;

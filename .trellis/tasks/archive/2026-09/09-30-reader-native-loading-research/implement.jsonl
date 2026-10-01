@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "Normal/App reader and failure boundaries"}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Account, transport, diagnostics and stop policy"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Offline verification and device policy"}
+{"file": ".trellis/tasks/archive/2026-09/09-30-reader-native-loading-research/research.md", "reason": "Four authenticated samples, same-device switch comparison, production transport probe, confirmed FORMAT handoff and device limits"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Historical reader lifecycle and stale UI guards; no diagnostic implementation is authorized"}
+{"file": ".trellis/tasks/archive/2026-09/09-30-reader-native-loading-research/research/47440211-truncated-response.md", "reason": "Live-reproduced truncated ordinary response, exact-prefix comparison, successful App/complete ordinary controls, and recovery-policy evidence limits"}
+{"file": ".trellis/tasks/archive/2026-09/09-30-reader-native-loading-research/research/account-dependent-observation.md", "reason": "User-corrected separate-post A-B-A evidence; recovered 47440211 truncation must not be assumed to explain the new account-dependent case"}

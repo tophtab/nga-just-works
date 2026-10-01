@@ -1,0 +1,25 @@
+commit 22ba3082501bcbb08f52a66d787f970f59c2dda7
+Author: Justwen <yyhshrrr@126.com>
+Date:   Sun Aug 30 22:52:38 2026 +0800
+
+    5.0.2发版，顺便升级下target api
+
+diff --git a/build.gradle b/build.gradle
+index 672d245a..dce960ff 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -44,10 +44,10 @@ task clean(type: Delete) {
+ 
+ project.ext {
+     minSdkVersion = 30
+-    targetSdkVersion = 35
+-    compileSdkVersion = 35
+-    appVersionName = '4.2.3'
+-    appVersionCode = 4023
++    targetSdkVersion = 36
++    compileSdkVersion = 36
++    appVersionName = '5.0.2'
++    appVersionCode = 5002
+ 
+     rxAndroid = '2.1.1'
+ 

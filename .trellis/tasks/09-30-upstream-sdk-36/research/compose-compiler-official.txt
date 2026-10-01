@@ -1,0 +1,230 @@
+URL: https://developer.android.com/develop/ui/compose/compiler
+Retrieved: 2026-09-30
+Compose Compiler Gradle plugin
+Stay organized with collections
+Save and categorize content based on your preferences.
+For Gradle, use the Compose Compiler Gradle plugin to set up and configure
+Compose.
+Note: The Compose Compiler Gradle Plugin is only available from Kotlin 2.0+. For
+migration instructions, see "Jetpack Compose compiler moving to the Kotlin
+repository".
+Set up with Gradle version catalogs
+Set up the Compose Compiler Gradle plugin:
+In the libs.versions.toml file, remove any reference to the Compose
+Compiler.
+In the versions and plugins sections, add the new dependency:
+[versions]
+kotlin = "2.4.10"
+[plugins]
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+// Add this line
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+In the project's root build.gradle.kts file, add the following to the
+plugins section.
+plugins {
+// Existing plugins
+alias(libs.plugins.compose.compiler) apply false
+}
+In each module that uses Compose, apply the plugin:
+plugins {
+// Existing plugins
+alias(libs.plugins.compose.compiler)
+}
+The project should now build and compile if it was using the default set up. If
+it had configured custom options on the Compose compiler, follow the next
+section.
+Set up the Compose Compiler without Gradle version catalogs
+Add the plugin to build.gradle.kts files associated with modules where Compose
+is used:
+plugins {
+id("org.jetbrains.kotlin.plugin.compose") version "2.4.10" // this version matches your Kotlin version
+}
+Add the classpath to your top-level project build.gradle.kts file:
+buildscript {
+dependencies {
+classpath("org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:2.4.10")
+}
+}
+Configuration options with the Compose Compiler Gradle Plugin
+To configure the Compose compiler using the Gradle plugin, add the
+composeCompiler block to the module's build.gradle.kts file at the top
+level:
+android { … }
+composeCompiler {
+reportsDestination = layout.buildDirectory.dir("compose_compiler")
+stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+}
+For the full list of available options, see the documentation.
+Set up Compose dependencies
+Always use the latest Compose BOM version: 2026.09.00.
+Set the compose flag to true inside the Android BuildFeatures to
+enable Compose functionality in Android Studio.
+Add the following definition to your app's build.gradle file:
+Groovy
+android {
+buildFeatures {
+compose true
+}
+}
+Kotlin
+android {
+buildFeatures {
+compose = true
+}
+}
+Add the Compose BOM and the subset of Compose library dependencies:
+Groovy
+dependencies {
+def composeBom = platform('androidx.compose:compose-bom:2026.09.00')
+implementation composeBom
+androidTestImplementation composeBom
+// Choose one of the following:
+// Material Design 3
+implementation 'androidx.compose.material3:material3'
+// or skip Material Design and build directly on top of foundational components
+implementation 'androidx.compose.foundation:foundation'
+// or only import the main APIs for the underlying toolkit systems,
+// such as input and measurement/layout
+implementation 'androidx.compose.ui:ui'
+// Android Studio Preview support
+implementation 'androidx.compose.ui:ui-tooling-preview'
+debugImplementation 'androidx.compose.ui:ui-tooling'
+// UI Tests
+androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+debugImplementation 'androidx.compose.ui:ui-test-manifest'
+// Optional - Add window size utils
+implementation 'androidx.compose.material3.adaptive:adaptive'
+// Optional - Integration with activities
+implementation 'androidx.activity:activity-compose:1.13.0'
+// Optional - Integration with ViewModels
+implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0'
+// Optional - Integration with LiveData
+implementation 'androidx.compose.runtime:runtime-livedata'
+// Optional - Integration with RxJava
+implementation 'androidx.compose.runtime:runtime-rxjava2'
+}
+Kotlin
+dependencies {
+val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
+implementation(composeBom)
+androidTestImplementation(composeBom)
+// Choose one of the following:
+// Material Design 3
+implementation("androidx.compose.material3:material3")
+// or skip Material Design and build directly on top of foundational components
+implementation("androidx.compose.foundation:foundation")
+// or only import the main APIs for the underlying toolkit systems,
+// such as input and measurement/layout
+implementation("androidx.compose.ui:ui")
+// Android Studio Preview support
+implementation("androidx.compose.ui:ui-tooling-preview")
+debugImplementation("androidx.compose.ui:ui-tooling")
+// UI Tests
+androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+debugImplementation("androidx.compose.ui:ui-test-manifest")
+// Optional - Add window size utils
+implementation("androidx.compose.material3.adaptive:adaptive")
+// Optional - Integration with activities
+implementation("androidx.activity:activity-compose:1.13.0")
+// Optional - Integration with ViewModels
+implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+// Optional - Integration with LiveData
+implementation("androidx.compose.runtime:runtime-livedata")
+// Optional - Integration with RxJava
+implementation("androidx.compose.runtime:runtime-rxjava2")
+}
+Note: Jetpack Compose is shipped using a Bill of Materials (BOM), to keep the
+versions of all library groups in sync. Read more about it in the Bill of
+Materials page.
+compileSdk and Android Gradle Plugin compatibility
+Compose library releases continually adopt the latest compileSdk versions to
+provide access to the latest Android features. Newer compileSdk versions
+require newer versions of Android Gradle Plugin, so adopting new Compose
+releases also requires projects to adopt new versions of the Android Gradle
+Plugin. We recommend keeping your project's compileSdk up to date with the
+latest released versions. compileSdk is unrelated from targetSdk.
+For example, starting with Compose 1.12.0, projects are required to use
+compileSdk 37 and Android Gradle Plugin (AGP) 9.
+To check which version of AGP is supported for different API levels, see the
+Android Gradle plugin API level support documentation.
+Content and code samples on this page are subject to the licenses described in the Content License. Java and OpenJDK are trademarks or registered trademarks of Oracle and/or its affiliates.
+Last updated 2026-09-16 UTC.
+[[["Easy to understand","easyToUnderstand","thumb-up"],["Solved my problem","solvedMyProblem","thumb-up"],["Other","otherUp","thumb-up"]],[["Missing the information I need","missingTheInformationINeed","thumb-down"],["Too complicated / too many steps","tooComplicatedTooManySteps","thumb-down"],["Out of date","outOfDate","thumb-down"],["Samples / code issue","samplesCodeIssue","thumb-down"],["Other","otherDown","thumb-down"]],["Last updated 2026-09-16 UTC."],[],[]]
+X
+Follow @AndroidDev on X
+YouTube
+Check out Android Developers on YouTube
+LinkedIn
+Connect with the Android Developers community on LinkedIn
+More Android
+Android
+Android for Enterprise
+Security
+Source
+News
+Blog
+Podcasts
+Discover
+Gaming
+Machine Learning
+Health & Fitness
+Camera & Media
+Privacy
+5G
+Android Devices
+Large screens
+Wear OS
+ChromeOS devices
+Android for cars
+Android TV
+Releases
+Android 17
+Android 16
+Android 15
+Android 14
+Android 13
+Android 12
+Android 11
+Documentation and Downloads
+Android Studio guide
+Developers guides
+API reference
+Download Studio
+Android NDK
+Support
+Report platform bug
+Report documentation bug
+Google Play support
+Join research studies
+Android
+Chrome
+Firebase
+Google Cloud Platform
+All products
+Privacy
+License
+Brand guidelines
+Manage cookies
+Get news and tips by email
+Subscribe
+English
+Deutsch
+Español – América Latina
+Français
+Indonesia
+Italiano
+Polski
+Português – Brasil
+Tiếng Việt
+Türkçe
+Русский
+עברית
+العربيّة
+فارسی
+हिंदी
+বাংলা
+ภาษาไทย
+中文 – 简体
+中文 – 繁體
+日本語
+한국어

@@ -1,0 +1,12 @@
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Android Debug 构建、全模块单测/lint；大文件须分段完整读取"}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "BOARD.CATEGORIES 与图标路径族/身份边界"}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "BOARD.CATEGORIES 固定 wire 来源"}
+{"file": ".trellis/spec/backend/network-foundation-contract.md", "reason": "保持现有请求身份和编码，不扩展 R7"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "收藏 stable key、持久化候选与失败回滚"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "本地图标、主页排序和 Pager/手势；大文件须分段完整读取"}
+{"file": ".trellis/tasks/09-30-upstream-board-icons/research/upstream-refresh-and-url.md", "reason": "当前上游复核、迁移刷新选择与 URL 输入边界"}
+{"file": ".trellis/tasks/09-30-upstream-board-icons/research/state-persistence-ui.md", "reason": "实体重复、Compose 观察、树快照与并发约束"}
+{"file": ".trellis/tasks/archive/2026-09/09-11-upstream-august-2026-review/research/branch-and-small-fixes.md", "reason": "固定上游 patch 与不能采用的扁平化持久化"}
+{"file": ".trellis/tasks/archive/2026-09/09-30-reader-native-loading-research/research/upstream-compat-audit-2026-09-30.md", "reason": "最新固定上游及 R7 排除范围"}
+{"file": ".trellis/tasks/09-30-upstream-board-icons/research/planning-review.md", "reason": "独立方案核查及响应形状、增量去重、preference 异常边界；落实结果见 design/implement"}
+{"file": ".trellis/tasks/09-30-upstream-adoption/approval.md", "reason": "用户整体批准及新会话实施交接；Android15优先级和既定范围无需重复确认"}

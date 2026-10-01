@@ -1,0 +1,55 @@
+[
+  {
+    "aar": "com.umeng.umsdk/asms/1.8.7.2/5b73a8d1b34735ca0226c0367c12a8651a03dad0/asms-1.8.7.2.aar",
+    "so": "jni/arm64-v8a/libumeng-spy.so",
+    "load_segments": [
+      {
+        "offset": 0,
+        "vaddr": 0,
+        "align": 65536
+      },
+      {
+        "offset": 387144,
+        "vaddr": 452680,
+        "align": 65536
+      }
+    ]
+  },
+  {
+    "aar": "com.tencent.bugly/crashreport/4.1.9.3/ed1971316c56d8b2e8ec4c82ad58c7cc0f00bc1c/crashreport-4.1.9.3.aar",
+    "so": "jni/arm64-v8a/libBugly_Native.so",
+    "load_segments": [
+      {
+        "offset": 0,
+        "vaddr": 0,
+        "align": 65536
+      },
+      {
+        "offset": 188456,
+        "vaddr": 253992,
+        "align": 65536
+      }
+    ]
+  },
+  {
+    "aar": "androidx.graphics/graphics-path/1.0.1/7e243033abd313c7202428422a01d48691378e33/graphics-path-1.0.1.aar",
+    "so": "jni/arm64-v8a/libandroidx.graphics.path.so",
+    "load_segments": [
+      {
+        "offset": 0,
+        "vaddr": 0,
+        "align": 16384
+      },
+      {
+        "offset": 7232,
+        "vaddr": 23616,
+        "align": 16384
+      },
+      {
+        "offset": 8144,
+        "vaddr": 40912,
+        "align": 16384
+      }
+    ]
+  }
+]

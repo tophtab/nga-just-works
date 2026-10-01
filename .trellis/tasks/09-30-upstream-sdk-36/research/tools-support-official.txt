@@ -1,0 +1,33 @@
+URL: https://developer.android.com/studio/releases#api-level-support
+Retrieved: 2026-09-30
+Snapshot: API-level support table excerpt only.
+# api-level-support Minimum versions of tools for Android API level
+There are minimum versions of Android Studio and AGP that support a specific
+API level. Using lower versions of Android Studio or AGP than required by your
+project's targetSdk or compileSdk could lead to
+unexpected issues. We recommend using the latest preview version of Android
+Studio and AGP to work on projects that target preview versions of the Android
+OS. You can
+install preview versions of Android Studio alongside a stable version.
+The minimum versions of Android Studio and AGP are as follows:
+API level
+Minimum Android Studio version
+Minimum AGP version
+37.0
+Panda 3 | 2025.3.3 Patch 1
+9.1.1
+36.1
+Narwhal 3 Feature Drop | 2025.1.3
+8.13.0
+36
+Meerkat | 2024.3.1 Patch 1
+8.9.1
+35
+Koala Feature Drop | 2024.2.1
+8.6.0
+34
+Hedgehog | 2023.1.1
+8.1.1
+33
+Flamingo | 2022.2.1
+7.2
