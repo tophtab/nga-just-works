@@ -1,3 +1,11 @@
+# 实施完成，进入6.2.0发布收尾
+
+U1 `4ccd7564`、U2 `88ce8be3`、U3 B0–B5（最终 `c2131fe9`）、U4 `7d5ef21b` 已完成，正式main修复 `c768a3cb` 通过 `0eebe1e5` 整合。
+最终820单测、37脚本测试、13模块lint、实际app R8与Preview编译、三个variant manifest、新APK16KB对齐均通过独立check。用户已要求commit、finish-work、push及新版本发布；稳定版本6.2.0说明已校验。
+源main工作区另有测试精简在途改动，本轮保留原样，从隔离工作区推送远端main。完整证据见 [integration-check.md](integration-check.md) 与 [implementation-session.md](implementation-session.md)。以下内容为历史交接与批次过程，不代表仍有验收缺项。
+
+---
+
 # 当前实施接续（2026-10-01）
 
 实施工作区 `/home/toph/nga-just-works-upstream-adoption`，分支 `feat/upstream-adoption`，基于主仓库 `557f7bea`。
