@@ -1,0 +1,139 @@
+[
+  {
+    "module": "lib_bu_statistics",
+    "blocking": []
+  },
+  {
+    "module": "nga_phone_base_3.0",
+    "blocking": [
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiConfigRecordTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiConfigStoreTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiConfigTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiModelsClientTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiProfilePromptTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiResponseParserTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiStreamParserTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of AiSummaryClientTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of ArticleConvertFactoryTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of FilterWordModelTest.kt (this is a bug in lint or one of the libraries it depends on)\n\nMessage: Error while resolving org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl \nfrom RAW_FIR to SUPER_TYPES\ncurrent declaration phase RAW_FIR\norigin: Source\nsession: class org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSourcesSession\nmodule data: class org.jetbrains.kotlin.analysis.low.level.api.fir.project.structure.LLFirModuleData\nKtModule: class org.jetbrains.kotlin.analysis.project.structure.impl.KtSourceModuleImpl\nplatform: JVM (1.8)\n"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of ForumBoardBookmarkPersistenceTest.kt (this is a bug in lint or one of the libraries it depends on)\n\nMessage: Error while resolving org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl \nfrom RAW_FIR to SUPER_TYPES\ncurrent declaration phase RAW_FIR\norigin: Source\nsession: class org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSourcesSession\nmodule data: class org.jetbrains.kotlin.analysis.low.level.api.fir.project.structure.LLFirModuleData\nKtModule: class org.jetbrains.kotlin.analysis.project.structure.impl.KtSourceModuleImpl\nplatform: JVM (1.8)\n"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of HomeBoardOrderTest.kt (this is a bug in lint or one of the libraries it depends on)\n\nMessage: Error while resolving org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl \nfrom RAW_FIR to SUPER_TYPES\ncurrent declaration phase RAW_FIR\norigin: Source\nsession: class org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSourcesSession\nmodule data: class org.jetbrains.kotlin.analysis.low.level.api.fir.project.structure.LLFirModuleData\nKtModule: class org.jetbrains.kotlin.analysis.project.structure.impl.KtSourceModuleImpl\nplatform: JVM (1.8)\n"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of NavigationDrawerGestureTest.kt (this is a bug in lint or one of the libraries it depends on)\n\nMessage: Error while resolving org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl \nfrom RAW_FIR to SUPER_TYPES\ncurrent declaration phase RAW_FIR\norigin: Source\nsession: class org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSourcesSession\nmodule data: class org.jetbrains.kotlin.analysis.low.level.api.fir.project.structure.LLFirModuleData\nKtModule: class org.jetbrains.kotlin.analysis.project.structure.impl.KtSourceModuleImpl\nplatform: JVM (1.8)\n"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of NgaProfilePageSourceTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of PageAttachmentPrefixFlowTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of ProfileRequestQueueTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of ProfileSummaryLoaderTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of ReleaseWorkflowContractTest.kt (this is a bug in lint or one of the libraries it depends on)\n\nMessage: Error while resolving org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl \nfrom RAW_FIR to SUPER_TYPES\ncurrent declaration phase RAW_FIR\norigin: Source\nsession: class org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSourcesSession\nmodule data: class org.jetbrains.kotlin.analysis.low.level.api.fir.project.structure.LLFirModuleData\nKtModule: class org.jetbrains.kotlin.analysis.project.structure.impl.KtSourceModuleImpl\nplatform: JVM (1.8)\n"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of SummaryControllerTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of SummaryInputTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      },
+      {
+        "id": "LintError",
+        "message": "Unexpected failure during lint analysis of VersionUpgradeHelperMigrationTest.java (this is a bug in lint or one of the libraries it depends on)\n\nMessage: /home/toph/nga-just-works/nga_phone_base_3.0/build/tmp/kapt3/stubs/debugUnitTest/sp/phone/mvp/model/thread/ArticleErrorsTest.java"
+      }
+    ]
+  },
+  {
+    "module": "lib_core",
+    "blocking": []
+  },
+  {
+    "module": "lib_base_logger",
+    "blocking": []
+  },
+  {
+    "module": "lib_base_common",
+    "blocking": []
+  },
+  {
+    "module": "lib_core_data",
+    "blocking": []
+  },
+  {
+    "module": "lib_bu_message",
+    "blocking": []
+  },
+  {
+    "module": "lib_base_network",
+    "blocking": []
+  },
+  {
+    "module": "lib_base_service_api",
+    "blocking": []
+  },
+  {
+    "module": "lib_bu_account",
+    "blocking": []
+  },
+  {
+    "module": "lib_base_ui_compose",
+    "blocking": []
+  },
+  {
+    "module": "lib_base_ui",
+    "blocking": []
+  },
+  {
+    "module": "lib_module_debug",
+    "blocking": []
+  }
+]

@@ -8,24 +8,15 @@ import org.junit.Test
 /** Decoded synthetic bodies only; classification must stop before any alternate request. */
 class ArticleErrorsTest {
     private val query = ArticleQuery(100001, 0, 0, 0)
-    private val noRender = ArticleRowRenderer { _, _ -> fail("A terminal body must not render") }
     private val noBlacklist = ArticleBlacklist { false }
 
     private fun assertTerminal(raw: String, kind: ArticleFailureKind) {
-        val parsers: List<() -> Unit> = listOf(
-            { ArticleErrors.json(raw) },
-            { NormalArticleParser(noRender, noBlacklist).parse(raw, query, 1) },
-            { AppArticleParser(noRender, noBlacklist).parse(raw, query, 1) },
-        )
-        for (parse in parsers) {
-            try {
-                parse()
-                fail("Expected a terminal response")
-            } catch (failure: ArticleFailure) {
-                assertEquals(kind, failure.kind)
-                assertFalse(failure.allowsAppFallback())
-                assertFalse(ArticleAttemptPolicy().tryApp(failure, true, true, true))
-            }
+        try {
+            ArticleErrors.json(raw)
+            fail("Expected a terminal response")
+        } catch (failure: ArticleFailure) {
+            assertEquals(kind, failure.kind)
+            assertFalse(failure.allowsAppFallback())
         }
     }
 

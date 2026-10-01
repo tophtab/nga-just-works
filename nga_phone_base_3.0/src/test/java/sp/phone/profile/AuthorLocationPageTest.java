@@ -50,22 +50,6 @@ public class AuthorLocationPageTest {
     }
 
     @Test
-    public void activeOutputStillReceivesResultsWhileReplacementIsPending() {
-        Harness h = new Harness();
-        Display display = h.open(41);
-        display.page.deliver(page(41), true);
-        h.settle();
-        display.page.deliver(page(41, 42), true);
-        h.complete(ProfileLocationResult.success("广东"));
-        assertEquals(Arrays.asList(null, "广东"), display.values(41));
-        h.settle();
-        assertEquals(Arrays.asList(null, "广东", "广东"), display.values(41));
-        assertEquals(Collections.singletonList(41), h.requested);
-        h.advance(500);
-        assertEquals(Arrays.asList(41, 42), h.requested);
-    }
-
-    @Test
     public void handoffSharesInflightAuthorsAndRetiresRemovedQueuedAuthors() {
         Harness h = new Harness();
         Display display = h.open(41, 42, 43);
@@ -196,21 +180,6 @@ public class AuthorLocationPageTest {
     }
 
     @Test
-    public void replayAfterInvalidationUsesCurrentEmptyOutput() {
-        Harness h = new Harness();
-        h.seed(41, "广东");
-        Display display = h.open(41);
-        ThreadData data = page(41);
-        display.page.deliver(data, true);
-        h.settle();
-        h.repository.invalidateSession();
-        display.page.deliver(data, true);
-        assertEquals(Arrays.asList("广东", null, null), display.values(41));
-        assertTrue(h.settlements.isEmpty());
-        assertEquals(Collections.singletonList(41), h.requested);
-    }
-
-    @Test
     public void readyAndCacheOnlyReplayReevaluateExpiryWithoutRequests() {
         Harness h = new Harness();
         h.seed(41, "广东");
@@ -226,25 +195,6 @@ public class AuthorLocationPageTest {
         h.settle();
         assertNull(display.drawn(41));
         assertEquals(Collections.singletonList(41), h.requested);
-    }
-
-    @Test
-    public void recreatedCacheOnlyPageCannotResumeOtherPagesExpiredServerPause() {
-        Harness h = new Harness();
-        Display online = h.open(41, 42);
-        online.page.deliver(page(41, 42), true);
-        h.settle();
-        h.complete(ProfileLocationResult.rateLimit(h.now + AuthorLocationCache.RATE_LIMIT_MILLIS));
-        h.now += AuthorLocationCache.RATE_LIMIT_MILLIS;
-        h.advance(500);
-        Display recreated = h.open(99);
-        ThreadData retained = page(99);
-        recreated.page.deliver(retained, false);
-        h.settle();
-        recreated.page.deliver(retained, true);
-        recreated.page.replay();
-        assertEquals(Collections.singletonList(41), h.requested);
-        assertTrue(h.settlements.isEmpty());
     }
 
     @Test

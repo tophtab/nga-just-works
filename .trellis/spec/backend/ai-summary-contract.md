@@ -576,97 +576,49 @@ loading and answerless states return an empty string.
 
 ## 6. Tests Required
 
-- `AiConfigTest`, `AiConfigRecordTest`, and `AiConfigStoreTest`: endpoint
-  normalization, fixed validation errors, real AES-GCM round trips/tampering,
-  atomic failure, reload, lost-key, and partial-clear behavior. Cover v1
-  migration to the forum default, both preset selections, exact multiline
-  custom round trips, retained custom text under presets, worst-case UTF
-  encoding, and an atomic failure preserving all previous fields.
-- `AiProfilePromptTest` and `AiProfilePromptEditorStateTest` cover distinct presets, selected
-  instructions, exact custom text, blank/overlong validation, local draft
-  confirmation/cancellation, and custom-to-preset-to-custom transitions.
-- `AiResponseParserTest` and `AiSummaryClientTest`: bounded/type-safe parsing,
-  special keys, UTF-8, request JSON, auth/Cookie isolation, status errors,
-  redirects, 503 request count, explicit cancellation, and transport deadlines.
-  Assert summaries stream and both summaries and connection tests send exactly
-  `max_tokens: 10000`, without other token aliases or thinking overrides.
-  Fake-server progress must arrive before the
-  terminal event. Include partial stream failure, timeout flush, JSON fallback,
-  and valid SSE larger than the old 256 KiB response limit.
-  `AiStreamParserTest` covers split UTF-8, frame/tag boundaries, multiline and
-  CR/LF framing, index-zero choice selection, usage/DONE, empty/exhausted/
-  interrupted results, inline thinking, literal protocol-like prose, serialized
-  envelopes, operational bounds, and full replies above 1,000 characters.
-  Include valid content followed by malformed UTF-8 in one read, interrupted
-  ordinary protocol-like prefixes, and explicit index zero after an unindexed
-  row. Indexless fallback is allowed only when every choice is unindexed.
-  `AiModelsClientTest` additionally covers HTTP production transport, base/full/custom
-  URL derivation, draft-only validation, model ID types/bounds/deduplication,
-  immutable and empty results, and malformed/oversized list responses.
-  Cover root 404/405 and HTTP-200 HTML fallback, exact same-origin paths/auth,
-  one terminal callback, and a two-request ceiling even if the fallback fails.
-  Valid/empty JSON and JSON mislabelled HTML must not fall back, nor may
-  explicit/encoded custom prefixes, auth/rate-limit/server/redirect errors,
-  or malformed model responses. Verify cancellation during fallback, one total
-  deadline across both attempts, parser/size limits on the fallback response,
-  redirect credential isolation, and no hidden `503 Retry-After: 0` GET retry.
-- `SummaryInputTest`, `SummaryControllerTest`, `ProfileSummaryLoaderTest`,
-  and `NgaProfilePageSourceTest`: frozen rows, correct UID, two first-page
-  list kinds with no detail reads, topic metadata/reply text, limited
-  content, date boundaries, charset errors,
-  timeout versus user cancellation, synchronous failures, and late callbacks.
-  Floor snapshots cover missing floor metadata, explicit comments with a
-  numeric raw floor, known floor zero, and later row/presentation mutations;
-  unknown floors never appear as fabricated numbers in the prompt.
-  Profile parser regressions also cover mixed visible/unavailable topics,
-  outer and nested reply markers, both marker names, blank/non-string markers,
-  unmarked foreign authors, all-unavailable pages, unchanged whole-page errors,
-  and the 20 accepted-item cap after filtering. Loader tests cover retry
-  success, independent two-retry budgets for topics/replies, exhausted empty
-  samples with activity from the other kind, and the both-empty six-read cap.
-  Transport, parse, and identity failures must never trigger an empty retry.
-  Maximum-sample collection must schedule exactly two list calls, close each
-  response before advancing, and omit incidental topic body fields. Exercise
-  the 499/500 ms cooldown boundary with a deterministic clock/scheduler, slow
-  previous calls, and shared pacing across source instances. Exercise
-  cancellation during either list or a pending cooldown/retry, blocked-read
-  cancellation, timeout versus user cancellation, factory/enqueue failures,
-  and duplicate/late callbacks, including an earlier attempt of the same kind.
-  Use the production NGA client policy with a local 503/zero-retry-hint fixture:
-  exactly one server request, the first failure retained, and any subsequent
-  explicit collection request still observes the 500 ms cooldown.
-  Reply collection failures must not produce a partial topic-only prompt.
-  `SummaryInputTest` excludes nonempty topic Entry bodies for every prompt
-  style and covers reply prefixes at 199/200/201 characters and surrogate
-  boundaries. `AiSummaryClientTest` sends maximum metadata/reply samples with
-  both built-in styles and maximum custom instructions without clipping;
-  separately retain its rejection of an oversized caller-supplied prompt.
-  `SummaryInputTest` also verifies retained counts and independent input
-  numbering across truncation, null entries, and empty/partial samples; prose
-  and tone instructions are source-reviewed rather than duplicated as a string
-  snapshot test. Assert both built-in profile presets and the floor prompt
-  contain `回复正文在1000字以内`. Exercise saved custom instructions through
-  the configuration-aware source/controller/model path and reject a prompt
-  configuration change before sending.
-  Controller cases include progress coalescing, terminal flush, late progress
-  after close/same-target retry/target replacement, retained partial errors,
-  separate reasoning, and complete answer-only copying above 1,000 characters.
-- `AiSettingsContractTest`, `DefaultSettingsContractTest`, and
-  `AiSummaryUiContractTest`: settings hierarchy/navigation, Key state-saving
-  precautions, both floor menus, loaded-profile visibility, shared dialog,
-  and pause/refresh cleanup.
-  Settings coverage also asserts the toolbar save icon, model-editor wiring,
-  the fifth profile-prompt row, the three choice labels, multiline custom input,
-  and saving the complete prompt-aware draft through the existing store.
-  Shared-dialog coverage asserts separate views, default folding and reset,
-  accessible toggle, answer-only copy, and clearing transient text on dismiss.
-  `AiModelEditorStateTest` covers model list/custom/error interaction, same-service
-  cache retention/invalidation, late callback rejection, and user-edit preservation
-  during discovery.
-- Follow the Android quality gate for app JVM/build and all-module lint.
-  `AiConfigStoreInstrumentedTest` exercises real Keystore/AtomicFile with
-  isolated test aliases/files. Build its APK by default, but run it only with
-  current device authorization; otherwise report not run per project policy.
+Assign each rule one primary behavioral owner; higher layers keep distinct
+integration boundaries rather than repeating parser/validation matrices:
+
+- `AiConfigTest` owns endpoint/key/model validation; `AiProfilePromptTest`
+  owns custom instruction bounds. `AiConfigRecordTest` owns authenticated
+  encryption, style encoding, exact multiline text and record limits.
+  `AiConfigStoreTest` owns atomic replacement/reopen, supported v1 migration
+  without rewriting on read, unavailable/lost keys, independent clear failures,
+  and stored custom instructions reaching the controller/model snapshot.
+- `AiResponseParserTest` owns bounded typed JSON and model IDs;
+  `AiStreamParserTest` owns strict incremental UTF-8/framing, choice selection,
+  reasoning/answer separation, protocol screening, EOF/finish/error behavior
+  and partial progress. Keep distinct malformed, truncated and over-limit
+  outcomes, not every spelling of an equivalent malformed input.
+- `AiSummaryClientTest` owns POST wire/auth isolation, token/stream options,
+  real progress/error flushing, cancellation, transport deadlines, redirect
+  and retry policy, and maximum custom prompt delivery. `AiModelsClientTest`
+  owns discovery URL/fallback gates, same-origin credentials, the two-attempt
+  ceiling and shared deadline, cancellation and bounded decoding. Keep one
+  representative wire test for a parser rule only where transport adds risk.
+- `ProfileRequestQueueTest` owns deterministic physical-slot, cooldown and
+  cancellation timing. `ProfileSummaryLoaderTest` owns two-kind attempt
+  identity, bounded empty retries, terminal failure and cancellation/reentrancy.
+  `NgaProfilePageSourceTest` owns real list wire/UID, unavailable-entry filtering,
+  strict charset/typed input, transport cleanup and a paced collection integration.
+  Retain the production-client 503 physical-request-count regression.
+- `SummaryInputTest` owns immutable selected-row evidence, floor identity,
+  topic-metadata-only input and bounded replies. Keep the input integration
+  case where a COMMENT has a nonnegative raw floor but no known floor; testing
+  only the row classifier does not catch a caller bypassing that classifier. `SummaryControllerTest`
+  owns configuration revalidation, generation retirement, coalesced UI progress,
+  partial terminal delivery and answer-only copying. AI editor state tests own
+  draft preservation, discovery cache identity and obsolete callbacks.
+- Keep the narrow key persistence/state-saving guard in `AiSettingsContractTest`.
+  Review settings hierarchy, dialog layout/accessibility, menu entry, cleanup
+  and prompt-aware saving directly when changing those call sites; source
+  spelling snapshots do not establish UI execution.
+- `AiConfigStoreInstrumentedTest` owns actual Android Keystore reopen/deletion,
+  AtomicFile interrupted replacement and lost-key recovery. Compile its test
+  sources when they or platform storage integration change; execution requires
+  current device authorization. JVM fakes do not prove these platform guarantees.
+- Use focused owner/downstream commands during development and one final
+  repository Debug/lint gate from the Android quality guidelines.
 
 ## 7. Wrong vs Correct
 

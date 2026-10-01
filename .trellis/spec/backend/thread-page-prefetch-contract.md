@@ -150,9 +150,11 @@ request.
 
 ## 6. Tests Required
 
-- Pure JVM planner tests must cover `3/6`, `3/5`, `3/4`, first/penultimate/final
-  pages, invalid inputs, overflow, immutability, and the invariant
-  `currentPage < candidatePage <= currentPage + 2 && candidatePage < totalPages`.
+- `ArticlePagePrefetchPlannerTest` owns representative look-ahead, final-page
+  exclusion, invalid input and overflow boundaries. Keep the invariant
+  `currentPage < candidatePage <= currentPage + 2 && candidatePage < totalPages`;
+  repeated arithmetic/property matrices and incidental collection immutability
+  do not need independent tests.
 - Pure request-state tests must cover duplicate suppression, successful reuse,
   background failure, foreground promotion/fallback, pause demotion, ready-data
   refresh, explicit refresh coalescing during prefetch, and reset on identity
@@ -160,17 +162,17 @@ request.
   changes and ensure offscreen results cannot change the layout.
   Include ready data → explicit refresh → repeated automatic/explicit loads;
   old retained data cannot complete the refresh or unlock another request.
-- Source-contract tests must pin offscreen limit 2, both replanning triggers,
-  immutable LiveData publication, online pager guards, silent prefetch failure,
-  foreground retry/WebView separation, ordinary model wire/parser/DETACH
-  anchors and the explicit enabled/scoped transport boundary. Tests should
-  exercise identity invalidation and side-effect budgets rather than merely
-  asserting that a helper name appears in the source.
-- Run `:nga_phone_base_3.0:testDebugUnitTest`,
-  `:nga_phone_base_3.0:assembleDebug`, and
-  `:nga_phone_base_3.0:lintDebug`; inspect the lint report instead of relying
-  only on its process exit. Device tests remain opt-in under the Android
-  quality contract.
+- Review offscreen limit 2, both replanning triggers, immutable LiveData
+  publication, online pager guards, silent prefetch failure, foreground
+  retry/WebView separation and enabled/scoped transport integration when
+  changing the caller. Keep executable planner/request/cache regressions for
+  identity invalidation and side-effect budgets. Source-substring snapshots
+  of the call sites are not required.
+- Run the combined repository Debug test/lint gate from
+  [Android quality guidelines](./android-quality-guidelines.md#validation-gate)
+  once; inspect lint reports instead of relying only on the process exit.
+  Add Debug APK assembly when packaging verification is relevant under that
+  contract. Device tests remain opt-in.
 
 ## 7. Wrong vs Correct
 

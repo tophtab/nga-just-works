@@ -196,9 +196,7 @@ class ArticleByteClientTest {
 
     @Test fun httpStopsAreClassifiedBeforeParsingAndNeverCreateAnotherCall() {
         for ((status, kind) in mapOf(
-            401 to ArticleFailureKind.AUTH, 403 to ArticleFailureKind.ACCESS,
-            429 to ArticleFailureKind.RATE_LIMIT, 302 to ArticleFailureKind.ACCESS,
-            503 to ArticleFailureKind.PROTOCOL,
+            302 to ArticleFailureKind.ACCESS,
         )) {
             val body = TestBody("unread synthetic body".toByteArray())
             val (observer, factory) = read(body, status = status)

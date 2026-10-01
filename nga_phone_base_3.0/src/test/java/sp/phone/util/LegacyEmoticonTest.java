@@ -8,18 +8,12 @@ import java.lang.reflect.Method;
 import gov.anzong.androidnga.common.util.EmoticonUtils;
 
 public class LegacyEmoticonTest {
-    @Test public void all238CodesUseCanonicalAssetsAndRetainLegacyDimensions() throws Exception {
-        int count = 0;
-        for (int c = 0; c < EmoticonUtils.EMOTICON_LABEL.length; c++) {
-            String category = EmoticonUtils.EMOTICON_LABEL[c][0];
-            for (String[] item : EmoticonUtils.EMOTICON_URL[c]) {
-                String size = category.equals("ng") || category.equals("pg") ? " width=60 height=60" : "";
-                assertEquals("<img src='file:///android_asset/" + category + "/" + item[1] + "'" + size + ">",
-                        decode("[s:" + category + ":" + item[0] + "]"));
-                count++;
-            }
-        }
-        assertEquals(238, count);
+    @Test public void canonicalAssetsRetainLegacyCategoryDimensions() throws Exception {
+        assertEquals("<img src='file:///android_asset/ac/ac42.png'>", decode("[s:ac:赞同]"));
+        assertEquals("<img src='file:///android_asset/ng/ng_38.png' width=60 height=60>",
+                decode("[s:ng:问号大]"));
+        assertEquals("<img src='file:///android_asset/pg/pg01.png' width=60 height=60>",
+                decode("[s:pg:战斗力]"));
     }
 
     @Test public void legacyCaseAliasesAndUnknownTextArePreserved() throws Exception {

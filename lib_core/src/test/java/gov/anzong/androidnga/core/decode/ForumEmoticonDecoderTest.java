@@ -2,22 +2,9 @@ package gov.anzong.androidnga.core.decode;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import gov.anzong.androidnga.common.util.EmoticonUtils;
 
 public class ForumEmoticonDecoderTest {
     private final ForumEmoticonDecoder decoder = new ForumEmoticonDecoder();
-
-    @Test public void all238PickerCodesRenderTheirOwnAssets() {
-        int count = 0;
-        for (int c = 0; c < EmoticonUtils.EMOTICON_LABEL.length; c++) {
-            String category = EmoticonUtils.EMOTICON_LABEL[c][0];
-            for (String[] item : EmoticonUtils.EMOTICON_URL[c]) {
-                assertEquals(html(category, item[1]), decoder.decode("[s:" + category + ":" + item[0] + "]"));
-                count++;
-            }
-        }
-        assertEquals(238, count);
-    }
 
     @Test public void agreementAndSparkleKeepCorrectAssetsInMixedRepeatedAndQuotedContent() {
         assertEquals("text" + html("ac", "ac42.png") + "<blockquote>" + html("ac", "ac43.png")

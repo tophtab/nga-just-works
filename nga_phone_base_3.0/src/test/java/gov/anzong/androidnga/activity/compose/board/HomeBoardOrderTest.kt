@@ -11,12 +11,6 @@ class HomeBoardOrderTest {
     private val defaults = listOf("other", "games", "wow", "bliz", "club")
 
     @Test
-    fun missingPreferenceUsesCompleteDefaultOrder() {
-        assertEquals(defaults, HomeBoardOrderResolver.resolve(defaults, null))
-        assertEquals(defaults, HomeBoardOrderResolver.resolve(defaults, emptyList()))
-    }
-
-    @Test
     fun savedOrderDropsUnknownAndDuplicateIdsThenAppendsMissingDefaults() {
         val resolved = HomeBoardOrderResolver.resolve(
             defaults,

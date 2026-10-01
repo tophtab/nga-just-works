@@ -64,18 +64,6 @@ class ForumBoardBookmarkPersistenceTest {
     }
 
     @Test
-    fun jsonRoundTripKeepsBookmarkOrder() {
-        val source = listOf("first", "second", "third").map(::board)
-
-        val restored = ForumBoardRepository.decodeBookmarkBoards(
-            ForumBoardRepository.encodeBookmarkBoards(source)
-        )
-
-        assertEquals(source.map { it.id }, restored.map { it.id })
-        assertTrue(BookmarkOrder.hasSameOrder(source, restored))
-    }
-
-    @Test
     fun onlyJsonArrayIsAnAuthoritativeEmptyList() {
         assertTrue(ForumBoardRepository.decodeBookmarkBoards("[]").isEmpty())
         assertThrows(IllegalArgumentException::class.java) {

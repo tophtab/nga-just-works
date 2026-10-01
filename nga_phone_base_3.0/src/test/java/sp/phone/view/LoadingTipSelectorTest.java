@@ -26,7 +26,7 @@ public class LoadingTipSelectorTest {
     @Test
     public void singleItemPoolCanBeReused() {
         LoadingTipSelector selector = new LoadingTipSelector(new Random(12));
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 2; i++) {
             assertEquals(10, selector.next(Collections.singletonList(10)));
         }
     }
@@ -36,7 +36,7 @@ public class LoadingTipSelectorTest {
         LoadingTipSelector selector = new LoadingTipSelector(new Random(12));
         List<Integer> tips = Collections.unmodifiableList(Arrays.asList(10, 20, 30, 40));
         int previous = 0;
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 8; i++) {
             int selected = selector.next(tips);
             assertTrue(tips.contains(selected));
             assertNotEquals(previous, selected);

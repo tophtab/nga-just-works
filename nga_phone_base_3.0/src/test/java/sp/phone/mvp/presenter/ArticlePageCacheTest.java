@@ -129,21 +129,6 @@ public class ArticlePageCacheTest {
     }
 
     @Test
-    public void blankLaunchMetadataFallsBackToLoadedThread() {
-        for (String description : new String[]{null, "", " \t\n", "\u3000", "\u00a0"}) {
-            ArticleListParam param = fullThread(1);
-            param.topicInfo = description;
-
-            ArticleListParam saved = ArticlePageCache.prepare(param, loadedPage());
-
-            assertNotNull(saved);
-            assertEquals(SUBJECT,
-                    JSON.parseObject(saved.topicInfo, ThreadPageInfo.class).getSubject());
-            assertEquals(description, param.topicInfo);
-        }
-    }
-
-    @Test
     public void snapshotRetainsSelectedChildPageWithoutMutatingPagerOrLoadedData() {
         ArticleListParam pager = fullThread(0);
         pager.content = "unchanged navigation content";
@@ -177,28 +162,6 @@ public class ArticlePageCacheTest {
         assertEquals(SUBJECT, saved.title);
         assertEquals(SUBJECT,
                 JSON.parseObject(saved.topicInfo, ThreadPageInfo.class).getSubject());
-    }
-
-    @Test
-    public void preparingAnotherPageDoesNotOverwritePreviousSnapshot() {
-        ArticleListParam firstPage = fullThread(2);
-        ArticleListParam secondPage = fullThread(7);
-        ThreadData secondData = loadedPage();
-        secondData.getThreadInfo().setSubject("updated thread title");
-
-        ArticleListParam firstSave = ArticlePageCache.prepare(firstPage, loadedPage());
-        ArticleListParam secondSave = ArticlePageCache.prepare(secondPage, secondData);
-
-        assertNotNull(firstSave);
-        assertNotNull(secondSave);
-        assertEquals(2, firstSave.page);
-        assertEquals(7, secondSave.page);
-        assertEquals(SUBJECT,
-                JSON.parseObject(firstSave.topicInfo, ThreadPageInfo.class).getSubject());
-        assertEquals("updated thread title",
-                JSON.parseObject(secondSave.topicInfo, ThreadPageInfo.class).getSubject());
-        assertNull(firstPage.topicInfo);
-        assertNull(secondPage.topicInfo);
     }
 
     @Test

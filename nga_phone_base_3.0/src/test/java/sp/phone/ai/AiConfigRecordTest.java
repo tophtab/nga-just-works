@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import javax.crypto.Cipher;
@@ -17,34 +16,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 public class AiConfigRecordTest {
-    @Test
-    public void realAesGcmRoundTripKeepsAllFieldsTogether() throws Exception {
-        AiConfig expected = config();
-        SecretKey key = newKey();
-        byte[] record = AiConfigRecord.encrypt(expected, key);
-        AiConfig actual = AiConfigRecord.decrypt(record, key);
-        assertEquals(expected.getEndpoint(), actual.getEndpoint());
-        assertEquals(expected.getApiKey(), actual.getApiKey());
-        assertEquals(expected.getModel(), actual.getModel());
-        assertEquals(expected.getProfilePrompt(), actual.getProfilePrompt());
-        assertEquals(2, record[4]);
-        String stored = new String(record, StandardCharsets.ISO_8859_1);
-        assertFalse(stored.contains(expected.getApiKey()));
-        assertFalse(stored.contains("private.example.test"));
-    }
-
-    @Test
-    public void legacyThreeFieldRecordLoadsWithTheNewRoastDefault() throws Exception {
-        SecretKey key = newKey();
-        AiConfig original = config();
-        AiConfig loaded = AiConfigRecord.decrypt(legacyRecord(original, key), key);
-        assertEquals(original.getEndpoint(), loaded.getEndpoint());
-        assertEquals(original.getApiKey(), loaded.getApiKey());
-        assertEquals(original.getModel(), loaded.getModel());
-        assertEquals(AiProfilePrompt.DEFAULT, loaded.getProfilePrompt());
-        assertEquals(2, AiConfigRecord.encrypt(loaded, key)[4]);
-    }
-
     @Test
     public void everyStyleRoundTripsWithTheExactRetainedMultilineCustomText() throws Exception {
         SecretKey key = newKey();
@@ -83,7 +54,7 @@ public class AiConfigRecordTest {
         AiConfig config = config();
         for (String[] promptFields : new String[][]{
                 {}, {"unknown", "Text"}, {"custom", "\u3000\n"},
-                {"custom", "x".repeat(8193)}, {"detailed", "x".repeat(8193)},
+                {"detailed", "x".repeat(8193)},
                 {"custom", "Text", "Unexpected field"}}) {
             String[] fields = new String[3 + promptFields.length];
             fields[0] = config.getEndpoint();
@@ -131,7 +102,7 @@ public class AiConfigRecordTest {
     public void rejectsTruncatedExtendedAndOversizedRecords() throws Exception {
         SecretKey key = newKey();
         byte[] record = AiConfigRecord.encrypt(config(), key);
-        for (byte[] invalid : new byte[][]{null, new byte[0], Arrays.copyOf(record, 10),
+        for (byte[] invalid : new byte[][]{null, Arrays.copyOf(record, 10),
                 Arrays.copyOf(record, record.length - 1), Arrays.copyOf(record, record.length + 1),
                 new byte[AiConfigRecord.MAX_RECORD_BYTES + 1]}) {
             assertThrows(Exception.class, () -> AiConfigRecord.decrypt(invalid, key));

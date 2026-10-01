@@ -1,13 +1,11 @@
 package sp.phone.mvp.viewmodel;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public class ArticlePagePrefetchPlannerTest {
 
@@ -35,22 +33,4 @@ public class ArticlePagePrefetchPlannerTest {
                 ArticlePagePrefetchPlanner.plan(Integer.MAX_VALUE - 2, Integer.MAX_VALUE));
     }
 
-    @Test
-    public void everyScheduledPageIsAheadNearbyAndStrictlyBeforeTheFinalPage() {
-        for (int totalPages = 1; totalPages <= 20; totalPages++) {
-            for (int currentPage = -1; currentPage <= 22; currentPage++) {
-                for (int candidate : ArticlePagePrefetchPlanner.plan(currentPage, totalPages)) {
-                    assertTrue(candidate > currentPage);
-                    assertTrue(candidate <= currentPage + 2);
-                    assertTrue(candidate < totalPages);
-                }
-            }
-        }
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void returnedPlanIsImmutable() {
-        List<Integer> plan = ArticlePagePrefetchPlanner.plan(1, 5);
-        plan.add(4);
-    }
 }

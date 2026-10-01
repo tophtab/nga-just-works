@@ -44,7 +44,6 @@ android {
 
 dependencies {
     implementation project(':lib_base_common')
-    testImplementation 'junit:junit:4.13.2'
 
     implementation "com.alibaba:arouter-api:$arouter_version"
     kapt "com.alibaba:arouter-compiler:$arouter_version"

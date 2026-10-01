@@ -84,18 +84,6 @@ public class ArticlePageRequestStateTest {
     }
 
     @Test
-    public void backgroundPrefetchFailureReturnsToIdleForLaterForegroundLoad() {
-        ArticlePageRequestState state = new ArticlePageRequestState();
-
-        assertTrue(state.beginPrefetch());
-        assertFalse(state.failPrefetch());
-        assertEquals(ArticlePageRequestState.State.IDLE, state.getState());
-        assertEquals(
-                ArticlePageRequestState.ForegroundLoadDecision.START,
-                state.requestForegroundLoad(false));
-    }
-
-    @Test
     public void explicitRefreshStillStartsFromReadyAndFailureKeepsExistingDataReady() {
         ArticlePageRequestState state = new ArticlePageRequestState();
 
@@ -124,7 +112,7 @@ public class ArticlePageRequestStateTest {
 
         // Pause/resume and another explicit load still refer to that same unfinished refresh.
         state.movePrefetchToBackground();
-        for (boolean explicitRefresh : new boolean[]{false, true, false, true}) {
+        for (boolean explicitRefresh : new boolean[]{false, true}) {
             assertEquals(ArticlePageRequestState.ForegroundLoadDecision.NONE, state.requestForegroundLoad(explicitRefresh));
             assertEquals(ArticlePageRequestState.State.FOREGROUND_LOADING, state.getState());
         }

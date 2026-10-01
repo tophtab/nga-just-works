@@ -53,7 +53,7 @@ class AppArticleParserTest {
     }
 
     @Test fun variableAndSparsePagesPreserveRowsSourceAndPrefix() {
-        for (size in listOf(10, 20, 30, 40)) {
+        for (size in listOf(10, 40)) {
             val root = fixture(size, floors = listOf(size, size + 3, size + 8))
             val data = parse(root)
             assertEquals(listOf(size, size + 3, size + 8), data.rowList.map { it.lou })
@@ -68,7 +68,7 @@ class AppArticleParserTest {
     }
 
     @Test fun optionalOpaqueExtensionsNeverRejectOrEnterSource() {
-        for (value in listOf(null, "", "0", 0, "[]", "{}", "opaque", JSONArray(), JSONObject(), true)) {
+        for (value in listOf(null, "opaque", JSONObject())) {
             val root = fixture()
             root["hot_post"] = value; root["html_head_extra"] = value
             row(root)["attches"] = value; row(root)["comment_to_id"] = value

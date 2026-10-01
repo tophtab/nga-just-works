@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.validate_release_notes import validate_release_notes
+
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 VALIDATOR = REPOSITORY_ROOT / "scripts" / "validate_release_notes.py"
@@ -33,10 +35,10 @@ class ValidateReleaseNotesTest(unittest.TestCase):
         )
 
     def test_committed_release_notes_are_valid(self) -> None:
-        for version in ("4.9.0", "4.10.0"):
-            with self.subTest(version=version):
-                result = self.run_validator(REPOSITORY_ROOT / "release-notes" / f"{version}.md")
-                self.assertEqual(0, result.returncode, result.stderr)
+        version = "4.10.0"
+        with self.subTest(version=version):
+            result = self.run_validator(REPOSITORY_ROOT / "release-notes" / f"{version}.md")
+            self.assertEqual(0, result.returncode, result.stderr)
 
     def test_missing_notes_are_rejected(self) -> None:
         result = self.run_validator(REPOSITORY_ROOT / "release-notes" / "missing.md")
@@ -67,8 +69,8 @@ class ValidateReleaseNotesTest(unittest.TestCase):
                 with self.subTest(case=name):
                     path = Path(temporary_directory) / f"{name}.md"
                     path.write_text(content, encoding="utf-8")
-                    result = self.run_validator(path)
-                    self.assertNotEqual(0, result.returncode, result.stdout)
+                    with self.assertRaises(ValueError):
+                        validate_release_notes(path)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,83 @@
+{
+  "deleted_files": {
+    "lib_base_common/src/test/java/gov/anzong/androidnga/base/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_base_logger/src/androidTest/java/gov/anzong/androidnga/base/logger/ExampleInstrumentedTest.java": "Generated package-name assertion; no application behavior.",
+    "lib_base_logger/src/test/java/gov/anzong/androidnga/base/logger/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_base_network/src/androidTest/java/com/justwen/androidnga/base/network/ExampleInstrumentedTest.java": "Generated package-name assertion; no application behavior.",
+    "lib_base_network/src/test/java/com/justwen/androidnga/base/network/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_base_service_api/src/androidTest/java/com/example/lib_module_account_api/ExampleInstrumentedTest.java": "Generated package-name assertion; no application behavior.",
+    "lib_base_service_api/src/test/java/com/example/lib_module_account_api/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_base_ui/src/androidTest/java/com/justwen/androidnga/ui/ExampleInstrumentedTest.java": "Generated package-name assertion; no application behavior.",
+    "lib_base_ui/src/test/java/com/justwen/androidnga/ui/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_base_ui_compose/src/androidTest/java/com/justwen/androidnga/ui/compose/ExampleInstrumentedTest.kt": "Generated package-name assertion; no application behavior.",
+    "lib_base_ui_compose/src/test/java/com/justwen/androidnga/ui/compose/ExampleUnitTest.kt": "Arithmetic template only.",
+    "lib_bu_account/src/androidTest/java/com/justwen/androidnga/module/account/ExampleInstrumentedTest.java": "Generated package-name assertion; no application behavior.",
+    "lib_bu_account/src/test/java/com/justwen/androidnga/module/account/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_bu_message/src/androidTest/java/com/justwen/androidnga/module/message/ExampleInstrumentedTest.java": "Generated package-name assertion; no application behavior.",
+    "lib_bu_message/src/test/java/com/justwen/androidnga/module/message/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_bu_statistics/src/test/java/com/justwen/androidnga/cloud/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_core/src/test/java/gov/anzong/androidnga/core/ExampleUnitTest.java": "Arithmetic template and two print-only decoder/encoding probes; no output assertions. Dedicated HtmlCommentBuilderTest and ForumEmoticonDecoderTest remain.",
+    "lib_core_data/src/test/java/gov/anzong/androidnga/core/remote/ExampleUnitTest.java": "Arithmetic template only.",
+    "lib_module_debug/src/androidTest/java/com/justwen/androidnga/module/debug/ExampleInstrumentedTest.kt": "Generated package-name assertion; no application behavior.",
+    "lib_module_debug/src/test/java/com/justwen/androidnga/module/debug/ExampleUnitTest.kt": "Arithmetic template only.",
+    "lib_base_ui_compose/src/test/java/com/justwen/androidnga/ui/compose/widget/ScaffoldAppSystemBarContractTest.kt": "Two source substrings for navigation-bar theme color/lightness; no lifecycle or inset behavior exercised.",
+    "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/AboutActivityContractTest.kt": "Source snapshots of credits, URLs, removed QQ labels and padding expressions; no page/inset execution.",
+    "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/SystemThemeContractTest.kt": "Theme imports, resource names/colors and padding-expression snapshots; no rendering or inset execution.",
+    "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/drawer/NavigationDrawerContentContractTest.kt": "Literal bookmark labels and source ordering of spacer/about item; no drawer behavior."
+  },
+  "trimmed_methods": {
+    "lib_base_ui_compose/src/test/java/com/justwen/androidnga/ui/compose/widget/TabLayoutWithPagerContractTest.kt": {
+      "pagerExtensionPointsRemainOptional": "Signature/default-value source snapshot; callers compile against actual signature.",
+      "callerModifierIsAttachedOnlyToHorizontalPager": "Counts assignment spelling/source position without exercising modifier behavior."
+    },
+    "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/board/HomeBoardOrderContractTest.kt": {
+      "liveDrawerContractNamesTheNewAdjacentBoard": "Tests Markdown wording, not product behavior; bundled-board JSON parsing and order/persistence tests remain."
+    },
+    "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/drawer/HomeNavigationDrawerContractTest.kt": {
+      "homeContentStaysStationaryWhileSheetAndScrimTrackProgress": "Source snapshot of Box, offset, alpha, and width; executable physical-offset and drawer-state tests remain. Rendered scrim/layout appearance was never exercised.",
+      "implementationAvoidsObsoleteAndInternalGestureApis": "Broad recursive Java/Kotlin source scan forbidding identifiers anywhere (including unrelated code); behavior tests and focused wiring assertions remain."
+    }
+  },
+  "pruned_dependencies": {
+    "lib_bu_account/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_base_logger/build.gradle": [
+      "testImplementation 'junit:junit:4.+'",
+      "androidTestImplementation 'androidx.test.ext:junit:1.1.5'",
+      "androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'"
+    ],
+    "lib_base_common/build.gradle": [
+      "androidTestImplementation 'androidx.test.ext:junit:1.1.1'",
+      "androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'"
+    ],
+    "lib_base_ui/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_base_ui_compose/build.gradle": [
+      "androidTestImplementation 'androidx.test.ext:junit:1.2.1'",
+      "androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'"
+    ],
+    "lib_bu_statistics/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_module_debug/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_base_network/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_base_service_api/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_core_data/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_bu_message/build.gradle": [
+      "testImplementation 'junit:junit:4.13.2'"
+    ],
+    "lib_core/build.gradle": [
+      "androidTestImplementation 'androidx.test.ext:junit:1.1.1'"
+    ]
+  }
+}

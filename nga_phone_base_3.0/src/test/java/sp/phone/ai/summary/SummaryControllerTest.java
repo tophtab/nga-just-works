@@ -2,7 +2,6 @@ package sp.phone.ai.summary;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayDeque;
@@ -39,19 +38,6 @@ public class SummaryControllerTest {
         assertTrue(test.model.calls.isEmpty());
         assertEquals(SummaryController.Status.ERROR, test.controller.getState().getStatus());
         assertFalse(test.controller.getState().getText().contains("SECRET_SENTINEL"));
-    }
-
-    @Test
-    public void inputReceivesTheValidatedSnapshotWithoutAnExtraConfigurationRead() {
-        Fixture test = new Fixture();
-        test.config = withPrompt(test.config, new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, "Custom input"));
-        test.controller.start(test.target, test.input);
-        assertEquals(1, test.configReads);
-        assertSame(test.config, test.input.configs.get(0));
-        test.input.calls.get(0).callback.onSuccess("Profile input");
-        test.executor.drain();
-        assertEquals(2, test.configReads);
-        assertSame(test.config, test.model.configs.get(0));
     }
 
     @Test
@@ -101,25 +87,6 @@ public class SummaryControllerTest {
             assertEquals(input.toPrompt(), test.model.prompts.get(0));
             assertFalse(test.model.prompts.get(0).contains("CUSTOM_FLOOR_SENTINEL"));
         }
-    }
-
-    @Test
-    public void callbacksAreMarshalledThroughTheOwnerExecutorAndReachSuccess() {
-        Fixture test = new Fixture();
-        assertEquals(SummaryController.Status.IDLE, test.controller.getState().getStatus());
-        test.controller.start(test.target, test.input);
-        assertEquals(SummaryController.Status.LOADING, test.controller.getState().getStatus());
-        test.input.calls.get(0).callback.onSuccess("Selected floor prompt");
-        assertTrue(test.model.calls.isEmpty());
-        test.executor.drain();
-        assertEquals("Selected floor prompt", test.model.prompts.get(0));
-        test.model.calls.get(0).callback.onSuccess("Final summary");
-        assertEquals(SummaryController.Status.LOADING, test.controller.getState().getStatus());
-        test.executor.drain();
-        assertEquals(SummaryController.Status.SUCCESS, test.controller.getState().getStatus());
-        assertEquals("Final summary", test.controller.getState().getText());
-        assertEquals("Final summary", test.controller.getState().getCopyText());
-        assertEquals("", test.controller.getState().getReasoning());
     }
 
     @Test
@@ -249,19 +216,6 @@ public class SummaryControllerTest {
     }
 
     @Test
-    public void inputSourceProgressCannotBeRenderedAsModelOutput() {
-        Fixture test = new Fixture();
-        test.controller.start(test.target, test.input);
-        test.input.calls.get(0).callback.onProgress("SOURCE_TEXT", "SOURCE_METADATA");
-        assertTrue(test.executor.queue.isEmpty());
-        assertEquals("", test.controller.getState().getAnswer());
-        assertEquals("", test.controller.getState().getReasoning());
-        test.input.calls.get(0).callback.onSuccess("Current input");
-        test.executor.drain();
-        assertEquals("Current input", test.model.prompts.get(0));
-    }
-
-    @Test
     public void dismissClearsBothChannelsAndDiscardsQueuedAndFutureModelProgress() {
         Fixture test = new Fixture();
         test.startAndProvideInput("Profile prompt");
@@ -334,24 +288,6 @@ public class SummaryControllerTest {
     }
 
     @Test
-    public void retryDiscardsOldSuccessAndErrorEvenWhenTargetIsUnchanged() {
-        Fixture test = new Fixture();
-        test.startAndProvideInput("first");
-        Pending firstModel = test.model.calls.get(0);
-        test.startAndProvideInput("second");
-        assertTrue(firstModel.canceled);
-        assertTrue(test.input.calls.get(0).canceled);
-        firstModel.callback.onSuccess("OBSOLETE_RESULT");
-        firstModel.callback.onError("OBSOLETE_ERROR");
-        test.executor.drain();
-        assertEquals(SummaryController.Status.LOADING, test.controller.getState().getStatus());
-        test.model.calls.get(1).callback.onSuccess("Current summary");
-        test.executor.drain();
-        assertEquals("Current summary", test.controller.getState().getText());
-        assertEquals(1, test.successCount);
-    }
-
-    @Test
     public void replacedInputCannotStartAModelCallWhenItArrivesLate() {
         Fixture test = new Fixture();
         test.controller.start(test.target, test.input);
@@ -364,18 +300,6 @@ public class SummaryControllerTest {
         test.input.calls.get(1).callback.onSuccess("Current input");
         test.executor.drain();
         assertEquals(1, test.model.calls.size());
-    }
-
-    @Test
-    public void changedTargetRejectsLateResultsAndCancelsItsHandle() {
-        Fixture test = new Fixture();
-        test.startAndProvideInput("Viewed user input");
-        test.target = "profile:99";
-        test.model.calls.get(0).callback.onSuccess("WRONG_USER_RESULT");
-        test.executor.drain();
-        assertEquals(0, test.successCount);
-        assertTrue(test.model.calls.get(0).canceled);
-        assertEquals(SummaryController.Status.IDLE, test.controller.getState().getStatus());
     }
 
     @Test

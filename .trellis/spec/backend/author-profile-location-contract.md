@@ -318,47 +318,31 @@ rejections must not block a replacement credential for the same UID.
 
 ## 6. Tests Required
 
-- `ProfileLocationParserTest` and `ProfileSessionTest`: synthetic Web profiles,
-  nested objects/arrays, quoted braces and escaped strings, assignment-shaped
-  comments/attributes/quoted text/regex literals, the 48-level nesting bound,
-  missing or malformed assignments, valid
-  empty, UID binding, location bounds, exact origins, Cookie-safe input, and
-  credential snapshot equality. Keep manual JSON envelope-repair coverage.
-- `AuthorLocationRepositoryTest`: distinct delivered authors, duplicate sharing,
-  immediate first dispatch, deterministic 200/500 ms pacing boundaries, slow/canceled
-  calls, wall-clock changes, delayed/obsolete wakeups, incremental prefetch,
-  fake-clock TTL/failure/429 boundaries,
-  persistent late pauses, same-UID credential isolation, obsolete callbacks,
-  shared-consumer disposal, and cache-only readers that cannot resume paused
-  online work when its pause expires.
-- `AuthorLocationStoreTest`: atomic read-back, corruption/version/bounds, TTL
-  validation, old FAILURE/new network cooldown coexistence, latest observations,
-  and retention of server-pause guards, including older-build-readable serialization.
-- `ProfileLocationTransportTest`: exact Web URL/Referer and immutable wire
-  identity, successful GBK HTML extraction, strict response bounds,
-  body-independent HTTP 503 stop classification, Retry-After, and one physical
-  request with the actual configured client against loopback HTTP 503/429 fixtures.
-- `AuthorLocationRepositoryTest` must feed an actual empty-503 classification
-  into the queue and verify that pending and newly delivered authors stay
-  stopped, including after same-session consumer invalidation.
-- `ArticleAuthorLocationContractTest`: common delivery integration, complete
-  author collection, view/account lifetime boundaries, and metadata-only binding.
-  Trace presenter READY replay through the Fragment into Page delivery and
-  pin its identity guard before generation/subscription replacement and any
-  repository call. Cover re-emitting the current snapshot, null clearing,
-  recreated-view cache-only replay, fresh responses, and retention after view
-  destruction; keep the executable cache-only/expired-pause regressions.
-  Keep existing page-state, prefetch, refresh, and page-cache regressions green.
-- `AuthorLocationPageTest`: execute the production page-delivery controller on the host JVM with queued
-  settlement, fake clocks/signals, and the real repository's fake transport.
-  Capture all emitted values to catch an empty interposed before a cache hit;
-  cover replacement/account invalidation, expiry, fresh/removed/anonymous
-  authors, READY/cache-only intent, null/close, superseded pending work and
-  synchronous subscriber reentrancy with both occupied and idle physical
-  request slots. A test-local subscription wrapper does
-  not cover the production Page's orchestration.
-- Run the app debug build/unit/lint and repository Android quality gate. Source
-  contracts do not constitute Android UI execution or live NGA verification.
+- `ProfileSessionTest` owns exact origin and immutable credential identity.
+  `ProfileLocationParserTest` owns extraction from JavaScript, assignment-shaped
+  decoys, manual envelope repair, returned UID binding and nesting/location bounds.
+- `ProfileLocationTransportTest` owns exact URL/Referer/session wire, strict
+  encoding/size, body-independent status and Retry-After classification. Preserve
+  actual production-client physical-request-count checks for 503/429.
+- `AuthorLocationStoreTest` owns corruption/expiry, atomic persistence,
+  credential-key isolation, bounded retention and supported legacy cooldown
+  compatibility. Do not replace disk/serialization outcomes with repository fakes.
+- `AuthorLocationRepositoryTest` owns shared demand, monotonic pacing, retry and
+  TTL boundaries, account/credential retirement, captured-session server stops,
+  restore/delivery races and cache-only demand that cannot restart paused work.
+  Transport tests own 503-to-rejected classification before body access;
+  repository tests own rejected results stopping pending/new authors across
+  same-session invalidation. A manually composed classifier/harness test
+  duplicates these owners without exercising another integration seam.
+- `AuthorLocationPageTest` owns deferred settlement, observer replacement,
+  pending account invalidation, READY/cache-only replay intent and synchronous
+  subscriber reentrancy. Assert emitted values where an intermediate empty result
+  would erase a cache hit. Page integration should not repeat repository matrices.
+- `ArticleAuthorLocationContractTest` retains narrow account-ordering and stale
+  generation guards. Review Fragment delivery, view lifetime and metadata-only
+  binding directly when changing them; source snapshots do not prove UI behavior.
+- Validate changed owners and downstream readers, then run the repository Debug
+  gate and inspect all module lint reports. Device/live NGA checks remain opt-in.
 
 ## 7. Wrong vs Correct
 

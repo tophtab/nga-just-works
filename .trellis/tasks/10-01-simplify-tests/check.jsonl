@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Validation gates and focused test selection."}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Cross-layer duplicate ownership and shared fixture consumers."}
+{"file": ".trellis/tasks/10-01-simplify-tests/research/test-audit.md", "reason": "Prior deletions and retained unique protection."}
+{"file": ".trellis/tasks/10-01-simplify-tests/research/slow-tests.md", "reason": "Timing evidence and deterministic cancellation constraints."}

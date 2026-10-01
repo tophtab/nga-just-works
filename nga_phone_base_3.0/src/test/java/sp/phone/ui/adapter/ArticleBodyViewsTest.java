@@ -45,25 +45,6 @@ public class ArticleBodyViewsTest {
     }
 
     @Test
-    public void freshEqualResponseRetainsExistingResources() {
-        ThreadData original = page(row(101), row(102));
-        ThreadData refreshed = page(row(101), row(102));
-        assertNotSame(original, refreshed);
-        assertNotSame(original.getRowList().get(0), refreshed.getRowList().get(0));
-        assertNotSame(original.getPagingInfo(), refreshed.getPagingInfo());
-
-        views.setData(original);
-        Resource first = views.getOrCreate(0);
-        Resource second = views.getOrCreate(1);
-        views.setData(refreshed);
-
-        assertSame(first, views.getOrCreate(0));
-        assertSame(second, views.getOrCreate(1));
-        assertEquals(2, created.size());
-        assertReleases(0, first, second);
-    }
-
-    @Test
     public void changedHtmlKeepsSameRowResourceAvailableForRebinding() {
         views.setData(page(row(101)));
         Resource body = views.getOrCreate(0);
@@ -143,40 +124,6 @@ public class ArticleBodyViewsTest {
         assertNotSame(first, views.getOrCreate(0));
         assertEquals(6, created.size());
         assertReleases(1, first, removed, third, fourth, fifth);
-    }
-
-    @Test
-    public void fortyRowPageRetainsEveryResourceThroughFreshReversedResponse() {
-        ArticlePagingInfo paging = paging(query(), ArticleSource.APP_API, TID, 1, 1,
-                40, OWNER, GENERATION);
-        views.setData(page(paging, rows(101, 40)));
-        Resource[] original = new Resource[40];
-        ThreadRowInfo[] reversed = new ThreadRowInfo[40];
-        for (int position = 0; position < 40; position++) {
-            original[position] = views.getOrCreate(position);
-            reversed[position] = row(140 - position);
-        }
-
-        views.setData(page(paging(query(), ArticleSource.APP_API, TID, 1, 1,
-                40, OWNER, GENERATION), reversed));
-
-        for (int position = 0; position < 40; position++) {
-            assertSame("Reversed row " + position, original[39 - position], views.getOrCreate(position));
-        }
-        assertEquals(40, created.size());
-        assertReleases(0, original);
-    }
-
-    @Test
-    public void differentPidAtSamePositionCannotInheritResource() {
-        views.setData(page(row(101)));
-        Resource previous = views.getOrCreate(0);
-
-        views.setData(page(row(102)));
-
-        assertReleases(1, previous);
-        assertNotSame(previous, views.getOrCreate(0));
-        assertEquals(2, created.size());
     }
 
     @Test
@@ -436,19 +383,6 @@ public class ArticleBodyViewsTest {
         assertReleases(1, third);
         assertThrows(IndexOutOfBoundsException.class, () -> views.getOrCreate(0));
         assertEquals(3, created.size());
-    }
-
-    @Test
-    public void invalidPositionsDoNotAllocateResources() {
-        assertThrows(IndexOutOfBoundsException.class, () -> views.getOrCreate(0));
-        views.setData(page(row(101)));
-
-        assertThrows(IndexOutOfBoundsException.class, () -> views.getOrCreate(-1));
-        assertThrows(IndexOutOfBoundsException.class, () -> views.getOrCreate(1));
-        assertEquals(0, created.size());
-
-        views.getOrCreate(0);
-        assertEquals(1, created.size());
     }
 
     private void assertContextReplacement(ArticlePagingInfo previous, ArticlePagingInfo next) {

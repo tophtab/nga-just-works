@@ -32,22 +32,4 @@ class ArticleLinkEntryContractTest {
         })
         assertTrue(filters.length >= 2)
     }
-
-    @Test fun newIntentRetiresOldObserversBeforePublishingEvenForSameQuery() {
-        val source = File(root, "nga_phone_base_3.0/src/main/java/gov/anzong/androidnga/activity/ArticleListActivity.java").readText()
-        val hot = source.substringAfter("protected void onNewIntent(Intent intent)")
-            .substringBefore("protected void onResumeFragments()")
-        assertTrue(hot.indexOf("setIntent(intent)") < hot.indexOf("getArticleListParam()"))
-        assertTrue(hot.contains("if (mRequestParam == null)"))
-        assertTrue(hot.contains("finish();"))
-        assertTrue(hot.contains("openReader(true)"))
-        assertTrue(source.contains("openReader(savedInstanceState == null)"))
-        assertTrue(source.contains("param = ArticleLinkParser.parse(url)"))
-        val open = source.substringAfter("private void openReader(boolean newLaunch)")
-            .substringBefore("protected void onActivityResult")
-        assertTrue(open.indexOf("remove(old).commitNow()") < open.indexOf("resetReader(mRequestParam)"))
-        assertTrue(open.indexOf("resetReader(mRequestParam)") < open.indexOf("setupFragment()"))
-        assertFalse(open.contains("equals("))
-        assertFalse(source.contains("targetPid ="))
-    }
 }

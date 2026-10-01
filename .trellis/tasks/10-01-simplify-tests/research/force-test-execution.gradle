@@ -1,0 +1,1 @@
+allprojects { tasks.withType(Test).configureEach { outputs.upToDateWhen { false }; outputs.cacheIf { false } } }

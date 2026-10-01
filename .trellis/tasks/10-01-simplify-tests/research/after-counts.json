@@ -1,0 +1,105 @@
+{
+  "unit": {
+    "nga_phone_base_3.0": {
+      "tests": 629,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_core": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_common": {
+      "tests": 62,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_ui_compose": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "lib_bu_statistics": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 5
+    },
+    "nga_phone_base_3.0": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 728
+    },
+    "lib_core": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 6
+    },
+    "lib_base_logger": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 3
+    },
+    "lib_base_common": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 35
+    },
+    "lib_core_data": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 0
+    },
+    "lib_bu_message": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 10
+    },
+    "lib_base_network": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 6
+    },
+    "lib_base_service_api": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 1
+    },
+    "lib_bu_account": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 5
+    },
+    "lib_base_ui_compose": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 8
+    },
+    "lib_base_ui": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 7
+    },
+    "lib_module_debug": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 3
+    }
+  },
+  "source_counts": {
+    "test": {
+      "files": 73,
+      "annotations": 701
+    },
+    "androidTest": {
+      "files": 1,
+      "annotations": 3
+    }
+  }
+}

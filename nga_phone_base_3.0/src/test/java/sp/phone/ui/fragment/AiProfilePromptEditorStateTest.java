@@ -12,16 +12,6 @@ import sp.phone.ai.AiProfilePrompt;
 
 public class AiProfilePromptEditorStateTest {
     @Test
-    public void freshSettingsAndAnOpenedEditorBothDefaultToRoast() {
-        AiProfilePromptEditorState state = new AiProfilePromptEditorState();
-        assertEquals(AiProfilePrompt.DEFAULT, state.getPrompt());
-        long generation = state.open();
-        assertTrue(state.isActive(generation));
-        assertEquals(AiProfilePrompt.Style.FORUM_ROAST, state.getSelectedStyle());
-        assertEquals("", state.getCustomText());
-    }
-
-    @Test
     public void switchingPresetsAndReopeningRetainsExactCustomText() {
         AiProfilePromptEditorState state = new AiProfilePromptEditorState();
         String text = "  First line\r\n\t第二行 😀\n";
@@ -86,19 +76,4 @@ public class AiProfilePromptEditorStateTest {
         assertFalse(state.isActive(generation));
     }
 
-    @Test
-    public void reloadingSavedSettingsReplacesBothTheDraftAndAnyOpenEditor() {
-        AiProfilePromptEditorState state = new AiProfilePromptEditorState();
-        long generation = state.open();
-        state.selectStyle(AiProfilePrompt.Style.CUSTOM);
-        state.setCustomText("Unsaved editor text");
-        AiProfilePrompt saved = new AiProfilePrompt(AiProfilePrompt.Style.DETAILED, "Retained custom");
-        state.reset(saved);
-        assertSame(saved, state.getPrompt());
-        assertFalse(state.isActive(generation));
-        assertThrows(IllegalStateException.class, state::confirm);
-        state.open();
-        assertEquals(AiProfilePrompt.Style.DETAILED, state.getSelectedStyle());
-        assertEquals("Retained custom", state.getCustomText());
-    }
 }

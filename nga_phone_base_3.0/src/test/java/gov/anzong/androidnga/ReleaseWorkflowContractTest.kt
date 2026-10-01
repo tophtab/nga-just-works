@@ -34,14 +34,6 @@ class ReleaseWorkflowContractTest {
     }
 
     @Test
-    fun rootGradleAcceptsDebugDistributionNamesAndRejectsLegacyPreviewNames() {
-        val gradle = File(repositoryRoot, "build.gradle").readText()
-
-        assertTrue(gradle.contains("(?:-debug\\.[0-9]+)?"))
-        assertFalse(gradle.contains("-preview"))
-    }
-
-    @Test
     fun checkoutKeepsBranchHistoryAndUsesShallowTagsWithBloblessPartialClone() {
         val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
         val checkout = stepBody(workflow, "Checkout project sources", "Derive release identity")
@@ -57,45 +49,6 @@ class ReleaseWorkflowContractTest {
 
         val identity = stepBody(workflow, "Derive release identity", "Setup Java")
         assertTrue(identity.contains("git tag --merged \"\$GITHUB_SHA\" --sort=-version:refname"))
-    }
-
-    @Test
-    fun workflowDerivesVersionCodeFromSemanticBaseAndPreviewCommitDistance() {
-        val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
-        val identity = stepBody(workflow, "Derive release identity", "Setup Java")
-        val previewBranchMarker =
-            "\n          elif [[ \"\$GITHUB_EVENT_NAME\" == \"push\" && \"\$GITHUB_REF\" == refs/heads/* ]]; then"
-        val previewBranchStart = identity.indexOf(previewBranchMarker)
-        assertTrue("Missing preview identity branch", previewBranchStart >= 0)
-        val branchEndMarker = "\n          fi\n\n          version_code="
-        val branchEnd = identity.indexOf(branchEndMarker, previewBranchStart)
-        assertTrue("Missing versionCode derivation after identity branches", branchEnd > previewBranchStart)
-        val stableBranch = identity.substring(0, previewBranchStart)
-        val previewBranch = identity.substring(previewBranchStart, branchEnd)
-        val versionCodeExport = identity.substring(branchEnd)
-
-        assertTrue(File(repositoryRoot, "scripts/derive_android_version_code.py").isFile)
-        assertTrue(stableBranch.contains("version_base=\"\$GITHUB_REF_NAME\""))
-        assertTrue(stableBranch.contains("build_slot=0"))
-        assertFalse(stableBranch.contains("commit_distance="))
-        assertTrue(previewBranch.contains("version_base=\"\$stable_base\""))
-        assertTrue(
-            previewBranch.contains(
-                "git rev-list --first-parent --count \"\${stable_base}..\${GITHUB_SHA}\"",
-            ),
-        )
-        assertTrue(previewBranch.contains("build_slot=\$((commit_distance + 1))"))
-        assertFalse(previewBranch.contains("build_slot=0"))
-        assertTrue(
-            versionCodeExport.contains(
-                "python3 scripts/derive_android_version_code.py \"\$version_base\" \"\$build_slot\"",
-            ),
-        )
-        val derivation = versionCodeExport.indexOf("python3 scripts/derive_android_version_code.py")
-        val export = versionCodeExport.indexOf("echo \"CI_VERSION_CODE=\$version_code\"")
-        assertTrue("versionCode must be derived before it is exported", derivation >= 0 && export > derivation)
-        assertFalse(identity.contains("4043 + GITHUB_RUN_NUMBER"))
-        assertEquals(1, "derive_android_version_code.py".toRegex().findAll(identity).count())
     }
 
     @Test
@@ -125,87 +78,6 @@ class ReleaseWorkflowContractTest {
         }
         assertTrue(staging.contains("test \"\$(apkanalyzer manifest min-sdk \"\$release_apk\")\" = \"29\""))
         assertTrue(staging.contains("test \"\$(apkanalyzer manifest target-sdk \"\$release_apk\")\" = \"36\""))
-    }
-
-    @Test
-    fun branchesPublishNamedPreviewsAndTagsPublishStableRelease() {
-        val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
-
-        assertTrue(workflow.contains("version_name=\"\${stable_base}-debug.\${GITHUB_RUN_NUMBER}\""))
-        assertTrue(workflow.contains("preview_tag_prefix=\"debug-\""))
-        assertTrue(workflow.contains("release_tag=\"\${preview_tag_prefix}\${short_sha}\""))
-        assertTrue(workflow.contains("release_title=\"NGA Just Works \${version_name} (Debug)\""))
-        assertTrue(workflow.contains("release_title=\"NGA Just Works \${version_name} (Debug, \${branch_name})\""))
-        assertTrue(workflow.contains("release_title=\"NGA Just Works \$GITHUB_REF_NAME\""))
-        assertTrue(workflow.contains("gradle_tasks=\":nga_phone_base_3.0:assemblePreview\""))
-        assertTrue(workflow.contains("apk_dir=preview"))
-        assertTrue(workflow.contains("expected_debuggable=true"))
-
-        assertTrue(workflow.contains("gradle_tasks=\"verifyReleaseTag :nga_phone_base_3.0:assembleRelease\""))
-        assertTrue(workflow.contains("apk_dir=release"))
-        assertTrue(workflow.contains("expected_debuggable=false"))
-        assertTrue(workflow.contains("ASSET_SUFFIX: \${{ steps.release.outputs.asset_suffix }}"))
-        assertTrue(workflow.contains("release_apk=\"dist/NGA-Just-Works-\${app_version}\${ASSET_SUFFIX}.apk\""))
-        assertFalse(workflow.contains("NGA-Just-Works-\${app_version}-debug.apk"))
-        assertTrue(workflow.contains("-F prerelease=true"))
-        assertTrue(workflow.contains("--prerelease"))
-    }
-
-    @Test
-    fun workflowVerifiesUpgradeIdentityAndCleansOnlyItsPublishedChannel() {
-        val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
-        val publication = stepBody(workflow, "Create GitHub Release", "Remove older channel prereleases")
-        val cleanup = workflow.substringAfter("      - name: Remove older channel prereleases")
-
-        assertTrue(workflow.contains("manifest application-id"))
-        assertTrue(workflow.contains("com.github.tophtab.ngajustworks"))
-        assertTrue(workflow.contains("manifest version-name"))
-        assertTrue(workflow.contains("manifest version-code"))
-        assertTrue(workflow.contains("manifest debuggable"))
-        assertTrue(workflow.contains("apksigner\" verify --verbose --print-certs"))
-        assertTrue(workflow.contains("test \"\${#source_apks[@]}\" -eq 1"))
-        assertTrue(publication.contains("expected_dist_files=2"))
-        assertTrue(publication.contains("if [[ \"\$PRERELEASE\" == \"false\" ]]; then\n            expected_dist_files=4"))
-        assertTrue(publication.contains("test \"\$(find dist -maxdepth 1 -type f | wc -l)\" -eq \"\$expected_dist_files\""))
-        assertTrue(workflow.contains("sha256sum -c ./*.sha256"))
-        assertTrue(cleanup.contains("if: steps.publish.outcome == 'success' && steps.release.outputs.prerelease == 'true'"))
-        assertTrue(cleanup.contains("select(.prerelease == true)"))
-        assertTrue(cleanup.contains("PREVIEW_TAG_PREFIX: \${{ steps.release.outputs.preview_tag_prefix }}"))
-        assertTrue(cleanup.contains("LEGACY_PREVIEW_TAG_PREFIX: \${{ steps.release.outputs.legacy_preview_tag_prefix }}"))
-        assertTrue(cleanup.contains("\"\$old_tag\" == \"\$CURRENT_PRERELEASE_TAG\""))
-        assertTrue(cleanup.contains("\"\$old_tag\" == \"\$PREVIEW_TAG_PREFIX\"*"))
-        assertTrue(cleanup.contains("\"\$old_tag\" == \"\$LEGACY_PREVIEW_TAG_PREFIX\"*"))
-        assertTrue(cleanup.contains("[[ \"\$old_sha\" =~ ^[0-9a-f]{12}$ ]] || continue"))
-        assertTrue(cleanup.contains("--cleanup-tag"))
-    }
-
-    @Test
-    fun stableReleaseUsesValidatedVersionedNotesWhileDebugKeepsGeneratedNotes() {
-        val workflow = File(repositoryRoot, ".github/workflows/build.yml").readText()
-        val publication = workflow.substringAfter("      - name: Create GitHub Release")
-            .substringBefore("      - name: Remove older channel prereleases")
-        val stableBranchMarker =
-            "\n          else\n            release_notes=\"release-notes/\${GITHUB_REF_NAME}.md\""
-        val stableBranchStart = publication.indexOf(stableBranchMarker)
-        assertTrue("Missing stable publication branch", stableBranchStart >= 0)
-        val debugPublication = publication.substring(0, stableBranchStart)
-        val stablePublication = publication.substring(stableBranchStart)
-
-        assertTrue(File(repositoryRoot, "release-notes/4.9.0.md").isFile)
-        assertTrue(File(repositoryRoot, "release-notes/4.10.0.md").isFile)
-        assertTrue(File(repositoryRoot, "scripts/validate_release_notes.py").isFile)
-        assertTrue(debugPublication.contains("--generate-notes"))
-        assertFalse(debugPublication.contains("--notes-file"))
-        assertTrue(stablePublication.contains("release_notes=\"release-notes/\${GITHUB_REF_NAME}.md\""))
-        assertTrue(stablePublication.contains("python3 scripts/validate_release_notes.py \"\$release_notes\""))
-        assertTrue(stablePublication.contains("--notes-file \"\$release_notes\""))
-        assertFalse(stablePublication.contains("--generate-notes"))
-        val validation = stablePublication.indexOf("python3 scripts/validate_release_notes.py")
-        val releaseCreation = stablePublication.indexOf("gh release create")
-        assertTrue("Stable notes must be validated before release creation", validation >= 0)
-        assertTrue("Stable notes must be validated before release creation", releaseCreation > validation)
-        assertEquals(1, "--generate-notes".toRegex().findAll(publication).count())
-        assertEquals(1, "--notes-file".toRegex().findAll(publication).count())
     }
 
     @Test

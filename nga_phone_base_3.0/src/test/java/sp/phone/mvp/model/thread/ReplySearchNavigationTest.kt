@@ -6,7 +6,6 @@ import org.junit.Test
 import sp.phone.http.bean.TopicListBean
 import sp.phone.mvp.model.entity.ThreadPageInfo
 import sp.phone.param.TopicListParam
-import java.io.File
 
 class ReplySearchNavigationTest {
     // Use the wire DTO without the Android/global filtering in TopicConvertFactory.
@@ -75,18 +74,5 @@ class ReplySearchNavigationTest {
         info.replyInfo = null
         assertEquals(ArticleQuery(100001, 50120, 0, 1),
             ArticleQuery.from(ArticleNavigation.fromSearchResult(info, replyRequest())))
-    }
-
-    @Test fun searchClickUsesTheTestedNavigationBuilder() {
-        val root = generateSequence(File(requireNotNull(System.getProperty("user.dir")))) {
-            it.parentFile
-        }.first { File(it, "nga_phone_base_3.0").isDirectory }
-        val source = File(root, "nga_phone_base_3.0/src/main/java/sp/phone/ui/fragment/TopicSearchFragment.java").readText()
-        assertTrue(source.contains("ArticleListParam param = ArticleNavigation.fromSearchResult(info, requestParam);"))
-        assertFalse(source.contains("param.authorId = info.getAuthorId()"))
-        val converter = File(root, "nga_phone_base_3.0/src/main/java/sp/phone/mvp/model/convert/TopicConvertFactory.java").readText()
-        assertTrue(converter.contains("String authorId = tBean.getAuthorid();"))
-        assertTrue(converter.contains("pageInfo.setAuthorId(Integer.parseInt(authorId));"))
-        assertTrue(converter.contains("replyInfo.setAuthorId(pBean.getAuthorid());"))
     }
 }

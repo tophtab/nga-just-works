@@ -63,18 +63,6 @@ public class AiConfigStoreTest {
     }
 
     @Test
-    public void retainedCustomTextAndSelectionSurviveReopeningForEveryStyle() throws Exception {
-        String text = "  Custom prompt\n第二段 😀\r\n";
-        for (AiProfilePrompt.Style style : AiProfilePrompt.Style.values()) {
-            AiProfilePrompt prompt = new AiProfilePrompt(style, text);
-            store.save(config("first", prompt));
-            AiConfig reopened = new AiConfigStore(file, keys).load();
-            assertEquals(prompt, reopened.getProfilePrompt());
-            assertEquals(text, reopened.getProfilePrompt().getCustomText());
-        }
-    }
-
-    @Test
     public void reopenedCustomPromptFlowsThroughCollectionToTheModelUsingTheControllerSnapshot() throws Exception {
         String customText = "CUSTOM_ROUTE_SENTINEL\n  用两句话说明样本支持的观点。\n";
         AiProfilePrompt prompt = new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, customText);
@@ -114,16 +102,6 @@ public class AiConfigStoreTest {
         assertTrue(sentPrompts.get(0).contains("回复正文：Public reply"));
         assertFalse(sentPrompts.get(0).contains(AiProfilePrompt.DEFAULT.getInstructions()));
         assertEquals(SummaryController.Status.SUCCESS, controller.getState().getStatus());
-    }
-
-    @Test
-    public void clearRemovesRecordAndKeyAndCanBeRepeated() throws Exception {
-        store.save(config("first"));
-        store.clear();
-        store.clear();
-        assertNull(file.bytes);
-        assertNull(keys.key);
-        assertNull(store.load());
     }
 
     @Test

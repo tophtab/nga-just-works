@@ -1,0 +1,570 @@
+[
+  {
+    "path": "scripts/test_derive_android_version_code.py",
+    "methods": 8,
+    "lines": 91,
+    "bytes": 3647,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 1
+  },
+  {
+    "path": "scripts/test_validate_release_notes.py",
+    "methods": 3,
+    "lines": 75,
+    "bytes": 2641,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 1
+  },
+  {
+    "path": "scripts/test_release_workflow.py",
+    "methods": 26,
+    "lines": 869,
+    "bytes": 46005,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 3
+  },
+  {
+    "path": "lib_base_common/src/test/java/gov/anzong/androidnga/common/util/EmoticonOrderResolverTest.java",
+    "methods": 23,
+    "lines": 226,
+    "bytes": 8357,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "lib_base_common/src/test/java/gov/anzong/androidnga/common/util/NgaImageHostContractTest.java",
+    "methods": 30,
+    "lines": 386,
+    "bytes": 17141,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "lib_base_common/src/test/java/gov/anzong/androidnga/common/util/EmoticonUtilsContractTest.java",
+    "methods": 9,
+    "lines": 131,
+    "bytes": 5492,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "lib_base_ui_compose/src/test/java/com/justwen/androidnga/ui/compose/widget/TabLayoutWithPagerContractTest.kt",
+    "methods": 1,
+    "lines": 73,
+    "bytes": 2472,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/androidTest/java/sp/phone/ai/AiConfigStoreInstrumentedTest.java",
+    "methods": 3,
+    "lines": 85,
+    "bytes": 3496,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/LoadingTipSelectorTest.java",
+    "methods": 4,
+    "lines": 58,
+    "bytes": 2028,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/LoadingTipStateTest.java",
+    "methods": 9,
+    "lines": 133,
+    "bytes": 5633,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/LoadingTipCatalogTest.java",
+    "methods": 5,
+    "lines": 112,
+    "bytes": 4689,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/util/LegacyEmoticonTest.java",
+    "methods": 2,
+    "lines": 38,
+    "bytes": 1743,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/util/FunctionUtilsAvatarTest.java",
+    "methods": 3,
+    "lines": 37,
+    "bytes": 1518,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/param/ArticleLinkEntryContractTest.kt",
+    "methods": 1,
+    "lines": 35,
+    "bytes": 1738,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/param/ArticleLinkParserTest.java",
+    "methods": 5,
+    "lines": 70,
+    "bytes": 3597,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiModelsClientTest.java",
+    "methods": 25,
+    "lines": 658,
+    "bytes": 30421,
+    "mock_server_constructions": 3,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiConfigStoreTest.java",
+    "methods": 12,
+    "lines": 274,
+    "bytes": 10984,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiProfilePromptTest.java",
+    "methods": 5,
+    "lines": 71,
+    "bytes": 3590,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiSummaryClientTest.java",
+    "methods": 25,
+    "lines": 638,
+    "bytes": 29719,
+    "mock_server_constructions": 2,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiConfigRecordTest.java",
+    "methods": 8,
+    "lines": 172,
+    "bytes": 8221,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiConfigTest.java",
+    "methods": 8,
+    "lines": 111,
+    "bytes": 6010,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiResponseParserTest.java",
+    "methods": 20,
+    "lines": 260,
+    "bytes": 14037,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiStreamParserTest.java",
+    "methods": 18,
+    "lines": 327,
+    "bytes": 15985,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/common/DefaultSettingsContractTest.java",
+    "methods": 9,
+    "lines": 288,
+    "bytes": 13257,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/common/VersionUpgradeHelperMigrationTest.java",
+    "methods": 4,
+    "lines": 34,
+    "bytes": 1276,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationParserTest.java",
+    "methods": 14,
+    "lines": 197,
+    "bytes": 10867,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationPageTest.java",
+    "methods": 18,
+    "lines": 496,
+    "bytes": 19773,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationTransportTest.java",
+    "methods": 10,
+    "lines": 275,
+    "bytes": 14538,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationStoreTest.java",
+    "methods": 8,
+    "lines": 185,
+    "bytes": 9749,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileSessionTest.java",
+    "methods": 3,
+    "lines": 57,
+    "bytes": 2696,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationRepositoryTest.java",
+    "methods": 39,
+    "lines": 959,
+    "bytes": 43319,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/presenter/ArticlePageCacheTest.java",
+    "methods": 14,
+    "lines": 294,
+    "bytes": 11595,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/presenter/ArticlePageRequestStateTest.java",
+    "methods": 8,
+    "lines": 136,
+    "bytes": 5967,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/presenter/ArticleOwnedPageCacheTest.kt",
+    "methods": 3,
+    "lines": 60,
+    "bytes": 3163,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/viewmodel/ArticleLaunchTargetTest.kt",
+    "methods": 3,
+    "lines": 70,
+    "bytes": 3100,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/viewmodel/ArticlePagePrefetchPlannerTest.java",
+    "methods": 5,
+    "lines": 56,
+    "bytes": 2196,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/convert/ArticleConvertFactoryTest.java",
+    "methods": 4,
+    "lines": 76,
+    "bytes": 2708,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/convert/PageAttachmentPrefixFlowTest.java",
+    "methods": 2,
+    "lines": 71,
+    "bytes": 2977,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ReplySearchNavigationTest.kt",
+    "methods": 3,
+    "lines": 78,
+    "bytes": 3837,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleCacheStoreTest.kt",
+    "methods": 8,
+    "lines": 214,
+    "bytes": 12583,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleErrorsTest.kt",
+    "methods": 7,
+    "lines": 123,
+    "bytes": 6294,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleRowPresentationTest.kt",
+    "methods": 3,
+    "lines": 53,
+    "bytes": 2443,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleByteClientTest.kt",
+    "methods": 11,
+    "lines": 318,
+    "bytes": 15129,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/NormalArticleParserTest.kt",
+    "methods": 6,
+    "lines": 145,
+    "bytes": 8472,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/AppArticleParserTest.kt",
+    "methods": 8,
+    "lines": 153,
+    "bytes": 7880,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleReaderSessionTest.kt",
+    "methods": 11,
+    "lines": 231,
+    "bytes": 13661,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/editor/InlineMediaLoadQueueTest.java",
+    "methods": 2,
+    "lines": 47,
+    "bytes": 1970,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/editor/InlineEmoticonSizeTest.java",
+    "methods": 3,
+    "lines": 30,
+    "bytes": 1398,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/editor/InlineMediaSourceTest.java",
+    "methods": 5,
+    "lines": 88,
+    "bytes": 5333,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/webview/ArticleSelectionTextTest.java",
+    "methods": 7,
+    "lines": 66,
+    "bytes": 2916,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/webview/ArticleSelectionActionModeContractTest.kt",
+    "methods": 1,
+    "lines": 25,
+    "bytes": 921,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/SummaryControllerTest.java",
+    "methods": 24,
+    "lines": 591,
+    "bytes": 26960,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/NgaProfilePageSourceTest.java",
+    "methods": 36,
+    "lines": 1126,
+    "bytes": 54358,
+    "mock_server_constructions": 8,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/ProfileRequestQueueTest.java",
+    "methods": 4,
+    "lines": 144,
+    "bytes": 5075,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/SummaryInputTest.java",
+    "methods": 12,
+    "lines": 319,
+    "bytes": 16446,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/AiSummaryUiContractTest.java",
+    "methods": 1,
+    "lines": 73,
+    "bytes": 3424,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/ProfileSummaryLoaderTest.java",
+    "methods": 17,
+    "lines": 420,
+    "bytes": 18019,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/adapter/ArticleBodyViewsTest.java",
+    "methods": 25,
+    "lines": 555,
+    "bytes": 20620,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiModelEditorStateTest.java",
+    "methods": 12,
+    "lines": 194,
+    "bytes": 7667,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/ArticleAuthorLocationContractTest.kt",
+    "methods": 2,
+    "lines": 67,
+    "bytes": 4060,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/ArticlePageRefreshContractTest.kt",
+    "methods": 1,
+    "lines": 34,
+    "bytes": 1220,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiProfilePromptEditorStateTest.java",
+    "methods": 5,
+    "lines": 104,
+    "bytes": 4683,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiSettingsContractTest.java",
+    "methods": 4,
+    "lines": 134,
+    "bytes": 6861,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/ReleaseWorkflowContractTest.kt",
+    "methods": 4,
+    "lines": 139,
+    "bytes": 7438,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/board/ForumBoardBookmarkPersistenceTest.kt",
+    "methods": 10,
+    "lines": 156,
+    "bytes": 5531,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/board/HomeBoardOrderContractTest.kt",
+    "methods": 1,
+    "lines": 32,
+    "bytes": 1036,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/board/HomeBoardOrderTest.kt",
+    "methods": 6,
+    "lines": 76,
+    "bytes": 2741,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModelTest.kt",
+    "methods": 2,
+    "lines": 49,
+    "bytes": 1728,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/drawer/NavigationDrawerGestureTest.kt",
+    "methods": 15,
+    "lines": 297,
+    "bytes": 10094,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "lib_core/src/test/java/gov/anzong/androidnga/core/decode/ForumEmoticonDecoderTest.java",
+    "methods": 3,
+    "lines": 39,
+    "bytes": 1890,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  },
+  {
+    "path": "lib_core/src/test/java/gov/anzong/androidnga/core/corebuild/HtmlCommentBuilderTest.java",
+    "methods": 2,
+    "lines": 23,
+    "bytes": 1180,
+    "mock_server_constructions": 0,
+    "subprocess_calls": 0
+  }
+]

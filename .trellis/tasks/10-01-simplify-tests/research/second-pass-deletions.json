@@ -1,0 +1,167 @@
+{
+  "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/SwipeBackContractTest.kt": {
+    "deleted": true,
+    "count": 5,
+    "reason": "Only source names/constants and implementation-order snapshots; does not execute navigation-mode detection or gestures."
+  },
+  "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/ui/widget/TopicListTitleRefreshContractTest.kt": {
+    "deleted": true,
+    "count": 8,
+    "reason": "Only source spelling of toolbar callbacks and refresh calls; does not invoke a click, loading guard or scroll."
+  },
+  "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/drawer/HomeNavigationDrawerContractTest.kt": {
+    "deleted": true,
+    "count": 4,
+    "reason": "Remaining source spelling assertions do not exercise gestures; executable NavigationDrawerGestureTest retained."
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/ArticleReaderUiContractTest.kt": {
+    "deleted": true,
+    "count": 8,
+    "reason": "Only source snippets; actual reader session, request state, navigation, cache and adapter body ownership tests remain."
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/TopicPagePrefetchContractTest.kt": {
+    "deleted": true,
+    "count": 7,
+    "reason": "Source callbacks/annotations/guards; executable prefetch planner and request state tests remain."
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/view/editor/InlineMediaEditorWiringTest.java": {
+    "deleted": true,
+    "count": 2,
+    "reason": "Only spelling of editor/decorator calls; source parser, queue and revision behavior tests remain. No Android lifecycle execution was provided."
+  },
+  "lib_base_ui_compose/src/test/java/com/justwen/androidnga/ui/compose/widget/TabLayoutWithPagerContractTest.kt": {
+    "removed": [
+      "edgeMovementAndTalkBackActionsCoverTheConfiguredRange",
+      "stableKeysDriveGestureOrderAndLogicalSelection",
+      "shortClickRemainsPagerAnimationAndLongPressOwnsOnlyActiveDrag",
+      "pagerReportsSettledStateAndDisposalWithoutOwningDrawerGesture"
+    ],
+    "retained": [
+      "renderedSlotsDriveConsecutiveMovesWithoutRecomposition"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/board/HomeBoardOrderContractTest.kt": {
+    "removed": [
+      "favoriteAndTabReordersShareOnlyThePagerGate",
+      "homeWiresOnlyNonBookmarkTabsIntoTheOrderTransaction",
+      "modelKeepsBookmarkFixedAndPersistsOnlyTheDisplayOverlay",
+      "localBoardCacheVersionIsBumpedForTheNewDefault"
+    ],
+    "retained": [
+      "bundledBoardListUsesTheNewCompleteDefaultOrder"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/param/ArticleLinkEntryContractTest.kt": {
+    "removed": [
+      "newIntentRetiresOldObserversBeforePublishingEvenForSameQuery"
+    ],
+    "retained": [
+      "schemeHasItsOwnBrowsableFilter"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/convert/PageAttachmentPrefixFlowTest.java": {
+    "removed": [
+      "allCoreConsumersReadTheHtmlDataPagePrefix"
+    ],
+    "retained": [
+      "attachmentBuilderAndImageListUseOnePagePrefix",
+      "retiredPagePrefixFeedsBodyAndAttachmentConsumers"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ReplySearchNavigationTest.kt": {
+    "removed": [
+      "searchClickUsesTheTestedNavigationBuilder"
+    ],
+    "retained": [
+      "replyToAnotherAuthorsTopicUsesReplyIdentityAndRemainsNativeReadable",
+      "ownTopicAndNonReplyNavigationPreserveTheirQueryKinds",
+      "absentOrUnparseableReplyAuthorNeverBecomesTheTopicAuthor"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/ArticleAuthorLocationContractTest.kt": {
+    "removed": [
+      "supplementalTransportDoesNotReuseTheUiTaskOrItsLoggingSideEffects",
+      "metadataPayloadNeverEntersBodyBindingAndChecksGenerationAuthorAndRecycledHolder",
+      "normalAndPrefetchedCompletionsDeliverToOffscreenPages",
+      "wholeActivityForegroundOwnsAllPagesWithoutFragmentVisibilityGates",
+      "viewLifecycleClosesTheTestedControllerAndReplaysCurrentOutputAfterSessionCheck",
+      "readyResumeReplaysRestoreCurrentMetadataWithoutReplacingThePageSubscription",
+      "successfulPageDeliveryEnrichesIndependentlyAndRetainedViewRebindingIsCacheOnly"
+    ],
+    "retained": [
+      "staleReaderDataCannotBeRetainedRenderedOrUsedForAuthorRequests",
+      "accountSignalsInvalidateBeforeDeferredCaptureAndUseSettledListIndex"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/view/webview/ArticleSelectionActionModeContractTest.kt": {
+    "removed": [
+      "theDeadTextViewTakeoverIsGone",
+      "selectionMenuIdsAreDeclaredAndNotBorrowedFromTheTopicListMenu",
+      "unknownItemsFallBackToTheWrappedCallback",
+      "everyActionGuardsItsFailureModes",
+      "prepareAlwaysRebuildsAndReportsTheMenuAsUpdated",
+      "menuIsClearedAndRebuiltAsCopySelectAllSearchInThatOrder",
+      "callbackIsACallback2ThatForwardsTheContentRect",
+      "wrappingIsGuardedAgainstDoubleWrappingAndNullCallbacks",
+      "localWebViewOverridesBothStartActionModeOverloads"
+    ],
+    "retained": [
+      "noProcessTextEntryPointIsReintroduced"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/ArticlePageRefreshContractTest.kt": {
+    "removed": [
+      "postFabLongPressRefreshesTheCurrentPageAndRepeatsWhileHeld",
+      "longPressRepeaterIsTheOnlyPressAndRepeatLoop",
+      "tabLongPressRepeatsOnlyWhileTheSelectedTabRemainsPressed",
+      "selectedPageLongPressRefreshesImmediatelyAndEveryFiveSeconds",
+      "onlyLiveArticlePagesReceiveReplyFabClearance",
+      "boardAndArticleFabsStayVisibleAndKeepTheirDirectActions"
+    ],
+    "retained": [
+      "articleOverflowDoesNotExposeRefresh"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/AiSummaryUiContractTest.java": {
+    "removed": [
+      "copyReadsTheCompleteAnswerProjectionIndependentOfReasoningVisibility",
+      "reasoningFoldChangesOnlyOnUserToggleOrRetryAndSurvivesProgressRendering",
+      "sharedDialogForwardsBothStreamingChannelsAndRendersErrorsSeparately",
+      "sharedDialogIsScrollableAndDismissalCancelsItsController",
+      "profileSourceUsesTheControllerConfigurationAndDefersSessionReads",
+      "profileUsesLoadedUidAndCancelsWhenThePageIsPaused",
+      "retainedArticlePagesCancelOnPauseAndDataReplacement",
+      "bothFloorMenusExposeTheSameActionAndProfileStartsHidden"
+    ],
+    "retained": [
+      "layoutKeepsReasoningFoldedAndScrollableWithoutClippingOrLiveTokenAnnouncements"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiSettingsContractTest.java": {
+    "removed": [
+      "discoveryUsesTheDraftServiceAndDoesNotRewriteTheTextEditor",
+      "aiSettingsUsesTheExistingChildActivityRouteAndTitle"
+    ],
+    "retained": [
+      "aiConfigurationLivesOnlyOnTheSecondLevelScreen",
+      "saveIsAnAccessibleToolbarActionUsingTheExistingIcon",
+      "apiKeyBypassesAutomaticPreferenceAndViewPersistence",
+      "profilePromptPreferenceHasNonpersistentStyleLabels"
+    ]
+  },
+  "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/ReleaseWorkflowContractTest.kt": {
+    "removed": [
+      "stableReleaseUsesValidatedVersionedNotesWhileDebugKeepsGeneratedNotes",
+      "workflowVerifiesUpgradeIdentityAndCleansOnlyItsPublishedChannel",
+      "branchesPublishNamedPreviewsAndTagsPublishStableRelease",
+      "workflowDerivesVersionCodeFromSemanticBaseAndPreviewCommitDistance",
+      "rootGradleAcceptsDebugDistributionNamesAndRejectsLegacyPreviewNames"
+    ],
+    "retained": [
+      "previewBuildKeepsProductionIdentityAndIsDebuggableWithoutMinification",
+      "checkoutKeepsBranchHistoryAndUsesShallowTagsWithBloblessPartialClone",
+      "sharedSdkAndPublishedApkChecksStayPinnedToApi29And35",
+      "eachJobRunsExactlyOneGradleInvocationCarryingItsReleaseTasks"
+    ]
+  }
+}

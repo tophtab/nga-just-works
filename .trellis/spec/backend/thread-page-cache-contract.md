@@ -201,11 +201,12 @@ read-back, and stable selected-page snapshots without input mutation. Storage
 tests use temporary directories and synthetic ordinary/App pages to cover
 owner/layout isolation, repeated saves, unknown-size windows, sparse ordering,
 selected-version deletion, explicit replay, invalid envelopes and account
-changes. UI/source regressions cover launch guards, cache list identity,
-one-through-five equal tabs and legacy zip scope. Keep the existing refresh,
-page-request-state, and prefetch tests green.
+changes. `ArticleOwnedPageCacheTest` owns selected-generation and parsed-damage
+boundaries; `ArticleCacheStoreTest` owns disk identity, corruption and supported
+legacy ZIP scope. Review cache-list/tab wiring directly; do not duplicate
+helper behavior as source snapshots. Preserve refresh/request-state integration.
 
-Run the app debug build/unit/lint gate and the repository Android quality gate.
+Run focused cache-owner checks, then the repository Android quality gate once.
 Inspect lint XML for every Android module because a successful lint process can
 still contain Error/Fatal issues. Device operations remain opt-in; offline
 codec/source checks do not constitute device UI or live NGA verification.

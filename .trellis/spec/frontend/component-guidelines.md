@@ -36,8 +36,9 @@ library's fully-qualified `R` class.
 **Symptom**: A legacy Activity's toolbar is drawn under Android 15 status-bar
 icons while Compose and project-base screens look correct.
 
-**Fix**: Apply the local app-bar inset after the third-party layout is inflated,
-and add a source contract test for ordering and idempotent padding.
+**Fix**: Apply the local app-bar inset after the third-party layout is inflated.
+Review ordering and idempotent padding when changing this path; avoid tests
+that only pin the spelling of the source implementation.
 
 ## System navigation bar and Android 15 edge-to-edge
 
@@ -58,9 +59,10 @@ navigation area is not a reliable theme background.
   existing status placeholder's layout params instead of replacing its parent-
   specific `LayoutParams` subtype.
 
-Required regression coverage must assert that the old
-`isNightMode() && !mComposeEnabled` gate is absent and that Java, Kotlin, and
-Compose paths configure the navigation background and icon appearance.
+When changing this behavior, review Java, Kotlin and Compose paths for
+navigation background and icon appearance, including day and night modes.
+Do not restore the old `isNightMode() && !mComposeEnabled` restriction.
+Literal source snapshots are not required for these visual settings.
 
 ### Swipe back owns the decor background when it is active
 
@@ -77,10 +79,8 @@ run on the same Activity.
   `attachToActivity` instead. Do not fall back to the theme
   `android:windowBackground`: it resolves to `#FF202020` at night while the
   app-wide surface is `background_color` (`#080C10`).
-- `SystemThemeContractTest` asserts on the literal source text
-  `getWindow().getDecorView().setBackgroundColor(backgroundColor)`. Wrapping
-  that call in a condition is fine; rewriting it (for example extracting a
-  `decorView` local) silently breaks the contract.
+- Preserve the conditional decor-background behavior when refactoring; local
+  variable names and equivalent call spelling are not a public contract.
 - Navigation-mode detection must stay synchronous. The swipe-back layout is
   attached during `onCreate`, before window insets are dispatched, so an
   insets-based check (`tappableElement().bottom == 0`) cannot drive it.
@@ -253,12 +253,14 @@ label `打开侧边栏`.
   distance and 400dp/s velocity thresholds, first accumulated delta, measured
   anchor replacement, cancellation reset, consumed release, and remaining
   pointers.
-- Assert the shared Back default, the home Menu label, stationary content,
-  progressive scrim, closed semantics, and visible Back/scrim/dismiss paths.
-- Compile, unit-test, and lint both `lib_base_ui_compose` and
-  `nga_phone_base_3.0`; scan for `DrawerEdgeWidth`, `isWithinDrawerEdge`,
-  `systemGestureExclusion`, obsolete completion callbacks, Material internal
-  APIs, and reflection in affected sources.
+- Review closed semantics, visible Back/scrim/dismiss paths, toolbar labels,
+  stationary content and progressive scrim when changing their UI. Keep
+  executable gesture/state tests; source snapshots do not exercise semantics
+  or rendering.
+- The repository Debug gate compiles, unit-tests and lints both
+  `lib_base_ui_compose` and `nga_phone_base_3.0`. When editing gesture code,
+  review affected sources for obsolete completion callbacks, Material internal
+  APIs and reflection; do not scan the entire product tree in a unit test.
 - Keep physical device/emulator playback as the final gate for continuous
   pixels, first-frame ownership, Pager/reorder interaction, scrim/Back, and RTL.
 
@@ -372,12 +374,12 @@ TabLayoutWithPager(
 
 - Unit-test consecutive stable-key moves without recomposition while the
   rendered order/bounds remain at the previous frame.
-- Source-contract test optional defaults, long-press activation, terminal
-  cleanup, Pager gating, edge movement, stable selection and Pager page keys,
-  and all four accessibility actions.
-- App contract tests must pin the index-1 range, bookmark-relative model
-  indices, separate favorite/tab states, and `网事杂谈` as the page adjacent to
-  favorites.
+- Review long-press activation, terminal cleanup, Pager gating, edge movement,
+  stable selection/page keys and accessibility actions when editing the UI.
+  Source-substring assertions are not behavioral coverage of these paths.
+- Keep executable order/persistence and stale-rollback tests. Review bundled
+  board defaults, the index-1 range, bookmark-relative indices and separate
+  favorite/tab states at their call sites; do not pin display order as a snapshot.
 
 ### 7. Wrong vs Correct
 
@@ -412,8 +414,8 @@ reorderableTabRange = 1..tabs.lastIndex
   button as part of the board-bookmark workflow.
 - `关于` is the final drawer item and is anchored to the bottom with flexible
   space after the primary drawer actions.
-- Source contract tests must assert these labels, the absence of the ambiguous
-  `清空我的收藏` copy, and the ordering of the bottom spacer before `关于`.
+- Review these labels and placement when editing the drawer. Do not add
+  source snapshots solely to pin copy, spacer spelling or item order.
 
 ## Contextual floating action buttons
 
@@ -843,9 +845,10 @@ if (index >= 0) list.scrollToPosition(index);
   broadly — WebView itself is a Mainline module and is not vendor-modified.
 - Do not push these overrides down into `lib_base_common`'s `WebViewEx`. It is a
   shared base class and future subclasses would inherit the behavior silently.
-- Keep the source contract test synchronized with the override pair, the
-  double-wrap guard, `Callback2` conformance, menu membership and order, the
-  per-action guards, and the absence of any share or `ACTION_PROCESS_TEXT` path.
+- Keep the focused source guard against share/`ACTION_PROCESS_TEXT` export.
+  Review the override pair, double-wrap guard, `Callback2` conformance, menu
+  membership and per-action guards when modifying the adapter; literal method
+  spelling is not a substitute for exercising the selection behavior.
 
 `String.trim()` only removes characters up to U+0020 and is not a valid blank
 check for selected forum text. Iterate by code point and combine both Unicode
@@ -906,8 +909,9 @@ emoticon tables, or the order preference.
 - Keep the insert payload byte-identical: `[s:<id>:<name>]-<id>/<fileName>`.
   The adapter derives it from the emoticon at the dragged position, so a custom
   order must not change any emitted string.
-- Adding a settings entry changes `DefaultSettingsContractTest`. Update the
-  pinned key list deliberately; never relax the assertion.
+- Review added settings keys, defaults and grouping against their runtime
+  consumers. Keep behavioral migration and secret-state tests; a pinned
+  settings-key inventory is not required.
 
 ## External article links
 
@@ -1002,8 +1006,11 @@ Bad: maintaining a second positional name array that can silently drift.
 
 ### 6. Tests Required
 
-Pin all 238 code/asset pairs, the AC reversed pair, unknown/repeated tokens,
-legacy aliases, and filename-based ordering without table mutation.
+`EmoticonUtilsContractTest` owns all bundled asset identities and persisted
+filename uniqueness; `EmoticonOrderResolverTest` owns saved-order repair and
+nonmutation. Core decoder tests own the reversed AC pair and unknown/repeated
+token substitution. Legacy decoding keeps representative category size/alias
+branches instead of replaying the complete mapping table at every layer.
 
 ### 7. Wrong vs Correct
 

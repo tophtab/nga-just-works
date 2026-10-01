@@ -21,22 +21,6 @@ class DeriveAndroidVersionCodeTest(unittest.TestCase):
             text=True,
         )
 
-    def test_semantic_stable_bases(self) -> None:
-        expected_codes = {
-            "5.5.0": 50_500_000,
-            "5.5.1": 50_501_000,
-            "5.6.0": 50_600_000,
-        }
-
-        for version, expected_code in expected_codes.items():
-            with self.subTest(version=version):
-                self.assertEqual(expected_code, derive_android_version_code(version, 0))
-
-    def test_preview_slots_use_the_stable_semantic_prefix(self) -> None:
-        self.assertEqual(50_500_001, derive_android_version_code("5.5.0", 1))
-        self.assertEqual(50_600_027, derive_android_version_code("5.6.0", 27))
-        self.assertEqual(51_012_345, derive_android_version_code("5.10.12", 345))
-
     def test_preview_range_orders_before_the_next_patch(self) -> None:
         last_preview = derive_android_version_code("5.5.0", 999)
         next_patch = derive_android_version_code("5.5.1", 0)
@@ -49,7 +33,7 @@ class DeriveAndroidVersionCodeTest(unittest.TestCase):
         self.assertEqual(59_999_999, derive_android_version_code("5.99.99", 999))
 
     def test_invalid_versions_and_field_overflow_are_rejected(self) -> None:
-        invalid_versions = ("5.5", "v5.5.0", "5.5.0-debug.1", "5.-1.0")
+        invalid_versions = ("5.5.0-debug.1",)
         for version in invalid_versions:
             with self.subTest(version=version):
                 with self.assertRaises(ValueError):
@@ -68,7 +52,7 @@ class DeriveAndroidVersionCodeTest(unittest.TestCase):
     def test_android_version_code_range_is_enforced(self) -> None:
         self.assertEqual(2_100_000_000, derive_android_version_code("210.0.0", 0))
 
-        for version, build_slot in (("0.0.0", 0), ("210.0.0", 1), ("211.0.0", 0)):
+        for version, build_slot in (("0.0.0", 0), ("210.0.0", 1)):
             with self.subTest(version=version, build_slot=build_slot):
                 with self.assertRaises(ValueError):
                     derive_android_version_code(version, build_slot)

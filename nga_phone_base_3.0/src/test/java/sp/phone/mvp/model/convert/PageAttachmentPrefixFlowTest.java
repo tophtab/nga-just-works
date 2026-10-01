@@ -5,9 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,31 +19,6 @@ import gov.anzong.androidnga.core.decode.ForumBasicDecoder;
 public class PageAttachmentPrefixFlowTest {
 
     private static final String PAGE_PREFIX = "https://page.example/attachments";
-
-    @Test
-    public void allCoreConsumersReadTheHtmlDataPagePrefix() throws Exception {
-        String imageDecoder = readCoreSource("decode/ForumImageDecoder.java");
-        assertTrue(imageDecoder.contains("htmlData.getAttachmentsPrefix()"));
-        assertTrue(imageDecoder.contains(
-                "NgaImageHost.normalizeLegacyHosts(content, attachmentsPrefix)"));
-        assertTrue(imageDecoder.contains(
-                "String.format(REPLACE_IMG_NO_HTTP, attachmentsPrefix, \"$1\")"));
-
-        String basicDecoder = readCoreSource("decode/ForumBasicDecoder.java");
-        assertTrue(basicDecoder.contains("htmlData.getAttachmentsPrefix()"));
-        assertTrue(basicDecoder.contains("[flash=video]"));
-        assertTrue(basicDecoder.contains("[flash=audio]"));
-
-        String voteDecoder = readCoreSource("decode/ForumVoteDecoder.java");
-        assertTrue(voteDecoder.contains("htmlData.getAttachmentsPrefix()"));
-
-        String commentBuilder = readCoreSource("corebuild/HtmlCommentBuilder.java");
-        assertTrue(commentBuilder.contains("ForumDecoder.decode(content, htmlData, null)"));
-
-        String signatureBuilder = readCoreSource("corebuild/HtmlSignatureBuilder.java");
-        assertTrue(signatureBuilder.contains(
-                "ForumDecoder.decode(htmlData.getSignature(), htmlData)"));
-    }
 
     @Test
     public void attachmentBuilderAndImageListUseOnePagePrefix() {
@@ -118,11 +90,5 @@ public class PageAttachmentPrefixFlowTest {
         data.setAttachUrl(url);
         data.setThumb(thumb);
         return data;
-    }
-
-    private static String readCoreSource(String relativePath) throws Exception {
-        File file = new File("../lib_core/src/main/java/gov/anzong/androidnga/core/"
-                + relativePath);
-        return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
     }
 }

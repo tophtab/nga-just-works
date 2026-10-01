@@ -98,25 +98,6 @@ public class AiModelEditorStateTest {
     }
 
     @Test
-    public void firstFailureOrEmptyResultStillAllowsManualEntry() {
-        for (boolean failure : new boolean[]{true, false}) {
-            AiModelEditorState state = new AiModelEditorState();
-            long request = state.open("");
-            if (failure) {
-                state.loadFailed(request);
-            } else {
-                state.modelsLoaded(request, Collections.emptyList());
-            }
-
-            state.setCustomModel("manual-model");
-
-            assertTrue(state.getModels().isEmpty());
-            assertTrue(state.isCustom());
-            assertEquals("manual-model", state.getModel());
-        }
-    }
-
-    @Test
     public void dismissalDiscardsLateResultsBeforeTheyCanEnterTheCache() {
         AiModelEditorState state = new AiModelEditorState();
         long request = state.open("draft-model");

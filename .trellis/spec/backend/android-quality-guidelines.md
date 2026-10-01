@@ -150,15 +150,50 @@ android {
 
 ## Validation gate
 
-Before handing off an Android product change, run:
+During implementation, validate the changed owner and its affected consumers.
+Use a class filter for a test-only edit, or the owning module for a production
+contract change. For example:
 
 ```bash
-./gradlew :nga_phone_base_3.0:assembleDebug
-./gradlew :nga_phone_base_3.0:testDebugUnitTest
-./gradlew :nga_phone_base_3.0:lintDebug
-./gradlew lintDebug --continue --rerun-tasks --console=plain
-./gradlew testDebugUnitTest --continue
+./gradlew :nga_phone_base_3.0:testDebugUnitTest --tests 'sp.phone.ai.AiConfigStoreTest' --console=plain
+./gradlew :lib_base_common:testDebugUnitTest :lib_core:testDebugUnitTest :nga_phone_base_3.0:testDebugUnitTest --console=plain
+python3 -m unittest discover -s scripts -p 'test_validate_release_notes.py'
 ```
+
+The second command illustrates shared common/image/emoticon changes: include
+common plus the core decoder and application consumers. Core reader/comment
+changes include core and app; Compose gesture changes include Compose and app.
+For dependency, shared-base or Gradle configuration changes, inspect module
+project dependencies and include affected downstream modules rather than
+assuming an application-only task exercises library-owned tests. Run Python
+when release scripts, workflow YAML, or their test fixtures change. No automatic
+changed-file selector or repeated full gate is required during each edit.
+
+Keep one primary test owner per behavioral rule. Higher layers retain distinct
+integration outcomes, such as account propagation, persisted reload or stale
+callback suppression, rather than repeating lower-layer input matrices. Keep
+unique security, migration/data-loss, cancellation and release-cleanup
+boundaries. Parameterizing, ignoring, or excluding scenarios is not test
+reduction. Review source wiring directly unless a narrow resource/security
+boundary cannot be exercised through the existing host seam.
+
+Before handing off an Android change, run the repository Debug gate once:
+
+```bash
+./gradlew testDebugUnitTest lintDebug --continue --console=plain
+```
+
+This includes the application's tests and lint; do not invoke them separately
+again. Use normal incremental outputs and build caches. Reserve `--rerun-tasks`
+and `--no-build-cache` for diagnosing stale outputs or a controlled benchmark,
+not routine validation. Add `:nga_phone_base_3.0:assembleDebug` when the change
+needs APK packaging verification (for example manifest, resources or packaging
+configuration); test-only deletions do not require an extra APK build. Preview
+and Release packaging still follow the explicit local-build policy below.
+
+After a passing gate, rerun only when subsequent changes or concrete findings
+invalidate its evidence. For release script/workflow changes, also run
+`python3 -m unittest discover -s scripts` once.
 
 The app restores upstream `abortOnError false` and disables
 `MissingTranslation`, so a zero lint process exit is not sufficient by itself:
@@ -168,6 +203,13 @@ library findings. The inherited 11-error app baseline and the remaining
 library error were explicitly remediated on 2026-08-10; do not reclassify a new
 error as accepted upstream debt. Warning count is diagnostic and may change
 independently of this zero-error contract.
+
+After deleting/reshaping Kotlin unit tests, a combined gate can expose a lint
+`LintError`/`NoSuchFileException` while KAPT regenerates unit-test stubs. This is
+an incomplete analysis, not a passing lint result. Let compilation finish,
+then rerun the affected lint analysis/report tasks (invalidate only their
+up-to-date/cache state if needed) and inspect all 13 reports again. Do not
+suppress `LintError`, disable lint, or change product code to hide it.
 
 ```bash
 python3 - <<'PY'
@@ -211,7 +253,7 @@ Use the repository-wide `testDebugUnitTest --continue` task as the unit-test
 gate rather than the aggregate `test` task: the latter enters
 release/preview unit-test task graphs and trips the release-signing guard even
 though no local signed APK packaging is authorized. The Debug gate must pass;
-historical example-test failures are no longer accepted baseline exceptions.
+failures in retained tests cannot be treated as accepted baseline exceptions.
 
 Every module whose `src/test` sources import JUnit 4 must declare its own JUnit
 `testImplementation` dependency, for example
@@ -220,18 +262,30 @@ not inherit that project's test dependencies. Keep JUnit on the
 test classpath; do not add it as a product dependency or disable test variants
 to hide a missing dependency.
 
-The `lib_bu_statistics` Java example and `lib_module_debug` Kotlin example had
-the same missing-JUnit cause. Java reported `package org.junit does not exist`;
-KAPT represented the unresolved `org.junit.Test` annotation as
-`@error.NonExistentClass()`, then failed with
-`NonExistentClass cannot be converted to Annotation`. For this KAPT symptom,
-inspect the source annotation and `debugUnitTestCompileClasspath` before
-changing processor configuration. Restoring the module's test dependency
-allows the existing example to compile and execute without a KAPT workaround.
-If an incremental build retains the unresolved stub after the classpath is
-corrected, rerun the affected `testDebugUnitTest` tasks with
-`--rerun-tasks --no-build-cache` and confirm the generated annotation becomes
-`@org.junit.Test()`; do not edit generated stubs.
+### Test selection
+
+Keep executable regression coverage for parsing, state transitions, caching,
+persistence, cancellation, session/security boundaries and release publication
+safety. Remove generated arithmetic/package-name examples instead of keeping
+test dependencies and test APKs solely for those examples. A module with no
+remaining tests may legitimately report `NO-SOURCE`; do not disable variants
+or exclude retained tests to obtain a green gate.
+
+Inspect source-reading tests individually. Pure checks for implementation
+spelling, layout values or duplicated wiring should be removed. Calling an
+assertion "critical wiring" does not make a source substring prove execution.
+Keep narrow security-policy checks only when they add distinct protection;
+review integration paths directly when host-JVM behavior cannot exercise them. A `ContractTest` filename alone is not a deletion
+criterion. Prefer assertions on observable inputs/outputs and failure paths.
+When removing the last test using a dependency, remove that test dependency
+from the module; product dependencies and behavior remain unchanged.
+
+Use test-report durations to find slow tests. Transport-only fixtures should
+not inherit shared production request cooldowns; inject an isolated test queue
+and fake clock, while keeping dedicated queue tests for pacing and cancellation.
+Artificial response delays should be only as long as the tested ordering needs.
+Do not lower counts merely by merging independent scenarios into one method,
+or delete cheap distinct failure/security cases solely to hit a number.
 
 When repairing a test-compilation failure, require the existing tests to
 execute and inspect their XML reports for nonzero test counts and zero
@@ -736,12 +790,12 @@ package migration is approved.
 - Execute the ref-key Bash and assert deterministic keys for repeated exact
   refs, distinct keys for case-only refs, and distinct branch/tag keys. Validate
   the build job's dependency and concurrency wiring. Test cache access for
-  exact `main`, `Main`, `MAIN`, feature branches, and stable tags using GitHub's
+  exact `main`, a case-variant `Main`, feature branches, and stable tags using GitHub's
   case-insensitive expression comparison semantics.
-- Run `scripts/test_derive_android_version_code.py`. Assert `5.5.0/slot 0`
-  gives `50,500,000`, slot `999` is exactly one below `5.5.1/slot 0`, two-digit
-  minor/patch fields work, and malformed fields, field overflow, slot overflow,
-  a zero final versionCode, and Android-limit overflow fail.
+- Run `scripts/test_derive_android_version_code.py`. Retain representative CLI
+  success/failure, preview-slot ordering before the next patch, both field
+  maxima/overflows, slot endpoints, zero rejection and the exact Android
+  maximum/maximum+1 boundary. Repeated arithmetic examples are unnecessary.
 - Assert local Gradle defaults, valid Debug/stable CI overrides, a partial
   override pair, malformed versionName, out-of-range versionCode, matching
   stable `RELEASE_TAG`, mismatched/invalid tags, and rejection of the legacy

@@ -276,7 +276,9 @@ Use synthetic data and fake transport; never send NGA traffic:
 - `ArticleByteClientTest`: synthetic `Call.Factory` requests/bytes, exact URL/
   form/headers, source/page changes with one account snapshot, guest requests,
   origin/redirect/retry policy, strict charset/size handling, body closure,
-  HTTP/network classification, redaction and cancellation. No socket is opened.
+  pre-parse HTTP closure, secret-safe network failure and cancellation.
+  `ArticleErrorsTest` owns the status matrix; the byte client keeps a
+  representative redirect stop to establish the wire boundary. No socket is opened.
 - `ArticleCacheStoreTest` and existing `ArticlePageCacheTest`: explicit replay,
   owner/layout isolation, independent windows, metadata, selected-page snapshots,
   damaged-page rejection and legacy archive boundaries.
@@ -284,7 +286,9 @@ Use synthetic data and fake transport; never send NGA traffic:
   no fallback for access/empty outcomes, preserved original raw text, exact HTTP
   evidence, finite structured causes, generic restrictions without a false
   verification claim, successful post prose mentioning deletion/403, and legacy
-  callback display without changing original exception policy.
+  callback display without changing original exception policy. Exercise shared
+  classification directly; parser suites own their data/error precedence and
+  need not repeat the shared empty/BOM matrix.
 - `ArticleRowPresentationTest` and core `HtmlCommentBuilderTest`: action
   eligibility from real source/PID rather than row kind; only complete leading
   reply headers are stripped; short, headerless, unrelated and incomplete
@@ -294,7 +298,7 @@ Preserve existing request-state, prefetch, image-host and current-page refresh
 tests. A pure policy test does not replace tracing its presenter/UI callers,
 especially synchronous LiveData handoff and delayed view actions.
 
-Run the app/common JVM gate, debug build and repository Android quality gate;
+Use focused owner/downstream JVM checks and the final repository Android quality gate;
 when changing the shared comment builder, include core JVM tests and core lint.
 Inspect every required lint XML for zero Error/Fatal. These checks establish
 local behavior, not real-service success rate. Device tests remain opt-in.

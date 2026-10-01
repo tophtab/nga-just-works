@@ -12,46 +12,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import sp.phone.ai.AiProfilePrompt;
 
 public class ProfileSummaryLoaderTest {
-
-    @Test
-    public void twoSequentialFirstPageReadsStayBoundToTheViewedUid() {
-        FakePages pages = new FakePages();
-        Result result = new Result();
-        new ProfileSummaryLoader(pages).load("4200", "Viewed user", result);
-        assertEquals(1, pages.requests.size());
-        assertEquals("4200", pages.requests.get(0).uid);
-        assertEquals(ProfileSummaryLoader.Kind.TOPICS, pages.requests.get(0).kind);
-        pages.requests.get(0).succeed("Topic first page", "");
-        assertNull(result.prompt);
-        assertEquals(2, pages.requests.size());
-        assertEquals("4200", pages.requests.get(1).uid);
-        assertEquals(ProfileSummaryLoader.Kind.REPLIES, pages.requests.get(1).kind);
-        pages.requests.get(1).succeed("Reply topic", "Actual viewed-user reply");
-        assertEquals(2, pages.requests.size());
-        assertTrue(result.prompt.contains("当前资料页 UID：4200"));
-        assertTrue(result.prompt.contains("Topic first page"));
-        assertTrue(result.prompt.contains("Actual viewed-user reply"));
-        assertNull(result.error);
-    }
-
-    @Test
-    public void selectedCustomInstructionsAreUsedAfterBothPagesFinish() {
-        FakePages pages = new FakePages();
-        Result result = new Result();
-        String customText = "  Custom style\nSecond line\n";
-        AiProfilePrompt prompt = new AiProfilePrompt(AiProfilePrompt.Style.CUSTOM, customText);
-        new ProfileSummaryLoader(pages).load("42", "Viewed user", prompt, result);
-        pages.requests.get(0).succeed("Topic", "");
-        assertNull(result.prompt);
-        pages.requests.get(1).succeed("Reply topic", "Public reply");
-        assertTrue(result.prompt.contains("输出要求：\n" + customText + "\n"));
-        assertTrue(result.prompt.contains("[回复1] Reply topic"));
-        assertFalse(result.prompt.contains(AiProfilePrompt.DEFAULT.getInstructions()));
-        assertNull(result.error);
-    }
 
     @Test
     public void exhaustedEmptyRetriesStillAllowVisibleActivityFromTheOtherKind() {
@@ -83,36 +45,6 @@ public class ProfileSummaryLoaderTest {
                     ? "无可见主题" : "无可见回复"));
             assertTrue(result.prompt.contains(emptyKind == ProfileSummaryLoader.Kind.TOPICS
                     ? "Visible reply" : "Visible topic"));
-        }
-    }
-
-    @Test
-    public void eitherKindCanRecoverOnItsFirstOrSecondEmptyRetry() {
-        for (ProfileSummaryLoader.Kind emptyKind : ProfileSummaryLoader.Kind.values()) {
-            for (int empties = 1; empties <= 2; empties++) {
-                FakePages pages = new FakePages();
-                Result result = new Result();
-                new ProfileSummaryLoader(pages).load("42", "Viewed user", result);
-                int next = 0;
-                if (emptyKind == ProfileSummaryLoader.Kind.REPLIES) {
-                    pages.requests.get(next++).succeed("Topic", "");
-                }
-                for (int i = 0; i < empties; i++) {
-                    Request request = pages.requests.get(next++);
-                    assertEquals(emptyKind, request.kind);
-                    request.empty();
-                    assertNull(result.prompt);
-                }
-                pages.requests.get(next++).succeed("Recovered topic", "Recovered reply");
-                if (emptyKind == ProfileSummaryLoader.Kind.TOPICS) {
-                    pages.requests.get(next).succeed("Reply topic", "Visible reply");
-                }
-                assertEquals(2 + empties, pages.requests.size());
-                assertEquals(1, result.successes);
-                assertEquals(0, result.errors);
-                assertTrue(result.prompt.contains("Recovered topic"));
-                assertTrue(result.prompt.contains("样本数量：主题 1 条，回复 1 条"));
-            }
         }
     }
 
@@ -208,18 +140,6 @@ public class ProfileSummaryLoaderTest {
     }
 
     @Test
-    public void firstPageFailureStopsWithoutAutomaticRetryOrPartialSummary() {
-        FakePages pages = new FakePages();
-        Result result = new Result();
-        new ProfileSummaryLoader(pages).load("42", "User", result);
-        pages.requests.get(0).callback.onError("Safe access failure");
-        pages.requests.get(0).succeed("LATE_TOPIC", "");
-        assertEquals("Safe access failure", result.error);
-        assertNull(result.prompt);
-        assertEquals(1, pages.requests.size());
-    }
-
-    @Test
     public void secondReadSynchronousExceptionIsReportedWithoutLeakingItsMessage() {
         FakePages pages = new FakePages();
         pages.throwOnReplies = true;
@@ -229,20 +149,6 @@ public class ProfileSummaryLoaderTest {
         assertNull(result.prompt);
         assertNotNull(result.error);
         assertFalse(result.error.contains("RAW_RESPONSE_SENTINEL"));
-    }
-
-    @Test
-    public void duplicateFirstPageCallbacksCannotStartMoreReads() {
-        FakePages pages = new FakePages();
-        Result result = new Result();
-        new ProfileSummaryLoader(pages).load("42", "User", result);
-        pages.requests.get(0).succeed("Topic", "");
-        pages.requests.get(0).succeed("DUPLICATE_TOPIC", "");
-        assertEquals(2, pages.requests.size());
-        pages.requests.get(1).succeed("Topic", "Reply");
-        pages.requests.get(1).succeed("Topic", "DUPLICATE_REPLY");
-        assertEquals(1, result.successes);
-        assertFalse(result.prompt.contains("DUPLICATE"));
     }
 
     @Test
@@ -322,25 +228,6 @@ public class ProfileSummaryLoaderTest {
         requests.get(2).succeed("Topic", "Reply");
         assertEquals(1, result.successes);
         assertEquals(0, result.errors);
-    }
-
-    @Test
-    public void synchronousSourcesAndEmptyActivityFinishWithoutHanging() {
-        List<Request> requests = new ArrayList<>();
-        ProfileSummaryLoader loader = new ProfileSummaryLoader((uid, kind, callback) -> {
-            Request request = new Request(uid, kind, callback);
-            requests.add(request);
-            callback.onSuccess(new ProfileSummaryLoader.Page(uid, kind, Collections.emptyList()));
-            return request;
-        });
-        Result result = new Result();
-        loader.load("42", "User", result);
-        assertEquals(6, requests.size());
-        assertNotNull(result.error);
-        assertNull(result.prompt);
-        for (Request request : requests) {
-            assertTrue(request.canceled);
-        }
     }
 
     @Test

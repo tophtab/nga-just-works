@@ -1,0 +1,12 @@
+{
+  "phase": "final",
+  "tests": 32,
+  "successful": true,
+  "direct_subprocess_starts": 304,
+  "by_executable": {
+    "/usr/bin/python3": 4,
+    "git": 141,
+    "bash": 159
+  },
+  "scope": "Popen calls by Python test process only; Bash/Git/stub descendant processes are not counted; untimed instrumentation run"
+}

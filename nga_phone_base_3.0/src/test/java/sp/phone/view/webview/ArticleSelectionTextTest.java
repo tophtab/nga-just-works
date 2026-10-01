@@ -41,12 +41,6 @@ public class ArticleSelectionTextTest {
     }
 
     @Test
-    public void unquotedResultsPassThrough() {
-        assertEquals("true", ArticleSelectionText.decodeEvaluatedString("true"));
-        assertEquals("42", ArticleSelectionText.decodeEvaluatedString("42"));
-    }
-
-    @Test
     public void blankDetectionCoversNonAsciiWhitespace() {
         assertTrue(ArticleSelectionText.isBlank(null));
         assertTrue(ArticleSelectionText.isBlank(""));

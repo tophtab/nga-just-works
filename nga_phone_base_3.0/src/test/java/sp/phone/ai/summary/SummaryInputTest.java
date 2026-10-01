@@ -89,7 +89,7 @@ public class SummaryInputTest {
 
     @Test
     public void knownFloorsKeepTheirOriginalPromptAfterRowPresentationChanges() {
-        for (int floor : new int[]{0, 7}) {
+        for (int floor : new int[]{0}) {
             ThreadRowInfo selected = row("Author", "Readable body");
             selected.setTid(123);
             selected.setPid(456);
@@ -195,26 +195,6 @@ public class SummaryInputTest {
     }
 
     @Test
-    public void profileCountsAndIdentifiersExcludeNullEntriesAndKeepEachKindsOrder() {
-        List<ProfileSummaryInput.Entry> topics = Arrays.asList(null,
-                new ProfileSummaryInput.Entry("First topic", "Topic board", "2026-01-01", ""), null,
-                new ProfileSummaryInput.Entry("Second topic", "Topic board", "2026-01-02", ""), null);
-        List<ProfileSummaryInput.Entry> replies = Arrays.asList(null,
-                new ProfileSummaryInput.Entry("First reply topic", "Reply board", "2026-01-03", "First reply"),
-                new ProfileSummaryInput.Entry("Second reply topic", "Reply board", "2026-01-04", "Second reply"),
-                null, new ProfileSummaryInput.Entry("Third reply topic", "Reply board", "2026-01-05", "Third reply"));
-
-        String prompt = new ProfileSummaryInput("42", "User", topics, replies).toPrompt();
-        assertTrue(prompt.contains("样本数量：主题 2 条，回复 3 条\n"));
-        assertEvidenceNumbers(prompt, "主题", 2);
-        assertEvidenceNumbers(prompt, "回复", 3);
-        assertTrue(prompt.contains("[主题1] First topic | Topic board | 2026-01-01\n"));
-        assertTrue(prompt.contains("[主题2] Second topic | Topic board | 2026-01-02\n"));
-        assertTrue(prompt.contains("[回复1] First reply topic | Reply board | 2026-01-03\n回复正文：First reply\n"));
-        assertTrue(prompt.contains("[回复3] Third reply topic | Reply board | 2026-01-05\n回复正文：Third reply\n"));
-    }
-
-    @Test
     public void selectedInstructionsReplaceOnlyTheStyleAndKeepTheSameBoundedEvidence() {
         ProfileSummaryInput input = new ProfileSummaryInput("42", "Viewed user",
                 Collections.singletonList(new ProfileSummaryInput.Entry("Topic", "Board", "2026-01-01",
@@ -241,56 +221,6 @@ public class SummaryInputTest {
                 assertFalse(prompt.contains("CUSTOM_FORMAT_SENTINEL"));
                 assertTrue(prompt.contains("回复正文在1000字以内"));
             }
-        }
-    }
-
-    @Test
-    public void profileWithEitherPageEmptyKeepsAccurateCountsAndReplyIsolation() {
-        ProfileSummaryInput.Entry entry = new ProfileSummaryInput.Entry("Visible topic", "Board", "2026-01-01",
-                "[quote]Quoted claim[/quote]My reply [img]https://unused.invalid/media.jpg[/img]");
-        ProfileSummaryInput onlyReplies = new ProfileSummaryInput("42", "User",
-                Collections.emptyList(), Collections.singletonList(entry));
-        assertFalse(onlyReplies.isEmpty());
-        String repliesPrompt = onlyReplies.toPrompt();
-        assertTrue(repliesPrompt.contains("样本数量：主题 0 条，回复 1 条\n"));
-        assertTrue(repliesPrompt.contains("无可见主题\n"));
-        assertFalse(repliesPrompt.contains("无可见回复\n"));
-        assertEvidenceNumbers(repliesPrompt, "主题", 0);
-        assertEvidenceNumbers(repliesPrompt, "回复", 1);
-        assertTrue(repliesPrompt.contains("引用：\nQuoted claim\n引用结束"));
-        assertTrue(repliesPrompt.contains("My reply"));
-        assertFalse(repliesPrompt.contains("https://unused.invalid"));
-
-        ProfileSummaryInput onlyTopics = new ProfileSummaryInput("42", "User",
-                Collections.singletonList(entry), Collections.emptyList());
-        assertFalse(onlyTopics.isEmpty());
-        String topicsPrompt = onlyTopics.toPrompt();
-        assertTrue(topicsPrompt.contains("样本数量：主题 1 条，回复 0 条\n"));
-        assertTrue(topicsPrompt.contains("无可见回复\n"));
-        assertFalse(topicsPrompt.contains("无可见主题\n"));
-        assertEvidenceNumbers(topicsPrompt, "主题", 1);
-        assertEvidenceNumbers(topicsPrompt, "回复", 0);
-        assertTrue(topicsPrompt.contains("[主题1] Visible topic | Board | 2026-01-01\n"));
-        assertFalse(topicsPrompt.contains("主题正文："));
-        assertFalse(topicsPrompt.contains("Quoted claim"));
-        assertFalse(topicsPrompt.contains("My reply"));
-        assertFalse(topicsPrompt.contains("https://unused.invalid"));
-    }
-
-    @Test
-    public void profileWithoutVisibleActivityIsEmpty() {
-        ProfileSummaryInput[] inputs = {
-                new ProfileSummaryInput("42", "User", null, null),
-                new ProfileSummaryInput("42", "User", Collections.singletonList(null), Collections.singletonList(null))
-        };
-        for (ProfileSummaryInput input : inputs) {
-            assertTrue(input.isEmpty());
-            String prompt = input.toPrompt();
-            assertTrue(prompt.contains("样本数量：主题 0 条，回复 0 条\n"));
-            assertTrue(prompt.contains("无可见主题\n"));
-            assertTrue(prompt.contains("无可见回复\n"));
-            assertEvidenceNumbers(prompt, "主题", 0);
-            assertEvidenceNumbers(prompt, "回复", 0);
         }
     }
 

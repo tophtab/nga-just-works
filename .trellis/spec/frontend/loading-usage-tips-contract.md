@@ -132,12 +132,15 @@ work. There is no new user preference, network request, or persistent tip state.
   avoidance across views and pool changes, and resource-ID identity.
 - `LoadingTipStateTest`: background exclusion, once-per-occasion selection,
   pause/ancestor-hide reuse, own-hide reset, destruction/reset, and empty pools.
-- `LoadingTipCatalogTest`: immutable three/four-entry pools and the actual
-    key/destination/class eligibility decision.
-- `TopicPagePrefetchContractTest.retainedPageLoadingTipsUseThePageViewLifecycle`:
-  pin the retained article page's view-owner binding after field binding.
+- `LoadingTipCatalogTest`: actual key/destination/class eligibility. Pool size,
+  copy and immutability inventories are reviewed with the resources, not pinned
+  by snapshot tests. Selector checks use a short deterministic sequence, not
+  hundreds of repeated random draws.
+- Review the retained article page's view-owner binding after field binding
+  when changing integration. Keep executable `LoadingTipStateTest` lifecycle
+  coverage; do not duplicate the binding's source spelling in a snapshot.
 - Compile resources/Java/Kotlin, inspect app and all-module lint XML, and keep
-  existing prefetch/current-page/FAB/title-refresh regressions green. Review
+  existing executable prefetch/current-page regressions green. Review
   multiline/sp/semantic-color layout attributes; offline checks do not prove a
   device's rendered layout. Device operations follow the Android quality policy.
 

@@ -82,15 +82,6 @@ public class LoadingTipCatalogTest {
         assertEquals(0, destinationLookups.get());
     }
 
-    @Test
-    public void copyOrClassPresenceWithoutTheSettingsEntryIsInsufficient() throws Exception {
-        Document settings = preferences(
-                "<Preference android:title=\"@string/loading_tip_ai_feature\"/>"
-                        + "<PreferenceScreen android:fragment=\"sp.phone.ui.fragment.SettingsAiFragment\"/>");
-
-        assertFalse(hasAiEntry(settings, name -> true));
-    }
-
     private static Document preferences(String entries) throws Exception {
         String xml = "<PreferenceScreen xmlns:android=\"http://schemas.android.com/apk/res/android\">"
                 + entries + "</PreferenceScreen>";

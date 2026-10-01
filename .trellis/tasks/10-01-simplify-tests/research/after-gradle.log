@@ -1,0 +1,808 @@
+
+> Configure project :lib_base_common
+WARNING: The option setting 'android.defaults.buildfeatures.buildconfig=true' is deprecated.
+The current default is 'false'.
+It will be removed in version 9.0 of the Android Gradle plugin.
+To keep using this feature, add the following to your module-level build.gradle files:
+    android.buildFeatures.buildConfig = true
+or from Android Studio, click: `Refactor` > `Migrate BuildConfig to Gradle Build Files`.
+
+> Task :lib_bu_statistics:preBuild UP-TO-DATE
+> Task :lib_base_logger:preBuild UP-TO-DATE
+> Task :lib_bu_message:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_core_data:preBuild UP-TO-DATE
+> Task :lib_core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_bu_statistics:preDebugBuild UP-TO-DATE
+> Task :lib_core_data:preDebugBuild UP-TO-DATE
+> Task :lib_bu_message:preBuild UP-TO-DATE
+> Task :lib_core:preBuild UP-TO-DATE
+> Task :lib_bu_account:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_core:preDebugBuild UP-TO-DATE
+> Task :lib_base_ui_compose:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_ui_compose:preBuild UP-TO-DATE
+> Task :lib_base_service_api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :nga_phone_base_3.0:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_common:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_base_logger:preDebugBuild UP-TO-DATE
+> Task :lib_base_network:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_core:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core_data:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_service_api:preBuild UP-TO-DATE
+> Task :lib_base_ui_compose:preDebugBuild UP-TO-DATE
+> Task :lib_base_ui:preBuild UP-TO-DATE
+> Task :lib_bu_account:preBuild UP-TO-DATE
+> Task :lib_bu_account:preDebugBuild UP-TO-DATE
+> Task :lib_bu_message:preDebugBuild UP-TO-DATE
+> Task :lib_bu_account:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_module_debug:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :lib_bu_statistics:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_module_debug:preBuild UP-TO-DATE
+> Task :lib_base_ui:preDebugBuild UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_bu_account:generateDebugResValues UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugResValues UP-TO-DATE
+> Task :lib_bu_message:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core_data:generateDebugResValues UP-TO-DATE
+> Task :lib_base_network:preBuild UP-TO-DATE
+> Task :lib_base_common:preBuild UP-TO-DATE
+> Task :lib_base_common:preDebugBuild UP-TO-DATE
+> Task :lib_base_logger:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core_data:generateDebugResources UP-TO-DATE
+> Task :lib_base_common:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugResources UP-TO-DATE
+> Task :nga_phone_base_3.0:preBuild UP-TO-DATE
+> Task :lib_base_network:preDebugBuild UP-TO-DATE
+> Task :lib_core:generateDebugResValues UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugResValues UP-TO-DATE
+> Task :lib_core_data:packageDebugResources UP-TO-DATE
+> Task :lib_core:generateDebugResources UP-TO-DATE
+> Task :lib_bu_statistics:packageDebugResources UP-TO-DATE
+> Task :lib_core:packageDebugResources UP-TO-DATE
+> Task :lib_bu_message:generateDebugResValues UP-TO-DATE
+> Task :lib_base_service_api:preDebugBuild UP-TO-DATE
+> Task :lib_bu_account:generateDebugResources UP-TO-DATE
+> Task :lib_core_data:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_message:generateDebugResources UP-TO-DATE
+> Task :lib_base_logger:generateDebugResValues UP-TO-DATE
+> Task :lib_core:parseDebugLocalResources UP-TO-DATE
+> Task :lib_core_data:generateDebugRFile UP-TO-DATE
+> Task :lib_module_debug:preDebugBuild UP-TO-DATE
+> Task :lib_module_debug:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_core:generateDebugRFile UP-TO-DATE
+> Task :lib_base_ui:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_service_api:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_logger:generateDebugResources UP-TO-DATE
+> Task :lib_base_ui:generateDebugResValues UP-TO-DATE
+> Task :lib_base_service_api:generateDebugResValues UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugResources UP-TO-DATE
+> Task :lib_base_network:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_network:generateDebugResValues UP-TO-DATE
+> Task :lib_base_service_api:generateDebugResources UP-TO-DATE
+> Task :lib_bu_account:packageDebugResources UP-TO-DATE
+> Task :lib_bu_message:packageDebugResources UP-TO-DATE
+> Task :lib_base_network:generateDebugResources UP-TO-DATE
+> Task :lib_core:javaPreCompileDebug UP-TO-DATE
+> Task :lib_core_data:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_statistics:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_logger:packageDebugResources UP-TO-DATE
+> Task :lib_base_service_api:packageDebugResources UP-TO-DATE
+> Task :lib_module_debug:generateDebugResValues UP-TO-DATE
+> Task :lib_module_debug:generateDebugResources UP-TO-DATE
+> Task :lib_base_network:packageDebugResources UP-TO-DATE
+> Task :lib_bu_account:parseDebugLocalResources UP-TO-DATE
+> Task :nga_phone_base_3.0:preDebugBuild UP-TO-DATE
+> Task :lib_base_ui:generateDebugResources UP-TO-DATE
+> Task :lib_base_common:generateDebugResValues UP-TO-DATE
+> Task :nga_phone_base_3.0:generateDebugBuildConfig UP-TO-DATE
+> Task :lib_base_common:generateDebugResources UP-TO-DATE
+> Task :lib_module_debug:packageDebugResources UP-TO-DATE
+> Task :lib_base_ui_compose:packageDebugResources UP-TO-DATE
+> Task :lib_base_common:packageDebugResources UP-TO-DATE
+> Task :lib_core_data:processDebugJavaRes NO-SOURCE
+> Task :lib_bu_statistics:generateDebugRFile UP-TO-DATE
+> Task :lib_module_debug:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_service_api:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_common:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_logger:parseDebugLocalResources UP-TO-DATE
+> Task :lib_bu_message:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_ui_compose:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_network:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_service_api:generateDebugRFile UP-TO-DATE
+> Task :lib_base_common:generateDebugRFile UP-TO-DATE
+> Task :lib_bu_account:generateDebugRFile UP-TO-DATE
+> Task :lib_bu_message:generateDebugRFile UP-TO-DATE
+> Task :lib_core_data:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_base_logger:generateDebugRFile UP-TO-DATE
+> Task :lib_core:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_base_ui:packageDebugResources UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugRFile UP-TO-DATE
+> Task :lib_bu_statistics:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_statistics:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_base_network:generateDebugRFile UP-TO-DATE
+> Task :nga_phone_base_3.0:generateDebugResValues UP-TO-DATE
+> Task :lib_module_debug:generateDebugRFile UP-TO-DATE
+> Task :lib_base_ui_compose:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_ui_compose:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_base_logger:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_logger:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_base_network:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_network:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_base_ui:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_ui:generateDebugRFile UP-TO-DATE
+> Task :lib_base_ui:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_message:javaPreCompileDebug UP-TO-DATE
+> Task :lib_module_debug:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_ui:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_module_debug:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_bu_message:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_bu_account:javaPreCompileDebug UP-TO-DATE
+> Task :lib_bu_account:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_core_data:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_core_data:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_core_data:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_core_data:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_core_data:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_network:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_core_data:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_logger:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_base_network:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_core_data:processDebugManifest UP-TO-DATE
+> Task :lib_base_network:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_logger:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_network:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_core:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_base_logger:processDebugJavaRes NO-SOURCE
+> Task :lib_core:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_core_data:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_core:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_network:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_ui:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_core_data:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_bu_statistics:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_bu_statistics:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_logger:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_bu_statistics:processDebugJavaRes NO-SOURCE
+> Task :lib_base_logger:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_core_data:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_logger:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_bu_statistics:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_base_ui:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_base_service_api:compileDebugKotlin UP-TO-DATE
+> Task :lib_bu_statistics:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_network:processDebugManifest UP-TO-DATE
+> Task :lib_module_debug:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_base_service_api:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_ui_compose:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_ui_compose:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_module_debug:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_ui:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_logger:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_core:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_ui:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_core:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_message:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_bu_account:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_bu_statistics:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_module_debug:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_core_data:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_module_debug:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_core_data:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_bu_statistics:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_ui_compose:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_module_debug:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_ui:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_message:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_core:processDebugManifest UP-TO-DATE
+> Task :lib_bu_account:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_logger:processDebugManifest UP-TO-DATE
+> Task :lib_base_ui_compose:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_account:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_module_debug:processDebugManifest UP-TO-DATE
+> Task :lib_base_ui:processDebugManifest UP-TO-DATE
+> Task :lib_bu_account:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_bu_message:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_ui_compose:processDebugManifest UP-TO-DATE
+> Task :lib_bu_message:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_common:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_service_api:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_bu_statistics:processDebugManifest UP-TO-DATE
+> Task :lib_base_network:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_base_logger:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_core_data:mergeDebugShaders UP-TO-DATE
+> Task :lib_base_common:javaPreCompileDebug UP-TO-DATE
+> Task :lib_base_service_api:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_bu_message:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_ui_compose:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_bu_account:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_message:processDebugManifest UP-TO-DATE
+> Task :nga_phone_base_3.0:mapDebugSourceSetPaths UP-TO-DATE
+> Task :lib_base_ui:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_core:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_base_ui_compose:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_base_network:mergeDebugNativeLibs NO-SOURCE
+> Task :nga_phone_base_3.0:generateDebugResources UP-TO-DATE
+> Task :lib_module_debug:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_core_data:compileDebugShaders NO-SOURCE
+> Task :lib_core_data:generateDebugAssets UP-TO-DATE
+> Task :lib_base_service_api:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_bu_account:processDebugManifest UP-TO-DATE
+> Task :lib_bu_statistics:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_bu_message:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_base_service_api:preDebugUnitTestBuild UP-TO-DATE
+> Task :nga_phone_base_3.0:mergeDebugResources UP-TO-DATE
+> Task :lib_core_data:packageDebugAssets UP-TO-DATE
+> Task :lib_core:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_base_logger:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_base_network:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_ui_compose:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_common:compileDebugJavaWithJavac UP-TO-DATE
+> Task :nga_phone_base_3.0:packageDebugResources UP-TO-DATE
+> Task :lib_base_common:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_bu_account:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_base_logger:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_ui:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_base_common:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_network:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_base_service_api:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_core_data:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_base_ui_compose:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_module_debug:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_bu_statistics:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_base_logger:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :nga_phone_base_3.0:parseDebugLocalResources UP-TO-DATE
+> Task :lib_base_service_api:compileDebugUnitTestKotlin NO-SOURCE
+> Task :lib_base_common:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_bu_account:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_bu_message:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_core:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_bu_account:stripDebugDebugSymbols NO-SOURCE
+> Task :nga_phone_base_3.0:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :lib_bu_account:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_module_debug:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_service_api:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_network:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :nga_phone_base_3.0:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_common:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :lib_bu_account:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_base_service_api:compileDebugUnitTestJavaWithJavac
+> Task :lib_module_debug:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_base_common:compileDebugUnitTestKotlin NO-SOURCE
+> Task :lib_bu_account:mergeDebugShaders UP-TO-DATE
+> Task :lib_base_service_api:processDebugJavaRes UP-TO-DATE
+> Task :lib_base_network:mergeDebugShaders UP-TO-DATE
+> Task :lib_bu_message:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_service_api:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_base_common:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_logger:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_logger:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_base_network:compileDebugShaders NO-SOURCE
+> Task :lib_base_network:generateDebugAssets UP-TO-DATE
+> Task :lib_bu_account:compileDebugShaders NO-SOURCE
+> Task :lib_bu_account:generateDebugAssets UP-TO-DATE
+> Task :lib_module_debug:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_bu_message:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_bu_statistics:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_logger:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_bu_statistics:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_core_data:compileDebugJavaWithJavac UP-TO-DATE
+> Task :nga_phone_base_3.0:javaPreCompileDebug UP-TO-DATE
+> Task :nga_phone_base_3.0:preDebugUnitTestBuild UP-TO-DATE
+> Task :lib_bu_statistics:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_core_data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_core_data:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_base_service_api:testDebugUnitTest
+> Task :lib_base_service_api:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_network:packageDebugAssets UP-TO-DATE
+> Task :lib_base_logger:compileDebugUnitTestJavaWithJavac
+> Task :lib_bu_account:packageDebugAssets UP-TO-DATE
+> Task :lib_base_service_api:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_bu_message:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_base_service_api:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_bu_statistics:compileDebugUnitTestJavaWithJavac
+> Task :nga_phone_base_3.0:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :lib_base_service_api:processDebugManifest UP-TO-DATE
+> Task :nga_phone_base_3.0:preDebugAndroidTestBuild SKIPPED
+> Task :lib_module_debug:mergeDebugShaders UP-TO-DATE
+> Task :lib_core_data:compileDebugUnitTestJavaWithJavac
+> Task :lib_bu_statistics:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_module_debug:compileDebugShaders NO-SOURCE
+> Task :lib_module_debug:generateDebugAssets UP-TO-DATE
+> Task :lib_bu_statistics:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :nga_phone_base_3.0:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_bu_account:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_bu_message:mergeDebugShaders UP-TO-DATE
+> Task :lib_base_service_api:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_module_debug:packageDebugAssets UP-TO-DATE
+> Task :lib_bu_message:compileDebugShaders NO-SOURCE
+> Task :nga_phone_base_3.0:extractProguardFiles UP-TO-DATE
+> Task :lib_base_service_api:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_bu_message:generateDebugAssets UP-TO-DATE
+> Task :lib_bu_account:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_bu_account:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_service_api:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_core:compileDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_bu_account:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_bu_message:packageDebugAssets UP-TO-DATE
+> Task :lib_base_service_api:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_bu_account:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_module_debug:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_bu_message:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_module_debug:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_bu_account:extractProguardFiles UP-TO-DATE
+> Task :lib_core:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_core:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_bu_message:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_bu_message:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_core:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_module_debug:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_bu_message:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_core:compileDebugUnitTestKotlin NO-SOURCE
+> Task :lib_module_debug:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_module_debug:extractProguardFiles UP-TO-DATE
+> Task :lib_bu_message:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_bu_message:extractProguardFiles UP-TO-DATE
+> Task :lib_bu_statistics:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_logger:extractDebugAnnotations UP-TO-DATE
+> Task :lib_core_data:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_service_api:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_logger:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_base_service_api:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_core_data:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_logger:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_bu_statistics:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_base_service_api:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_core_data:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_bu_statistics:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_logger:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_base_service_api:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_bu_statistics:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_core_data:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_core_data:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_bu_statistics:mergeDebugShaders UP-TO-DATE
+> Task :lib_base_service_api:mergeDebugShaders UP-TO-DATE
+> Task :lib_base_ui:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_base_logger:mergeDebugShaders UP-TO-DATE
+> Task :lib_core_data:syncDebugLibJars UP-TO-DATE
+> Task :lib_base_service_api:compileDebugShaders NO-SOURCE
+> Task :lib_base_service_api:generateDebugAssets UP-TO-DATE
+> Task :lib_base_logger:compileDebugShaders NO-SOURCE
+> Task :lib_base_logger:generateDebugAssets UP-TO-DATE
+> Task :lib_base_network:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_ui:kaptDebugKotlin UP-TO-DATE
+> Task :lib_bu_statistics:compileDebugShaders NO-SOURCE
+> Task :lib_core_data:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_base_logger:packageDebugAssets UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugAssets UP-TO-DATE
+> Task :lib_core_data:createFullJarDebug UP-TO-DATE
+> Task :lib_base_logger:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_bu_statistics:packageDebugAssets UP-TO-DATE
+> Task :lib_core_data:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_base_network:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_bu_statistics:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_base_network:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_core_data:extractProguardFiles UP-TO-DATE
+> Task :lib_core_data:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_network:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_service_api:packageDebugAssets UP-TO-DATE
+> Task :lib_base_logger:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_base_ui_compose:compileDebugKotlin UP-TO-DATE
+> Task :lib_bu_statistics:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_core_data:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_base_service_api:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_base_network:compileDebugUnitTestKotlin NO-SOURCE
+> Task :lib_base_ui:compileDebugKotlin UP-TO-DATE
+> Task :lib_bu_statistics:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_base_service_api:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_base_logger:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_base_network:compileDebugUnitTestJavaWithJavac
+> Task :lib_base_ui_compose:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_ui_compose:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_base_network:processDebugJavaRes UP-TO-DATE
+> Task :lib_base_logger:syncDebugLibJars UP-TO-DATE
+> Task :lib_base_network:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_base_ui:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_base_service_api:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_base_ui_compose:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_logger:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_bu_statistics:syncDebugLibJars UP-TO-DATE
+> Task :lib_base_ui:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_base_ui:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_base_logger:createFullJarDebug UP-TO-DATE
+> Task :lib_base_logger:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_service_api:syncDebugLibJars UP-TO-DATE
+> Task :lib_base_logger:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_bu_statistics:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_base_logger:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_base_service_api:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_base_network:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_network:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_service_api:createFullJarDebug UP-TO-DATE
+> Task :lib_base_logger:extractProguardFiles UP-TO-DATE
+> Task :lib_base_network:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_base_service_api:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_network:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_bu_statistics:createFullJarDebug UP-TO-DATE
+> Task :lib_bu_statistics:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_service_api:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_base_network:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_base_network:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_base_service_api:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_base_network:syncDebugLibJars UP-TO-DATE
+> Task :lib_bu_statistics:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_bu_statistics:extractProguardFiles UP-TO-DATE
+> Task :lib_base_network:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_base_network:createFullJarDebug UP-TO-DATE
+> Task :lib_base_network:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_bu_account:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_base_network:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_base_network:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_base_network:extractProguardFiles UP-TO-DATE
+> Task :lib_module_debug:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_bu_message:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:kaptDebugKotlin UP-TO-DATE
+> Task :lib_bu_account:kaptDebugKotlin UP-TO-DATE
+> Task :lib_bu_message:kaptDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:compileDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_bu_account:compileDebugKotlin UP-TO-DATE
+> Task :lib_module_debug:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_module_debug:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_bu_message:compileDebugKotlin UP-TO-DATE
+> Task :lib_bu_message:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_bu_message:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_bu_account:compileDebugJavaWithJavac UP-TO-DATE
+> Task :lib_bu_account:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :lib_bu_message:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_bu_account:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :lib_core:compileDebugUnitTestJavaWithJavac UP-TO-DATE
+> Task :lib_base_common:compileDebugUnitTestJavaWithJavac UP-TO-DATE
+> Task :lib_base_common:processDebugJavaRes UP-TO-DATE
+> Task :lib_base_common:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_core:processDebugJavaRes UP-TO-DATE
+> Task :lib_core:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_core_data:testDebugUnitTest
+> Task :lib_base_logger:testDebugUnitTest
+> Task :lib_bu_statistics:testDebugUnitTest
+> Task :lib_base_network:testDebugUnitTest
+> Task :lib_base_service_api:generateDebugAndroidTestLintModel
+> Task :lib_base_service_api:extractProguardFiles UP-TO-DATE
+> Task :lib_base_service_api:generateDebugLintReportModel
+> Task :lib_base_service_api:generateDebugUnitTestLintModel
+> Task :lib_base_service_api:generateDebugLintModel
+> Task :lib_bu_message:processDebugJavaRes UP-TO-DATE
+> Task :lib_base_ui:processDebugJavaRes UP-TO-DATE
+> Task :lib_module_debug:processDebugJavaRes UP-TO-DATE
+> Task :lib_base_ui_compose:processDebugJavaRes UP-TO-DATE
+> Task :lib_bu_account:processDebugJavaRes UP-TO-DATE
+> Task :lib_base_ui:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_ui:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_base_ui_compose:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_ui_compose:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_base_ui_compose:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_ui:extractDebugAnnotations UP-TO-DATE
+> Task :lib_bu_account:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_ui_compose:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_base_ui:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_module_debug:extractDebugAnnotations UP-TO-DATE
+> Task :lib_bu_message:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_ui_compose:mergeDebugShaders UP-TO-DATE
+> Task :lib_bu_account:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_ui:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_ui_compose:compileDebugShaders NO-SOURCE
+> Task :lib_module_debug:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugAssets UP-TO-DATE
+> Task :lib_bu_message:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_ui:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_base_ui:mergeDebugShaders UP-TO-DATE
+> Task :lib_bu_account:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_base_ui_compose:packageDebugAssets UP-TO-DATE
+> Task :lib_bu_message:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_module_debug:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_bu_account:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_base_ui:compileDebugShaders NO-SOURCE
+> Task :lib_base_ui:generateDebugAssets UP-TO-DATE
+> Task :lib_bu_message:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_base_ui_compose:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_base_ui:packageDebugAssets UP-TO-DATE
+> Task :lib_base_ui_compose:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_bu_account:syncDebugLibJars UP-TO-DATE
+> Task :lib_bu_message:syncDebugLibJars UP-TO-DATE
+> Task :lib_module_debug:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_base_ui:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_base_ui_compose:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_bu_message:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_module_debug:syncDebugLibJars UP-TO-DATE
+> Task :lib_base_ui:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_bu_account:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_bu_message:createFullJarDebug UP-TO-DATE
+> Task :lib_base_ui_compose:syncDebugLibJars UP-TO-DATE
+> Task :lib_base_ui:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_bu_account:createFullJarDebug UP-TO-DATE
+> Task :lib_module_debug:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_base_ui:syncDebugLibJars UP-TO-DATE
+> Task :lib_module_debug:createFullJarDebug UP-TO-DATE
+> Task :lib_base_ui_compose:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_base_ui:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_base_ui_compose:createFullJarDebug UP-TO-DATE
+> Task :lib_base_ui_compose:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_ui:createFullJarDebug UP-TO-DATE
+> Task :lib_base_ui:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_base_ui:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_base_ui_compose:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_base_ui:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_base_ui_compose:extractProguardFiles UP-TO-DATE
+> Task :lib_base_ui:generateDebugAndroidTestLintModel
+> Task :lib_base_ui:extractProguardFiles UP-TO-DATE
+> Task :lib_base_ui:generateDebugLintReportModel
+> Task :lib_base_ui:generateDebugUnitTestLintModel
+> Task :lib_base_ui:generateDebugLintModel
+> Task :lib_core:testDebugUnitTest
+> Task :lib_core:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_base_common:testDebugUnitTest
+> Task :lib_base_common:compileDebugLibraryResources UP-TO-DATE
+> Task :lib_base_common:writeDebugAarMetadata UP-TO-DATE
+> Task :lib_base_common:extractDeepLinksDebug UP-TO-DATE
+> Task :lib_base_common:processDebugManifest UP-TO-DATE
+> Task :lib_core:extractDebugAnnotations UP-TO-DATE
+> Task :nga_phone_base_3.0:checkDebugAarMetadata UP-TO-DATE
+> Task :lib_core:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :lib_base_common:mergeDebugJniLibFolders UP-TO-DATE
+> Task :lib_base_common:mergeDebugNativeLibs NO-SOURCE
+> Task :lib_core:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :lib_base_common:stripDebugDebugSymbols NO-SOURCE
+> Task :lib_base_common:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :lib_core:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_core:mergeDebugShaders UP-TO-DATE
+> Task :lib_core:compileDebugShaders NO-SOURCE
+> Task :lib_core:generateDebugAssets UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugMainManifest UP-TO-DATE
+> Task :lib_base_common:extractDebugAnnotations UP-TO-DATE
+> Task :lib_base_common:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugManifest UP-TO-DATE
+> Task :lib_base_common:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugManifestForPackage UP-TO-DATE
+> Task :lib_base_common:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :lib_base_common:mergeDebugShaders UP-TO-DATE
+> Task :lib_base_common:compileDebugShaders NO-SOURCE
+> Task :lib_base_common:generateDebugAssets UP-TO-DATE
+> Task :lib_base_common:packageDebugAssets UP-TO-DATE
+> Task :lib_base_common:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_base_common:prepareLintJarForPublish UP-TO-DATE
+> Task :lib_base_common:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_base_common:syncDebugLibJars UP-TO-DATE
+> Task :lib_base_common:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_core:packageDebugAssets UP-TO-DATE
+> Task :lib_base_common:createFullJarDebug UP-TO-DATE
+> Task :lib_base_common:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_base_common:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_core:prepareDebugArtProfile UP-TO-DATE
+> Task :lib_base_common:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_core:prepareLintJarForPublish UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugResources UP-TO-DATE
+> Task :lib_base_network:generateDebugAndroidTestLintModel
+> Task :lib_core_data:generateDebugAndroidTestLintModel
+> Task :lib_base_logger:generateDebugAndroidTestLintModel
+> Task :lib_base_common:generateDebugAndroidTestLintModel
+> Task :lib_base_common:extractProguardFiles UP-TO-DATE
+> Task :nga_phone_base_3.0:kaptGenerateStubsDebugKotlin UP-TO-DATE
+> Task :lib_base_network:generateDebugUnitTestLintModel
+> Task :lib_core_data:generateDebugUnitTestLintModel
+> Task :lib_base_logger:generateDebugUnitTestLintModel
+> Task :lib_base_common:generateDebugLintReportModel
+> Task :lib_core:mergeDebugJavaResource UP-TO-DATE
+> Task :lib_core:syncDebugLibJars UP-TO-DATE
+> Task :lib_core:bundleDebugLocalLintAar UP-TO-DATE
+> Task :lib_bu_account:generateDebugAndroidTestLintModel
+> Task :lib_core:createFullJarDebug UP-TO-DATE
+> Task :lib_core:preDebugAndroidTestBuild UP-TO-DATE
+> Task :lib_core:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :lib_base_common:generateDebugUnitTestLintModel
+> Task :lib_bu_message:generateDebugAndroidTestLintModel
+> Task :lib_core:writeDebugLintModelMetadata UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugAndroidTestLintModel
+> Task :nga_phone_base_3.0:kaptDebugKotlin UP-TO-DATE
+> Task :lib_bu_statistics:generateDebugAndroidTestLintModel
+> Task :lib_base_common:generateDebugLintModel
+> Task :lib_bu_account:generateDebugUnitTestLintModel
+> Task :lib_core:generateDebugAndroidTestLintModel
+> Task :lib_core:extractProguardFiles UP-TO-DATE
+> Task :lib_base_ui_compose:generateDebugUnitTestLintModel
+> Task :lib_bu_statistics:generateDebugUnitTestLintModel
+> Task :lib_module_debug:generateDebugAndroidTestLintModel
+> Task :lib_bu_message:generateDebugUnitTestLintModel
+> Task :lib_base_logger:generateDebugLintReportModel
+> Task :lib_core_data:generateDebugLintModel
+> Task :lib_bu_statistics:generateDebugLintReportModel
+> Task :lib_core:generateDebugLintReportModel
+> Task :lib_base_ui_compose:generateDebugLintReportModel
+> Task :lib_base_logger:generateDebugLintModel
+> Task :lib_module_debug:generateDebugUnitTestLintModel
+> Task :lib_core_data:generateDebugLintReportModel
+> Task :lib_core:generateDebugUnitTestLintModel
+> Task :nga_phone_base_3.0:compileDebugKotlin UP-TO-DATE
+> Task :lib_base_network:generateDebugLintReportModel
+> Task :lib_bu_statistics:generateDebugLintModel
+> Task :lib_base_ui_compose:generateDebugLintModel
+> Task :lib_core:generateDebugLintModel
+> Task :lib_base_ui:kaptGenerateStubsDebugUnitTestKotlin
+> Task :lib_bu_account:kaptGenerateStubsDebugUnitTestKotlin
+> Task :lib_bu_message:kaptGenerateStubsDebugUnitTestKotlin
+> Task :lib_base_network:generateDebugLintModel
+> Task :nga_phone_base_3.0:compileDebugJavaWithJavac UP-TO-DATE
+> Task :nga_phone_base_3.0:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :nga_phone_base_3.0:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :lib_module_debug:generateDebugLintReportModel
+> Task :lib_bu_account:generateDebugLintReportModel
+> Task :lib_module_debug:generateDebugLintModel
+> Task :nga_phone_base_3.0:processDebugJavaRes UP-TO-DATE
+> Task :nga_phone_base_3.0:generateDebugAndroidTestLintModel UP-TO-DATE
+> Task :lib_bu_message:generateDebugLintReportModel
+> Task :lib_bu_account:generateDebugLintModel
+> Task :lib_bu_message:generateDebugLintModel
+> Task :nga_phone_base_3.0:generateDebugUnitTestLintModel
+> Task :nga_phone_base_3.0:generateDebugLintReportModel UP-TO-DATE
+> Task :lib_base_ui:kaptDebugUnitTestKotlin
+> Task :lib_bu_message:kaptDebugUnitTestKotlin
+> Task :lib_bu_account:kaptDebugUnitTestKotlin
+> Task :lib_base_ui:compileDebugUnitTestKotlin NO-SOURCE
+> Task :lib_bu_account:compileDebugUnitTestKotlin NO-SOURCE
+> Task :lib_base_ui:compileDebugUnitTestJavaWithJavac
+> Task :lib_bu_message:compileDebugUnitTestKotlin NO-SOURCE
+> Task :lib_base_ui:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_bu_account:compileDebugUnitTestJavaWithJavac
+> Task :lib_bu_account:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_bu_message:compileDebugUnitTestJavaWithJavac
+> Task :lib_bu_message:processDebugUnitTestJavaRes NO-SOURCE
+> Task :lib_base_ui:testDebugUnitTest
+> Task :lib_bu_account:testDebugUnitTest
+> Task :lib_bu_message:testDebugUnitTest
+> Task :lib_base_service_api:lintAnalyzeDebugUnitTest
+> Task :lib_base_service_api:lintAnalyzeDebugAndroidTest
+
+> Task :lib_module_debug:kaptGenerateStubsDebugUnitTestKotlin
+w: Kapt currently doesn't support language version 2.0+. Falling back to 1.9.
+
+> Task :lib_module_debug:kaptDebugUnitTestKotlin
+Note: ARouter::Compiler The user has configuration the module name, it was [lib_module_debug]
+Note: ARouter::Compiler >>> AutowiredProcessor init. <<<
+Note: ARouter::Compiler The user has configuration the module name, it was [lib_module_debug]
+Note: ARouter::Compiler >>> InterceptorProcessor init. <<<
+Note: ARouter::Compiler The user has configuration the module name, it was [lib_module_debug]
+Note: ARouter::Compiler >>> RouteProcessor init. <<<
+warning: The following options were not recognized by any processor: '[AROUTER_MODULE_NAME, kapt.kotlin.generated]'
+
+> Task :lib_module_debug:compileDebugUnitTestKotlin
+> Task :lib_module_debug:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :lib_module_debug:processDebugUnitTestJavaRes
+> Task :lib_module_debug:testDebugUnitTest
+
+> Task :nga_phone_base_3.0:kaptGenerateStubsDebugUnitTestKotlin
+w: Kapt currently doesn't support language version 2.0+. Falling back to 1.9.
+
+> Task :nga_phone_base_3.0:kaptDebugUnitTestKotlin
+Note: ARouter::Compiler The user has configuration the module name, it was [nga_phone_base_30]
+Note: ARouter::Compiler >>> AutowiredProcessor init. <<<
+Note: ARouter::Compiler The user has configuration the module name, it was [nga_phone_base_30]
+Note: ARouter::Compiler >>> InterceptorProcessor init. <<<
+Note: ARouter::Compiler The user has configuration the module name, it was [nga_phone_base_30]
+Note: ARouter::Compiler >>> RouteProcessor init. <<<
+warning: The following options were not recognized by any processor: '[AROUTER_MODULE_NAME, kapt.kotlin.generated]'
+
+> Task :lib_base_ui_compose:compileDebugUnitTestKotlin
+> Task :lib_base_ui_compose:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :lib_base_ui_compose:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :lib_base_logger:lintAnalyzeDebugAndroidTest
+> Task :lib_base_service_api:lintAnalyzeDebug
+> Task :lib_base_ui_compose:testDebugUnitTest
+> Task :lib_base_common:lintAnalyzeDebugAndroidTest
+> Task :nga_phone_base_3.0:compileDebugUnitTestKotlin
+> Task :lib_base_logger:lintAnalyzeDebugUnitTest
+> Task :lib_base_network:lintAnalyzeDebugAndroidTest
+> Task :nga_phone_base_3.0:compileDebugUnitTestJavaWithJavac UP-TO-DATE
+> Task :nga_phone_base_3.0:processDebugUnitTestJavaRes UP-TO-DATE
+
+> Task :lib_base_service_api:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_base_service_api/build/reports/lint-results-debug.html
+
+> Task :lib_base_service_api:lintDebug
+> Task :lib_base_network:lintAnalyzeDebugUnitTest
+> Task :lib_base_common:lintAnalyzeDebugUnitTest
+> Task :lib_base_ui:lintAnalyzeDebugAndroidTest
+> Task :lib_base_ui_compose:lintAnalyzeDebugAndroidTest
+> Task :lib_base_ui:lintAnalyzeDebugUnitTest
+> Task :lib_base_ui_compose:lintAnalyzeDebugUnitTest
+> Task :lib_bu_account:lintAnalyzeDebugAndroidTest
+> Task :lib_bu_message:lintAnalyzeDebugAndroidTest
+> Task :lib_base_ui:lintAnalyzeDebug
+> Task :lib_bu_account:lintAnalyzeDebugUnitTest
+
+> Task :lib_base_ui:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_base_ui/build/reports/lint-results-debug.html
+
+> Task :lib_base_ui:lintDebug
+> Task :lib_bu_message:lintAnalyzeDebugUnitTest
+> Task :lib_core_data:lintAnalyzeDebugAndroidTest
+> Task :lib_core_data:lintAnalyzeDebugUnitTest
+> Task :lib_base_common:lintAnalyzeDebug
+> Task :lib_bu_statistics:lintAnalyzeDebugAndroidTest
+> Task :lib_core:lintAnalyzeDebugAndroidTest
+> Task :lib_core:lintAnalyzeDebugUnitTest
+
+> Task :lib_base_common:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_base_common/build/reports/lint-results-debug.html
+
+> Task :lib_base_common:lintDebug
+> Task :lib_core_data:lintAnalyzeDebug
+> Task :lib_base_logger:lintAnalyzeDebug
+> Task :lib_bu_statistics:lintAnalyzeDebugUnitTest
+
+> Task :lib_base_logger:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_base_logger/build/reports/lint-results-debug.html
+
+> Task :lib_base_logger:lintDebug
+> Task :lib_bu_statistics:lintAnalyzeDebug
+> Task :lib_base_network:lintAnalyzeDebug
+
+> Task :lib_bu_statistics:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_bu_statistics/build/reports/lint-results-debug.html
+
+> Task :lib_bu_statistics:lintDebug
+
+> Task :lib_base_network:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_base_network/build/reports/lint-results-debug.html
+
+> Task :lib_base_network:lintDebug
+> Task :lib_core_data:lintReportDebug
+> Task :lib_core_data:lintDebug
+> Task :lib_module_debug:lintAnalyzeDebugAndroidTest
+> Task :lib_module_debug:lintAnalyzeDebugUnitTest
+> Task :lib_core:lintAnalyzeDebug
+
+> Task :lib_core:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_core/build/reports/lint-results-debug.html
+
+> Task :lib_core:lintDebug
+> Task :lib_base_ui_compose:lintAnalyzeDebug
+> Task :lib_module_debug:lintAnalyzeDebug
+
+> Task :lib_base_ui_compose:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_base_ui_compose/build/reports/lint-results-debug.html
+
+> Task :lib_base_ui_compose:lintDebug
+> Task :nga_phone_base_3.0:testDebugUnitTest
+
+> Task :lib_module_debug:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_module_debug/build/reports/lint-results-debug.html
+
+> Task :lib_module_debug:lintDebug
+> Task :lib_bu_account:lintAnalyzeDebug
+
+> Task :lib_bu_account:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_bu_account/build/reports/lint-results-debug.html
+
+> Task :lib_bu_account:lintDebug
+> Task :lib_bu_message:lintAnalyzeDebug
+
+> Task :lib_bu_message:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/lib_bu_message/build/reports/lint-results-debug.html
+
+> Task :lib_bu_message:lintDebug
+> Task :nga_phone_base_3.0:lintAnalyzeDebugAndroidTest UP-TO-DATE
+
+> Task :nga_phone_base_3.0:lintAnalyzeDebug
+butterknife.lint.LintRegistry in /home/toph/.gradle/caches/transforms-4/e2aa2b81da5b217932c1644f3ed9eab1/transformed/jetified-butterknife-runtime-10.2.1/jars/lint.jar does not specify a vendor; see IssueRegistry#vendor
+
+> Task :nga_phone_base_3.0:lintAnalyzeDebugUnitTest
+
+> Task :nga_phone_base_3.0:lintReportDebug
+Wrote HTML report to file:///home/toph/nga-just-works/nga_phone_base_3.0/build/reports/lint-results-debug.html
+
+> Task :nga_phone_base_3.0:lintDebug
+
+BUILD SUCCESSFUL in 1m 49s
+603 actionable tasks: 148 executed, 455 up-to-date

@@ -1,0 +1,1703 @@
+[
+  {
+    "suite": "jvm",
+    "sample": 1,
+    "wall_seconds": 20.204617720000897,
+    "exit_code": 0,
+    "command": [
+      "./gradlew",
+      "testDebugUnitTest",
+      "--console=plain",
+      "-I",
+      "/tmp/simplify-tests-force.gradle"
+    ],
+    "suites": [
+      {
+        "name": "gov.anzong.androidnga.common.util.EmoticonUtilsContractTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.012
+      },
+      {
+        "name": "gov.anzong.androidnga.common.util.NgaImageHostContractTest",
+        "tests": 30,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.075
+      },
+      {
+        "name": "gov.anzong.androidnga.common.util.EmoticonOrderResolverTest",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.016
+      },
+      {
+        "name": "com.justwen.androidnga.ui.compose.widget.TabLayoutWithPagerContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.038
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.HomeBoardOrderContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.016
+      },
+      {
+        "name": "sp.phone.util.FunctionUtilsAvatarTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.mvp.viewmodel.ArticleLaunchTargetTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.007
+      },
+      {
+        "name": "sp.phone.view.LoadingTipSelectorTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.view.LoadingTipCatalogTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.007
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationRepositoryTest",
+        "tests": 39,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.036
+      },
+      {
+        "name": "sp.phone.ai.AiSummaryClientTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 4.451
+      },
+      {
+        "name": "sp.phone.ai.summary.ProfileRequestQueueTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.ai.AiConfigRecordTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.034
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.ForumBoardBookmarkPersistenceTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.095
+      },
+      {
+        "name": "sp.phone.profile.ProfileLocationParserTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "sp.phone.ai.AiStreamParserTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.084
+      },
+      {
+        "name": "sp.phone.ai.summary.AiSummaryUiContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "sp.phone.util.LegacyEmoticonTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.209
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticlePageCacheTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiModelEditorStateTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.param.ArticleLinkParserTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiSettingsContractTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      },
+      {
+        "name": "sp.phone.mvp.model.convert.PageAttachmentPrefixFlowTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "sp.phone.ui.fragment.ArticleAuthorLocationContractTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationPageTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.016
+      },
+      {
+        "name": "sp.phone.view.LoadingTipStateTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiProfilePromptEditorStateTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ui.fragment.ArticlePageRefreshContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "sp.phone.ai.summary.NgaProfilePageSourceTest",
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 1.774
+      },
+      {
+        "name": "sp.phone.param.ArticleLinkEntryContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.032
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.HomeBoardOrderTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleCacheStoreTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.512
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationStoreTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.119
+      },
+      {
+        "name": "gov.anzong.androidnga.ReleaseWorkflowContractTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.044
+      },
+      {
+        "name": "sp.phone.ai.AiConfigTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "sp.phone.ui.adapter.ArticleBodyViewsTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.007
+      },
+      {
+        "name": "sp.phone.ai.summary.SummaryInputTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.018
+      },
+      {
+        "name": "sp.phone.view.webview.ArticleSelectionActionModeContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.AppArticleParserTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.055
+      },
+      {
+        "name": "sp.phone.view.editor.InlineEmoticonSizeTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.common.DefaultSettingsContractTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.017
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticlePageRequestStateTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.profile.ProfileLocationTransportTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.02
+      },
+      {
+        "name": "sp.phone.ai.summary.ProfileSummaryLoaderTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "sp.phone.mvp.viewmodel.ArticlePagePrefetchPlannerTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleErrorsTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.drawer.NavigationDrawerGestureTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.116
+      },
+      {
+        "name": "sp.phone.ai.AiResponseParserTest",
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.022
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleReaderSessionTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      },
+      {
+        "name": "sp.phone.common.VersionUpgradeHelperMigrationTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticleOwnedPageCacheTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.view.editor.InlineMediaLoadQueueTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.NormalArticleParserTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.035
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ReplySearchNavigationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      },
+      {
+        "name": "sp.phone.mvp.model.convert.ArticleConvertFactoryTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ai.AiConfigStoreTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.024
+      },
+      {
+        "name": "sp.phone.profile.ProfileSessionTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.filter.FilterWordModelTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      },
+      {
+        "name": "sp.phone.ai.summary.SummaryControllerTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "sp.phone.ai.AiModelsClientTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 7.879
+      },
+      {
+        "name": "sp.phone.view.webview.ArticleSelectionTextTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleRowPresentationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.view.editor.InlineMediaSourceTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ai.AiProfilePromptTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleByteClientTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.356
+      },
+      {
+        "name": "gov.anzong.androidnga.core.corebuild.HtmlCommentBuilderTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "gov.anzong.androidnga.core.decode.ForumEmoticonDecoderTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.02
+      }
+    ],
+    "test_seconds": 16.288999999999998,
+    "tests": 618
+  },
+  {
+    "suite": "jvm",
+    "sample": 2,
+    "wall_seconds": 19.392394835000232,
+    "exit_code": 0,
+    "command": [
+      "./gradlew",
+      "testDebugUnitTest",
+      "--console=plain",
+      "-I",
+      "/tmp/simplify-tests-force.gradle"
+    ],
+    "suites": [
+      {
+        "name": "gov.anzong.androidnga.common.util.EmoticonUtilsContractTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "gov.anzong.androidnga.common.util.NgaImageHostContractTest",
+        "tests": 30,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.061
+      },
+      {
+        "name": "gov.anzong.androidnga.common.util.EmoticonOrderResolverTest",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      },
+      {
+        "name": "com.justwen.androidnga.ui.compose.widget.TabLayoutWithPagerContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.026
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.HomeBoardOrderContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.014
+      },
+      {
+        "name": "sp.phone.util.FunctionUtilsAvatarTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.mvp.viewmodel.ArticleLaunchTargetTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.view.LoadingTipSelectorTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.view.LoadingTipCatalogTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationRepositoryTest",
+        "tests": 39,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.038
+      },
+      {
+        "name": "sp.phone.ai.AiSummaryClientTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 4.447
+      },
+      {
+        "name": "sp.phone.ai.summary.ProfileRequestQueueTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ai.AiConfigRecordTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.03
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.ForumBoardBookmarkPersistenceTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.072
+      },
+      {
+        "name": "sp.phone.profile.ProfileLocationParserTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.006
+      },
+      {
+        "name": "sp.phone.ai.AiStreamParserTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.086
+      },
+      {
+        "name": "sp.phone.ai.summary.AiSummaryUiContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "sp.phone.util.LegacyEmoticonTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.202
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticlePageCacheTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiModelEditorStateTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.param.ArticleLinkParserTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiSettingsContractTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "sp.phone.mvp.model.convert.PageAttachmentPrefixFlowTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "sp.phone.ui.fragment.ArticleAuthorLocationContractTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationPageTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.014
+      },
+      {
+        "name": "sp.phone.view.LoadingTipStateTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiProfilePromptEditorStateTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ui.fragment.ArticlePageRefreshContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "sp.phone.ai.summary.NgaProfilePageSourceTest",
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 1.786
+      },
+      {
+        "name": "sp.phone.param.ArticleLinkEntryContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.028
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.HomeBoardOrderTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.006
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleCacheStoreTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.47
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationStoreTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.098
+      },
+      {
+        "name": "gov.anzong.androidnga.ReleaseWorkflowContractTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.035
+      },
+      {
+        "name": "sp.phone.ai.AiConfigTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.007
+      },
+      {
+        "name": "sp.phone.ui.adapter.ArticleBodyViewsTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.ai.summary.SummaryInputTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.013
+      },
+      {
+        "name": "sp.phone.view.webview.ArticleSelectionActionModeContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.AppArticleParserTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.04
+      },
+      {
+        "name": "sp.phone.view.editor.InlineEmoticonSizeTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.common.DefaultSettingsContractTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.018
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticlePageRequestStateTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.profile.ProfileLocationTransportTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.019
+      },
+      {
+        "name": "sp.phone.ai.summary.ProfileSummaryLoaderTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.007
+      },
+      {
+        "name": "sp.phone.mvp.viewmodel.ArticlePagePrefetchPlannerTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleErrorsTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.007
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.drawer.NavigationDrawerGestureTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.087
+      },
+      {
+        "name": "sp.phone.ai.AiResponseParserTest",
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.028
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleReaderSessionTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.01
+      },
+      {
+        "name": "sp.phone.common.VersionUpgradeHelperMigrationTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticleOwnedPageCacheTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.view.editor.InlineMediaLoadQueueTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.NormalArticleParserTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.031
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ReplySearchNavigationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "sp.phone.mvp.model.convert.ArticleConvertFactoryTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.ai.AiConfigStoreTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.021
+      },
+      {
+        "name": "sp.phone.profile.ProfileSessionTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.filter.FilterWordModelTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "sp.phone.ai.summary.SummaryControllerTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "sp.phone.ai.AiModelsClientTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 7.862
+      },
+      {
+        "name": "sp.phone.view.webview.ArticleSelectionTextTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleRowPresentationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.view.editor.InlineMediaSourceTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.ai.AiProfilePromptTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleByteClientTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.289
+      },
+      {
+        "name": "gov.anzong.androidnga.core.corebuild.HtmlCommentBuilderTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "gov.anzong.androidnga.core.decode.ForumEmoticonDecoderTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      }
+    ],
+    "test_seconds": 15.98,
+    "tests": 618
+  },
+  {
+    "suite": "jvm",
+    "sample": 3,
+    "wall_seconds": 19.441580331000296,
+    "exit_code": 0,
+    "command": [
+      "./gradlew",
+      "testDebugUnitTest",
+      "--console=plain",
+      "-I",
+      "/tmp/simplify-tests-force.gradle"
+    ],
+    "suites": [
+      {
+        "name": "gov.anzong.androidnga.common.util.EmoticonUtilsContractTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "gov.anzong.androidnga.common.util.NgaImageHostContractTest",
+        "tests": 30,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.061
+      },
+      {
+        "name": "gov.anzong.androidnga.common.util.EmoticonOrderResolverTest",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      },
+      {
+        "name": "com.justwen.androidnga.ui.compose.widget.TabLayoutWithPagerContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.028
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.HomeBoardOrderContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.016
+      },
+      {
+        "name": "sp.phone.util.FunctionUtilsAvatarTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.viewmodel.ArticleLaunchTargetTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.006
+      },
+      {
+        "name": "sp.phone.view.LoadingTipSelectorTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.view.LoadingTipCatalogTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationRepositoryTest",
+        "tests": 39,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.037
+      },
+      {
+        "name": "sp.phone.ai.AiSummaryClientTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 6.267
+      },
+      {
+        "name": "sp.phone.ai.summary.ProfileRequestQueueTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "sp.phone.ai.AiConfigRecordTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.033
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.ForumBoardBookmarkPersistenceTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.077
+      },
+      {
+        "name": "sp.phone.profile.ProfileLocationParserTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.ai.AiStreamParserTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.083
+      },
+      {
+        "name": "sp.phone.ai.summary.AiSummaryUiContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "sp.phone.util.LegacyEmoticonTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.191
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticlePageCacheTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiModelEditorStateTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.param.ArticleLinkParserTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiSettingsContractTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "sp.phone.mvp.model.convert.PageAttachmentPrefixFlowTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "sp.phone.ui.fragment.ArticleAuthorLocationContractTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationPageTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.013
+      },
+      {
+        "name": "sp.phone.view.LoadingTipStateTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "sp.phone.ui.fragment.AiProfilePromptEditorStateTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ui.fragment.ArticlePageRefreshContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.004
+      },
+      {
+        "name": "sp.phone.ai.summary.NgaProfilePageSourceTest",
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 1.782
+      },
+      {
+        "name": "sp.phone.param.ArticleLinkEntryContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.032
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.board.HomeBoardOrderTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.007
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleCacheStoreTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.48
+      },
+      {
+        "name": "sp.phone.profile.AuthorLocationStoreTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.098
+      },
+      {
+        "name": "gov.anzong.androidnga.ReleaseWorkflowContractTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.036
+      },
+      {
+        "name": "sp.phone.ai.AiConfigTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "sp.phone.ui.adapter.ArticleBodyViewsTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.005
+      },
+      {
+        "name": "sp.phone.ai.summary.SummaryInputTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.02
+      },
+      {
+        "name": "sp.phone.view.webview.ArticleSelectionActionModeContractTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.AppArticleParserTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.044
+      },
+      {
+        "name": "sp.phone.view.editor.InlineEmoticonSizeTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.common.DefaultSettingsContractTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.02
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticlePageRequestStateTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.profile.ProfileLocationTransportTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.016
+      },
+      {
+        "name": "sp.phone.ai.summary.ProfileSummaryLoaderTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "sp.phone.mvp.viewmodel.ArticlePagePrefetchPlannerTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleErrorsTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.drawer.NavigationDrawerGestureTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.093
+      },
+      {
+        "name": "sp.phone.ai.AiResponseParserTest",
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.023
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleReaderSessionTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.01
+      },
+      {
+        "name": "sp.phone.common.VersionUpgradeHelperMigrationTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.mvp.presenter.ArticleOwnedPageCacheTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "sp.phone.view.editor.InlineMediaLoadQueueTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.002
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.NormalArticleParserTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.031
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ReplySearchNavigationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.01
+      },
+      {
+        "name": "sp.phone.mvp.model.convert.ArticleConvertFactoryTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.ai.AiConfigStoreTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.029
+      },
+      {
+        "name": "sp.phone.profile.ProfileSessionTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "gov.anzong.androidnga.activity.compose.filter.FilterWordModelTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.009
+      },
+      {
+        "name": "sp.phone.ai.summary.SummaryControllerTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.008
+      },
+      {
+        "name": "sp.phone.ai.AiModelsClientTest",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 7.882
+      },
+      {
+        "name": "sp.phone.view.webview.ArticleSelectionTextTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.0
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleRowPresentationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.view.editor.InlineMediaSourceTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.ai.AiProfilePromptTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.001
+      },
+      {
+        "name": "sp.phone.mvp.model.thread.ArticleByteClientTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.318
+      },
+      {
+        "name": "gov.anzong.androidnga.core.corebuild.HtmlCommentBuilderTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.003
+      },
+      {
+        "name": "gov.anzong.androidnga.core.decode.ForumEmoticonDecoderTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "seconds": 0.011
+      }
+    ],
+    "test_seconds": 17.887,
+    "tests": 618
+  },
+  {
+    "suite": "python",
+    "sample": 1,
+    "wall_seconds": 24.911519004001093,
+    "exit_code": 0,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts"
+    ]
+  },
+  {
+    "suite": "python",
+    "sample": 2,
+    "wall_seconds": 23.669642786999248,
+    "exit_code": 0,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts"
+    ]
+  },
+  {
+    "suite": "python",
+    "sample": 3,
+    "wall_seconds": 24.272730923999916,
+    "exit_code": 0,
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts"
+    ]
+  }
+]

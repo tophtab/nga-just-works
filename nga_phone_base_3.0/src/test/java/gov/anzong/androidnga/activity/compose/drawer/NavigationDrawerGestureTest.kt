@@ -5,8 +5,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.unit.LayoutDirection
-import com.justwen.androidnga.ui.compose.widget.TopAppBarData
-import com.justwen.androidnga.ui.compose.widget.TopAppBarNavigationIcon
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -16,15 +14,6 @@ import kotlinx.coroutines.runBlocking
 class NavigationDrawerGestureTest {
 
     private val pagerBounds = Rect(left = 0f, top = 100f, right = 300f, bottom = 600f)
-
-    @Test
-    fun sharedTopAppBarDefaultsToBackAndHomeMenuDescribesDrawer() {
-        assertEquals(
-            TopAppBarNavigationIcon.Back,
-            TopAppBarData(title = "子页").navigationIcon,
-        )
-        assertEquals("打开侧边栏", TopAppBarNavigationIcon.Menu.contentDescription)
-    }
 
     @Test
     fun openingCanStartAnywhereInsideSettledFavoritePager() {
@@ -123,23 +112,6 @@ class NavigationDrawerGestureTest {
     }
 
     @Test
-    fun anchorsThresholdAndFirstAccumulatedDeltaUseDrawerWidth() {
-        assertEquals(-280f, homeDrawerClosedAnchor(280f), 0f)
-        assertEquals(140f, homeDrawerPositionalThreshold(280f), 0f)
-        assertEquals(
-            -230f,
-            homeDrawerOffsetAfterDelta(
-                offset = homeDrawerClosedAnchor(280f),
-                delta = 50f,
-                minimum = -280f,
-                maximum = 0f,
-            ),
-            0f,
-        )
-        assertEquals(400f, HomeDrawerVelocityThresholdDp, 0f)
-    }
-
-    @Test
     fun fastFlingPicksAnchorByDirectionRegardlessOfHowFarTheSheetTravelled() {
         // 只越过 10px 就快速右甩，仍然开；已经拉开九成再快速左甩，仍然关。
         assertEquals(
@@ -149,18 +121,6 @@ class NavigationDrawerGestureTest {
         assertEquals(
             HomeDrawerValue.Closed,
             settleTarget(offset = -28f, currentValue = HomeDrawerValue.Open, velocity = -3200f),
-        )
-    }
-
-    @Test
-    fun fastFlingTowardsTheAlreadySettledSideStaysPut() {
-        assertEquals(
-            HomeDrawerValue.Closed,
-            settleTarget(offset = -270f, velocity = -3200f),
-        )
-        assertEquals(
-            HomeDrawerValue.Open,
-            settleTarget(offset = -28f, currentValue = HomeDrawerValue.Open, velocity = 3200f),
         )
     }
 

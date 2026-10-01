@@ -1,24 +1,10 @@
 package gov.anzong.androidnga.activity.compose.filter
 
 import org.junit.Test
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 
 class FilterWordModelTest {
 
-
-    @Test
-    fun testUpdateFilterList() {
-        val data = "1%0D%0A%B2%E2%CA%D41+%B2%E2%CA%D42%0D%0A"
-        val data1 ="1\r\n" +
-                "测试1 测试2\r\n"
-        val result1 = URLEncoder.encode(data1, "gbk")
-        val result = URLDecoder.decode(data,"gbk")
-        println(result)
-        println(result1)
-        assert(result1.equals(data))
-    }
 
     @Test
     fun testConvertEntity() {

@@ -1,0 +1,404 @@
+[
+  {
+    "path": "scripts/test_derive_android_version_code.py",
+    "methods": 6,
+    "lines": 75,
+    "bytes": 2905
+  },
+  {
+    "path": "scripts/test_validate_release_notes.py",
+    "methods": 3,
+    "lines": 77,
+    "bytes": 2657
+  },
+  {
+    "path": "scripts/test_release_workflow.py",
+    "methods": 23,
+    "lines": 796,
+    "bytes": 40723
+  },
+  {
+    "path": "lib_base_common/src/test/java/gov/anzong/androidnga/common/util/EmoticonOrderResolverTest.java",
+    "methods": 10,
+    "lines": 91,
+    "bytes": 3274
+  },
+  {
+    "path": "lib_base_common/src/test/java/gov/anzong/androidnga/common/util/NgaImageHostContractTest.java",
+    "methods": 15,
+    "lines": 192,
+    "bytes": 9116
+  },
+  {
+    "path": "lib_base_common/src/test/java/gov/anzong/androidnga/common/util/EmoticonUtilsContractTest.java",
+    "methods": 2,
+    "lines": 58,
+    "bytes": 2592
+  },
+  {
+    "path": "lib_base_ui_compose/src/test/java/com/justwen/androidnga/ui/compose/widget/TabLayoutWithPagerContractTest.kt",
+    "methods": 1,
+    "lines": 73,
+    "bytes": 2472
+  },
+  {
+    "path": "nga_phone_base_3.0/src/androidTest/java/sp/phone/ai/AiConfigStoreInstrumentedTest.java",
+    "methods": 3,
+    "lines": 85,
+    "bytes": 3496
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/LoadingTipSelectorTest.java",
+    "methods": 4,
+    "lines": 58,
+    "bytes": 2025
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/LoadingTipStateTest.java",
+    "methods": 7,
+    "lines": 110,
+    "bytes": 4669
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/LoadingTipCatalogTest.java",
+    "methods": 4,
+    "lines": 103,
+    "bytes": 4287
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/util/LegacyEmoticonTest.java",
+    "methods": 2,
+    "lines": 32,
+    "bytes": 1498
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/util/FunctionUtilsAvatarTest.java",
+    "methods": 3,
+    "lines": 37,
+    "bytes": 1518
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/param/ArticleLinkEntryContractTest.kt",
+    "methods": 1,
+    "lines": 35,
+    "bytes": 1738
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/param/ArticleLinkParserTest.java",
+    "methods": 5,
+    "lines": 70,
+    "bytes": 3597
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiModelsClientTest.java",
+    "methods": 20,
+    "lines": 536,
+    "bytes": 24183
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiConfigStoreTest.java",
+    "methods": 10,
+    "lines": 252,
+    "bytes": 10118
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiProfilePromptTest.java",
+    "methods": 2,
+    "lines": 37,
+    "bytes": 1803
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiSummaryClientTest.java",
+    "methods": 20,
+    "lines": 550,
+    "bytes": 25274
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiConfigRecordTest.java",
+    "methods": 6,
+    "lines": 143,
+    "bytes": 6746
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiConfigTest.java",
+    "methods": 5,
+    "lines": 75,
+    "bytes": 4036
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiResponseParserTest.java",
+    "methods": 12,
+    "lines": 180,
+    "bytes": 9878
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/AiStreamParserTest.java",
+    "methods": 17,
+    "lines": 319,
+    "bytes": 15629
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/common/VersionUpgradeHelperMigrationTest.java",
+    "methods": 4,
+    "lines": 34,
+    "bytes": 1276
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationParserTest.java",
+    "methods": 14,
+    "lines": 197,
+    "bytes": 10867
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationPageTest.java",
+    "methods": 15,
+    "lines": 446,
+    "bytes": 17780
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileLocationTransportTest.java",
+    "methods": 10,
+    "lines": 273,
+    "bytes": 14355
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationStoreTest.java",
+    "methods": 8,
+    "lines": 185,
+    "bytes": 9749
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/ProfileSessionTest.java",
+    "methods": 3,
+    "lines": 57,
+    "bytes": 2696
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/profile/AuthorLocationRepositoryTest.java",
+    "methods": 25,
+    "lines": 710,
+    "bytes": 31553
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/presenter/ArticlePageCacheTest.java",
+    "methods": 12,
+    "lines": 257,
+    "bytes": 10037
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/presenter/ArticlePageRequestStateTest.java",
+    "methods": 7,
+    "lines": 124,
+    "bytes": 5477
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/presenter/ArticleOwnedPageCacheTest.kt",
+    "methods": 3,
+    "lines": 60,
+    "bytes": 3163
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/viewmodel/ArticleLaunchTargetTest.kt",
+    "methods": 3,
+    "lines": 70,
+    "bytes": 3100
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/viewmodel/ArticlePagePrefetchPlannerTest.java",
+    "methods": 3,
+    "lines": 36,
+    "bytes": 1379
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/convert/ArticleConvertFactoryTest.java",
+    "methods": 2,
+    "lines": 58,
+    "bytes": 2063
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/convert/PageAttachmentPrefixFlowTest.java",
+    "methods": 2,
+    "lines": 71,
+    "bytes": 2977
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ReplySearchNavigationTest.kt",
+    "methods": 3,
+    "lines": 78,
+    "bytes": 3837
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleCacheStoreTest.kt",
+    "methods": 8,
+    "lines": 214,
+    "bytes": 12583
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleErrorsTest.kt",
+    "methods": 7,
+    "lines": 114,
+    "bytes": 5797
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleRowPresentationTest.kt",
+    "methods": 3,
+    "lines": 53,
+    "bytes": 2443
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleByteClientTest.kt",
+    "methods": 11,
+    "lines": 316,
+    "bytes": 14965
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/NormalArticleParserTest.kt",
+    "methods": 6,
+    "lines": 145,
+    "bytes": 8472
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/AppArticleParserTest.kt",
+    "methods": 8,
+    "lines": 153,
+    "bytes": 7829
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/thread/ArticleReaderSessionTest.kt",
+    "methods": 11,
+    "lines": 231,
+    "bytes": 13657
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/editor/InlineMediaLoadQueueTest.java",
+    "methods": 2,
+    "lines": 47,
+    "bytes": 1970
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/editor/InlineEmoticonSizeTest.java",
+    "methods": 3,
+    "lines": 28,
+    "bytes": 1219
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/editor/InlineMediaSourceTest.java",
+    "methods": 5,
+    "lines": 88,
+    "bytes": 5333
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/webview/ArticleSelectionTextTest.java",
+    "methods": 6,
+    "lines": 60,
+    "bytes": 2692
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/view/webview/ArticleSelectionActionModeContractTest.kt",
+    "methods": 1,
+    "lines": 25,
+    "bytes": 921
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/SummaryControllerTest.java",
+    "methods": 19,
+    "lines": 515,
+    "bytes": 23204
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/NgaProfilePageSourceTest.java",
+    "methods": 25,
+    "lines": 899,
+    "bytes": 42661
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/ProfileRequestQueueTest.java",
+    "methods": 4,
+    "lines": 144,
+    "bytes": 5075
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/SummaryInputTest.java",
+    "methods": 9,
+    "lines": 249,
+    "bytes": 12101
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ai/summary/ProfileSummaryLoaderTest.java",
+    "methods": 11,
+    "lines": 307,
+    "bytes": 12640
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/adapter/ArticleBodyViewsTest.java",
+    "methods": 21,
+    "lines": 489,
+    "bytes": 18097
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiModelEditorStateTest.java",
+    "methods": 11,
+    "lines": 175,
+    "bytes": 7021
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/ArticleAuthorLocationContractTest.kt",
+    "methods": 2,
+    "lines": 67,
+    "bytes": 4060
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiProfilePromptEditorStateTest.java",
+    "methods": 3,
+    "lines": 79,
+    "bytes": 3453
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiSettingsContractTest.java",
+    "methods": 1,
+    "lines": 71,
+    "bytes": 3225
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/ReleaseWorkflowContractTest.kt",
+    "methods": 4,
+    "lines": 139,
+    "bytes": 7438
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/board/ForumBoardBookmarkPersistenceTest.kt",
+    "methods": 9,
+    "lines": 144,
+    "bytes": 5129
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/board/HomeBoardOrderTest.kt",
+    "methods": 5,
+    "lines": 70,
+    "bytes": 2505
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModelTest.kt",
+    "methods": 1,
+    "lines": 35,
+    "bytes": 1304
+  },
+  {
+    "path": "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/drawer/NavigationDrawerGestureTest.kt",
+    "methods": 12,
+    "lines": 257,
+    "bytes": 8741
+  },
+  {
+    "path": "lib_core/src/test/java/gov/anzong/androidnga/core/decode/ForumEmoticonDecoderTest.java",
+    "methods": 2,
+    "lines": 26,
+    "bytes": 1342
+  },
+  {
+    "path": "lib_core/src/test/java/gov/anzong/androidnga/core/corebuild/HtmlCommentBuilderTest.java",
+    "methods": 2,
+    "lines": 23,
+    "bytes": 1180
+  }
+]

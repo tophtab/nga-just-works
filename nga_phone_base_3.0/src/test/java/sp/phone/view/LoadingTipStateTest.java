@@ -37,17 +37,6 @@ public class LoadingTipStateTest {
     }
 
     @Test
-    public void enteringAnUnfinishedPrefetchSelectsOnce() {
-        LoadingTipState state = new LoadingTipState();
-        AtomicInteger selections = new AtomicInteger();
-
-        assertEquals(0, state.update(true, false, true, selections::incrementAndGet));
-        assertEquals(1, state.update(true, true, true, selections::incrementAndGet));
-        assertEquals(1, state.update(true, true, true, selections::incrementAndGet));
-        assertEquals(1, selections.get());
-    }
-
-    @Test
     public void pausingAndAncestorHidingPreserveTheUnfinishedOccasion() {
         LoadingTipState state = new LoadingTipState();
         AtomicInteger selections = new AtomicInteger();
@@ -74,18 +63,6 @@ public class LoadingTipStateTest {
         assertEquals(1, selections.get());
         assertEquals(102, state.update(true, true, true, choose));
         assertEquals(2, selections.get());
-    }
-
-    @Test
-    public void aCompletedLoaderStaysEmptyDuringContentRefreshCallbacks() {
-        LoadingTipState state = new LoadingTipState();
-        AtomicInteger selections = new AtomicInteger();
-
-        assertEquals(1, state.update(true, true, true, selections::incrementAndGet));
-        for (int i = 0; i < 5; i++) {
-            assertEquals(0, state.update(false, true, true, selections::incrementAndGet));
-        }
-        assertEquals(1, selections.get());
     }
 
     @Test

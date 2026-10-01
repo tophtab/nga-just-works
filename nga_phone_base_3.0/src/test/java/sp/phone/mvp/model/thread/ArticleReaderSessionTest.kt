@@ -213,7 +213,7 @@ class ArticleReaderSessionTest {
         val old = ArticleAnchor(session.state().generation, 7, 50120, 120)
         session.setAnchor(old)
         val policy = ArticleAttemptPolicy()
-        for (size in listOf(10, 30, 40)) {
+        for (size in listOf(10, 40)) {
             val first = page(ArticleSource.APP_API, size, 7, 6 * size)
             assertEquals(120 / size + 1, ArticleNavigation.alignmentPage(old, first))
         }

@@ -1,0 +1,1 @@
+allprojects { tasks.matching { it.name.startsWith('lint') }.configureEach { outputs.upToDateWhen { false }; outputs.cacheIf { false } } }
