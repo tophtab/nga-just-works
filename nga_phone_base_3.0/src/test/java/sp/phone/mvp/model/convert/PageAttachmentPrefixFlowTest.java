@@ -17,6 +17,7 @@ import gov.anzong.androidnga.core.data.AttachmentData;
 import gov.anzong.androidnga.core.data.HtmlData;
 import gov.anzong.androidnga.common.util.NgaImageHost;
 import gov.anzong.androidnga.core.decode.ForumImageDecoder;
+import gov.anzong.androidnga.core.decode.ForumBasicDecoder;
 
 public class PageAttachmentPrefixFlowTest {
 
@@ -82,6 +83,28 @@ public class PageAttachmentPrefixFlowTest {
         String attachmentHtml = new HtmlAttachmentBuilder().build(htmlData, images).toString();
         assertTrue(attachmentHtml.contains(attachmentsPrefix + "/mon_test/attachment.jpg"));
         assertEquals(Arrays.asList(attachmentsPrefix + "/mon_test/attachment.jpg"), images);
+    }
+
+    @Test
+    public void mediaConsumesResolvedPrefixesWithoutChangingAttachmentLinks() {
+        String source = "[flash]./v.mp4[/flash][flash=video]./typed.mp4[/flash][flash=audio]./a.mp3[/flash]";
+        for (String server : new String[]{"page.example", "http://img9.nga.cn/attachments/",
+                "//second.example/attachments", "img.nga.178.com", ""}) {
+            String prefix = NgaImageHost.attachmentsPrefix(server);
+            HtmlData data = HtmlData.create(source, "https://forum.example/");
+            data.setAttachmentsPrefix(prefix);
+            assertEquals("<video src='" + prefix + "/v.mp4' controls='controls'></video>"
+                    + "<video src='" + prefix + "/typed.mp4' controls='controls'></video>"
+                    + "<audio src='" + prefix + "/a.mp3&filename=nga_audio.mp3' controls='controls'></audio>",
+                    new ForumBasicDecoder().decode(source, data));
+            assertEquals(source, data.getRawData());
+            data.setAttachmentList(Arrays.asList(attachment("v.mp4", "0"), attachment("a.mp3", "0")));
+            String links = new HtmlAttachmentBuilder().build(data, new ArrayList<>()).toString();
+            assertTrue(links.contains("href='" + prefix + "/v.mp4'"));
+            assertTrue(links.contains("href='" + prefix + "/a.mp3'"));
+            org.junit.Assert.assertFalse(links.contains("<video"));
+            org.junit.Assert.assertFalse(links.contains("<audio"));
+        }
     }
 
     private static HtmlData createHtmlData() {

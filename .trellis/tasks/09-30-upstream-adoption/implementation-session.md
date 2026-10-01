@@ -15,3 +15,10 @@
 - AGP8.10.1、Kotlin/Compose compiler2.2.21 及传递依赖共149个 artifact 已通过独立临时 Gradle 工程预取到本机 cache。
 - 临时预取脚本首次缺少 JVM variant attributes 导致 Guava variant 选择失败；补 runtime/library/standard-jvm attributes 后成功。未修改产品依赖来修复预取脚本。
 - 预取日志 `/tmp/upstream-adoption-toolchain-prefetch.log`；正式 U4 仍须核验新 wrapper、实际模块依赖、编译/lint/R8，不以预取成功代替。
+
+## U1 checkpoint
+
+- 规划/恢复资料：`345db9cb`；U1产品及规范：`4ccd7564`。
+- 独立check修复畸形数组成员导致部分更新的边界，最终35项板块聚焦测试、740项全模块测试通过，13模块lint 0 Error/Fatal、Debug构建通过。
+- `09-30-upstream-board-icons/check.md` 保存独立结论；U1保留目录供U3联合验收引用，父任务收尾统一归档。
+- U2已start，按原整体批准继续。

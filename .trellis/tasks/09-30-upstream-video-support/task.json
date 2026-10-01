@@ -3,7 +3,7 @@
   "name": "upstream-video-support",
   "title": "适配上游帖子视频样式与标签",
   "description": "补齐帖子 video 尺寸约束与无类型相对 flash 视频标签，保留现有图床及音视频解码。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": "fullstack",
   "scope": "android",
   "package": null,
@@ -27,9 +27,9 @@
     "research/media-design-evidence.md",
     "research/planning-review.md"
   ],
-  "notes": "用户已统一确认 U1–U4 全部方案（含 U3 B0–B5），指定另开新会话实施；本轮仅交接，不 start。Android15为主要兼容性目标，R7产品修复继续搁置。",
+  "notes": "U2已实现并独立check通过，保留目录供后续联合验收。",
   "meta": {
-    "planning_status": "approved_waiting_for_implementation_session",
+    "planning_status": "implementation_checked",
     "task_creation_authorized_at": "2026-09-30",
     "implementation_approved": true,
     "upstream_baseline": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
@@ -46,6 +46,8 @@
     "proposed_worktree_path": "/home/toph/nga-just-works-upstream-adoption",
     "proposed_branch": "feat/upstream-adoption",
     "research_base_commit": "1a8413d9",
-    "implementation_base_commit": "557f7bea398ed7a7702a876ec99d92eff5d7672e"
+    "implementation_base_commit": "4ccd7564",
+    "implementation_complete": true,
+    "quality_gate": "749 tests; 13 module lint 0 Error/Fatal; 72 offline layouts; independent PASS"
   }
 }

@@ -16,6 +16,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 |-------|-------------|--------|
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
 | [Component Guidelines](./component-guidelines.md) | Restored Justwen UI, favorite/home-tab drag order, emoticons, direct FABs, floor metadata/menus, compatibility reader navigation/row facts, and cached-page tabs | Active |
+| [Reader Video Rendering](./reader-media-contract.md) | Strict relative Flash tags, complete attachment prefixes, and intrinsic video layout | Active |
 | [Editor Inline Media](./editor-inline-media-contract.md) | Source-preserving edit/draft previews, whole-token editing and view-owned media loading | Active |
 | [Loading Usage Tips](./loading-usage-tips-contract.md) | Foreground initial-loading occasions, accurate local copy, view lifecycle, and conditional AI settings guidance | Active |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |

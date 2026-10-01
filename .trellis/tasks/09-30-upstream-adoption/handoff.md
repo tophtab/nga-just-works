@@ -1,3 +1,12 @@
+# 当前实施接续（2026-10-01）
+
+实施工作区 `/home/toph/nga-just-works-upstream-adoption`，分支 `feat/upstream-adoption`，基于主仓库 `557f7bea`。
+规划资料已保存为 `345db9cb`，U1 产品/规范提交为 `4ccd7564`：35项聚焦测试、740项全模块测试、13模块lint 0 Error/Fatal、Debug构建与独立check均通过。
+U2 已 start，正在实施。U1任务目录暂保留以供U3联合验收引用，父任务收尾时统一归档。
+当前实施详情/工具链预取位置见 [implementation-session.md](implementation-session.md)。下文为原始批准交接历史，旧“尚未实施/工作区不存在”描述不再代表当前状态。用户整体授权不变。
+
+---
+
 # 接续：U1–U4 已整体批准，留待新会话实施
 
 2026-09-30，用户在阅读四项具体方案及SDK36对Android15的影响后回复：“好吧，那确认吧。我以后会开个新的会话窗口去实施。”批准记录见 [approval.md](approval.md)。既定四项及U3全部B0–B5已经获批，不重复请求整体或逐项批准。

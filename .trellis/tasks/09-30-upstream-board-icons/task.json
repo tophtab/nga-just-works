@@ -15,7 +15,7 @@
   "branch": "feat/upstream-adoption",
   "base_branch": "main",
   "worktree_path": "/home/toph/nga-just-works-upstream-adoption",
-  "commit": null,
+  "commit": "4ccd7564",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -49,6 +49,7 @@
     "proposed_branch": "feat/upstream-adoption",
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "557f7bea398ed7a7702a876ec99d92eff5d7672e",
-    "quality_gate": "740 tests; 13 module lint 0 Error/Fatal; independent check PASS"
+    "quality_gate": "740 tests; 13 module lint 0 Error/Fatal; independent check PASS",
+    "implementation_complete": true
   }
 }

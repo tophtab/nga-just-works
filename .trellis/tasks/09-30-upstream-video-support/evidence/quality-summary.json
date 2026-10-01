@@ -1,0 +1,122 @@
+{
+  "modules": [
+    {
+      "module": "lib_bu_statistics",
+      "lintErrors": 0,
+      "lintWarnings": 6,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "nga_phone_base_3.0",
+      "lintErrors": 0,
+      "lintWarnings": 728,
+      "tests": 654,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_core",
+      "lintErrors": 0,
+      "lintWarnings": 8,
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_base_logger",
+      "lintErrors": 0,
+      "lintWarnings": 8,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_base_common",
+      "lintErrors": 0,
+      "lintWarnings": 39,
+      "tests": 63,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_core_data",
+      "lintErrors": 0,
+      "lintWarnings": 1,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_bu_message",
+      "lintErrors": 0,
+      "lintWarnings": 11,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_base_network",
+      "lintErrors": 0,
+      "lintWarnings": 7,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_base_service_api",
+      "lintErrors": 0,
+      "lintWarnings": 2,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_bu_account",
+      "lintErrors": 0,
+      "lintWarnings": 6,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_base_ui_compose",
+      "lintErrors": 0,
+      "lintWarnings": 12,
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_base_ui",
+      "lintErrors": 0,
+      "lintWarnings": 8,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "module": "lib_module_debug",
+      "lintErrors": 0,
+      "lintWarnings": 4,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "tests": 749
+}

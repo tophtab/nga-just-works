@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import gov.anzong.androidnga.core.data.HtmlData
+import gov.anzong.androidnga.core.decode.ForumBasicDecoder
 import sp.phone.http.bean.ThreadRowInfo
 
 /** Synthetic offline source shapes, not captured NGA responses or an availability claim. */
@@ -28,6 +30,26 @@ class AppArticleParserTest {
     private fun row(root: JSONObject) = root.getJSONArray("result").getJSONObject(0)
     private fun fails(kind: ArticleFailureKind, block: () -> Unit) {
         try { block(); fail("Expected $kind") } catch (e: ArticleFailure) { assertEquals(kind, e.kind) }
+    }
+
+    @Test fun mediaRenderingUsesPageContextAndPreservesEditableSource() {
+        val source = "前[flash]./视频.mp4?x=1&amp;y=2[/flash]后"
+        val mediaParser = AppArticleParser(ArticleRowRenderer { row, prefix ->
+            val htmlData = HtmlData.create(ArticleSourceText.renderBody(row), "https://forum.example/")
+            htmlData.setAttachmentsPrefix(prefix)
+            row.formattedHtmlData = ForumBasicDecoder().decode(htmlData.rawData, htmlData)
+        }, ArticleBlacklist { false })
+        for (prefix in listOf("https://first.example/attachments", "http://img9.nga.cn/attachments")) {
+            val root = fixture()
+            root["attachPrefix"] = prefix
+            row(root)["content"] = source
+            val raw = root.toJSONString()
+            val data = mediaParser.parse(raw, full, 2)
+            assertEquals(raw, data.rawData)
+            assertEquals(source, data.rowList.single().content)
+            assertEquals("前<video src='$prefix/视频.mp4?x=1&amp;y=2' controls='controls'></video>后",
+                data.rowList.single().formattedHtmlData)
+        }
     }
 
     @Test fun variableAndSparsePagesPreserveRowsSourceAndPrefix() {

@@ -1,5 +1,10 @@
 package gov.anzong.androidnga.core.decode;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import gov.anzong.androidnga.base.util.StringUtils;
 import gov.anzong.androidnga.common.util.NgaImageHost;
 import gov.anzong.androidnga.core.data.HtmlData;
@@ -17,6 +22,9 @@ public class ForumBasicDecoder implements IForumDecoder {
     private static final String endDiv = "</div>";
 
     private static final String STYLE_QUOTE = "<div class='quote' >";
+
+    private static final Pattern RELATIVE_FLASH = Pattern.compile(
+            "(?i)\\[flash\\](\\./[^\\[\\]\\r\\n]*)\\[/flash\\]");
 
     @Override
     public String decode(String content, HtmlData htmlData) {
@@ -240,6 +248,51 @@ public class ForumBasicDecoder implements IForumDecoder {
         // [flash=audio][/flash]"
         content = StringUtils.replaceAll(content, "\\[flash=audio].(.*?)\\[/flash]", "<audio src='" + attachmentsPrefix + "$1&filename=nga_audio.mp3' controls='controls'></audio>");
 
-        return content;
+        return decodeRelativeFlash(content, attachmentsPrefix);
+    }
+
+    private static String decodeRelativeFlash(String content, String attachmentsPrefix) {
+        Matcher matcher = RELATIVE_FLASH.matcher(content);
+        StringBuilder result = new StringBuilder(content.length());
+        int cursor = 0;
+        while (matcher.find()) {
+            String relative = matcher.group(1);
+            if (!isRelativeMediaPath(relative)) continue;
+            result.append(content, cursor, matcher.start());
+            result.append("<video src='")
+                    .append(escapeMediaAttribute(attachmentsPrefix + relative.substring(1)))
+                    .append("' controls='controls'></video>");
+            cursor = matcher.end();
+        }
+        return result.append(content, cursor, content.length()).toString();
+    }
+
+    private static boolean isRelativeMediaPath(String relative) {
+        for (int offset = 0; offset < relative.length();) {
+            int codePoint = relative.codePointAt(offset);
+            if (Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint)
+                    || Character.isISOControl(codePoint)) return false;
+            offset += Character.charCount(codePoint);
+        }
+        try {
+            URI uri = new URI(relative);
+            String path = uri.getRawPath();
+            if (uri.getScheme() != null || uri.getRawAuthority() != null
+                    || path == null || !path.startsWith("./")) return false;
+            for (String segment : path.substring(2).split("/", -1)) {
+                // Decode dots only for validation; preserve the original URL in output.
+                String dots = segment.replaceAll("(?i)%2e", ".");
+                if (dots.isEmpty() || dots.equals(".") || dots.equals("..")) return false;
+            }
+            return true;
+        } catch (URISyntaxException ignored) {
+            // An invalid candidate remains readable without breaking the other spans.
+            return false;
+        }
+    }
+
+    private static String escapeMediaAttribute(String value) {
+        return value.replace("&", "&amp;").replace("'", "&#39;")
+                .replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

@@ -1,0 +1,1092 @@
+{
+  "browser": "147.0.7727.55",
+  "externalRequests": [],
+  "results": [
+    {
+      "theme": "light",
+      "width": 320,
+      "hidden": true,
+      "cases": [
+        {
+          "name": "landscape-normal",
+          "width": 304,
+          "height": 171,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 304,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-quote",
+          "width": 260,
+          "height": 146.25,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 260,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-table",
+          "width": 298.65625,
+          "height": 168,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 299,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-collapse",
+          "width": 292,
+          "height": 164.25,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 292,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-normal",
+          "width": 303.984375,
+          "height": 540.4375,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 304,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-quote",
+          "width": 259.984375,
+          "height": 462.21875,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 260,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-table",
+          "width": 298.6875,
+          "height": 531,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 299,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-collapse",
+          "width": 291.984375,
+          "height": 519.109375,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 292,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-normal",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 304,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-quote",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 260,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-table",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 299,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-collapse",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 292,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        }
+      ],
+      "audio": {
+        "width": 300,
+        "height": 54,
+        "display": "inline"
+      },
+      "bodyOverflow": false
+    },
+    {
+      "theme": "light",
+      "width": 360,
+      "hidden": true,
+      "cases": [
+        {
+          "name": "landscape-normal",
+          "width": 344,
+          "height": 193.5,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 344,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-quote",
+          "width": 300,
+          "height": 168.75,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 300,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-table",
+          "width": 338.625,
+          "height": 190.484375,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 339,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-collapse",
+          "width": 332,
+          "height": 186.75,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 332,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-normal",
+          "width": 343.984375,
+          "height": 611.546875,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 344,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-quote",
+          "width": 299.984375,
+          "height": 533.328125,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 300,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-table",
+          "width": 338.625,
+          "height": 602.015625,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 339,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-collapse",
+          "width": 331.984375,
+          "height": 590.21875,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 332,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-normal",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 344,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-quote",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 300,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-table",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 339,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-collapse",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 332,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        }
+      ],
+      "audio": {
+        "width": 300,
+        "height": 54,
+        "display": "inline"
+      },
+      "bodyOverflow": false
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "hidden": true,
+      "cases": [
+        {
+          "name": "landscape-normal",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 752,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-quote",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 708,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-table",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 746,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-collapse",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 740,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-normal",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 752,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-quote",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 708,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-table",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 746,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-collapse",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 740,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-normal",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 752,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-quote",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 708,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-table",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 746,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-collapse",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 740,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        }
+      ],
+      "audio": {
+        "width": 300,
+        "height": 54,
+        "display": "inline"
+      },
+      "bodyOverflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "hidden": true,
+      "cases": [
+        {
+          "name": "landscape-normal",
+          "width": 304,
+          "height": 171,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 304,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-quote",
+          "width": 260,
+          "height": 146.25,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 260,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-table",
+          "width": 298.65625,
+          "height": 168,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 299,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-collapse",
+          "width": 292,
+          "height": 164.25,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 292,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-normal",
+          "width": 303.984375,
+          "height": 540.4375,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 304,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-quote",
+          "width": 259.984375,
+          "height": 462.21875,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 260,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-table",
+          "width": 298.6875,
+          "height": 531,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 299,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-collapse",
+          "width": 291.984375,
+          "height": 519.109375,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 292,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-normal",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 304,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-quote",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 260,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-table",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 299,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-collapse",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 292,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        }
+      ],
+      "audio": {
+        "width": 300,
+        "height": 54,
+        "display": "inline"
+      },
+      "bodyOverflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 360,
+      "hidden": true,
+      "cases": [
+        {
+          "name": "landscape-normal",
+          "width": 344,
+          "height": 193.5,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 344,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-quote",
+          "width": 300,
+          "height": 168.75,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 300,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-table",
+          "width": 338.625,
+          "height": 190.484375,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 339,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-collapse",
+          "width": 332,
+          "height": 186.75,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 332,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-normal",
+          "width": 343.984375,
+          "height": 611.546875,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 344,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-quote",
+          "width": 299.984375,
+          "height": 533.328125,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 300,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-table",
+          "width": 338.625,
+          "height": 602.015625,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 339,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-collapse",
+          "width": 331.984375,
+          "height": 590.21875,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 332,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-normal",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 344,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-quote",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 300,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-table",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 339,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-collapse",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 332,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        }
+      ],
+      "audio": {
+        "width": 300,
+        "height": 54,
+        "display": "inline"
+      },
+      "bodyOverflow": false
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "hidden": true,
+      "cases": [
+        {
+          "name": "landscape-normal",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 752,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-quote",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 708,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-table",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 746,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "landscape-collapse",
+          "width": 640,
+          "height": 360,
+          "intrinsic": [
+            640,
+            360
+          ],
+          "available": 740,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-normal",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 752,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-quote",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 708,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-table",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 746,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "portrait-collapse",
+          "width": 360,
+          "height": 640,
+          "intrinsic": [
+            360,
+            640
+          ],
+          "available": 740,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-normal",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 752,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-quote",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 708,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-table",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 746,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        },
+        {
+          "name": "small-collapse",
+          "width": 120,
+          "height": 90,
+          "intrinsic": [
+            120,
+            90
+          ],
+          "available": 740,
+          "fits": true,
+          "ratio": true,
+          "natural": true,
+          "block": true
+        }
+      ],
+      "audio": {
+        "width": 300,
+        "height": 54,
+        "display": "inline"
+      },
+      "bodyOverflow": false
+    }
+  ]
+}

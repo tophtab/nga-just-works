@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="style.css"><link id="theme" rel="stylesheet" href="style_light.css"><title>U2 offline media layout</title></head><body><h5>U2 local video fixtures</h5><main id="fixtures"></main><p>Audio baseline <audio controls></audio></p><script>
+async function sample(w,h) {
+ const c=document.createElement('canvas'); c.width=w;c.height=h;
+ const ctx=c.getContext('2d'); const stream=c.captureStream(10);
+ const chunks=[];const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp8'});
+ recorder.ondataavailable=e=>chunks.push(e.data);
+ const done=new Promise(resolve=>recorder.onstop=resolve);recorder.start();
+ for(let n=0;n<5;n++){ctx.fillStyle=n%2?'#255166':'#3c6b7c';ctx.fillRect(0,0,w,h);ctx.fillStyle='white';ctx.font='20px sans-serif';ctx.fillText(w+' × '+h+' local sample',8,28);await new Promise(r=>setTimeout(r,100));}
+ recorder.stop();await done;stream.getTracks().forEach(t=>t.stop());
+ const blob=new Blob(chunks,{type:'video/webm'});return URL.createObjectURL(blob);
+}
+window.ready=(async()=>{
+ const samples={landscape:await sample(640,360),portrait:await sample(360,640),small:await sample(120,90)};
+ const main=document.querySelector('main');
+ for(const [kind,url] of Object.entries(samples)) for(const container of ['normal','quote','table','collapse']){
+  const section=document.createElement('section');section.dataset.case=kind+'-'+container;
+  let content="<span class='before'>Before</span><video controls src='"+url+"'></video><span class='after'>After</span>";
+  if(container==='quote')content="<div class='quote'><div class='quote'>"+content+"</div></div>";
+  if(container==='table')content="<div><table cellspacing='0px' class='default'><tbody><tr><td style='border-left:1px solid #aaa;border-bottom:1px solid #aaa;'>"+content+"</td></tr></tbody></table></div>";
+  if(container==='collapse')content="<div><button>Toggle local collapse</button><div name='collapse' class='collapse' style='display:none'>"+content+"</div></div>";
+  section.innerHTML='<p>'+kind+' / '+container+'</p>'+content;main.append(section);
+  const button=section.querySelector('button');if(button)button.onclick=()=>{const panel=button.nextElementSibling;panel.style.display=panel.style.display==='none'?'block':'none';};
+ }
+ await Promise.all([...document.querySelectorAll('video')].map(v=>v.readyState>=1?Promise.resolve():new Promise((resolve,reject)=>{v.onloadedmetadata=resolve;v.onerror=()=>reject(new Error('media metadata failed'));})));
+ return true;
+})();
+</script></body></html>

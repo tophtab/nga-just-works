@@ -3,6 +3,8 @@ package sp.phone.mvp.model.thread
 import com.alibaba.fastjson.JSON
 import org.junit.Assert.*
 import org.junit.Test
+import gov.anzong.androidnga.core.data.HtmlData
+import gov.anzong.androidnga.core.decode.ForumBasicDecoder
 import sp.phone.http.bean.ThreadRowInfo
 import sp.phone.mvp.model.convert.ArticleConvertFactory
 import sp.phone.util.FunctionUtils
@@ -18,6 +20,28 @@ class NormalArticleParserTest {
                        "content":"%u4E2D%u6587","score":5,"attachs":{"0":{"attachurl":"mon_test/a.jpg","thumb":"1"}},
                        "comment":{"0":{"tid":100001,"pid":50121,"authorid":43,"content":"comment source"}}}}}}
     """)
+
+    @Test fun mediaRenderingUsesPageContextAndPreservesEditableSource() {
+        val source = "前[flash]./视频.mp4?x=1&amp;y=2[/flash]后"
+        val mediaParser = NormalArticleParser(ArticleRowRenderer { row, prefix ->
+            val htmlData = HtmlData.create(ArticleSourceText.renderBody(row), "https://forum.example/")
+            htmlData.setAttachmentsPrefix(prefix)
+            row.formattedHtmlData = ForumBasicDecoder().decode(htmlData.rawData, htmlData)
+        }, ArticleBlacklist { false })
+        for (prefix in listOf("https://first.example/attachments", "http://img9.nga.cn/attachments")) {
+            val root = fixture(prefix)
+            val wireRow = root.getJSONObject("data").getJSONObject("__R").getJSONObject("0")
+            wireRow["content"] = source
+            wireRow.remove("from_client")
+            wireRow.remove("comment")
+            val raw = root.toJSONString()
+            val data = mediaParser.parse(raw, query, 7)
+            assertEquals(raw, data.rawData)
+            assertEquals(source, data.rowList.single().content)
+            assertEquals("前<video src='$prefix/视频.mp4?x=1&amp;y=2' controls='controls'></video>后",
+                data.rowList.single().formattedHtmlData)
+        }
+    }
 
     @Test fun scopedAndLegacySeamsPreserveAttachmentCommentBlacklistAndWpPreparationOrder() {
         val snapshots = mutableListOf<Pair<ThreadRowInfo, String>>()

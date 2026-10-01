@@ -1,0 +1,11 @@
+body {
+    color: #CFCFCF;
+}
+
+div.quote {
+    background-color: #1F2021;
+}
+
+img.invertFilter {
+    filter: invert(100%);
+}
