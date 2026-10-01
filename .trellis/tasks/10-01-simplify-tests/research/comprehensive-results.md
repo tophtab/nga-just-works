@@ -145,3 +145,31 @@ Unrelated `09-30-upstream-*` task directories and archived reader research must
 remain outside that commit. Existing handoff did not authorize committing;
 commit, archive and journal auto-commits are deferred, without repeating the
 previously declined commit question.
+
+
+## Integration before cancelled release preparation
+
+After the original report, the maintainer authorized commit/push/release and
+finish-work. Origin main had advanced to `d1dcbff0` / stable 6.2.0 with SDK36,
+Fastjson2 and new regression suites. The simplification commit was rebased onto
+that version as `5abfb1cb`; release checks use the integrated state.
+
+- All 46 upstream-added test source/fixture files are unchanged. New upstream
+  methods/assertions are retained. The obsolete board snapshot remains deleted.
+- SDK36 release assertions replace old target35 assertions; target35 is now the
+  rejected manifest value. Restored JUnit in lib_bu_message for its new test.
+- Integrated Debug test/lint gate: **561 tests, 83 suites**, zero failures/errors/
+  skips; all **13 lint reports** zero Error/Fatal. Evidence: `release-gate.json`.
+- The 472-test totals and performance comparison above describe the original
+  reduction baseline only. Do not compare their timing with the newer toolchain
+  or claim the additional upstream regressions were removed/rebenchmarked.
+- Release 6.2.1 is a maintenance patch; production sources, root build and CI
+  workflow remain byte-equivalent to origin/main. CI sets version 6.2.1 and
+  versionCode 60201000 from the tag; no local APK packaging is performed.
+- Integrated Python suite:32 tests passed in14.226s (`release-python.log`).
+- The maintainer subsequently cancelled release and explicitly selected commit
+  and finish-work only, with push deferred. Removed uncommitted6.2.1 notes. No
+  version tag, push, remote publication or APK download was performed.
+- Work commits precede local task archive and session journal commits. The
+  original report’s deferred-commit paragraphs above record the earlier state;
+  this later instruction supersedes them.

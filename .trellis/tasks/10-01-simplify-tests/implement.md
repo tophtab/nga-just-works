@@ -5,8 +5,10 @@ Implementation and independent review completed on 2026-10-01. All 472 retained
 JVM tests pass; all 13 lint reports have zero Error/Fatal after rerunning lint
 following a transient KAPT stub-analysis failure. Python has 32 passing methods.
 Final measurement and consolidated results: `research/comprehensive-results.md`.
-No commit or push was authorized; all prior and current task changes remain
-uncommitted. Unrelated task directories were preserved.
+The maintainer subsequently authorized commit/finish-work; release and push
+were explicitly cancelled/deferred before any remote mutation.
+Integrated onto6.2.0:561 JVM tests and13 clean lint reports; see release-gate.json.
+Unrelated task directories remain excluded.
 
 ## 1. Establish review baseline
 - [x] Confirm working tree and preserve all prior edits plus unrelated task directories.
@@ -47,7 +49,7 @@ uncommitted. Unrelated task directories were preserved.
 - [x] Run `git diff --check`; no unrelated edits, blanket excludes or skipped cases.
 - [x] Complete matching execution benchmarks (three comparable final samples), report medians and cache/compilation conditions.
 - [x] Report old/new methods, real scenarios, files/lines, infrastructure starts and timings. Explain any departure from the 250–350 JVM working target or aspirational performance target.
-- [ ] Commit/archive: deferred under the handoff’s existing no-commit authorization boundary. Reviewable diff and scope are summarized in research/comprehensive-results.md; no new approval request repeated.
+- [x] Work commit completed; maintainer confirmed commit and finish-work only. No push/tag/release; archive and journal remain local.
 
 ## Stop/rollback criteria
 A candidate that removes the only critical invariant test is revised or kept. A flaky/racy replacement is fixed before continuing. Revert only the responsible batch when checks expose unsupported deletion; do not change product behavior to make a smaller suite pass. Target counts do not override coverage decisions.

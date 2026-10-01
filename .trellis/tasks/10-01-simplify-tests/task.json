@@ -21,6 +21,6 @@
   "children": [],
   "parent": null,
   "relatedFiles": [],
-  "notes": "Implementation verified on original baseline. Maintainer now authorizes commit/push/release/finish-work. Integrating origin/main 6.2.0 before 6.2.1 release.",
+  "notes": "Complete: original618→472 JVM; integrated6.2.0 adds89 separate-task regressions,561 JVM/32 Python pass and13 lint reports clean. User confirms commit/finish-work only; no push/release. Preserve parallel brittle-test work.",
   "meta": {}
 }
