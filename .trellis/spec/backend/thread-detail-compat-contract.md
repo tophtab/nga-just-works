@@ -82,6 +82,12 @@ server response schema.
 
 - Full, author-filtered and PID/search lookup are distinct query kinds. Retain
   all supplied `pid` and `authorid` fields throughout fallback and page reads.
+- Reply-search navigation (including My Replies) pairs the matched `__P.pid`
+  with `ReplyInfo.authorId` from `__P.authorid`. `ThreadPageInfo.authorId` is
+  the `__T` topic author and must not restrict a reply lookup. If the reply
+  author is absent or nonnumeric, leave the author restriction unset; retain
+  the topic/PID identity checks. `ReplySearchNavigationTest` covers replies to
+  another author's topic and rejection of genuinely mismatched results.
 - A PID-only result establishes `resolvedTid` from validated matching data.
   Do not derive it from PID arithmetic or an unrelated first result. A lookup
   must contain the target before reporting a successful location.

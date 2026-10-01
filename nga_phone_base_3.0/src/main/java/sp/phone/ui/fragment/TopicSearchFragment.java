@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.alibaba.fastjson2.JSON;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,6 +29,7 @@ import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.TopicHistoryManager;
 import sp.phone.mvp.model.entity.ThreadPageInfo;
 import sp.phone.mvp.model.entity.TopicListInfo;
+import sp.phone.mvp.model.thread.ArticleNavigation;
 import sp.phone.mvp.presenter.TopicListPresenter;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
@@ -273,16 +273,7 @@ public class TopicSearchFragment extends BaseFragment implements View.OnClickLis
 
         } else {
 
-            ArticleListParam param = new ArticleListParam();
-            param.tid = info.getTid();
-            param.page = info.getPage();
-            param.title = StringUtils.unEscapeHtml(info.getSubject());
-            if (requestParam.searchPost != 0) {
-                param.pid = info.getPid();
-                param.authorId = info.getAuthorId();
-                param.searchPost = requestParam.searchPost;
-            }
-            param.topicInfo = JSON.toJSONString(info);
+            ArticleListParam param = ArticleNavigation.fromSearchResult(info, requestParam);
 
             Intent intent = new Intent();
             Bundle bundle = new Bundle();
