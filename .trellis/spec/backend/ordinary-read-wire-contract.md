@@ -86,6 +86,8 @@ and UNREADABLE_VALUE for the app's existing error/null branches.
   the facade's public signatures and the separate App parser path.
   ReadThreadLegacyMapper maps typed wire values back into existing Java models;
   it does not rewrite NormalArticleParser or AppArticleParser policies.
+  Superseded private facade decoders are retired after parity verification;
+  retain the shared render/attachment/author helpers and public facade entrypoints.
 - Successful facade results and render/lookup order must match frozen baseline
   snapshots. Decode-first rejection can avoid discarded render/lookup work on
   invalid pages; document exact cases and verify there are no delivered UI or

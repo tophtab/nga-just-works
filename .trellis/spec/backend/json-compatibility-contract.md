@@ -54,6 +54,10 @@ existing source/account/paging/error behavior.
   too. Retain Annotation/Signature metadata and production JavaBean keep rules,
   including report and avatar response beans. Do not use keep-all application
   rules or fixture-only keeps to hide missing markers.
+- The active private-message parser is
+  `lib_bu_message/.../module/message/MessageConvertFactory.java`, used by both
+  message repositories. The unused app-package copy is retired; do not restore
+  it as a fallback or remove the active parser during consumer cleanup.
 - Preserve U1 icon observation/order/recovery and U2 source/media/prefix tests.
   JSON changes do not authorize R7 reader recovery or browser-policy changes.
 

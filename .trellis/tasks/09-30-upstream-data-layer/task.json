@@ -29,7 +29,7 @@
     "research/planning-review.md",
     "research/probes/README.md"
   ],
-  "notes": "用户已统一确认 U1–U4 全部方案（含 U3 B0–B5），指定另开新会话实施；本轮仅交接，不 start。Android15为主要兼容性目标，R7产品修复继续搁置。",
+  "notes": "B0–B5代码批次完成；Debug/816测试/13模块lint通过，实际app Release R8验收留待U4，当前不归档。",
   "meta": {
     "planning_status": "implementation_in_progress",
     "task_creation_authorized_at": "2026-09-30",
@@ -49,15 +49,17 @@
     "proposed_branch": "feat/upstream-adoption",
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "88ce8be3",
-    "current_batch": "B4",
+    "current_batch": "B5_code_complete_pending_U4_R8",
     "batch_commits": {
       "B0": "05c2602e",
       "B1": "1b4f8ade",
       "B2": "4a4296c2",
-      "B3": "758aa6b9"
+      "B3": "758aa6b9",
+      "B4": "5595c8ed"
     },
     "pending_acceptance": [
       "Actual app Release R8: existing signing guard blocks packageReleaseResources; recheck U4"
-    ]
+    ],
+    "integrated_main_commit": "c768a3cbf7db4101472f15f3a7ea5b3b846de6d1"
   }
 }

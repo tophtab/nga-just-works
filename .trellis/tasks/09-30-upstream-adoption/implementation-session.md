@@ -74,3 +74,11 @@ U4预取补充：已校验的Gradle8.11.1 distribution已放入标准wrapper cac
 冻结旧输出样本156+104+72；独立review另修正JSON2实际 `_IsInBlackList` 字段名并加入双模式回归。
 最终Debug构建、812项测试通过；13模块完整lint及局部修正后app lint均0 Error/Fatal。独立最终结论见U3 `research/b4-check.md`。
 B4后先整合main `c768a3cb`，再B5纯删除清理；实际app R8仍待U4。
+
+B4已提交 `5595c8ed`。main `c768a3cb`已整合，保留回复搜索导航修复并迁移新增JSON调用/测试到JSON2；41项导航/主题/读帖/缓存聚焦测试通过。B5开始，保持实际app R8待U4的未完成状态。
+
+## U3 B5 代码批次完成
+
+删除540行无消费者app私信副本及旧facade内部解析helper；共享渲染/附件/作者helper与活跃message parser保留。
+816项测试、Debug构建、13模块新鲜lint0 Error/Fatal通过；debug/release runtime仅JSON2，kapt旧库单独说明。完整43行消费者清单及独立check见U3 research/b5-evidence.md/b5-check.md。
+U3代码批次完成但实际app R8未执行，任务保持in_progress；U4补真实R8/Preview证据后才可验收关闭。

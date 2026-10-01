@@ -2,7 +2,7 @@
 
 实施工作区 `/home/toph/nga-just-works-upstream-adoption`，分支 `feat/upstream-adoption`，基于主仓库 `557f7bea`。
 规划资料已保存为 `345db9cb`，U1 产品/规范提交为 `4ccd7564`：35项聚焦测试、740项全模块测试、13模块lint 0 Error/Fatal、Debug构建与独立check均通过。
-U2 已完成，提交 `88ce8be3`（749测试/13模块lint及72布局场景通过）。U3 已start，B0已提交 `05c2602e`，B1已提交 `1b4f8ade`，B2已提交 `4a4296c2`，B3已提交 `758aa6b9`，当前B4实施中（实际app R8因签名guard待U4）。U1任务目录暂保留以供U3联合验收引用，父任务收尾时统一归档。
+U2 已完成，提交 `88ce8be3`（749测试/13模块lint及72布局场景通过）。U3 已start，B0已提交 `05c2602e`，B1已提交 `1b4f8ade`，B2已提交 `4a4296c2`，B3已提交 `758aa6b9`，B4已提交 `5595c8ed`，已整合main `c768a3cb`，当前B5实施中（实际app R8因签名guard待U4）。U1任务目录暂保留以供U3联合验收引用，父任务收尾时统一归档。
 当前实施详情/工具链预取位置见 [implementation-session.md](implementation-session.md)。下文为原始批准交接历史，旧“尚未实施/工作区不存在”描述不再代表当前状态。用户整体授权不变。
 
 ---
