@@ -725,11 +725,11 @@ boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
 
 - Apply a launch page before the first read. A PID entry uses the scoped reply
   screen; `显示全部` uses validated resolved tid and a fresh full-query parameter.
-  Clear query PID/author/search/cache disposition together; carry targetPid and
-  targetFloor separately. A trustworthy target floor selects the ordinary
-  20-floor candidate; untargeted or unknown-floor entries start at page 1.
-  Only a real row match permits scrolling. Missing/deleted targets leave the
-  thread readable and produce one positioning notice.
+  Clear query PID/author/search/cache disposition together and always open
+  page 1 without an original-reply anchor. Reply lookup floors do not establish
+  reliable global positions; automatic positioning from `显示全部` is withdrawn.
+  Manual floor jumps and source-transition alignment still require a real row
+  match before scrolling and report missing targets once.
 - Pager position is not a server page or global floor. Known totals permit
   numbered pages; unknown totals display the obtained window under its actual
   page label. Do not report that the full thread has one page merely because

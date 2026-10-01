@@ -144,10 +144,7 @@ object ArticleNavigation {
         if (param.tid > 0 && param.tid != tid || param.tid == 0 && target == null) return null
         return ArticleListParam().apply {
             this.tid = tid
-            targetPid = param.pid.takeIf { it > 0 } ?: 0
-            targetFloor = target?.takeIf { ArticleRowPresentation.hasFloor(it) }?.lou ?: -1
-            // Every new online reader starts with the ordinary 20-floor source.
-            page = if (targetFloor >= 0) targetFloor / 20 + 1 else 1
+            page = 1
             title = data?.threadInfo?.subject ?: param.title
             // Keep the launch description only after checking its identity. The save path fills gaps.
             topicInfo = param.topicInfo?.takeIf {
@@ -155,14 +152,6 @@ object ArticleNavigation {
                 catch (_: RuntimeException) { false }
             }
         }
-    }
-
-    @JvmStatic fun launchAnchor(param: ArticleListParam, generation: Long): ArticleAnchor? {
-        if (param.loadCache || ArticleQuery.from(param).kind != ArticleQueryKind.FULL) return null
-        val pid = param.targetPid.takeIf { it > 0 }
-        val floor = param.targetFloor.takeIf { it >= 0 }
-        if (pid == null && floor == null) return null
-        return ArticleAnchor(generation, param.page.coerceAtLeast(1), pid, floor)
     }
 
     @JvmStatic fun alignmentPage(anchor: ArticleAnchor?, result: ThreadData): Int? {

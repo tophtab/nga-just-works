@@ -11,7 +11,6 @@ import java.util.List;
 import sp.phone.http.bean.ThreadData;
 import sp.phone.param.ArticleListParam;
 import sp.phone.mvp.model.thread.ArticleAnchor;
-import sp.phone.mvp.model.thread.ArticleNavigation;
 import sp.phone.mvp.model.thread.ArticleQuery;
 import sp.phone.mvp.model.thread.ArticleReaderSession;
 import sp.phone.mvp.model.thread.ArticleReaderState;
@@ -37,8 +36,6 @@ public class ArticleShareViewModel extends ViewModel {
     public void resetReader(ArticleListParam param) {
         long generation = mReaderSession == null ? 1 : mReaderSession.state().generation + 1;
         mReaderSession = new ArticleReaderSession(ArticleQuery.from(param), param.page, generation);
-        ArticleAnchor target = ArticleNavigation.launchAnchor(param, generation);
-        if (target != null) mReaderSession.setAnchor(target);
         mTopicOwner.setValue(null);
         mRefreshPage.setValue(null);
         mCachePage.setValue(null);

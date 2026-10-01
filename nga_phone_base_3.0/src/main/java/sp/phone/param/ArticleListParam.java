@@ -19,10 +19,6 @@ public class ArticleListParam implements Parcelable, Cloneable {
 
     public int searchPost;
 
-    // Navigation identity, independent of the server's query filters.
-    public int targetPid;
-    public int targetFloor = -1;
-
     public String title;
 
     public String content;
@@ -52,8 +48,6 @@ public class ArticleListParam implements Parcelable, Cloneable {
         readerGeneration = in.readLong();
         cacheOwner = in.readString();
         cacheLayoutId = in.readString();
-        targetPid = in.readInt();
-        targetFloor = in.readInt();
     }
 
     @Override
@@ -70,8 +64,6 @@ public class ArticleListParam implements Parcelable, Cloneable {
         dest.writeLong(readerGeneration);
         dest.writeString(cacheOwner);
         dest.writeString(cacheLayoutId);
-        dest.writeInt(targetPid);
-        dest.writeInt(targetFloor);
     }
 
     @Override
@@ -110,8 +102,6 @@ public class ArticleListParam implements Parcelable, Cloneable {
                     && tid == ((ArticleListParam) obj).tid
                     && authorId == ((ArticleListParam) obj).authorId
                     && page == ((ArticleListParam) obj).page
-                    && targetPid == ((ArticleListParam) obj).targetPid
-                    && targetFloor == ((ArticleListParam) obj).targetFloor
                     && content == ((ArticleListParam) obj).content
                     && searchPost == ((ArticleListParam) obj).searchPost;
         } else {

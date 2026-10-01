@@ -131,8 +131,7 @@ class ArticleReaderSessionTest {
         val fullParam = ArticleNavigation.showAll(lookup, page(ArticleSource.APP_API, 10, 7, 173))!!
         assertEquals(full.tid, fullParam.tid)
         assertEquals(0, fullParam.pid); assertEquals(0, fullParam.authorId); assertEquals(0, fullParam.searchPost)
-        assertEquals(9, fullParam.page); assertFalse(fullParam.loadCache); assertNull(fullParam.cacheOwner)
-        assertEquals(50173, fullParam.targetPid); assertEquals(173, fullParam.targetFloor)
+        assertEquals(1, fullParam.page); assertFalse(fullParam.loadCache); assertNull(fullParam.cacheOwner)
         assertEquals(0L, fullParam.readerGeneration)
         assertNull(ArticleNavigation.showAll(lookup, null))
         assertEquals("50173,100001,9", ArticleNavigation.quoteAddress(row(173)))
@@ -152,40 +151,21 @@ class ArticleReaderSessionTest {
         assertFalse(ArticleRowPresentation.isThreadAuthor(nameFallback, "未知用户"))
     }
 
-    @Test fun showAllCandidatesUseOrdinaryFloorsAndNeverLookupPageOrAnonymousIdentity() {
-        for (floor in listOf(0, 19, 20, 173, Int.MAX_VALUE)) {
-            val lookup = ArticleListParam().apply { tid = full.tid; pid = 100; page = 99; searchPost = 1 }
-            val data = page(ArticleSource.APP_API, 40, 99, floor).apply {
-                rowList = listOf(row(floor, 100).apply { authorid = 0; isanonymous = true })
-            }
-            val launch = ArticleNavigation.showAll(lookup, data)!!
-            assertEquals(floor / 20 + 1, launch.page)
-            assertEquals(ArticleQueryKind.FULL, ArticleQuery.from(launch).kind)
-            val anchor = ArticleNavigation.launchAnchor(launch, 12)!!
-            assertEquals(0, anchor.find(data.rowList))
-            assertEquals(-1, anchor.find(listOf(row(floor, 101))))
-        }
-    }
-
-    @Test fun unknownOrMissingTargetKeepsReadableFullQueryWithoutInventingFloorOrScanning() {
+    @Test fun showAllOpensFirstPageWithUnknownFloorAndRejectsUnresolvedOrMismatchedThread() {
         val lookup = ArticleListParam().apply { tid = full.tid; pid = 50001; page = 81 }
         val unknown = page(ArticleSource.APP_API, null, 81, -1).apply {
             rowList = listOf(row(-1, lookup.pid).apply { presentation = presentation.copy(floorKnown = false) })
         }
         val launch = ArticleNavigation.showAll(lookup, unknown)!!
-        assertEquals(1, launch.page); assertEquals(-1, launch.targetFloor)
-        val anchor = ArticleNavigation.launchAnchor(launch, 1)!!
-        assertNull(ArticleNavigation.alignmentPage(anchor, page(ArticleSource.APP_API, null, 1, 0)))
-        assertEquals(-1, anchor.find(listOf(row(0))))
-        assertEquals(lookup.pid, ArticleNavigation.showAll(lookup, null)!!.targetPid)
+        assertEquals(1, launch.page)
+        assertEquals(ArticleQueryKind.FULL, ArticleQuery.from(launch).kind)
+        assertEquals(1, ArticleNavigation.showAll(lookup, null)!!.page)
         lookup.tid = 0
         assertNull(ArticleNavigation.showAll(lookup, page(ArticleSource.APP_API, 10, 1, 0)))
         lookup.tid = full.tid + 1
         assertNull(ArticleNavigation.showAll(lookup, unknown))
         val plain = ArticleNavigation.showAll(ArticleListParam().apply { tid = full.tid; page = 8 }, null)!!
-        assertEquals(1, plain.page); assertNull(ArticleNavigation.launchAnchor(plain, 1))
-        launch.loadCache = true
-        assertNull(ArticleNavigation.launchAnchor(launch, 1))
+        assertEquals(1, plain.page)
     }
 
     @Test fun delayedConsumptionKeepsPendingUntilEligibleAndRejectsEqualReplacementAndRetiredGeneration() {
@@ -208,7 +188,7 @@ class ArticleReaderSessionTest {
         assertFalse(session.consumeAnchor(anchor)); assertNull(session.state().pendingAnchor)
     }
 
-    @Test fun launchTargetSurvivesSourceAlignmentAndOldPostedScrollCannotConsumeNewAnchor() {
+    @Test fun pendingAnchorSurvivesSourceAlignmentAndOldPostedScrollCannotConsumeNewAnchor() {
         val session = session()
         val old = ArticleAnchor(session.state().generation, 7, 50120, 120)
         session.setAnchor(old)

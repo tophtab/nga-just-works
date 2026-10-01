@@ -38,8 +38,6 @@ public class ArticleLinkParserTest {
         assertEquals(3, param.tid);
         assertEquals(0, param.authorId);
         assertEquals(0, param.searchPost);
-        assertEquals(0, param.targetPid);
-        assertEquals(-1, param.targetFloor);
         assertEquals(3, ArticleLinkParser.parse("nga://openType=2?%74id=%33").tid);
     }
 

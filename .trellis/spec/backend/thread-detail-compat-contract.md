@@ -44,7 +44,6 @@ ArticleQuery.from(param: ArticleListParam): ArticleQuery
 ArticleRequestKey(query: ArticleQuery, generation: Long,
     source: ArticleSource, pageSize: Int?, owner: String?, page: Int)
 ArticleNavigation.showAll(param: ArticleListParam, data: ThreadData?): ArticleListParam?
-ArticleNavigation.launchAnchor(param: ArticleListParam, generation: Long): ArticleAnchor?
 ArticleNavigation.quoteAddress(row: ThreadRowInfo): String
 ArticleNavigation.alignmentPage(anchor: ArticleAnchor?, result: ThreadData): Int?
 ArticleNavigation.handoffNotice(data: ThreadData, anchor: ArticleAnchor?): String?
@@ -92,13 +91,13 @@ server response schema.
   Do not derive it from PID arithmetic or an unrelated first result. A lookup
   must contain the target before reporting a successful location.
 - `显示全部` builds a fresh full-thread request using validated resolvedTid;
-  clear query PID, author, search and cache disposition. Carry `targetPid`
-  (0 absent) and `targetFloor` (-1 absent) separately in ArticleListParam,
-  preserving them through parcel/clone. Use the matching accepted reply's
-  trustworthy global floor for an ordinary-source 20-floor candidate page;
-  unknown floor or untargeted entry starts at page 1. Do not reuse a filtered
-  result page or infer tid/floor from PID arithmetic. Retain a launch description
-  only after confirming its thread identity. Do not mutate the lookup request.
+  clear query PID, author, search and cache disposition and always open page 1.
+  Do not carry a reply-position anchor or derive a destination page from a
+  lookup row's floor: the reply lookup can display floor 0 without establishing
+  its global position. Automatic original-reply positioning was withdrawn.
+  Do not reuse a filtered result page or infer tid/floor from PID arithmetic.
+  Retain a launch description only after confirming its thread identity.
+  Do not mutate the lookup request.
 - Server page, global floor and adapter index are different coordinates.
   Preserve row order and original floor/PID. Short pages and floor gaps do not
   independently invalidate readable rows.
@@ -113,8 +112,8 @@ server response schema.
   PID, or actual floor when PID is unavailable, in the loaded list. Keep pending
   anchors until their matching generation/page is ready. A positive PID must
   match exactly; a coincident floor cannot substitute for a missing PID.
-  Initialize launch anchors once per new online FULL session, never for cache
-  replay or cloned page initialization. Preserve them on initial environment
+  New reader sessions start without anchors; manual floor jumps and source
+  transitions may set them. Preserve pending anchors on initial environment
   binding; later account/environment changes retire them. A posted scroll must
   validate reader instance, generation/page, response, resumed view and expected
   anchor identity before consuming it. A missing target produces one notice
@@ -268,11 +267,12 @@ Use synthetic data and fake transport; never send NGA traffic:
   preserved parent/child identities and incomplete display projection.
 - `ArticleReaderSessionTest`: exact anchors and bounded alignment, old-key
   rejection, background/source handoff, account/settings invalidation,
-  count-before-Cookie retries, targeted/untargeted show-all navigation, unknown
-  floor/deleted PID, source sizes, and neutral quote attribution. Exercise actual
-  ViewModel initialization/retention/reset: cloned pages do not reseed consumed
-  anchors, first binding preserves them, and new same-query launches advance
-  generation. Stale posted UI work cannot consume replacement anchors.
+  count-before-Cookie retries, first-page show-all navigation, unresolved and
+  mismatched thread identities, source sizes, and neutral quote attribution.
+  `ArticleReaderInitializationTest` exercises actual ViewModel initialization,
+  retention and reset: show-all creates no reply anchor, cloned pages preserve
+  the session, and new same-query launches advance generation and retire pending
+  jumps. Stale posted UI work cannot consume replacement anchors.
 - `ArticleByteClientTest`: synthetic `Call.Factory` requests/bytes, exact URL/
   form/headers, source/page changes with one account snapshot, guest requests,
   origin/redirect/retry policy, strict charset/size handling, body closure,

@@ -46,7 +46,7 @@ class ReplySearchNavigationTest {
         assertEquals(50120, data.rowList.single().pid)
         assertEquals(120, data.rowList.single().lou)
         assertEquals(100001, data.pagingInfo.resolvedTid)
-        assertEquals(7, ArticleNavigation.showAll(param, data)!!.page)
+        assertEquals(1, ArticleNavigation.showAll(param, data)!!.page)
 
         // Correcting the input must not make wrong authors, replies or threads acceptable.
         for (raw in listOf(response(author = 17), response(pid = 50121), response(tid = 100002))) {
