@@ -49,10 +49,14 @@
     "proposed_branch": "feat/upstream-adoption",
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "88ce8be3",
-    "current_batch": "B2",
+    "current_batch": "B3",
     "batch_commits": {
       "B0": "05c2602e",
-      "B1": "1b4f8ade"
-    }
+      "B1": "1b4f8ade",
+      "B2": "4a4296c2"
+    },
+    "pending_acceptance": [
+      "Actual app Release R8: existing signing guard blocks packageReleaseResources; recheck U4"
+    ]
   }
 }

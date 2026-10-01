@@ -11,3 +11,4 @@
 {"file": ".trellis/tasks/09-30-upstream-adoption/approval.md", "reason": "用户整体批准及新会话实施交接；Android15优先级和既定范围无需重复确认"}
 {"file": ".trellis/spec/frontend/reader-media-contract.md", "reason": "已交付U2严格相对标签、完整前缀、源文及离线布局契约；后续JSON/SDK保持"}
 {"file": ".trellis/spec/backend/json-compatibility-contract.md", "reason": "U3运行时JSON2局部选项、旧格式兼容、反射及R8门；U4新工具链继续验证"}
+{"file": ".trellis/spec/backend/ordinary-read-wire-contract.md", "reason": "U3 typed wire/core decoder及旧facade形状/转换失败映射；B4与U4联合回归保持"}

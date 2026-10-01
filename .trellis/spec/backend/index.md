@@ -5,6 +5,7 @@
 | Guide | Use it when | Authority |
 | --- | --- | --- |
 | [Android Quality and Instrumentation](./android-quality-guidelines.md) | Building, testing, linting, instrumenting, or releasing Android modules | Project quality gates |
+| [Ordinary Reader Wire Boundary](./ordinary-read-wire-contract.md) | Editing normal-read protocol fields or the legacy adapter | Typed raw validity, decode modes and app policy ownership |
 | [JSON Runtime and Compatibility](./json-compatibility-contract.md) | Changing JSON readers/writers, dependencies, persisted formats, or reflection | Local parser options, schema preservation and shrinker evidence |
 | [Local Android Signing](./local-android-signing.md) | Finding the verified signing configuration or building a signed APK that preserves installed data | Local paths, private storage location, certificate identity, credential loading, and verification |
 | [Justwen Network Foundation](./network-foundation-contract.md) | Changing transport, account Cookie handoff, Web login, shared error handling, or the vote bridge | Pinned transport/session compatibility plus project safety boundary |

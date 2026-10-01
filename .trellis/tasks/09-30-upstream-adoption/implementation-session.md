@@ -40,3 +40,12 @@
 - `1b4f8ade`：主题/NGA上传/外部头像上传三处局部decode入口，14项测试及6份jdata样本。
 - Debug构建、778项全模块测试、13模块lint 0 Error/Fatal、独立check PASS。
 - B2开始原子JSON2切换、完整存储三方向兼容与反射/R8验证；旧库仍只能作为测试oracle，不进入新runtime。
+
+## U3 B2 checkpoint
+
+- `4a4296c2`：完整JSON2 runtime迁移、存储三方向兼容、操作级解析测试入口及规范。
+- Debug构建、789项全模块测试、13模块lint 0 Error/Fatal、独立check PASS；9份旧golden未改。
+- 生产bean classfile R8夹具通过，运行时只有JSON2，旧库仅test/kapt。
+- 实际app R8被现有packageReleaseResources签名guard挡住，未绕过/未读凭据；U3-A7及父验收保持待U4。B3开始typed wire/core decoder独立实现。
+
+U4预取补充：已校验的Gradle8.11.1 distribution已放入标准wrapper cache `~/.gradle/wrapper/dists/gradle-8.11.1-bin/bpt9gzteqjrbo1mjrsomdt32c`，供新wrapper离线启动。

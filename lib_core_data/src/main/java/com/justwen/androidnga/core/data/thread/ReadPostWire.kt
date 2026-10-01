@@ -1,0 +1,33 @@
+package com.justwen.androidnga.core.data.thread
+
+/** Raw post/comment fields and per-decode user association. No HTML, blacklist or presentation state. */
+data class ReadPostWire(
+    val tid: ReadField<Int>,
+    val fid: ReadField<Int>,
+    val authorId: ReadField<Int>,
+    val pid: ReadField<Int>,
+    val lou: ReadField<Int>,
+    val subject: ReadField<String>,
+    val content: ReadField<String>,
+    val alterInfo: ReadField<String>,
+    val vote: ReadField<String>,
+    val postDate: ReadField<String>,
+    val level: ReadField<String>,
+    val fromClient: ReadField<String>,
+    val score: ReadField<Int>,
+    val author: ReadField<String>,
+    val anonymous: ReadField<Boolean>,
+    val yz: ReadField<String>,
+    val avatar: ReadField<String>,
+    val muteTime: ReadField<String>,
+    val aurvrc: ReadField<Int>,
+    val signature: ReadField<String>,
+    val muted: ReadField<Boolean>,
+    val postCount: ReadField<String>,
+    val reputation: ReadField<Float>,
+    val memberGroup: ReadField<String>,
+    val attachments: ReadField<Map<String, ReadField<ReadAttachmentWire>>>,
+    val comments: ReadField<List<ReadPostWire>>,
+    val hotReplyIds: ReadField<String>,
+    val user: ReadField<ReadUserWire>,
+)
