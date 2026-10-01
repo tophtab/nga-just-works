@@ -1,0 +1,42 @@
+[
+  {
+    "anonymity": true,
+    "authorId": 42,
+    "fid": -7,
+    "mirrorBoard": true,
+    "page": 7,
+    "pid": 50012,
+    "position": 3,
+    "postDate": 1700000000,
+    "replies": 83,
+    "tid": 120002,
+    "type": 16,
+    "author": "合成作者",
+    "lastPoster": "最后一位",
+    "subject": "标题\n\"引号\"\\路径",
+    "titleFont": "b red",
+    "topicMisc": "0,1",
+    "board": "版面镜像",
+    "replyInfo": {
+      "pidStr": "50012",
+      "tidStr": "120002",
+      "authorId": "42",
+      "content": "合成回复\n\\",
+      "subject": "回复题",
+      "postDate": "1700000001"
+    }
+  },
+  {
+    "anonymity": false,
+    "authorId": 0,
+    "fid": 0,
+    "mirrorBoard": false,
+    "page": 0,
+    "pid": 0,
+    "position": 0,
+    "postDate": 0,
+    "replies": 0,
+    "tid": 120003,
+    "type": 0
+  }
+]

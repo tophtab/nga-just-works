@@ -22,3 +22,9 @@
 - 独立check修复畸形数组成员导致部分更新的边界，最终35项板块聚焦测试、740项全模块测试通过，13模块lint 0 Error/Fatal、Debug构建通过。
 - `09-30-upstream-board-icons/check.md` 保存独立结论；U1保留目录供U3联合验收引用，父任务收尾统一归档。
 - U2已start，按原整体批准继续。
+
+## U2 checkpoint / U3 start
+
+- U2产品、规范及离线布局证据提交：`88ce8be3`。
+- 749全模块测试通过，13模块lint 0 Error/Fatal、Debug构建通过；72离线布局场景通过，独立check PASS。浏览器/本地服务已关闭。
+- U3已start，当前B0：先固定旧库golden与完整存储/消费者映射，逐批implement/check/commit。当前扫描43生产、13测试直接旧JSON消费者。

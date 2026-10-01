@@ -1,0 +1,14 @@
+{
+  "schema": "thread-page",
+  "version": 1,
+  "format": "app_api",
+  "owner": "42",
+  "tid": 120002,
+  "queryKind": "FULL",
+  "layoutId": "app_api-window-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "page": 7,
+  "requestedPage": 3,
+  "pageSize": null,
+  "pageBasis": "REQUESTED",
+  "raw": "﻿{ \"result\": [{\"tid\":120002,\"pid\":50012,\"content\":\"合成\\n正文\"}] }"
+}

@@ -13,3 +13,4 @@
 {"file": ".trellis/tasks/09-30-upstream-adoption/planning-validation.md", "reason": "全部审核修订闭环和实际证据范围"}
 {"file": ".trellis/tasks/09-30-upstream-adoption/approval.md", "reason": "用户整体批准及新会话实施交接；Android15优先级和既定范围无需重复确认"}
 {"file": ".trellis/tasks/09-30-upstream-adoption/recovery.md", "reason": "误删恢复来源、当前资料位置与新实施基线要求"}
+{"file": ".trellis/spec/frontend/reader-media-contract.md", "reason": "已交付U2严格相对标签、完整前缀、源文及离线布局契约；后续JSON/SDK保持"}

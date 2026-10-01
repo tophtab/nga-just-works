@@ -3,7 +3,7 @@
   "name": "upstream-data-layer",
   "title": "分批适配上游数据层与 JSON 解析迁移",
   "description": "复用上游数据模型与解析边界，评估并分批迁移 JSON 库，保持持久化和功能行为兼容。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": "fullstack",
   "scope": "android",
   "package": null,
@@ -31,7 +31,7 @@
   ],
   "notes": "用户已统一确认 U1–U4 全部方案（含 U3 B0–B5），指定另开新会话实施；本轮仅交接，不 start。Android15为主要兼容性目标，R7产品修复继续搁置。",
   "meta": {
-    "planning_status": "approved_waiting_for_implementation_session",
+    "planning_status": "implementation_in_progress",
     "task_creation_authorized_at": "2026-09-30",
     "implementation_approved": true,
     "upstream_baseline": "22ba3082501bcbb08f52a66d787f970f59c2dda7",
@@ -48,6 +48,7 @@
     "proposed_worktree_path": "/home/toph/nga-just-works-upstream-adoption",
     "proposed_branch": "feat/upstream-adoption",
     "research_base_commit": "1a8413d9",
-    "implementation_base_commit": "557f7bea398ed7a7702a876ec99d92eff5d7672e"
+    "implementation_base_commit": "88ce8be3",
+    "current_batch": "B0"
   }
 }

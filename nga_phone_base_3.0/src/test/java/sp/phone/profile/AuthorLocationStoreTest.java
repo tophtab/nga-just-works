@@ -28,6 +28,30 @@ public class AuthorLocationStoreTest {
     private final long now = 1_700_000_000_000L;
 
     @Test
+    public void frozenOldWriterIncludesLongTimesAndOptionalNetworkExtension() throws Exception {
+        String golden;
+        try (java.io.InputStream input = getClass().getResourceAsStream("/json-legacy/author-locations.json")) {
+            golden = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        File file = directory.newFile();
+        Files.write(file.toPath(), golden.getBytes(StandardCharsets.UTF_8));
+        AuthorLocationStore store = new AuthorLocationStore(file);
+        List<AuthorLocationCache.Entry> entries = store.read();
+        assertEquals(5, entries.size());
+        assertEquals(AuthorLocationCache.Kind.NETWORK_FAILURE, entries.get(3).kind);
+        assertNull(entries.get(1).location);
+        // A swallowed write failure must not pass by rereading the original golden.
+        File output = new File(directory.getRoot(), "golden-output.json");
+        assertFalse(output.exists());
+        new AuthorLocationStore(output).write(entries);
+        assertTrue(output.isFile());
+        JSONObject written = JSON.parseObject(new String(Files.readAllBytes(output.toPath()), StandardCharsets.UTF_8));
+        assertEquals(JSON.parseObject(golden), written);
+        assertTrue(written.getJSONArray("entries").getJSONObject(0).get("observed") instanceof Long);
+        assertFalse(written.getJSONArray("entries").getJSONObject(1).containsKey("location"));
+    }
+
+    @Test
     public void latestAndValidEmptyObservationsRoundTripAndExpireAtExactly24Hours() throws Exception {
         AuthorLocationCache cache = new AuthorLocationCache();
         AuthorLocationCache.Key known = new AuthorLocationCache.Key(session, 42);

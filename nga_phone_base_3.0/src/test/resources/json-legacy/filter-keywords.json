@@ -1,0 +1,9 @@
+[
+  {
+    "enabled": true,
+    "keyword": "合成.*"
+  },
+  {
+    "enabled": false
+  }
+]

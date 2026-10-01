@@ -1,0 +1,15 @@
+[
+  {
+    "boardKey": {},
+    "fid": -7,
+    "stid": 0,
+    "name": "普通",
+    "boardHead": "头"
+  },
+  {
+    "boardKey": {},
+    "fid": 0,
+    "stid": 12345678,
+    "name": "合集"
+  }
+]

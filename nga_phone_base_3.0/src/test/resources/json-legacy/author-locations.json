@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "origin": "https://bbs.nga.cn",
+      "account": "7",
+      "author": 41,
+      "kind": "OBSERVATION",
+      "observed": 1700000000000,
+      "expires": 1700086400000,
+      "location": "广东"
+    },
+    {
+      "origin": "https://bbs.nga.cn",
+      "account": "7",
+      "author": 42,
+      "kind": "OBSERVATION",
+      "observed": 1700000000000,
+      "expires": 1700086400000
+    },
+    {
+      "origin": "https://bbs.nga.cn",
+      "account": "7",
+      "author": 43,
+      "kind": "FAILURE",
+      "observed": 1700000000000,
+      "expires": 1700000600000
+    },
+    {
+      "origin": "https://bbs.nga.cn",
+      "account": "7",
+      "author": 44,
+      "kind": "FAILURE",
+      "observed": 1700000000000,
+      "expires": 1700000600000,
+      "networkExpires": 1700000030000
+    },
+    {
+      "origin": "https://bbs.nga.cn",
+      "account": "7",
+      "author": 0,
+      "kind": "RATE_LIMIT",
+      "observed": 1700000000000,
+      "expires": 1700001800000
+    }
+  ]
+}

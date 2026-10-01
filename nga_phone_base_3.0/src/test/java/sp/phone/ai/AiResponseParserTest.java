@@ -177,6 +177,17 @@ public class AiResponseParserTest {
     }
 
     @Test
+    public void decimalPrecisionAndNestedSpecialKeysRemainOrdinaryData() {
+        JSONObject value = SafeJsonParser.parseObject("{\"decimal\":0.12345678901234567890123456789,"
+                + "\"large\":9007199254740993,\"nested\":{\"@type\":\"java.lang.Thread\",\"$ref\":\"$\"}}");
+        assertEquals(new java.math.BigDecimal("0.12345678901234567890123456789"), value.get("decimal"));
+        assertEquals(9007199254740993L, value.get("large"));
+        assertEquals("java.lang.Thread", value.getJSONObject("nested").get("@type"));
+        assertEquals("$", value.getJSONObject("nested").get("$ref"));
+        org.junit.Assert.assertNotSame(value, value.getJSONObject("nested"));
+    }
+
+    @Test
     public void outputAndSharedParserInputAreBounded() {
         AiResponseParser.InvalidResponseException error = assertThrows(AiResponseParser.InvalidResponseException.class,
                 () -> AiResponseParser.firstText(response("x".repeat(AiResponseParser.MAX_TEXT_CHARS + 1))));

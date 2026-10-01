@@ -1,0 +1,14 @@
+[
+  {
+    "userId": "42",
+    "nickName": "合成\"名字",
+    "avatarUrl": "https://example.invalid/avatar.png",
+    "mUserId": "42",
+    "mNickName": "合成\"名字",
+    "mAvatarUrl": "https://example.invalid/avatar.png"
+  },
+  {
+    "userId": "43",
+    "mUserId": "43"
+  }
+]

@@ -36,6 +36,24 @@ class ArticleCacheStoreTest {
         catch (_: com.alibaba.fastjson.JSONException) { }
     }
 
+    @Test fun frozenOldWindowEnvelopeKeepsNullNumericTypesAndRawBytes() {
+        val golden = javaClass.getResource("/json-legacy/owned-window.json")!!.readText()
+        val tree = JSON.parseObject(golden)
+        val entry = ArticleCacheEntry(tid, "42", "app_api-window-" + "a".repeat(32))
+        val decoded = ArticleCacheCodec.decode(golden, entry, 7)
+        assertEquals(tree.getString("raw"), decoded.raw)
+        assertEquals(3, decoded.requestedPage)
+        assertNull(decoded.pageSize)
+        val page = ArticlePagingInfo(query, ArticleSource.APP_API, tid, 3, 7, null,
+            null, null, ArticlePageBasis.REQUESTED, false, owner = "42", generation = 99)
+        val encoded = ArticleCacheCodec.encode(ArticleCacheWrite(entry, 7, topic, decoded.raw, page))
+        assertEquals(tree, JSON.parseObject(encoded))
+        assertTrue(JSON.parseObject(encoded).containsKey("pageSize"))
+        for (key in listOf("version", "tid", "page", "requestedPage")) {
+            assertTrue(JSON.parseObject(encoded)[key] is Int)
+        }
+    }
+
     @Test fun knownLayoutsMergeNumericSparsePagesAndPreserveOriginalMetadata() {
         val store = ArticleCacheStore(temporary.root)
         val app10 = save(store, paging(page = 10))
