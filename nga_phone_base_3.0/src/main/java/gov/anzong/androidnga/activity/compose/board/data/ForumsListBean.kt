@@ -7,6 +7,7 @@ import gov.anzong.androidnga.common.base.JavaBean
  * Created by elrond on 2017/9/29.
  */
 class ForumsListBean : JavaBean {
+    var forum_icon_pre: String? = null
     var code: Int = 0
     var msg: String? = null
     var result: ArrayList<Result>? = null

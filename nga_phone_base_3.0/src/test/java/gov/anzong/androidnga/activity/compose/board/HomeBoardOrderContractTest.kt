@@ -52,7 +52,6 @@ class HomeBoardOrderContractTest {
 
         assertTrue(source.indexOf("boardList.add(bookmarkBoard)") < source.indexOf("HomeBoardOrderStore.load"))
         assertTrue(normalized.contains("return boardList.drop(1).map { it.id }"))
-        assertTrue(normalized.contains("ForumBoardRepository.writeLocalBoardList( ContextUtils.getContext(), localBoardList.toList() )"))
         assertTrue(normalized.contains("persistHomeBoardOrderIfCurrent"))
         assertTrue(normalized.contains("restoreHomeBoardOrderIfCurrent"))
     }

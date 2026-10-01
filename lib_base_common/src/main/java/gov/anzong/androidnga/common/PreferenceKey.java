@@ -31,6 +31,8 @@ public class PreferenceKey {
 
     public static final String MATERIAL_THEME = "material_theme";
 
+    public static final String BOARD_ICON_URL = "board_icon_url";
+
     public static final String BOOKMARK_BOARD = "bookmark_board";
 
     public static final String KEY_HOME_BOARD_ORDER = "key_home_board_order";

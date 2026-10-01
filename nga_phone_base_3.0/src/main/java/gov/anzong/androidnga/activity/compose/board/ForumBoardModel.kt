@@ -1,6 +1,7 @@
 package gov.anzong.androidnga.activity.compose.board
 
 import com.alibaba.fastjson.JSON
+import gov.anzong.androidnga.activity.compose.board.data.ForumsListBean
 import gov.anzong.androidnga.base.util.ContextUtils
 import gov.anzong.androidnga.base.util.PreferenceUtils
 import gov.anzong.androidnga.base.utils.ThreadProvider
@@ -76,6 +77,10 @@ class ForumBoardModel {
 
     private val localBoardList: MutableList<BoardEntity>
 
+    private val icons = BoardIconState {
+        PreferenceUtils.getData(PreferenceKey.BOARD_ICON_URL, "")
+    }
+
     val bookmarkBoard: BoardEntity
 
     init {
@@ -91,6 +96,7 @@ class ForumBoardModel {
             initBoardMap(it, null)
         }
         transferBookmarkBoards()
+        hydrateIcons()
     }
 
     private fun initBoardMap(boardEntity: BoardEntity, parent: BoardEntity? = null) {
@@ -207,6 +213,7 @@ class ForumBoardModel {
         val loaded = ForumBoardRepository.loadBookmarkBoardList(ContextUtils.getContext())
         restoreBookmarkOrder(loaded.children?.toList().orEmpty())
         transferBookmarkBoards()
+        hydrateIcons()
         return !BookmarkOrder.hasSameOrder(previous, bookmarkSnapshot())
     }
 
@@ -281,6 +288,7 @@ class ForumBoardModel {
             it.id = id
             it.name = name
             it.head = head
+            icons.hydrate(listOf(it))
         }
         bookmarkBoard.children?.let {
             if (it.any { existing -> existing.fid == fid && existing.stid == stid }) {
@@ -340,14 +348,8 @@ class ForumBoardModel {
         return false
     }
 
-    private fun generateBoardId(fid: Int, stid: Int, parentId: String? = null): String? {
-        return when {
-            fid != 0 && stid != 0 -> "${fid}_${stid}"
-            fid != 0 -> fid.toString()
-            stid != 0 -> stid.toString()
-            else -> null
-        }
-    }
+    private fun generateBoardId(fid: Int, stid: Int, parentId: String? = null): String? =
+        boardId(fid, stid)
 
     @Synchronized
     fun moveBookmark(from: Int, to: Int): Boolean {
@@ -356,10 +358,7 @@ class ForumBoardModel {
 
     @Synchronized
     fun restoreBookmarkOrder(snapshot: List<BoardEntity>) {
-        bookmarkBoard.children?.apply {
-            clear()
-            addAll(snapshot)
-        }
+        icons.restoreBookmarks(bookmarkBoard, snapshot)
     }
 
     @Synchronized
@@ -367,8 +366,7 @@ class ForumBoardModel {
         expectedCurrent: List<BoardEntity>,
         snapshot: List<BoardEntity>,
     ): Boolean {
-        val boards = bookmarkBoard.children ?: return false
-        return BookmarkOrder.restoreIfCurrent(boards, expectedCurrent, snapshot)
+        return icons.restoreBookmarks(bookmarkBoard, snapshot, expectedCurrent)
     }
 
     @Synchronized
@@ -382,46 +380,46 @@ class ForumBoardModel {
         }
     }
 
-    suspend fun loadIncrementalBoardList(): List<BoardEntity> {
-        val forumsListBean = ForumBoardRepository.requestRemoteBoardList(ContextUtils.getContext())
-        val addChildList: MutableList<BoardEntity> = mutableListOf()
-        forumsListBean?.result?.forEach {
-            if (it.id == "other" || it.id == "wow" || it.id == "company") {
-                it.groups?.forEach { it ->
-                    val groupId = it.id
-                    it.forums?.forEach { child ->
-                        generateBoardId(child.id, child.stid)?.let { it ->
-                            if (!boardMap.contains(it)) {
-                                val boardEntity = BoardEntity().apply {
-                                    id = it
-                                    fid = child.id
-                                    stid = child.stid
-                                    parentId = groupId
-                                    name = child.name!!
-                                }
-                                addChildList.add(boardEntity)
-                            }
-                        }
-                    }
-                }
-            }
+    @Synchronized
+    internal fun needsCachedIconPrefix(): Boolean = icons.needsCachedPrefix
+
+    @Synchronized
+    internal fun applyCachedIconPrefix(prefix: String?) {
+        if (icons.acceptCached(prefix)) {
+            hydrateIcons()
+            saveIconPrefix()
         }
-        return addChildList
     }
 
-    fun mergeBoardList(addChildList: List<BoardEntity>) {
-        addChildList.forEach {
-            boardMap[it.id] = it
-            val parent = boardMap[it.parentId]
-            parent?.children?.add(it)
-        }
-        saveData()
+    @Synchronized
+    internal fun applyRemoteBoardList(response: ForumsListBean): Boolean {
+        // Rebuild against current membership; favorites can change during the request.
+        boardMap.clear()
+        boardList.forEach { initBoardMap(it, null) }
+        return icons.applyRemote(
+            response, localBoardList, bookmarkBoard, boardMap,
+            savePrefix = ::saveIconPrefix,
+            saveTree = ::saveData,
+        )
     }
 
-    private fun saveData() {
+    private fun hydrateIcons() {
+        icons.hydrate(localBoardList)
+        icons.hydrate(listOf(bookmarkBoard))
+    }
+
+    private fun saveIconPrefix() {
+        try {
+            PreferenceUtils.putData(PreferenceKey.BOARD_ICON_URL, icons.prefix)
+        } catch (_: Exception) {
+            logError("Unable to persist board icon prefix")
+        }
+    }
+
+    private fun saveData(snapshot: List<BoardEntity>) {
         ThreadProvider.runOnSingleThread {
             ForumBoardRepository.writeLocalBoardList(
-                ContextUtils.getContext(), localBoardList.toList()
+                ContextUtils.getContext(), snapshot
             )
         }
     }

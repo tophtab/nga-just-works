@@ -2,6 +2,8 @@ package gov.anzong.androidnga.activity.compose.board
 
 import android.content.Context
 import com.alibaba.fastjson.JSON
+import com.alibaba.fastjson.JSONArray
+import com.alibaba.fastjson.JSONObject
 import com.justwen.androidnga.base.network.retrofit.RetrofitHelper
 import gov.anzong.androidnga.Utils
 import gov.anzong.androidnga.activity.compose.board.ForumBoardViewModel.BOARD_REMOTE_REQUEST_TIME_KEY
@@ -10,6 +12,9 @@ import gov.anzong.androidnga.base.util.PreferenceUtils
 import gov.anzong.androidnga.base.utils.Files
 import gov.anzong.androidnga.common.util.LogUtils
 import gov.anzong.androidnga.core.board.data.BoardEntity
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.io.File
 import java.io.IOException
 
@@ -251,30 +256,65 @@ object ForumBoardRepository {
         Files.writeFile(dataFile, boardJson)
     }
 
-    suspend fun requestRemoteBoardList(context: Context): ForumsListBean? {
-        try {
-            val url = Utils.getNGAHost() + FORUM_URL
-            val result = RetrofitHelper.getInstance().serviceKt.getString(url)
-            val bean = JSON.parseObject(result, ForumsListBean::class.java)
-            if (bean != null) {
-                writeRemoteBoardList(context, result)
+    internal fun decodeRemoteBoardList(raw: String): ForumsListBean? {
+        return try {
+            val envelope = JSON.parse(raw) as? JSONObject ?: return null
+            val categories = envelope["result"] as? JSONArray ?: return null
+            if (!hasValidRemoteMembers(categories)) return null
+            // Validate the raw field before Fastjson can coerce numbers/objects to String.
+            val prefix = BoardIconUrlResolver.normalize(envelope.remove("forum_icon_pre"))
+            JSON.toJavaObject(envelope, ForumsListBean::class.java)?.apply {
+                forum_icon_pre = prefix
             }
-            return bean
-        } catch (e: Exception) {
-            LogUtils.e("ForumBoardRepository", "requestRemoteBoardList: ${e.message}")
-            return null
+        } catch (_: Exception) {
+            null
         }
     }
 
-    fun loadRemoteBoardList(context: Context): ForumsListBean? {
-        val fileName = BOARD_REMOTE_FILE_NAME
-        val dataFile = File(context.filesDir, fileName)
-
-        if (!dataFile.exists()) {
-            return null
+    /** Fastjson permits null list members despite Kotlin's non-null element types. */
+    private fun hasValidRemoteMembers(categories: JSONArray): Boolean {
+        categories.forEach { categoryValue ->
+            val category = categoryValue as? JSONObject ?: return false
+            val groupsValue = category["groups"] ?: return@forEach
+            val groups = groupsValue as? JSONArray ?: return false
+            groups.forEach groupLoop@ { groupValue ->
+                val group = groupValue as? JSONObject ?: return false
+                val forumsValue = group["forums"] ?: return@groupLoop
+                val forums = forumsValue as? JSONArray ?: return false
+                if (forums.any { it !is JSONObject }) return false
+            }
         }
-        val result = Files.readFile(dataFile)
-        return JSON.parseObject(result, ForumsListBean::class.java)
+        return true
+    }
+
+    suspend fun requestRemoteBoardList(context: Context): ForumsListBean? {
+        return try {
+            val url = Utils.getNGAHost() + FORUM_URL
+            val result = RetrofitHelper.getInstance().serviceKt.getString(url)
+            val bean = decodeRemoteBoardList(result)
+            currentCoroutineContext().ensureActive()
+            if (bean != null) {
+                writeRemoteBoardList(context, result)
+            }
+            bean
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // Do not log raw network/parser exception messages.
+            null
+        }
+    }
+
+    fun loadRemoteBoardList(context: Context): ForumsListBean? =
+        loadRemoteBoardList(context.filesDir)
+
+    internal fun loadRemoteBoardList(directory: File): ForumsListBean? {
+        return try {
+            val dataFile = File(directory, BOARD_REMOTE_FILE_NAME)
+            if (!dataFile.exists()) null else decodeRemoteBoardList(Files.readFile(dataFile))
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun writeRemoteBoardList(context: Context, boardJson: String) {

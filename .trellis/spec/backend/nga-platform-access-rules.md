@@ -91,8 +91,12 @@ Rules that follow from it:
 - Resolve attachment URLs through `NgaImageHost` (`lib_base_common`). It is the
   single authority for the attachment base URL, the preference override, and
   legacy-host normalization.
-- Glide-loaded URLs (board icons in `ApiConstants`) bypass the decoder chain, so
-  normalization never reaches them. They must carry a correct host literally.
+- Current board icons are loaded by Coil from observable `BoardEntity.iconUrl`,
+  independently of the body decoder. `BoardIconUrlResolver` accepts the known
+  board directories on a validated HTTPS origin from `BOARD.CATEGORIES`
+  `forum_icon_pre`, with the `ApiConstants` img4 URLs as fallback. Built-in
+  drawable icons retain priority. See the [derived board icon contract](../frontend/state-management.md#scenario-derived-board-icons-and-category-refresh).
+  An accepted image origin does not authorize account Cookies or forum calls.
 
 **Probing these paths**: use real identifiers. Board `stid` values are 8 digits
 (see `assets/board_list.json`); small integers 404 because the collection does
@@ -165,7 +169,9 @@ upload host and from the non-attachment `img4.nga.cn` path families.
   `ThreadRowInfo`; page A and page B must be able to render concurrently.
 - Legacy `/attachments/` URLs may be replaced with the page prefix, while
   legacy non-attachment paths retain their `img` number and migrate only to
-  `.nga.cn`. Board icons continue to use their literal `img4.nga.cn` URLs.
+  `.nga.cn`. Board icons use their separate validated category prefix and
+  retain `img4.nga.cn` as fallback; they never consume this page attachment
+  prefix or its manual host preference.
 - URLs that bypass the body decoder (for example, cached avatar values loaded
   directly by Glide) must call the same exact `img`-anchored legacy-host
   normalizer at their extraction boundary. Do not rewrite `nga.178.com`,

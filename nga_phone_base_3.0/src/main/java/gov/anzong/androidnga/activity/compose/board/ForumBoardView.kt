@@ -52,7 +52,6 @@ import com.justwent.androidnga.bu.UserManager
 import gov.anzong.androidnga.R
 import gov.anzong.androidnga.base.util.ContextUtils
 import gov.anzong.androidnga.core.board.data.BoardEntity
-import sp.phone.common.ApiConstants
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -173,7 +172,7 @@ private fun ForumBoardGridItemView(
                 contentDescription = ""
             )
         } else {
-            val url = getResUrl(child)
+            val url = child.iconUrl
             Image(
                 modifier = Modifier.size(imageSize),
                 painter = rememberAsyncImagePainter(
@@ -193,16 +192,6 @@ private fun ForumBoardGridItemView(
         Spacer(modifier = Modifier.height(paddingValue))
     }
 }
-
-private fun getResUrl(board: BoardEntity): String {
-    val url = if (board.stid != 0) {
-        String.format(ApiConstants.URL_BOARD_ICON_STID, board.stid)
-    } else {
-        String.format(ApiConstants.URL_BOARD_ICON, board.fid)
-    }
-    return url
-}
-
 
 private fun getResId(board: BoardEntity): Int {
     if (board.stid != 0) {
@@ -415,7 +404,8 @@ fun ForumBoardContent(
             onReorderActiveChanged = onReorderActiveChanged,
         )
     } else {
-        val boardList: List<BoardEntity> = forumBoardViewModel.getBoardData(index).children!!
+        val revision = forumBoardViewModel.boardContentRevision
+        val boardList = remember(boardData.id, revision) { boardRenderSnapshot(boardData) }
         val maxColumn = 3
         LazyVerticalGrid(
             columns = GridCells.Fixed(maxColumn),
@@ -423,12 +413,13 @@ fun ForumBoardContent(
                 .fillMaxSize()
                 .padding(start = 8.dp, end = 8.dp)
         ) {
-            boardList.forEach {
+            boardList.forEach { group ->
+                val it = group.board
                 if (it.type == BoardEntity.BoardType.GROUP) {
                     item(span = { GridItemSpan(maxColumn) }) {
                         ForumBoardGroupView(it)
                     }
-                    it.children?.let { data ->
+                    group.children.let { data ->
                         items(data.size) { index ->
                             ForumBoardGridItemView(data[index], forumBoardViewModel)
                         }

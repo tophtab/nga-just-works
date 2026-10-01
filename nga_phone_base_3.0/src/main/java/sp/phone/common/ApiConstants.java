@@ -3,7 +3,7 @@ package sp.phone.common;
 public interface ApiConstants {
 
     /**
-     * 板块图标。经 Glide 直接加载，不走解码链，因此 {@code NgaImageHost.normalizeLegacyHosts} 碰不到它，
+     * 板块图标。经 Coil 直接加载，不走解码链，因此 {@code NgaImageHost.normalizeLegacyHosts} 碰不到它，
      * 必须写对域名。
      *
      * <p>路径族在 {@code img4} 上（同表情），不是 {@code /attachments/}，故不能用附件主机——
@@ -12,7 +12,7 @@ public interface ApiConstants {
     String URL_BOARD_ICON = "https://img4.nga.cn/ngabbs/nga_classic/f/app/%s.png";
 
     /**
-     * 合集板块（stid）图标，同样经 Glide 直接加载。
+     * 合集板块（stid）图标，同样经 Coil 直接加载。
      *
      * <p>2026-08-06 实测 200（取 {@code assets/board_list.json} 里的真实 stid 复测五个，
      * 返回体 2.4–3.1KB 的 PNG，各不相同）。

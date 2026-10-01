@@ -1,19 +1,21 @@
 package gov.anzong.androidnga.activity.compose.board
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import gov.anzong.androidnga.arouter.ARouterConstants
+import gov.anzong.androidnga.base.util.ContextUtils
 import gov.anzong.androidnga.base.util.PreferenceUtils
 import gov.anzong.androidnga.base.util.ToastUtils
 import gov.anzong.androidnga.core.board.data.BoardEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sp.phone.param.ParamKey
 import sp.phone.util.ARouterUtils
-import java.util.concurrent.TimeUnit
 
 object ForumBoardViewModel : ViewModel() {
 
@@ -27,10 +29,26 @@ object ForumBoardViewModel : ViewModel() {
 
     const val BOARD_REMOTE_REQUEST_TIME_KEY = "board_remote_request_time"
 
+    var boardContentRevision by mutableIntStateOf(0)
+        private set
+
+    private val refreshGate = BoardRefreshGate(
+        readLastAttempt = { PreferenceUtils.getData(BOARD_REMOTE_REQUEST_TIME_KEY, 0L) },
+        writeLastAttempt = { PreferenceUtils.putData(BOARD_REMOTE_REQUEST_TIME_KEY, it) },
+    )
+
     init {
         boardLiveData.postValue(forumBoardModel.loadBoardData())
         bookmarkSizeLiveData.postValue(forumBoardModel.bookmarkBoard.children?.size)
         bookmarkBoardsLiveData.postValue(forumBoardModel.bookmarkSnapshot())
+        if (forumBoardModel.needsCachedIconPrefix()) {
+            viewModelScope.launch {
+                val prefix = withContext(Dispatchers.IO) {
+                    ForumBoardRepository.loadRemoteBoardList(ContextUtils.getContext())?.forum_icon_pre
+                }
+                forumBoardModel.applyCachedIconPrefix(prefix)
+            }
+        }
     }
 
     fun getBoardData(index: Int = 0): BoardEntity {
@@ -195,21 +213,19 @@ object ForumBoardViewModel : ViewModel() {
     }
 
     private fun requestRemoteBoardList() {
-        val long = PreferenceUtils.getData(BOARD_REMOTE_REQUEST_TIME_KEY, 0L)
-
-        if (System.currentTimeMillis() - long < TimeUnit.DAYS.toMillis(1)) {
-            return
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val job = async {
-                return@async forumBoardModel.loadIncrementalBoardList()
-            }
-            val result = job.await()
-            if (result.isNotEmpty()) {
-                forumBoardModel.mergeBoardList(result)
-            }
-            PreferenceUtils.putData(BOARD_REMOTE_REQUEST_TIME_KEY, System.currentTimeMillis())
+        viewModelScope.launch(Dispatchers.Main.immediate) {
+            refreshGate.refresh(
+                request = {
+                    withContext(Dispatchers.IO) {
+                        ForumBoardRepository.requestRemoteBoardList(ContextUtils.getContext())
+                    }
+                },
+                apply = { response ->
+                    if (forumBoardModel.applyRemoteBoardList(response)) {
+                        boardContentRevision++
+                    }
+                },
+            )
         }
     }
 }

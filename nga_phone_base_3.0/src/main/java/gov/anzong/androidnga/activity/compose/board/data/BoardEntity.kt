@@ -1,6 +1,9 @@
 package gov.anzong.androidnga.core.board.data
 
 import androidx.annotation.IntDef
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.alibaba.fastjson.annotation.JSONField
 import gov.anzong.androidnga.common.base.JavaBean
 
@@ -24,6 +27,10 @@ class BoardEntity : JavaBean {
     var children: MutableList<BoardEntity>? = null
 
     var head :String? = null
+
+    @get:JSONField(serialize = false, deserialize = false)
+    @set:JSONField(serialize = false, deserialize = false)
+    var iconUrl: String by mutableStateOf("")
 
     @IntDef(BoardType.BOARD, BoardType.ASSEMBLE, BoardType.GROUP, BoardType.BOOKMARK)
     annotation class BoardType {
