@@ -7,8 +7,8 @@
 ## Current Status
 
 <!-- @@@auto:current-status -->
-- **Active File**: `journal-1.md`
-- **Total Sessions**: 74
+- **Active File**: `journal-2.md`
+- **Total Sessions**: 75
 - **Last Active**: 2026-10-01
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,8 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1978 | Active |
+| `journal-2.md` | ~33 | Active |
+| `journal-1.md` | ~1978 | Archived |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +30,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 75 | 2026-10-01 | 精简非必要测试并准备 6.2.1 发布 | `e5e23287` | `main` |
 | 74 | 2026-10-01 | Simplify tests and integrate 6.2.0; defer push and release | `5abfb1cb`, `b37b4570`, `29f58eb6` | `main` |
 | 73 | 2026-10-01 | Complete upstream adoption U1–U4 for 6.2.0 | `345db9cb`, `4ccd7564`, `88ce8be3`, `05c2602e`, `1b4f8ade`, `4a4296c2`, `758aa6b9`, `5595c8ed`, `0eebe1e5`, `c2131fe9`, `7d5ef21b`, `965b42e9` | `feat/upstream-adoption` |
 | 72 | 2026-09-30 | Repair Android SDK setup for 6.1.1 release | `c46a5d35` | `main` |
