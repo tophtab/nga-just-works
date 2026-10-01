@@ -2,7 +2,10 @@ package sp.phone.mvp.model.thread
 
 import sp.phone.http.bean.ThreadData
 import sp.phone.http.bean.ThreadRowInfo
+import sp.phone.mvp.model.entity.ThreadPageInfo
 import sp.phone.param.ArticleListParam
+import sp.phone.param.TopicListParam
+import sp.phone.util.StringUtils
 
 /** Query coordinates are independent of the source's page size and a row's original floor. */
 data class ArticleQuery(
@@ -116,6 +119,20 @@ data class ArticleAnchor(
 
 /** Pure navigation calculations; all candidates still require an actual row match after loading. */
 object ArticleNavigation {
+    @JvmStatic fun fromSearchResult(info: ThreadPageInfo, request: TopicListParam): ArticleListParam =
+        ArticleListParam().apply {
+            tid = info.tid
+            page = info.page
+            title = StringUtils.unEscapeHtml(info.subject)
+            if (request.searchPost != 0) {
+                pid = info.pid
+                // Topic author and the matched __P reply author are independent identities.
+                authorId = info.replyInfo?.authorId?.toIntOrNull() ?: 0
+                searchPost = request.searchPost
+            }
+            topicInfo = com.alibaba.fastjson.JSON.toJSONString(info)
+        }
+
     @JvmStatic fun quoteAddress(row: ThreadRowInfo): String = if (ArticleRowPresentation.hasFloor(row)) {
         "${row.pid},${row.tid},${row.lou.toLong() / 20 + 1}"
     } else row.pid.toString()
