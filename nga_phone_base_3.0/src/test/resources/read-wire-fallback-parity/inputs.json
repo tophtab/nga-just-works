@@ -1,0 +1,210 @@
+[
+  {
+    "name": "row-tid-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":\"bad\",\"Tid\":9}}}}"
+  },
+  {
+    "name": "row-tid-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Tid\":9,\"tid\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-fid-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"fid\":\"bad\",\"Fid\":9}}}}"
+  },
+  {
+    "name": "row-fid-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Fid\":9,\"fid\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-authorid-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"authorid\":\"bad\",\"Authorid\":9}}}}"
+  },
+  {
+    "name": "row-authorid-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Authorid\":9,\"authorid\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-pid-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"pid\":\"bad\",\"Pid\":9}}}}"
+  },
+  {
+    "name": "row-pid-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Pid\":9,\"pid\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-lou-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"lou\":\"bad\",\"Lou\":9}}}}"
+  },
+  {
+    "name": "row-lou-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Lou\":9,\"lou\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-score-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"score\":\"bad\",\"Score\":9}}}}"
+  },
+  {
+    "name": "row-score-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Score\":9,\"score\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-aurvrc-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"aurvrc\":\"bad\",\"Aurvrc\":9}}}}"
+  },
+  {
+    "name": "row-aurvrc-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Aurvrc\":9,\"aurvrc\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-reputation-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"reputation\":\"bad\",\"Reputation\":1.5}}}}"
+  },
+  {
+    "name": "row-reputation-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Reputation\":1.5,\"reputation\":\"bad\"}}}}"
+  },
+  {
+    "name": "row-isanonymous-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"isanonymous\":{},\"Isanonymous\":true}}}}"
+  },
+  {
+    "name": "row-isanonymous-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Isanonymous\":true,\"isanonymous\":{}}}}}"
+  },
+  {
+    "name": "row-muted-False",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"muted\":{},\"Muted\":true}}}}"
+  },
+  {
+    "name": "row-muted-True",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Muted\":true,\"muted\":{}}}}}"
+  },
+  {
+    "name": "topic-tid",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"tid\":\"bad\",\"Tid\":9}}}"
+  },
+  {
+    "name": "topic-fid",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"fid\":\"bad\",\"Fid\":9}}}"
+  },
+  {
+    "name": "topic-authorid",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"authorid\":\"bad\",\"Authorid\":9}}}"
+  },
+  {
+    "name": "topic-replies",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"replies\":\"bad\",\"Replies\":9}}}"
+  },
+  {
+    "name": "topic-type",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"type\":\"bad\",\"Type\":9}}}"
+  },
+  {
+    "name": "topic-postdate",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"postdate\":\"bad\",\"Postdate\":9}}}"
+  },
+  {
+    "name": "topic-page",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"page\":\"bad\",\"Page\":9}}}"
+  },
+  {
+    "name": "topic-pid",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"pid\":\"bad\",\"Pid\":9}}}"
+  },
+  {
+    "name": "topic-position",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"position\":\"bad\",\"Position\":9}}}"
+  },
+  {
+    "name": "topic-anonymity",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\"}},\"__T\":{\"anonymity\":{},\"Anonymity\":true}}}"
+  },
+  {
+    "name": "attachment-size",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\",\"attachs\":{\"0\":{\"size\":\"bad\",\"Size\":9}}}}}}"
+  },
+  {
+    "name": "attachment-subid",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\",\"attachs\":{\"0\":{\"subid\":\"bad\",\"Subid\":9}}}}}}"
+  },
+  {
+    "name": "vote",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"vote\":\"canonical\",\"Vote\":\"alias\"}}}}"
+  },
+  {
+    "name": "vote-empty",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"vote\":\"\",\"Vote\":\"alias\"}}}}"
+  },
+  {
+    "name": "vote-null",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"vote\":null,\"Vote\":\"alias\"}}}}"
+  },
+  {
+    "name": "attachments-alias",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Attachs\":{\"0\":{\"attachurl\":\"x\"}}}}}}"
+  },
+  {
+    "name": "attachments-override",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"attachs\":{\"0\":{\"attachurl\":\"first\"}},\"Attachs\":{\"0\":{\"attachurl\":\"last\"}}}}}}"
+  },
+  {
+    "name": "hot-fallback",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"hotReplies\":[\"1\",\"2\"]}}}}"
+  },
+  {
+    "name": "hot-alias",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"HotReplies\":[\"1\",\"2\"]}}}}"
+  },
+  {
+    "name": "hot-17",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"hotReplies\":[\"old\"],\"17\":\"1,,2,1,\"}}}}"
+  },
+  {
+    "name": "hot-empty-17",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"hotReplies\":[\"old\"],\"17\":\"\"}}}}"
+  },
+  {
+    "name": "hot-null-17",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"hotReplies\":[\"old\"],\"17\":null}}}}"
+  },
+  {
+    "name": "hot-invalid-17",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"hotReplies\":{},\"17\":\"1\"}}}}"
+  },
+  {
+    "name": "comments",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"comments\":[{\"content\":\"nested\",\"pid\":9,\"author\":\"fallback\",\"isInBlackList\":true,\"comments\":[{\"content\":\"deep\"}]}]}}}}"
+  },
+  {
+    "name": "comments-override",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"comments\":[{\"content\":\"fallback\"}],\"comment\":{\"0\":{\"content\":\"protocol\"}}}}}}"
+  },
+  {
+    "name": "comments-null",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"comments\":[{\"content\":\"fallback\"}],\"comment\":null}}}}"
+  },
+  {
+    "name": "comments-malformed-gap",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"comments\":\"bad\",\"comment\":{\"1\":{}}}}}}"
+  },
+  {
+    "name": "blacklist",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"isInBlackList\":true}}}}"
+  },
+  {
+    "name": "blacklist-alias",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"_isInBlackList\":true}}}}"
+  },
+  {
+    "name": "blacklist-invalid",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"isInBlackList\":{},\"IsInBlackList\":true}}}}"
+  },
+  {
+    "name": "display-fallback",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"mFormattedHtmlData\":\"old\",\"mImageUrlList\":[\"old\"],\"fromClientModel\":\"ignored\"}}}}"
+  },
+  {
+    "name": "comments-attachments",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"comments\":[{\"content\":\"nested\",\"attachs\":{\"0\":{\"attachurl\":\"x\"}}}]}}}}"
+  }
+]

@@ -30,4 +30,13 @@ data class ReadPostWire(
     val comments: ReadField<List<ReadPostWire>>,
     val hotReplyIds: ReadField<String>,
     val user: ReadField<ReadUserWire>,
+    // Scoped bean projection after removal of only invalid canonical source keys.
+    val scopedSource: ReadScopedSourceWire,
+    // The original floor-presence test examines literal "lou", independently of bean aliases.
+    val floorPresent: Boolean,
+    // Structural lookup coordinate for app-owned bean compatibility state, never raw response data.
+    val sourcePath: String,
 )
+
+/** Effective source text from the existing scoped projection; raw validity stays in the post fields. */
+data class ReadScopedSourceWire(val content: String?, val subject: String?, val alterInfo: String?)

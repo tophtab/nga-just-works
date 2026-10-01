@@ -1,0 +1,314 @@
+[
+  {
+    "name": "complete-row-fallback",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"}}}"
+  },
+  {
+    "name": "user-overlay-125",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":\"author from table\",\"avatar\":\"table-avatar\",\"yz\":\"-2\",\"mute_time\":\"table mute\",\"rvrc\":\"125\",\"signature\":\"table signature\",\"postnum\":\"new count\",\"memberid\":7,\"buffs\":{\"117\":{},\"105\":0}},\"43\":{\"username\":\"commenter\",\"avatar\":\"comment-avatar\"},\"__GROUPS\":{\"7\":{\"0\":\"new group\"}}}}}"
+  },
+  {
+    "name": "user-overlay-12.5",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":\"author from table\",\"avatar\":\"table-avatar\",\"yz\":\"-2\",\"mute_time\":\"table mute\",\"rvrc\":\"12.5\",\"signature\":\"table signature\",\"postnum\":\"new count\",\"memberid\":7,\"buffs\":{\"117\":{},\"105\":0}},\"43\":{\"username\":\"commenter\",\"avatar\":\"comment-avatar\"},\"__GROUPS\":{\"7\":{\"0\":\"new group\"}}}}}"
+  },
+  {
+    "name": "user-overlay-bad",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":\"author from table\",\"avatar\":\"table-avatar\",\"yz\":\"-2\",\"mute_time\":\"table mute\",\"rvrc\":\"bad\",\"signature\":\"table signature\",\"postnum\":\"new count\",\"memberid\":7,\"buffs\":{\"117\":{},\"105\":0}},\"43\":{\"username\":\"commenter\",\"avatar\":\"comment-avatar\"},\"__GROUPS\":{\"7\":{\"0\":\"new group\"}}}}}"
+  },
+  {
+    "name": "user-overlay-None",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":\"author from table\",\"avatar\":\"table-avatar\",\"yz\":\"-2\",\"mute_time\":\"table mute\",\"rvrc\":null,\"signature\":\"table signature\",\"postnum\":\"new count\",\"memberid\":7,\"buffs\":{\"117\":{},\"105\":0}},\"43\":{\"username\":\"commenter\",\"avatar\":\"comment-avatar\"},\"__GROUPS\":{\"7\":{\"0\":\"new group\"}}}}}"
+  },
+  {
+    "name": "anonymous-#anony_00000000000000000000000000000000",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":\"#anony_00000000000000000000000000000000\"}}}}"
+  },
+  {
+    "name": "anonymous-#anony_gggggggggggggggggggggggggggggggg",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":\"#anony_gggggggggggggggggggggggggggggggg\"}}}}"
+  },
+  {
+    "name": "anonymous-#anony_short",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":\"#anony_short\"}}}}"
+  },
+  {
+    "name": "anonymous-None",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"username\":null}}}}"
+  },
+  {
+    "name": "missing-entry",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{}}}"
+  },
+  {
+    "name": "null-entry",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":null}}}"
+  },
+  {
+    "name": "wrong-entry",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":[]}}}"
+  },
+  {
+    "name": "missing-group",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"rvrc\":\"20\",\"postnum\":\"8\",\"memberid\":7}}}}"
+  },
+  {
+    "name": "empty-group",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"rvrc\":\"20\",\"memberid\":7},\"__GROUPS\":{\"7\":{}}}}}"
+  },
+  {
+    "name": "bad-group",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"rvrc\":\"20\",\"memberid\":7},\"__GROUPS\":{\"7\":\"bad\"}}}}"
+  },
+  {
+    "name": "encoded-group",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"rvrc\":\"20\",\"memberid\":7,\"buffs\":\"{\\\"117\\\":0}\"},\"__GROUPS\":\"{\\\"7\\\":\\\"{\\\\\\\"0\\\\\\\":\\\\\\\"encoded group\\\\\\\"}\\\"}\"}}}"
+  },
+  {
+    "name": "scalar-buffs",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"buffs\":[]}}}}"
+  },
+  {
+    "name": "bad-buffs",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"fid\":-7,\"authorid\":42,\"pid\":50120,\"lou\":120,\"subject\":\"subject\",\"content\":\"%u4E2D%u6587\",\"alterinfo\":\"notice\",\"vote\":\"vote wire\",\"postdate\":1700000000,\"level\":\"level\",\"from_client\":\"103 device OS detail\",\"score\":5,\"author\":\"row author\",\"isanonymous\":true,\"yz\":\"-1\",\"js_escap_avatar\":\"row-avatar\",\"muteTime\":\"row-mute\",\"aurvrc\":23,\"signature\":\"row signature\",\"muted\":true,\"postCount\":\"row count\",\"reputation\":2.3,\"memberGroup\":\"row group\",\"17\":\"51,,52,51,\",\"attachs\":{\"second\":{\"aid\":\"A\",\"url_utf8_org_name\":\"原名.mp4\",\"dscp\":\"description\",\"size\":12345,\"ext\":\"mp4\",\"name\":\"file\",\"thumb\":\"1\",\"attachurl\":\"mon_test/a.mp4\",\"type\":\"video\",\"subid\":7},\"first\":{\"attachurl\":\"mon_test/b.jpg\"}},\"comment\":{\"0\":{\"tid\":120002,\"pid\":50121,\"authorid\":43,\"content\":\"comment\",\"attachs\":{\"0\":{\"attachurl\":\"comment.jpg\"}}}}}},\"__T\":{\"tid\":120002,\"fid\":-7,\"author\":\"topic author\",\"authorid\":42,\"lastposter\":\"last\",\"replies\":899,\"subject\":\"topic\",\"titlefont\":\"b red\",\"type\":16,\"topic_misc\":\"misc\",\"postdate\":1700000000,\"page\":7,\"pid\":51,\"position\":3,\"anonymity\":true,\"board\":\"版面镜像\",\"replyInfo\":{\"pidStr\":\"51\",\"tidStr\":\"120002\",\"authorId\":\"43\",\"content\":\"reply\",\"subject\":\"reply subject\",\"postDate\":\"1700000001\"}},\"__GLOBAL\":{\"_ATTACH_BASE_VIEW\":\"https://fixture.invalid/full/attachments/\"},\"__U\":{\"42\":{\"buffs\":\"bad\"}}}}"
+  },
+  {
+    "name": "content-null",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":null}}}}"
+  },
+  {
+    "name": "subject-null",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"subject\":null}}}}"
+  },
+  {
+    "name": "alterinfo-null",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"alterinfo\":null}}}}"
+  },
+  {
+    "name": "content-empty",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"\"}}}}"
+  },
+  {
+    "name": "subject-empty",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"subject\":\"\"}}}}"
+  },
+  {
+    "name": "alterinfo-empty",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"alterinfo\":\"\"}}}}"
+  },
+  {
+    "name": "content-number",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":123}}}}"
+  },
+  {
+    "name": "subject-number",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"subject\":123}}}}"
+  },
+  {
+    "name": "alterinfo-number",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"alterinfo\":123}}}}"
+  },
+  {
+    "name": "content-boolean",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":true}}}}"
+  },
+  {
+    "name": "subject-boolean",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"subject\":true}}}}"
+  },
+  {
+    "name": "alterinfo-boolean",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"alterinfo\":true}}}}"
+  },
+  {
+    "name": "content-object",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":{\"x\":1}}}}}"
+  },
+  {
+    "name": "subject-object",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"subject\":{\"x\":1}}}}}"
+  },
+  {
+    "name": "alterinfo-object",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"alterinfo\":{\"x\":1}}}}}"
+  },
+  {
+    "name": "content-array",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":[1,2]}}}}"
+  },
+  {
+    "name": "subject-array",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"subject\":[1,2]}}}}"
+  },
+  {
+    "name": "alterinfo-array",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"alterinfo\":[1,2]}}}}"
+  },
+  {
+    "name": "source-absent",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":null,\"subject\":null,\"alterinfo\":null}}}}"
+  },
+  {
+    "name": "subject-only",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":null,\"subject\":\"readable\"}}}}"
+  },
+  {
+    "name": "alter-only",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":null,\"alterinfo\":\"moderation\"}}}}"
+  },
+  {
+    "name": "hot-empty",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"17\":\"\"}}}}"
+  },
+  {
+    "name": "hot-delimiters",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"17\":\",,,\"}}}}"
+  },
+  {
+    "name": "hot-duplicates",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"17\":\"1,,2,1,\"}}}}"
+  },
+  {
+    "name": "sparse-defaults",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "bean-camel-aliases",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"authorId\":43,\"postDate\":\"yesterday\",\"alterInfo\":\"alias alter\",\"jsEscapAvatar\":\"alias avatar\",\"mute_time\":\"alias mute\",\"post_count\":\"alias count\",\"member_group\":\"alias group\",\"fromClient\":\"8 ignored override\",\"fromClientModel\":\"ignored\"}}}}"
+  },
+  {
+    "name": "bean-public-fallbacks",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\",\"mMuted\":true,\"mPostCount\":\"public count\",\"mReputation\":7.5,\"mMemberGroup\":\"public group\"}}}}"
+  },
+  {
+    "name": "topic-missing",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}},\"__T\":null}}"
+  },
+  {
+    "name": "topic-invalid-bean",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}},\"__T\":{\"tid\":\"bad\",\"authorid\":42}}}"
+  },
+  {
+    "name": "topic-invalid-owner",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}},\"__T\":{\"authorid\":\"bad\"}}}"
+  },
+  {
+    "name": "topic-empty",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}},\"__T\":{}}}"
+  },
+  {
+    "name": "topic-wrong-array",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}},\"__T\":[]}}"
+  },
+  {
+    "name": "topic-encoded",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}},\"__T\":\"{}\"}}"
+  },
+  {
+    "name": "bad-count",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":\"bad\",\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "coerced-count",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":\"1\",\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "negative-count",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":-1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "null-count",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":null,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "large-count",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":2,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "bad-total",
+    "raw": "{\"data\":{\"__ROWS\":\"900\",\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "missing-row-map",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":null}}"
+  },
+  {
+    "name": "wrong-row-map",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":[]}}"
+  },
+  {
+    "name": "wrong-user-map",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":120002,\"pid\":51,\"authorid\":42,\"content\":\"body\"}},\"__U\":[]}}"
+  },
+  {
+    "name": "gap",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"1\":{}}}}"
+  },
+  {
+    "name": "wrong-slot",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":[]}}}"
+  },
+  {
+    "name": "skip-second",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":2,\"__R\":{\"0\":{},\"1\":null}}}"
+  },
+  {
+    "name": "comment-gap",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"comment\":{\"1\":{}}}}}}"
+  },
+  {
+    "name": "primitive-before-gap",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"score\":\"bad\",\"comment\":{\"1\":{}}}}}}"
+  },
+  {
+    "name": "attachment-before-gap",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"attachs\":{\"0\":{\"size\":\"bad\"}},\"comment\":{\"1\":{}}}}}}"
+  },
+  {
+    "name": "null-attachment",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\",\"attachs\":{\"a\":null}}}}}"
+  },
+  {
+    "name": "nested-structured",
+    "raw": "{\"data\":{\"__ROWS\":900,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"parent\",\"comment\":{\"0\":{\"content\":{},\"subject\":\"child title\"}}}}}}"
+  },
+  {
+    "name": "raw-68",
+    "raw": ""
+  },
+  {
+    "name": "raw-69",
+    "raw": "{"
+  },
+  {
+    "name": "raw-70",
+    "raw": "{}{}"
+  },
+  {
+    "name": "raw-71",
+    "raw": "<html>failure</html>"
+  },
+  {
+    "name": "raw-72",
+    "raw": "{\"error\":{\"0\":\"未登录\"}}"
+  },
+  {
+    "name": "raw-73",
+    "raw": "/*$js$*/{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":+123,\"subject\":0123,\"author\":001,\"pid\":1}}}}/*error fill content synthetic*/"
+  },
+  {
+    "name": "mixed-body-alias",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":{},\"Content\":\"alias source\",\"subject\":\"fallback\"}}}}"
+  },
+  {
+    "name": "mixed-lou-alias",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"Lou\":12,\"content\":\"body\"}}}}"
+  },
+  {
+    "name": "attachment-alias",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"content\":\"body\",\"attachs\":{\"0\":{\"attachUrl\":\"alias.jpg\",\"urlUtf8OrgName\":\"alias name\",\"subId\":7}}}}}}"
+  },
+  {
+    "name": "row-primitive-null",
+    "raw": "{\"data\":{\"__ROWS\":1,\"__R__ROWS\":1,\"__R\":{\"0\":{\"tid\":null,\"pid\":null,\"isanonymous\":null,\"score\":null,\"reputation\":null,\"content\":\"body\"}}}}"
+  }
+]

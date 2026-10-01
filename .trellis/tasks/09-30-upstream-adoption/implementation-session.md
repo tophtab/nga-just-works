@@ -49,3 +49,28 @@
 - 实际app R8被现有packageReleaseResources签名guard挡住，未绕过/未读凭据；U3-A7及父验收保持待U4。B3开始typed wire/core decoder独立实现。
 
 U4预取补充：已校验的Gradle8.11.1 distribution已放入标准wrapper cache `~/.gradle/wrapper/dists/gradle-8.11.1-bin/bpt9gzteqjrbo1mjrsomdt32c`，供新wrapper离线启动。
+
+## U3 B3 checkpoint
+
+- `758aa6b9`：五类wire DTO、ReadField状态与core decoder；core_data启用Kotlin/JVM17。
+- 独立check修复topic强转/count转换/groups-buffs访问语义，14项core decoder测试、803项全模块测试通过，13模块lint 0 Error/Fatal。
+- app尚未接线。B4开始捕获旧facade完整对比样本，并接回既有Java模型与渲染链。
+
+## B4 独立复核修正中
+
+首轮 B4 Debug、806项测试、13模块lint通过，但独立check用保留的旧生产helper发现额外别名/bean回退差异，尚未提交。
+详见 U3 `research/b4-check.md`；正在固定补充旧facade基线并修复，B5须等复核通过。
+本次用户追加完成后commit/finish-work/push/新版本发布授权，具体边界记录在approval.md。
+
+## 并行主分支修复待整合
+
+本次检查源仓库及远端main已推进到 `c768a3cbf7db4101472f15f3a7ea5b3b846de6d1`（回复搜索以回帖作者导航）。
+待B4冻结提交后整合，B5需迁移新ArticlePage.kt中的JSON调用并保留新增ReplySearchNavigationTest；不能覆盖该已正式提交修复。
+源仓库原始六个未跟踪目录仍为89文件，已制作并逐文件SHA256校验 `/tmp/upstream-adoption-source-plans-20261001.tar.gz`，原目录尚未移动/删除。
+
+## U3 B4 最终代码门
+
+普通facade接入typed wire/legacy mapper；显示bean回退保持在app层，补全别名逐次转换及附件/评论/热评优先级。
+冻结旧输出样本156+104+72；独立review另修正JSON2实际 `_IsInBlackList` 字段名并加入双模式回归。
+最终Debug构建、812项测试通过；13模块完整lint及局部修正后app lint均0 Error/Fatal。独立最终结论见U3 `research/b4-check.md`。
+B4后先整合main `c768a3cb`，再B5纯删除清理；实际app R8仍待U4。

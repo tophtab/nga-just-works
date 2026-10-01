@@ -206,7 +206,7 @@ class ReadThreadWireDecoderTest {
 
     @Test fun invalidPrimitiveAndContainerConversionsKeepOuterNullDispositionInBothModes() {
         val rows=listOf("""{"pid":"bad"}""","""{"comment":[]}""","""{"attachs":[]}""",
-            """{"attachs":{"0":{"size":"bad"}}}""","""{"isanonymous":{}}""")
+            """{"isanonymous":{}}""")
         for(row in rows) for(mode in ReadDecodeMode.values()) failure(data("""{"0":$row}"""),ReadShapeProblem.UNREADABLE_VALUE,mode)
         for(mode in ReadDecodeMode.values()) {
             val obj=data();obj["__ROWS"]="900";failure(obj,ReadShapeProblem.UNREADABLE_VALUE,mode)
@@ -261,5 +261,43 @@ class ReadThreadWireDecoderTest {
         failure(obj,ReadShapeProblem.UNREADABLE_VALUE)
         obj["__R__ROWS"]=0;obj["__R"]=JSON.parseObject("{}")
         assertTrue(success(obj).rows.value!!.isEmpty())
+    }
+
+    @Test fun aliasesAndScopedProjectionFollowBeanOrderWithoutLosingRawValidity() {
+        val obj = data("""{"0":{"authorid":42,"authorId":43,"postDate":"date","jsEscapAvatar":"avatar","content":{},"Content":"alias source","Lou":12}}""")
+        val row = success(obj).row()
+        assertEquals(43, row.authorId.value)
+        assertEquals("date", row.postDate.value)
+        assertEquals("avatar", row.avatar.value)
+        assertFalse(row.content.isSourceScalar)
+        assertEquals("alias source", row.scopedSource.content)
+        assertEquals(12, row.lou.value)
+        assertFalse(row.floorPresent)
+        val attachment = data("""{"0":{"attachs":{"0":{"size":"bad"}}}}""")
+        assertFalse(success(attachment).row().attachments.value!!["0"]!!.valid)
+        attachment.getJSONObject("__R").getJSONObject("0")["comment"] = JSON.parseObject("""{"1":{}}""")
+        failure(attachment, ReadShapeProblem.INDEXED_ROW)
+    }
+
+    @Test fun everyNumericAndBooleanAliasAssignmentIsValidatedBeforeOverwrite() {
+        for (name in listOf("tid", "fid", "authorid", "pid", "lou", "score", "aurvrc", "reputation", "isanonymous", "muted")) {
+            val alias = name.replaceFirstChar { it.uppercase() }
+            val bad = if (name == "isanonymous" || name == "muted") "{}" else "\"bad\""
+            val good = if (name == "isanonymous" || name == "muted") "true" else "9"
+            for (row in listOf("{\"$name\":$bad,\"$alias\":$good}", "{\"$alias\":$good,\"$name\":$bad}")) {
+                for (mode in ReadDecodeMode.values()) failure(data("{\"0\":$row}"), ReadShapeProblem.UNREADABLE_VALUE, mode)
+            }
+        }
+    }
+
+    @Test fun appBeanValidityIsCheckedBeforeNestedSlotsButAfterScopedTopLevelShape() {
+        val obj = data("""{"0":{"comment":{"1":{}}}}""")
+        val failed = ReadThreadWireDecoder.decode(obj, ReadDecodeMode.SCOPED, setOf("__R[0]"))
+        assertEquals(ReadShapeProblem.UNREADABLE_VALUE, (failed as ReadThreadDecodeResult.Failure).problem)
+        obj["__R__ROWS"] = 2
+        val shape = ReadThreadWireDecoder.decode(obj, ReadDecodeMode.SCOPED, setOf("__R[0]"))
+        assertEquals(ReadShapeProblem.ROW_MAP_OR_COUNT, (shape as ReadThreadDecodeResult.Failure).problem)
+        val ignored = ReadThreadWireDecoder.decode(data(), ReadDecodeMode.SCOPED, setOf("__R[9]"))
+        assertTrue(ignored is ReadThreadDecodeResult.Success)
     }
 }

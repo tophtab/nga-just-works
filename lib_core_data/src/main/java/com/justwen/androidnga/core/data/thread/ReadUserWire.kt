@@ -12,4 +12,6 @@ data class ReadUserWire(
     val memberId: ReadField<String>,
     val buffIds: ReadField<List<String>>,
     val groupName: ReadField<String>,
+    // Empty object clears the label; absent/null object leaves the row fallback unchanged.
+    val groupResolved: Boolean,
 )

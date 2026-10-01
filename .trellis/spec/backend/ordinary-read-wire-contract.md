@@ -10,7 +10,7 @@ reader retains its separate existing parser.
 ## 2. Signatures
 
 ```kotlin
-ReadThreadWireDecoder.decode(data: JSONObject, mode: ReadDecodeMode): ReadThreadDecodeResult
+ReadThreadWireDecoder.decode(data: JSONObject, mode: ReadDecodeMode, invalidBeanRows: Set<String> = emptySet()): ReadThreadDecodeResult
 ReadDecodeMode.SCOPED
 ReadDecodeMode.LEGACY
 ReadField<T>(kind: ReadValueKind, value: T?, valid: Boolean)
@@ -30,6 +30,13 @@ and UNREADABLE_VALUE for the app's existing error/null branches.
   validity distinct. A missing/null/structured body must not become invented
   valid source text. `isSourceScalar` alone does not prove field presence or
   editability; the app retains its existing source-completeness rules.
+  Keep scoped text projection separate: the old strict reader removes only
+  invalid canonical source keys before bean mapping, so a valid smart alias
+  can still supply text. Literal `lou` presence remains independent of aliases.
+  Preserve the bean's matching-input-key assignment order, not a fixed
+  preferred-key list. Every matching value is converted before a later alias
+  overwrites it; an earlier malformed numeric value must not become valid
+  merely because the final alias converts successfully.
 - Current-row traversal uses `__R__ROWS`; total `__ROWS` is separate metadata.
   Preserve the existing primitive conversion/unboxing behavior where it decides
   an outer-null result. Do not use tolerant zero defaults to erase failures.
@@ -57,10 +64,33 @@ and UNREADABLE_VALUE for the app's existing error/null branches.
   details, normal-only WP input, raw `17` hot replies, anonymous/owner facts,
   topic navigation/reply metadata and current fallback precedence. Wire values
   do not contain authoritative rendered HTML, image lists or blacklist output.
+  Preserve invalid attachment conversion as typed evidence until the original
+  consumption phase so a preceding nested-comment CONTENT error retains
+  priority. Do not leak an opaque JSONObject through the typed boundary merely
+  to reproduce an invalid raw map seen only by a no-op test renderer.
+- Keep legacy display-bean fallbacks in the app's ReadThreadBeanFallbacks
+  projection, using the actual bean field metadata and a finite field inventory.
+  These include bean `comments` (distinct from protocol `comment`), hot-reply
+  fallback lists, blacklist and rendered/image presentation fallback fields.
+  They are not authoritative core output. Apply user/protocol/render overrides
+  in their original order; nonempty canonical `vote` and literal `17` retain
+  their explicit precedence over bean aliases/fallbacks.
+  Pass only invalid row paths to core when an app-bean conversion failure must
+  precede a later nested-comment shape error. `ReadPostWire.sourcePath` links
+  the app projection to each row; no app object, raw JSON or callback crosses
+  this boundary. Projection traversal must preserve numeric-count coercion and
+  remain bounded by present row slots before core validates the count.
 - The app adapter owns existing public Java models, source-specific failures,
   blacklist/author presentation, attachments-prefix resolution, WP preprocessing
   and renderer calls. Populate attachments/comments before rendering. Preserve
   the facade's public signatures and the separate App parser path.
+  ReadThreadLegacyMapper maps typed wire values back into existing Java models;
+  it does not rewrite NormalArticleParser or AppArticleParser policies.
+- Successful facade results and render/lookup order must match frozen baseline
+  snapshots. Decode-first rejection can avoid discarded render/lookup work on
+  invalid pages; document exact cases and verify there are no delivered UI or
+  network effects. Skipping a rejected lookup may defer lazy filter-store
+  initialization; it must not introduce a new write or action.
 
 ## 4. Validation & Error Matrix
 

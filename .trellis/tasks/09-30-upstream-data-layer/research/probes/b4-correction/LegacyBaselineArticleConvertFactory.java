@@ -1,10 +1,9 @@
 package sp.phone.mvp.model.convert;
 
+import android.text.TextUtils;
+
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import gov.anzong.androidnga.core.thread.ReadDecodeMode;
-import gov.anzong.androidnga.core.thread.ReadThreadDecodeResult;
-import gov.anzong.androidnga.core.thread.ReadThreadWireDecoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +38,10 @@ import sp.phone.util.StringUtils;
  * Created by Justwen on 2017/12/3.
  */
 
-public class ArticleConvertFactory {
+public class LegacyBaselineArticleConvertFactory {
 
     public static ThreadData getArticleInfo(String js) {
-        return getArticleInfo(js, ArticleConvertFactory::renderRow,
+        return getArticleInfo(js, LegacyBaselineArticleConvertFactory::renderRow,
                 uid -> UserManagerImpl.getInstance().checkBlackList(uid));
     }
 
@@ -78,21 +77,26 @@ public class ArticleConvertFactory {
             if (obj == null) {
                 return null;
             }
-            ReadThreadBeanFallbacks fallbacks = ReadThreadBeanFallbacks.decode(obj, strict);
-            ReadThreadDecodeResult decoded = ReadThreadWireDecoder.decode(obj,
-                    strict ? ReadDecodeMode.SCOPED : ReadDecodeMode.LEGACY, fallbacks.getInvalidRows());
-            if (decoded instanceof ReadThreadDecodeResult.Failure) {
-                if (strict) {
-                    switch (((ReadThreadDecodeResult.Failure) decoded).getProblem()) {
-                        case ROW_MAP_OR_COUNT: throw new ArticleFailure(ArticleFailureKind.FORMAT);
-                        case INDEXED_ROW: throw new ArticleFailure(ArticleFailureKind.CONTENT);
-                        case UNREADABLE_VALUE: return null;
+            if (strict) {
+                Object rowMap = obj.get("__R");
+                Integer count = obj.getInteger("__R__ROWS");
+                if (!(rowMap instanceof JSONObject) || count == null || count < 0 || count > ((JSONObject) rowMap).size()) {
+                    throw new ArticleFailure(ArticleFailureKind.FORMAT);
+                }
+                for (int i = 0; i < count; i++) {
+                    if (!(((JSONObject) rowMap).get(String.valueOf(i)) instanceof JSONObject)) {
+                        throw new ArticleFailure(ArticleFailureKind.CONTENT);
                     }
                 }
-                return null;
             }
-            data = ReadThreadLegacyMapper.map(((ReadThreadDecodeResult.Success) decoded).getThread(),
-                    original, strict, renderer, blacklist, fallbacks);
+            int allRows = (Integer) obj.get("__ROWS");
+            data = new ThreadData();
+            data.setRawData(original);
+            data.setThreadInfo(buildThreadPageInfo(obj));
+            data.setRowList(buildThreadRowList(obj, renderer, blacklist, strict));
+            if (strict) data.setContentComplete(hasCompleteSource(data.getRowList()));
+            data.set__ROWS(allRows);
+            data.setRowNum(data.getRowList().size());
         } catch (ArticleFailure failure) {
             if (strict) throw failure;
             return null;
@@ -241,7 +245,14 @@ public class ArticleConvertFactory {
         htmlData.tid = String.valueOf(row.tid);
         htmlData.uid = String.valueOf(row.getAuthorid());
         if (row.getAttachs() != null) {
-            htmlData.setAttachmentList(buildAttachmentData(row.getAttachs()));
+            List<AttachmentData> attachments = new ArrayList<>();
+            for (Map.Entry<String, Attachment> entry : row.getAttachs().entrySet()) {
+                AttachmentData data = new AttachmentData();
+                data.setAttachUrl(entry.getValue().getAttachurl());
+                data.setThumb(entry.getValue().getThumb());
+                attachments.add(data);
+            }
+            htmlData.setAttachmentList(attachments);
         }
 
         if (row.getComments() != null) {
@@ -258,18 +269,6 @@ public class ArticleConvertFactory {
             htmlData.setCommentList(comments);
         }
         return htmlData;
-    }
-
-    /** Exact production rendering projection, exposed for host verification without theme/context setup. */
-    static List<AttachmentData> buildAttachmentData(Map<String, Attachment> source) {
-        List<AttachmentData> attachments = new ArrayList<>();
-        for (Map.Entry<String, Attachment> entry : source.entrySet()) {
-            AttachmentData data = new AttachmentData();
-            data.setAttachUrl(entry.getValue().getAttachurl());
-            data.setThumb(entry.getValue().getThumb());
-            attachments.add(data);
-        }
-        return attachments;
     }
 
     private static void buildRowVote(ThreadRowInfo row, JSONObject rowObj) {
