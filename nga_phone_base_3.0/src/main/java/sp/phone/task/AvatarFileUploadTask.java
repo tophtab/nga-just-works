@@ -96,7 +96,7 @@ public class AvatarFileUploadTask extends AsyncTask<String, Integer, String> {
         if (StringUtils.isEmpty(result)) {
             ToastUtils.error(errorStr);
         } else {
-            NonameUploadResponse response = JSON.parseObject(result, NonameUploadResponse.class);
+            NonameUploadResponse response = decodeUploadResponse(result);
             if (response.error) {
                 ToastUtils.error(response.errorinfo);
             } else {
@@ -246,7 +246,12 @@ public class AvatarFileUploadTask extends AsyncTask<String, Integer, String> {
         int finishUpload(String picUrl, Uri uri);
     }
 
-    private static class NonameUploadResponse {
+    /** This external upload has its own envelope, independent of NGA attachment uploads. */
+    static NonameUploadResponse decodeUploadResponse(String payload) {
+        return JSON.parseObject(payload, NonameUploadResponse.class);
+    }
+
+    static class NonameUploadResponse {
         public boolean error;
         public String errorinfo;
         public String data;

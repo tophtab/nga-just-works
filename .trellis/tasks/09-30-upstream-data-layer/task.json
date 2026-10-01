@@ -49,6 +49,9 @@
     "proposed_branch": "feat/upstream-adoption",
     "research_base_commit": "1a8413d9",
     "implementation_base_commit": "88ce8be3",
-    "current_batch": "B0"
+    "current_batch": "B1",
+    "batch_commits": {
+      "B0": "05c2602e"
+    }
   }
 }

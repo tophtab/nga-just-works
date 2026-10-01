@@ -221,18 +221,14 @@ public class TopicPostModel extends BaseModel implements TopicPostContract.Model
                     public void onNext(String s) {
                         try {
                             s = s.replace("window.script_muti_get_var_store=", "");
-                            JSONObject object = JSON.parseObject(s);
-                            if (object.containsKey("error_code")) {
-                                int errorCode = object.getInteger("error_code");
-                                if (errorCode == 9 && !compress) {
-                                    ToastUtils.showShortToast("附件过大，无法上传，重新进行压缩并上传");
-                                    uploadFile(uri, postParam, callBack, true);
-                                    return;
-                                }
+                            UploadResponse response = decodeUploadResponse(s, compress);
+                            if (response.compressRequired) {
+                                ToastUtils.showShortToast("附件过大，无法上传，重新进行压缩并上传");
+                                uploadFile(uri, postParam, callBack, true);
+                                return;
                             }
-                            object = object.getJSONObject("data");
-                            postParam.appendAttachment(object.getString("attachments"), object.getString("attachments_check"));
-                            callBack.onSuccess(object.getString("url"));
+                            postParam.appendAttachment(response.attachments, response.attachmentsCheck);
+                            callBack.onSuccess(response.url);
                         } catch (Exception e) {
                             Logger.d("exception occur while uploading file " + s);
                             callBack.onError("上传图片失败，请尝试更换域名后重试");
@@ -244,6 +240,35 @@ public class TopicPostModel extends BaseModel implements TopicPostContract.Model
                         callBack.onError(throwable.getMessage());
                     }
                 });
+    }
+
+    /** Pure response selection; the caller still owns compression, mutation and callbacks. */
+    static UploadResponse decodeUploadResponse(String payload, boolean compressed) {
+        JSONObject object = JSON.parseObject(payload);
+        if (object.containsKey("error_code")) {
+            int errorCode = object.getInteger("error_code");
+            if (errorCode == 9 && !compressed) {
+                return new UploadResponse(true, null, null, null);
+            }
+        }
+        JSONObject data = object.getJSONObject("data");
+        return new UploadResponse(false, data.getString("attachments"),
+                data.getString("attachments_check"), data.getString("url"));
+    }
+
+    static final class UploadResponse {
+        final boolean compressRequired;
+        final String attachments;
+        final String attachmentsCheck;
+        final String url;
+
+        private UploadResponse(boolean compressRequired, String attachments,
+                               String attachmentsCheck, String url) {
+            this.compressRequired = compressRequired;
+            this.attachments = attachments;
+            this.attachmentsCheck = attachmentsCheck;
+            this.url = url;
+        }
     }
 
     private MultipartBody buildMultipartBody(String fileName, byte[] bytes, PostParam postParam) throws UnsupportedEncodingException {

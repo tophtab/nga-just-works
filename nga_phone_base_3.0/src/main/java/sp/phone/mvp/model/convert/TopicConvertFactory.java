@@ -38,7 +38,7 @@ public class TopicConvertFactory {
             js = js.substring("window.script_muti_get_var_store=".length());
         }
 
-        TopicListBean topicListBean = JSON.parseObject(js, TopicListBean.class);
+        TopicListBean topicListBean = decodeTopicList(js);
 
         try {
             TopicListInfo listInfo = new TopicListInfo();
@@ -54,6 +54,11 @@ public class TopicConvertFactory {
             return null;
         }
 
+    }
+
+    /** Decode only; wrapper handling and display/filter policy remain with the caller. */
+    static TopicListBean decodeTopicList(String payload) {
+        return JSON.parseObject(payload, TopicListBean.class);
     }
 
     private void filter(TopicListInfo data) {
