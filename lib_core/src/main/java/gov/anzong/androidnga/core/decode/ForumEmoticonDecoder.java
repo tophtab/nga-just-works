@@ -20,7 +20,7 @@ public class ForumEmoticonDecoder implements IForumDecoder {
             if (path == null) {
                 continue;
             }
-            String attributes = "ac".equals(category) || "a2".equals(category)
+            String attributes = EmoticonUtils.usesConfiguredWidth(path)
                     ? " class='emoticon invertFilter'" : "";
             String html = "<img" + attributes + " src='file:///android_asset/" + path + "'>";
             matcher.appendReplacement(result, Matcher.quoteReplacement(html));

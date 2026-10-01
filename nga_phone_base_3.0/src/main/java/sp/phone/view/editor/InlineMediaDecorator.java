@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import sp.phone.common.PhoneConfiguration;
 public final class InlineMediaDecorator implements TextWatcher {
     private static final int MAX_IN_FLIGHT = 2;
     private static final int IMAGE_SIZE = 384;
-    private static final int EMOTICON_SIZE = 96;
+    private static final String ASSET_PREFIX = "file:///android_asset/";
     private final InlineMediaEditText editor;
     private final RequestManager requests;
     private final InlineMediaSource.Revision revision = new InlineMediaSource.Revision();
@@ -100,7 +101,9 @@ public final class InlineMediaDecorator implements TextWatcher {
                 queue.complete(ticket);
                 continue;
             }
-            int size = token.image ? IMAGE_SIZE : EMOTICON_SIZE;
+            // Built-in emoticons are small local assets. Preserve their natural dimensions;
+            // the reader uses those dimensions for all non-AC families.
+            int size = token.image ? IMAGE_SIZE : Target.SIZE_ORIGINAL;
             MediaTarget target = new MediaTarget(ticket, generation, size);
             targets.add(target);
             Object resource = localImages.containsKey(token.source) ? localImages.get(token.source) : token.resource;
@@ -170,10 +173,24 @@ public final class InlineMediaDecorator implements TextWatcher {
                     && (!token.image || PhoneConfiguration.getInstance().isImageLoadEnabled())) {
                 BitmapDrawable drawable = new BitmapDrawable(editor.getResources(), bitmap);
                 int maxWidth = Math.max(1, editor.getWidth() - editor.getPaddingLeft() - editor.getPaddingRight());
-                float scale = Math.min(1f, (float) maxWidth / bitmap.getWidth());
-                drawable.setBounds(0, 0, Math.max(1, (int) (bitmap.getWidth() * scale)),
-                        Math.max(1, (int) (bitmap.getHeight() * scale)));
-                span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+                if (token.image) {
+                    float scale = Math.min(1f, (float) maxWidth / bitmap.getWidth());
+                    drawable.setBounds(0, 0, Math.max(1, (int) (bitmap.getWidth() * scale)),
+                            Math.max(1, (int) (bitmap.getHeight() * scale)));
+                    span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+                } else {
+                    if (editor.getWidth() == 0) {
+                        maxWidth = Math.max(1, editor.getResources().getDisplayMetrics().widthPixels
+                                - editor.getPaddingLeft() - editor.getPaddingRight());
+                    }
+                    InlineEmoticonSize size = new InlineEmoticonSize(
+                            token.resource.substring(ASSET_PREFIX.length()),
+                            PhoneConfiguration.getInstance().getEmoticonSize(),
+                            bitmap.getWidth(), bitmap.getHeight(),
+                            editor.getResources().getDisplayMetrics().density, maxWidth);
+                    drawable.setBounds(0, 0, size.width, size.height);
+                    span = new InlineEmoticonSpan(drawable);
+                }
                 editor.getText().setSpan(span, token.start, token.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 editor.requestLayout();
                 editor.invalidate();

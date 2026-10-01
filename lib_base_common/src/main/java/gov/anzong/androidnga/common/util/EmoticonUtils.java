@@ -7,6 +7,11 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class EmoticonUtils {
 
+    /** Article CSS applies the user's width setting only to the two AC families. */
+    public static boolean usesConfiguredWidth(String assetPath) {
+        return assetPath != null && (assetPath.startsWith("ac/") || assetPath.startsWith("a2/"));
+    }
+
     public static final String[][] EMOTICON_LABEL = {
             {"ac", "AC娘"},
             {"a2", "新版AC娘"},

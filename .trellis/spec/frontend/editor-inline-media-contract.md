@@ -40,7 +40,15 @@ marker, retaining surrounding text. Unknown, loading and failed tokens remain
 ordinary editable text. Inserted media uses the same source/decorating path.
 
 One view owns Glide targets and callbacks. At most two loads are active; bitmap
-bounds are 384 px for images and 96 px for emoticons. Honor
+bounds are 384 px for images. Built-in emoticons load at their original asset
+dimensions (currently at most 150 x 130 px). Display AC/a2 at the configured
+reader width and other families at their natural CSS width, converting CSS
+pixels to native pixels using display density and preserving aspect ratio.
+Share AC sizing classification through `EmoticonUtils.usesConfiguredWidth`.
+Clamp display width to the editor's available width. `InlineEmoticonSpan` draws
+the image bottom at the supplied text baseline `y`, preserves text descenders,
+and expands ascent for tall emoticons; do not derive this position from the
+line bottom, which also includes line spacing. Honor
 PhoneConfiguration.isImageLoadEnabled for image loads, use existing Glide cache,
 and attach no account credentials. Local uploaded previews may reuse the source
 URI without uploading again. Pause retires targets; resume rebuilds; destroy
