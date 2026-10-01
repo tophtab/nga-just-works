@@ -1,0 +1,168 @@
+{
+  "lint": {
+    "lib_bu_statistics": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 8
+    },
+    "nga_phone_base_3.0": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 733
+    },
+    "lib_core": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 6
+    },
+    "lib_base_logger": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 3
+    },
+    "lib_base_common": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 26
+    },
+    "lib_core_data": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 0
+    },
+    "lib_bu_message": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 12
+    },
+    "lib_base_network": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 6
+    },
+    "lib_base_service_api": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 1
+    },
+    "lib_bu_account": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 5
+    },
+    "lib_base_ui_compose": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 8
+    },
+    "lib_base_ui": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 7
+    },
+    "lib_module_debug": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 3
+    }
+  },
+  "unit": {
+    "lib_bu_statistics": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "nga_phone_base_3.0": {
+      "reports": 74,
+      "tests": 504,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_core": {
+      "reports": 4,
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_logger": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_common": {
+      "reports": 3,
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_core_data": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_bu_message": {
+      "reports": 1,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_network": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_service_api": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_bu_account": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_ui_compose": {
+      "reports": 1,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_base_ui": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lib_module_debug": {
+      "reports": 0,
+      "tests": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "totals": {
+    "tests": 560,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

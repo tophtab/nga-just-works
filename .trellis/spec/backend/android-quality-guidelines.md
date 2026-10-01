@@ -177,6 +177,16 @@ boundaries. Parameterizing, ignoring, or excluding scenarios is not test
 reduction. Review source wiring directly unless a narrow resource/security
 boundary cannot be exercised through the existing host seam.
 
+Retire tests for superseded production entry points when repository-wide caller
+inspection confirms they are unused. For example, attachment prefix behavior is
+owned by `ReadThreadLegacyMapper` → `NgaImageHost.attachmentsPrefix`, not the
+unused `ArticleConvertFactory.resolveAttachmentsPrefix` helper. Keep current
+wire/host/facade integration coverage instead of restoring the obsolete helper
+test. Historical raw-bean `ClassCastException` / `NullPointerException`
+demonstrations are not required compatibility outcomes. The three facade parity
+fixture sets still protect distinct inputs/rendering paths and remain required;
+their migration origin alone is not a reason to delete them.
+
 Before handing off an Android change, run the repository Debug gate once:
 
 ```bash

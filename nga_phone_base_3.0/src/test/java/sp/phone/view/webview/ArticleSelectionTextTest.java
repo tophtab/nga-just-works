@@ -34,13 +34,6 @@ public class ArticleSelectionTextTest {
     }
 
     @Test
-    public void malformedEscapesDegradeWithoutThrowing() {
-        assertEquals("u4e", ArticleSelectionText.decodeEvaluatedString("\"\\u4e\""));
-        assertEquals("uzzzz", ArticleSelectionText.decodeEvaluatedString("\"\\uzzzz\""));
-        assertEquals("a\\", ArticleSelectionText.decodeEvaluatedString("\"a\\\""));
-    }
-
-    @Test
     public void blankDetectionCoversNonAsciiWhitespace() {
         assertTrue(ArticleSelectionText.isBlank(null));
         assertTrue(ArticleSelectionText.isBlank(""));

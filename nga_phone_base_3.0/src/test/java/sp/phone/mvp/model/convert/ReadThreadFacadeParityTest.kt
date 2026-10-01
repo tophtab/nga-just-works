@@ -3,9 +3,7 @@ package sp.phone.mvp.model.convert
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONArray
 import com.alibaba.fastjson2.JSONObject
-import com.alibaba.fastjson2.JSONReader
 import com.alibaba.fastjson2.JSONWriter
-import sp.phone.http.bean.ThreadRowInfo
 import gov.anzong.androidnga.common.util.NgaImageHost
 import org.junit.Assert.*
 import org.junit.Before
@@ -66,7 +64,7 @@ class ReadThreadFacadeParityTest {
             val after = actual.getJSONObject(name)
             if (name == "attachment-before-gap:false") {
                 // Old injected renderer accepted a raw JSONObject disguised as Attachment.
-                // The production attachment projection below proves it cannot render that value.
+                // The current facade rejects that page instead of rendering the raw value.
                 assertEquals("success", before.getString("outcome"))
                 assertEquals("null", after.getString("outcome"))
                 assertTrue(after.getJSONArray("renders").isEmpty())
@@ -78,14 +76,5 @@ class ReadThreadFacadeParityTest {
             } else assertEquals(name, before, after)
         }
         assertEquals(expected.keys, actual.keys)
-    }
-
-    @Test fun productionAttachmentProjectionRejectsOldRawFallbackAndNullEntries() {
-        val raw = JSON.parseObject("""{"attachs":{"0":{"size":"bad"}}}""")
-        val oldBean = raw.toJavaObject(ThreadRowInfo::class.java, JSONReader.Feature.SupportSmartMatch)
-        assertThrows(ClassCastException::class.java) { ArticleConvertFactory.buildAttachmentData(oldBean.attachs) }
-        val nullEntry = JSON.parseObject("""{"attachs":{"0":null}}""")
-            .toJavaObject(ThreadRowInfo::class.java, JSONReader.Feature.SupportSmartMatch)
-        assertThrows(NullPointerException::class.java) { ArticleConvertFactory.buildAttachmentData(nullEntry.attachs) }
     }
 }

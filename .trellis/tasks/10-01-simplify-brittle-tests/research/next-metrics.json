@@ -1,0 +1,84 @@
+{
+  "before_repository": {
+    "methods": 560,
+    "test_files": 83
+  },
+  "files": {
+    "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/convert/ArticleConvertFactoryTest.java": {
+      "before": {
+        "lines": 58,
+        "methods": 2,
+        "assertion_sites": 6
+      },
+      "after": {
+        "lines": 0,
+        "methods": 0,
+        "assertion_sites": 0
+      }
+    },
+    "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/activity/compose/filter/FilterWordModelTest.kt": {
+      "before": {
+        "lines": 35,
+        "methods": 1,
+        "assertion_sites": 4
+      },
+      "after": {
+        "lines": 0,
+        "methods": 0,
+        "assertion_sites": 0
+      }
+    },
+    "nga_phone_base_3.0/src/test/java/sp/phone/ui/fragment/AiModelEditorStateTest.java": {
+      "before": {
+        "lines": 175,
+        "methods": 11,
+        "assertion_sites": 44
+      },
+      "after": {
+        "lines": 162,
+        "methods": 10,
+        "assertion_sites": 39
+      }
+    },
+    "lib_base_common/src/test/java/gov/anzong/androidnga/common/util/NgaImageHostContractTest.java": {
+      "before": {
+        "lines": 192,
+        "methods": 15,
+        "assertion_sites": 50
+      },
+      "after": {
+        "lines": 184,
+        "methods": 14,
+        "assertion_sites": 49
+      }
+    },
+    "nga_phone_base_3.0/src/test/java/sp/phone/mvp/model/convert/ReadThreadFacadeParityTest.kt": {
+      "before": {
+        "lines": 91,
+        "methods": 2,
+        "assertion_sites": 11
+      },
+      "after": {
+        "lines": 80,
+        "methods": 1,
+        "assertion_sites": 9
+      }
+    },
+    "nga_phone_base_3.0/src/test/java/sp/phone/view/webview/ArticleSelectionTextTest.java": {
+      "before": {
+        "lines": 60,
+        "methods": 6,
+        "assertion_sites": 26
+      },
+      "after": {
+        "lines": 53,
+        "methods": 5,
+        "assertion_sites": 23
+      }
+    }
+  },
+  "after_repository": {
+    "methods": 553,
+    "test_files": 81
+  }
+}

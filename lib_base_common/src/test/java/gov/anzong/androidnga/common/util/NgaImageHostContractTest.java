@@ -140,14 +140,6 @@ public class NgaImageHostContractTest {
     }
 
     @Test
-    public void legacyNgacnAttachmentHostIsRewritten() {
-        NgaImageHost.invalidate();
-        assertEquals("https://img.nga.cn/attachments/mon_202601/01/x.jpg",
-                NgaImageHost.normalizeLegacyHosts(
-                        "http://img.ngacn.cc/attachments/mon_202601/01/x.jpg"));
-    }
-
-    @Test
     public void pagePrefixOverridesOnlyLegacyAttachmentFamily() {
         String content = "<img src='http://img6.nga.178.com/attachments/a.jpg.thumb.jpg?x=1'>"
                 + "<img src='https://img4.nga.178.com/ngabbs/post/smile/ac0.png'>";

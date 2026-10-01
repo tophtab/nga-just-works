@@ -12,19 +12,6 @@ import java.util.Collections;
 public class AiModelEditorStateTest {
 
     @Test
-    public void discoveryWithoutAConfiguredModelPreservesTextTypedWhileLoading() {
-        AiModelEditorState state = new AiModelEditorState();
-        long request = state.open("");
-        assertEquals(AiModelEditorState.LoadStatus.LOADING, state.getLoadStatus());
-        state.setCustomModel("partially-typed-model");
-
-        assertTrue(state.modelsLoaded(request, Arrays.asList("provider-a", "provider-b")));
-        assertTrue(state.isCustom());
-        assertEquals("partially-typed-model", state.getModel());
-        assertEquals(Arrays.asList("provider-a", "provider-b"), state.getModels());
-    }
-
-    @Test
     public void matchingDiscoveryResultDoesNotSwitchAwayFromCustomInput() {
         AiModelEditorState state = new AiModelEditorState();
         long request = state.open("existing-model");

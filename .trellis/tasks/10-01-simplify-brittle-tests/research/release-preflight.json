@@ -1,0 +1,14 @@
+{
+  "version": "6.2.1",
+  "versionCode": 60201000,
+  "releaseNotes": "release-notes/6.2.1.md",
+  "notesValidator": "passed",
+  "pythonSuite": {
+    "tests": 32,
+    "seconds": 12.756,
+    "result": "passed"
+  },
+  "verifyReleaseTag": "passed with CI_VERSION_NAME=6.2.1 CI_VERSION_CODE=60201000 RELEASE_TAG=6.2.1",
+  "remoteBase": "06974d20a7bc03a4a34d00448230f3a2c0c70b2a",
+  "publication": "Push annotated stable tag through existing workflow; do not poll CI per project policy"
+}

@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Validation gates, primary behavioral owners and release safety contracts"}
+{"file": ".trellis/spec/frontend/loading-usage-tips-contract.md", "reason": "Eligibility coverage and prohibition on catalog inventory snapshots"}
+{"file": ".trellis/tasks/10-01-simplify-brittle-tests/research/scope.md", "reason": "Exact approved edit boundaries, evidence, intentional losses and validation"}
+{"file": ".trellis/tasks/10-01-simplify-brittle-tests/research/next-deletion-plan.md", "reason": "Approved second-round deletion scope and ownership evidence"}
+{"file": ".trellis/tasks/10-01-simplify-brittle-tests/research/next-ai-audit.md", "reason": "Approved second-round deletion scope and ownership evidence"}
+{"file": ".trellis/tasks/10-01-simplify-brittle-tests/research/next-reader-audit.md", "reason": "Approved second-round deletion scope and ownership evidence"}

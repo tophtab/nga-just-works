@@ -1,0 +1,23 @@
+{
+  "lib_base_common": {
+    "reports": 3,
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lib_core": {
+    "reports": 4,
+    "tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "nga_phone_base_3.0": {
+    "reports": 72,
+    "tests": 498,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

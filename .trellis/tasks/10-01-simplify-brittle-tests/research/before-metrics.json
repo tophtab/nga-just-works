@@ -1,0 +1,12 @@
+{
+  "nga_phone_base_3.0/src/test/java/gov/anzong/androidnga/ReleaseWorkflowContractTest.kt": {
+    "lines": 139,
+    "tests": 4,
+    "assertion_calls": 44
+  },
+  "nga_phone_base_3.0/src/test/java/sp/phone/view/LoadingTipCatalogTest.java": {
+    "lines": 103,
+    "tests": 4,
+    "assertion_calls": 16
+  }
+}
