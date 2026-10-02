@@ -77,5 +77,6 @@ voting/posting, or additional live probing are part of this plan.
 - [x] Final repository gate: 562 passing tests, 13 lint reports, zero Error/Fatal.
 - [x] Protocol, ephemeral serialization state, and renderer limits captured in spec.
 - [x] User explicitly authorized commits, push, finish-work and stable publication.
-- [ ] Commit this task and 6.2.4 notes; archive and record journal.
-- [ ] Fast-forward main and push main plus new 6.2.4 tag after remote-ref checks.
+- [x] Work and 6.2.4 notes committed as `2e2a0a70`; finish-work owns archive/journal.
+- Release handoff after finish-work: fast-forward main, check remote refs, then
+  push main plus the new 6.2.4 tag and stop without polling CI.
