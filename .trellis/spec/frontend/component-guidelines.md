@@ -598,6 +598,17 @@ topic list fragments, or their toolbars.
   `TopicListFragment` `scrollTo` override the title tap reuses; do not duplicate
   it.
 
+## Avatar request lifecycle
+
+`ImageUtils.loadRoundCornerAvatar` binds Glide through the target `ImageView`,
+so requests belong to its Fragment or Activity. Do not use
+`ContextUtils.getContext()` for these UI-owned loads: it returns the global
+current Activity or the application, so a page-transition bind can outlive its
+reader. Glide pauses unfinished requests when the owner stops, resumes them
+when it starts, and clears them when it is destroyed. Keep the existing
+placeholder, circle crop, cache policy, and cache-only preference intact.
+This shared helper also serves profiles and recent notifications.
+
 ## Article author metadata
 
 Thread-floor detail shows post count before the known public profile IP

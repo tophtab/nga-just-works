@@ -439,7 +439,8 @@ public class ImageUtils {
             Bitmap defaultAvatar = BitmapFactory.decodeResource(context.getResources(), com.justwen.androidnga.module.message.R.drawable.default_avatar);
             sDefaultAvatar = new BitmapDrawable(context.getResources(), ImageUtils.toRoundCorner(defaultAvatar, 2));
         }
-        GlideApp.with(ContextUtils.getContext())
+        // Keep requests with this avatar's screen even while the global current Activity changes.
+        GlideApp.with(imageView)
                 .load(url)
                 .placeholder(sDefaultAvatar)
                 .circleCrop()
