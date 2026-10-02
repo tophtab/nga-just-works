@@ -1,17 +1,20 @@
 package sp.phone.mvp.model.thread
 
+import com.alibaba.fastjson2.annotation.JSONField
 import sp.phone.http.bean.ThreadRowInfo
 
 /** Explicit App/known-comment facts override the legacy sparse-row heuristic. */
 enum class ArticleRowKind { POST, COMMENT, UNKNOWN }
 
-data class ArticleRowPresentation(
+data class ArticleRowPresentation @JvmOverloads constructor(
     @JvmField val kind: ArticleRowKind,
     @JvmField val floorKnown: Boolean,
     @JvmField val userKnown: Boolean,
     @JvmField val scoreKnown: Boolean,
     @JvmField val sourceAvailable: Boolean,
     @JvmField val threadAuthor: Boolean?,
+    @field:JSONField(serialize = false, deserialize = false)
+    @JvmField val supplementalContentAvailable: Boolean = true,
 ) {
     companion object {
         @JvmStatic fun hasFloor(row: ThreadRowInfo) =
@@ -43,7 +46,8 @@ object ArticleSourceText {
     /** Display input only: never overwrite the row's editable source with a notice or rendered HTML. */
     @JvmStatic fun renderBody(row: ThreadRowInfo): String? {
         val source = row.content?.let(::normalizeReplyHeader)
-        return if (row.presentation?.sourceAvailable == false) {
+        return if (row.presentation?.sourceAvailable == false ||
+            row.presentation?.supplementalContentAvailable == false) {
             "此条内容暂无法完整显示，可尝试使用内置浏览器打开。<br/>" + source.orEmpty()
         } else source
     }

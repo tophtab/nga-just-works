@@ -12,9 +12,10 @@ display text without fabricating or truncating source.
 
 The App operation is source-observed in Justwen commit
 `2becba2acc3f6c85340424cd09bb03fa7d759db0`, not in the July pinned network
-snapshot. Source implementation is not a live-service guarantee. Reuse its
-existing request/DTO/row mapping; do not invent dedicated attachment, hot-reply,
-comment-parent, or score protocols for fields the upstream parser never used.
+snapshot. Source implementation is not a live-service guarantee. The approved
+2026-10-02 display-parity extension consumes live-observed attachment lists,
+nested comments, and verified vote counters through the existing default
+renderer. Preserve the request shape; do not infer unobserved field semantics.
 
 See [platform access](./nga-platform-access-rules.md),
 [network foundation](./network-foundation-contract.md),
@@ -72,8 +73,13 @@ nullable pageSize/totalPages/totalRows, pageBasis, floor-mapping capability,
 invalid-metadata status, reportedCurrentPage, owner and generation.
 `ThreadData` carries that context independently of original row count/raw data.
 `ArticleRowPresentation` carries explicit kind, floor/user/score/source validity,
-and nullable UID-based OP identity. It is display metadata, not a fabricated
-server response schema.
+nullable UID-based OP identity, and `supplementalContentAvailable` (default true
+for existing callers). This derived field uses
+`@field:JSONField(serialize=false, deserialize=false)`; it must not extend the
+legacy serialized bean shape or become supplied wire state. Supplemental damage
+can show an incomplete-content notice
+and prevent complete-page caching without disabling a readable parent's source
+actions. It is display metadata, not a fabricated server response schema.
 
 ## 3. Contracts
 
@@ -153,10 +159,41 @@ server response schema.
 - Decode only consumed field types. Preserve the original response separately
   from editable source and formatted HTML. Unknown optional extensions remain
   opaque; their presence or shape alone is not a whole-page failure.
-- Upstream App parser does not project `attches`, `hot_post`, `comment_to_id`,
-  `html_head_extra`, or calculate score from `vote_good`/`vote_bad`. Do not
-  infer parent PID/nesting or execute optional head HTML. Existing inline
-  body/media rendering remains available.
+- Consume App `attches` as a nullable attachment list and `comments` as a
+  nullable nested-post list. Project usable attachments and child author/source/
+  time into the existing default builders before rendering the parent. Nested
+  structure establishes ownership; do not infer extra parents from opaque
+  `comment_to_id` values. Keep `hot_post` out of the ordinary row list and do
+  not execute `html_head_extra`. Preserve inline body/media rendering.
+- `isTieTiao=true` is observed on an ordinary main post containing comments,
+  while its actual nested child has no such field. Never classify the parent
+  as COMMENT from this flag. Nested children are COMMENT by structural context;
+  the parent retains ordinary floor/action/OP identity. A parent-author query
+  must not reject comments written by another author. Nested comments do not
+  affect top-level paging slots, row count, or floor coordinates. The default
+  comment UI renders one direct child level and no independent child attachment
+  block. Bound App projection at that depth; supplied deeper comments or child
+  attachment blocks must produce visible supplemental incompleteness and prevent
+  complete-page caching, rather than being silently accepted as fully rendered.
+- Consume nullable bounded integral `vote_good`; keep `vote_bad` independent
+  and unused. Both are distinct from poll markup `vote`. Use the default
+  single-score widget;
+  default `score` is the support count, not net recommendations. NGA public
+  `js_read.js` separately assigns support to `score`, opposition to `score_2`,
+  and computes `recommend=max(support-opposition,0)`. Map valid nonnegative
+  bounded `vote_good` directly, with `scoreKnown=true`, independently of
+  `vote_bad`. Missing/invalid good stays unknown; bad never suppresses a known
+  support count. Do not subtract bad or manufacture zero.
+- Attachment `attachurl` uses the existing relative-path/page-prefix contract.
+  Preserve `thumb` values: the default renderer only treats "1" specially;
+  observed values "56"/"120" do not authorize new thumbnail URL rules. Local
+  collection indexes are not server attachment IDs. Damaged consumed optional
+  structures must not discard a readable parent; retain visible unavailability
+  and incomplete-page status rather than silently dropping supplied content.
+- Both sources already send accepted pages through `AuthorLocationService`.
+  Keep positive/nonanonymous top-level author selection and the same cached,
+  account/view-bound author-profile IP display. Do not introduce a second
+  source from App `address` or new nested-comment location queries.
 - Reuse complete attachment prefixes through `NgaImageHost`; keep manual-host
   priority, historical URL normalization and response-local context.
   Prepare known attachments/comments/blacklist state before rendering HTML.
@@ -185,8 +222,10 @@ server response schema.
   whole page. Retain the child and its identity, project the incomplete notice
   as display input, and mark the page incomplete recursively. The core comment
   builder strips only a complete recognized reply header; headerless text and
-  incomplete/unrelated bold markup remain intact. Never add a fake header just
-  to satisfy an unconditional substring operation.
+  incomplete/unrelated bold markup remain intact. When a child has no source
+  body but has `alterinfo`, an incomplete display notice must not suppress that
+  fallback text. Select fallback from source emptiness before treating the
+  notice as content. Never add a fake header to satisfy substring operations.
 - Error display evidence is separate from failure kind and recovery policy.
   Preserve actual HTTP status; 403 displays `无法访问帖子（HTTP 403）` and
   redirects display their status without claiming validation. Unknown HTML
@@ -238,6 +277,12 @@ server response schema.
 | Missing core content | Visible unavailable state; no incomplete-page cache |
 | Scoped ordinary content is an object/array with a valid subject | Keep the row visibly incomplete; do not enable source actions or owned cache |
 | Known nested comment has unusable source | Keep parent/child readable with a child notice; mark page incomplete and block cache |
+| App ordinary root has `isTieTiao=true` and nested comments | Preserve parent floor/actions; render children beneath the parent |
+| App author-filtered root contains another author's comment | Accept the child; apply author filter only to top-level posts |
+| App attachments use relative URL and non-"1" thumb | Use default attachment renderer and page prefix without guessing thumbnail flags |
+| App vote_good missing, invalid, negative, or out of range | Keep score unknown; preserve content and applicable actions |
+| App vote_good valid with any vote_bad shape/value | Display support count directly; no net-score arithmetic |
+| App has populated `hot_post` | No dedicated hot area or duplicate ordinary rows |
 | Readable independent COMMENT/UNKNOWN row has its own valid PID | Reply/quote remain available; no invented parent identity |
 | Cache replay while compatibility is off | Dispatch stored format locally; never request the network |
 
@@ -258,7 +303,12 @@ Use synthetic data and fake transport; never send NGA traffic:
 
 - `AppArticleParserTest`: full/PID/author queries, variable/unknown page metadata,
   optional opaque fields, missing user/score/content, malformed content with a
-  usable subject, source/raw preservation and error precedence.
+  usable subject, source/raw preservation and error precedence. Cover verified
+  score/unknown boundaries, parent-plus-comment identity/actions, differing child
+  authors under a parent filter, recursive incomplete-content cache prevention,
+  attachment mapping/order/page prefix, and hot-post exclusion. Rendering seam
+  coverage must verify default attachment/comment HTML and image-list outcomes;
+  do not repeat the same input matrix in every layer.
 - `NormalArticleParserTest`: ordinary wrapper/raw preservation, WP/source
   handling, attachments/comments/blacklist before rendering, UID identity,
   response-local image prefixes and query validation. Cover consumed-source
@@ -304,6 +354,13 @@ Inspect every required lint XML for zero Error/Fatal. These checks establish
 local behavior, not real-service success rate. Device tests remain opt-in.
 
 ## 7. Wrong vs Correct
+
+Wrong: classify every App root with `isTieTiao=true` as COMMENT. The observed
+main post then loses floor zero and ordinary actions while its child is ignored.
+
+Correct: retain the ordinary root and map its `comments` children into
+`ThreadRowInfo.comments` before parent rendering. Choose COMMENT from that
+nested context, without changing top-level page coordinates.
 
 ### Wrong
 

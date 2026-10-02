@@ -3,6 +3,7 @@ package sp.phone.mvp.model.thread
 import gov.anzong.androidnga.common.util.NgaImageHost
 import sp.phone.common.ForumConstants
 import sp.phone.common.UserManagerImpl
+import sp.phone.http.bean.Attachment
 import sp.phone.http.bean.ThreadData
 import sp.phone.http.bean.ThreadRowInfo
 import sp.phone.mvp.model.convert.ArticleConvertFactory
@@ -23,11 +24,11 @@ class AppArticleParser @JvmOverloads constructor(
         if (bean.result.isEmpty()) throw ArticleFailure(ArticleFailureKind.EMPTY)
         val target = if (query.pid != 0) bean.result.firstOrNull { it.pid == query.pid }
             ?: throw ArticleFailure(ArticleFailureKind.CONTENT) else bean.result.first()
-        val tid = target.tid
+        val tid = target.tid ?: throw ArticleFailure(ArticleFailureKind.CONTENT)
         if (tid <= 0 || (query.tid > 0 && query.tid != tid)) throw ArticleFailure(ArticleFailureKind.CONTENT)
         val identities = HashSet<Int>()
         for (result in bean.result) {
-            if (result.tid != tid || result.pid < 0 ||
+            if (result.tid != tid || result.pid == null || result.pid < 0 ||
                 (result.pid == 0 && result.lou != 0) || !identities.add(result.pid)) {
                 throw ArticleFailure(ArticleFailureKind.CONTENT)
             }
@@ -36,36 +37,7 @@ class AppArticleParser @JvmOverloads constructor(
             }
         }
         val prefix = NgaImageHost.attachmentsPrefix(bean.attachPrefix)
-        val rows = bean.result.map { result ->
-            ThreadRowInfo().apply {
-                pid = result.pid
-                this.tid = result.tid
-                fid = result.fid
-                lou = result.lou ?: -1
-                alterinfo = result.alterinfo
-                vote = result.vote
-                postdate = result.postdate
-                // Explicit empty content is supported; absent/unusable source needs a visible placeholder.
-                val useSubject = result.content.isNullOrEmpty() && !result.subject.isNullOrEmpty()
-                val source = if (useSubject) result.subject else result.content
-                content = source ?: ""
-                subject = if (useSubject) null else result.subject
-                val sourceAvailable = !result.invalidContent && (source != null || !result.alterinfo.isNullOrEmpty())
-                fromClient = result.from_client
-                fromClientModel = ArticleAuthorSupport.clientModel(result.from_client)
-                mapAuthor(this, result.author)
-                val op = if (authorid > 0 && !isanonymous && (bean.tauthorid ?: 0) > 0)
-                    authorid == bean.tauthorid else null
-                presentation = ArticleRowPresentation(
-                    when {
-                        result.isTieTiao == true -> ArticleRowKind.COMMENT
-                        result.invalidCommentMarker -> ArticleRowKind.UNKNOWN
-                        else -> ArticleRowKind.POST
-                    }, result.lou != null, authorid > 0 && !isanonymous,
-                    scoreKnown = false, sourceAvailable = sourceAvailable, threadAuthor = op)
-                renderer.render(this, prefix)
-            }
-        }
+        val rows = bean.result.map { post(it, bean.tauthorid, tid).also { row -> renderer.render(row, prefix) } }
         val current = bean.currentPage?.takeIf { it > 0 }
         val size = bean.perPage?.takeIf { it > 0 }
         val effectivePage = current ?: requestedPage
@@ -95,13 +67,60 @@ class AppArticleParser @JvmOverloads constructor(
             rowList = rows
             rowNum = rows.size
             set__ROWS(bean.vrows ?: 0)
-            isContentComplete = rows.all { it.presentation.sourceAvailable }
+            isContentComplete = complete(rows)
             pagingInfo = ArticlePagingInfo(query, ArticleSource.APP_API, tid, requestedPage,
                 effectivePage, size, total, totalRows, basis,
                 !bean.invalidCurrentPage && !badBounds && ArticlePagingInfo.floorWindow(query, effectivePage, size, rows),
                 bean.invalidCurrentPage || bean.invalidPerPage || bean.invalidTotalPage || bean.invalidVrows || badBounds,
                 bean.currentPage)
         }
+    }
+
+    private fun post(result: ThreadAppBean.Result, owner: Int?, topic: Int,
+                     comment: Boolean = false, uniqueIdentity: Boolean = true): ThreadRowInfo = ThreadRowInfo().apply {
+        pid = result.pid ?: -1
+        tid = result.tid ?: 0
+        fid = result.fid
+        lou = result.lou ?: -1
+        alterinfo = result.alterinfo
+        vote = result.vote
+        score = result.voteGood ?: 0
+        postdate = result.postdate
+        // Explicit empty content is supported; absent/unusable source needs a visible placeholder.
+        val useSubject = result.content.isNullOrEmpty() && !result.subject.isNullOrEmpty()
+        val source = if (useSubject) result.subject else result.content
+        content = source ?: ""
+        subject = if (useSubject) null else result.subject
+        val identityAvailable = !comment || tid == topic && pid > 0 && uniqueIdentity
+        val sourceAvailable = identityAvailable && !result.invalidContent &&
+            (source != null || !result.alterinfo.isNullOrEmpty())
+        fromClient = result.from_client
+        fromClientModel = ArticleAuthorSupport.clientModel(result.from_client)
+        mapAuthor(this, result.author)
+        val op = if (authorid > 0 && !isanonymous && (owner ?: 0) > 0) authorid == owner else null
+        attachs = result.attachments?.mapIndexedNotNull { index, file ->
+            file?.attachurl?.let { url -> index.toString() to Attachment().apply {
+                attachurl = url
+                thumb = file.thumb
+            } }
+        }?.toMap(LinkedHashMap())
+        val childIdentities = HashSet<Int>()
+        comments = result.comments?.mapNotNull { child -> child?.let {
+            post(it, owner, topic, comment = true,
+                uniqueIdentity = it.pid != null && childIdentities.add(it.pid))
+        } }
+        // isTieTiao marks a parent with comments, not the parent's row kind.
+        presentation = ArticleRowPresentation(
+            if (comment) ArticleRowKind.COMMENT else ArticleRowKind.POST,
+            result.lou != null, authorid > 0 && !isanonymous,
+            scoreKnown = result.voteGood != null, sourceAvailable = sourceAvailable, threadAuthor = op,
+            supplementalContentAvailable = !result.invalidAttachments && !result.invalidComments &&
+                !(comment && !result.attachments.isNullOrEmpty()))
+    }
+
+    private fun complete(rows: List<ThreadRowInfo>): Boolean = rows.all {
+        it.presentation.sourceAvailable && it.presentation.supplementalContentAvailable &&
+            (it.comments == null || complete(it.comments))
     }
 
     private fun mapAuthor(row: ThreadRowInfo, author: ThreadAppBean.Author?) {

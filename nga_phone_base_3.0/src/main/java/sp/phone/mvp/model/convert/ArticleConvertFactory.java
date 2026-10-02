@@ -143,19 +143,29 @@ public class ArticleConvertFactory {
         }
 
         if (row.getComments() != null) {
-            List<CommentData> comments = new ArrayList<>();
-            for (ThreadRowInfo value : row.getComments()) {
-                CommentData comment = new CommentData();
-                comment.setAuthor(value.getAuthor());
-                String body = sp.phone.mvp.model.thread.ArticleSourceText.renderBody(value);
-                comment.setContent(body == null || body.isEmpty() ? value.getAlterinfo() : body);
-                comment.setPostTime(value.getPostdate());
-                comment.setAvatarUrl(FunctionUtils.parseAvatarUrl(value.getJs_escap_avatar()));
-                comments.add(comment);
-            }
-            htmlData.setCommentList(comments);
+            htmlData.setCommentList(buildCommentData(row.getComments()));
         }
         return htmlData;
+    }
+
+    /** Same projection for ordinary and App comments; does not require Android display settings. */
+    static List<CommentData> buildCommentData(List<ThreadRowInfo> source) {
+        List<CommentData> comments = new ArrayList<>();
+        for (ThreadRowInfo value : source) {
+            CommentData comment = new CommentData();
+            comment.setAuthor(value.getAuthor());
+            String body = sp.phone.mvp.model.thread.ArticleSourceText.renderBody(value);
+            String sourceBody = value.getContent();
+            // A display notice must not hide alterinfo when the source body is empty.
+            if ((sourceBody == null || sourceBody.isEmpty()) && value.getAlterinfo() != null) {
+                body = body == null ? value.getAlterinfo() : body + value.getAlterinfo();
+            }
+            comment.setContent(body);
+            comment.setPostTime(value.getPostdate());
+            comment.setAvatarUrl(FunctionUtils.parseAvatarUrl(value.getJs_escap_avatar()));
+            comments.add(comment);
+        }
+        return comments;
     }
 
     /** Exact production rendering projection, exposed for host verification without theme/context setup. */

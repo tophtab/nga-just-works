@@ -7,8 +7,8 @@ import com.alibaba.fastjson2.JSONObject
  * Adapted from Justwen/NGA-CLIENT-VER-OPEN-SOURCE, GPL-3.0,
  * 2becba2acc3f6c85340424cd09bb03fa7d759db0, ThreadAppBean.kt.
  * Field names and the consumed row/author projection are retained. Nullable numeric fields expose
- * absence; DOM extraction deliberately leaves unused attches/hot_post/comment_to_id/html_head_extra
- * (and other extensions) opaque in ThreadData.rawData. No reflective sidecar protocol is introduced.
+ * absence; DOM extraction consumes observed attachments/comments/support counts and leaves
+ * hot_post/comment_to_id/html_head_extra (and other extensions) opaque in ThreadData.rawData.
  * Regular classes avoid emitting source bodies through generated data-class toString().
  */
 internal class ThreadAppBean(root: JSONObject) {
@@ -31,9 +31,9 @@ internal class ThreadAppBean(root: JSONObject) {
         Result(it as? JSONObject ?: throw ArticleFailure(ArticleFailureKind.CONTENT))
     }
 
-    class Result(row: JSONObject) {
-        val tid = row.integer("tid") ?: throw ArticleFailure(ArticleFailureKind.CONTENT)
-        val pid = row.integer("pid") ?: throw ArticleFailure(ArticleFailureKind.CONTENT)
+    class Result(row: JSONObject, nested: Boolean = false) {
+        val tid = row.integer("tid")
+        val pid = row.integer("pid")
         val lou = row.integer("lou")?.takeIf { it >= 0 }
         val fid = row.integer("fid") ?: 0
         val alterinfo = row.text("alterinfo")
@@ -44,9 +44,25 @@ internal class ThreadAppBean(root: JSONObject) {
         val postdate = row.text("postdate")
         val postdatetimestamp = row.integer("postdatetimestamp")
         val vote = row.text("vote")
-        val isTieTiao = row["isTieTiao"] as? Boolean
-        val invalidCommentMarker = row["isTieTiao"] != null && isTieTiao == null
+        // Default score is the support count; vote_bad does not contribute to it.
+        val voteGood = row.integer("vote_good")?.takeIf { it >= 0 }
+        val attachments = (row["attches"] as? JSONArray)?.map { (it as? JSONObject)?.let(::AttachedFile) }
+        val invalidAttachments = row["attches"] != null && attachments == null ||
+            attachments?.any { it == null || it.attachurl == null || it.invalidThumb } == true
+        // The default comment UI has one level. Bound projection there and signal deeper content.
+        val comments = if (nested) null else (row["comments"] as? JSONArray)?.map {
+            (it as? JSONObject)?.let { child -> Result(child, nested = true) }
+        }
+        val invalidComments = if (nested) row["comments"] != null &&
+            (row["comments"] as? JSONArray)?.isEmpty() != true
+        else row["comments"] != null && comments == null || comments?.any { it == null } == true
         val author = (row["author"] as? JSONObject)?.let(::Author)
+    }
+
+    class AttachedFile(attachment: JSONObject) {
+        val attachurl = attachment.text("attachurl")?.takeIf { it.isNotBlank() }
+        val thumb = attachment.text("thumb")
+        val invalidThumb = attachment["thumb"] != null && thumb == null
     }
 
     class Author(author: JSONObject) {

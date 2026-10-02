@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/backend/thread-detail-compat-contract.md", "reason": "Reader invariants; approved task expands observed supplemental fields and corrects marker semantics."}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Observed protocol evidence, credentials, source and response handling."}
+{"file": ".trellis/spec/backend/author-profile-location-contract.md", "reason": "Preserve existing shared IP pipeline, cache and lifecycle behavior."}
+{"file": ".trellis/spec/backend/thread-page-cache-contract.md", "reason": "Complete-page eligibility and existing raw-cache ownership."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Reuse default floor metadata, actions and rendering presentation."}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Offline owner checks, final Debug gate and lint report inspection."}
+{"file": ".trellis/tasks/10-02-compat-reader-display-parity/research/display-parity.md", "reason": "Verified payload structure, current omissions, default rendering seams and remaining evidence limits."}

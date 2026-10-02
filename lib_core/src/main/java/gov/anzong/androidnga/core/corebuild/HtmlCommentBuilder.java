@@ -1,7 +1,5 @@
 package gov.anzong.androidnga.core.corebuild;
 
-import android.text.TextUtils;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +42,7 @@ public class HtmlCommentBuilder implements IHtmlBuild {
         for (CommentData comment : htmlData.getCommentList()) {
             String author = comment.getAuthor();
             String avatarUrl = comment.getAvatarUrl(); //FunctionUtils.parseAvatarUrl(comment.getJs_escap_avatar());
-            if (TextUtils.isEmpty(avatarUrl)) {
+            if (avatarUrl == null || avatarUrl.isEmpty()) {
                 avatarUrl = "file:///android_asset/default_avatar.png";
             }
             String content = stripReplyHeader(comment.getContent());

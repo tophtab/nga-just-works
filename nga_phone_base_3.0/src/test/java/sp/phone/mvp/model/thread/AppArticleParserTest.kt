@@ -8,6 +8,7 @@ import org.junit.Test
 import gov.anzong.androidnga.core.data.HtmlData
 import gov.anzong.androidnga.core.decode.ForumBasicDecoder
 import sp.phone.http.bean.ThreadRowInfo
+import sp.phone.profile.ArticleAuthorIds
 
 /** Synthetic offline source shapes, not captured NGA responses or an availability claim. */
 class AppArticleParserTest {
@@ -71,7 +72,7 @@ class AppArticleParserTest {
         for (value in listOf(null, "opaque", JSONObject())) {
             val root = fixture()
             root["hot_post"] = value; root["html_head_extra"] = value
-            row(root)["attches"] = value; row(root)["comment_to_id"] = value
+            row(root)["comment_to_id"] = value; row(root)["isTieTiao"] = value
             root["code"] = 92837; root["msg"] = "synthetic metadata"
             val data = parse(root)
             assertEquals("source 10", data.rowList[0].content)
@@ -128,16 +129,16 @@ class AppArticleParserTest {
         assertTrue(parse(root).isContentComplete)
     }
 
-    @Test fun commentUnknownIdentityAndReplyHeaderAreExplicit() {
+    @Test fun parentMarkerNeverChangesPostKindAndReplyHeaderPreservesSource() {
         val root = fixture()
         row(root)["isTieTiao"] = true; row(root).remove("lou"); row(root).remove("author")
         var data = parse(root)
-        assertEquals(ArticleRowKind.COMMENT, data.rowList[0].presentation.kind)
+        assertEquals(ArticleRowKind.POST, data.rowList[0].presentation.kind)
         assertFalse(ArticleRowPresentation.hasUser(data.rowList[0]))
         assertFalse(ArticleRowPresentation.hasFloor(data.rowList[0]))
         row(root)["isTieTiao"] = "true"
         data = parse(root)
-        assertEquals(ArticleRowKind.UNKNOWN, data.rowList[0].presentation.kind)
+        assertEquals(ArticleRowKind.POST, data.rowList[0].presentation.kind)
         val text = "<b>Reply to [pid=2,3,4]Reply[/pid] Post by dollar $ \\ </b>body<b>keep</b>"
         val normalized = ArticleSourceText.normalizeReplyHeader(text)
         assertEquals("[b]Reply to [pid=2,3,4]Reply[/pid] Post by dollar $ \\ [/b]body<b>keep</b>", normalized)
@@ -146,6 +147,126 @@ class AppArticleParserTest {
         assertEquals(text, parse(root).rowList[0].content)
         assertEquals(root.toJSONString(), parse(root).rawData)
         assertEquals("5010", ArticleNavigation.quoteAddress(ThreadRowInfo().apply { pid = 5010; lou = -1 }))
+    }
+
+    @Test fun supportCountMatchesDefaultScoreIndependentOfOppositionAndPollMarkup() {
+        for (good in listOf(0, 19, Int.MAX_VALUE, "31")) {
+            for (bad in listOf(null, 0, 7, -2, "invalid", JSONObject())) {
+                val root = fixture()
+                row(root)["vote_good"] = good
+                row(root)["vote_bad"] = bad
+                row(root)["vote"] = "synthetic poll markup"
+                val post = parse(root).rowList.single()
+                assertTrue(post.presentation.scoreKnown)
+                assertEquals(good.toString().toInt(), post.score)
+                assertEquals("synthetic poll markup", post.vote)
+                assertTrue(ArticleRowPresentation.canReply(post))
+            }
+        }
+        for (good in listOf(null, -1, 1.5, "1.5", "invalid", 2147483648L, true, JSONObject())) {
+            val root = fixture()
+            row(root)["vote_good"] = good
+            row(root)["vote_bad"] = 0
+            assertFalse(parse(root).rowList.single().presentation.scoreKnown)
+            assertTrue(parse(root).isContentComplete)
+        }
+    }
+
+    private fun child(content: Any? = "child body") = JSONObject().apply {
+        put("tid", 100001); put("pid", 60001); put("lou", 0); put("content", content)
+        put("author", JSONObject().apply { put("uid", 77); put("username", "Comment author") })
+        put("postdate", "2026-01-01 12:00")
+    }
+
+    @Test fun parentWithCommentKeepsFloorActionsAndAuthorFilterWhileHotPostsStayExcluded() {
+        val root = fixture(page = 1, floors = listOf(0))
+        row(root)["pid"] = 0
+        row(root)["isTieTiao"] = true
+        row(root)["comments"] = JSONArray().apply { add(child()) }
+        root["hot_post"] = JSONArray().apply { add(child()) }
+        val data = parse(root, ArticleQuery(100001, 0, 42, 0), 1)
+        val parent = data.rowList.single()
+        val nested = parent.comments.single()
+        assertEquals(1, data.rowNum)
+        assertEquals(ArticleRowKind.POST, parent.presentation.kind)
+        assertEquals(0, parent.lou)
+        assertTrue(ArticleRowPresentation.canReply(parent))
+        assertTrue(ArticleRowPresentation.isThreadAuthor(parent, null))
+        assertTrue(ArticleRowPresentation.hasFloor(parent))
+        assertTrue(parent.isInBlackList)
+        assertEquals(ArticleRowKind.COMMENT, nested.presentation.kind)
+        assertFalse(ArticleRowPresentation.hasFloor(nested))
+        assertEquals(77, nested.authorid)
+        assertFalse(nested.isInBlackList)
+        assertEquals(setOf(42), ArticleAuthorIds.fromPage(data))
+        assertSame(nested, rendered.last().first.comments.single())
+        assertTrue(data.isContentComplete)
+        assertNull(parent.hotReplies)
+    }
+
+    @Test fun damagedSupplementalDataKeepsReadableParentAndSignalsIncompleteDisplay() {
+        for (field in listOf("attches", "comments")) {
+            for (value in listOf("invalid", JSONObject(), JSONArray().apply { add(null); add(4) })) {
+                val root = fixture()
+                row(root)[field] = value
+                val data = parse(root)
+                val parent = data.rowList.single()
+                assertEquals("source 10", parent.content)
+                assertFalse(data.isContentComplete)
+                assertTrue(ArticleRowPresentation.canReply(parent))
+                assertTrue(ArticleSourceText.renderBody(parent)!!.contains("暂无法完整显示"))
+            }
+            for (value in listOf(null, JSONArray())) {
+                val root = fixture()
+                row(root)[field] = value
+                assertTrue(parse(root).isContentComplete)
+            }
+        }
+    }
+
+    @Test fun compatibilityPageUsesSharedLocationAuthorSelection() {
+        val root = fixture(floors = listOf(10, 11, 12, 13))
+        val rows = root.getJSONArray("result")
+        rows.getJSONObject(1).getJSONObject("author")["annoy"] = "#anony_synthetic"
+        rows.getJSONObject(2).remove("author")
+        rows.getJSONObject(3).getJSONObject("author")["uid"] = 0
+        val data = parse(root)
+        assertEquals(setOf(42), ArticleAuthorIds.fromPage(data))
+        assertFalse(ArticleRowPresentation.hasUser(data.rowList[1]))
+        assertFalse(ArticleRowPresentation.isThreadAuthor(data.rowList[1], "Synthetic author"))
+    }
+
+    @Test fun damagedChildBodyOrIdentityRemainsVisibleWithoutLosingItsParent() {
+        val damagedChildren = listOf(child(JSONObject()), child().apply { remove("pid") },
+            child().apply { put("tid", 999) }, child().apply { put("pid", 0) })
+        for (damaged in damagedChildren) {
+            val root = fixture()
+            row(root)["comments"] = JSONArray().apply { add(damaged) }
+            val data = parse(root)
+            val parent = data.rowList.single()
+            val nested = parent.comments.single()
+            assertFalse(data.isContentComplete)
+            assertTrue(ArticleRowPresentation.canReply(parent))
+            assertFalse(ArticleRowPresentation.canReply(nested))
+            assertTrue(ArticleSourceText.renderBody(nested)!!.contains("暂无法完整显示"))
+            assertEquals("source 10", parent.content)
+            assertEquals(root.toJSONString(), data.rawData)
+        }
+    }
+
+    @Test fun unsupportedChildSupplementsAreVisibleAndCannotMakeACompletePage() {
+        for (field in listOf("attches", "comments")) {
+            val root = fixture()
+            val supplement = if (field == "attches") JSONObject().apply { put("attachurl", "mon_test/child.jpg") }
+                else child()
+            val nested = child().apply { put(field, JSONArray().apply { add(supplement) }) }
+            row(root)["comments"] = JSONArray().apply { add(nested) }
+            val data = parse(root)
+            val comment = data.rowList.single().comments.single()
+            assertEquals("child body", comment.content)
+            assertFalse(data.isContentComplete)
+            assertTrue(ArticleSourceText.renderBody(comment)!!.contains("暂无法完整显示"))
+        }
     }
 
     @Test fun malformedBodyWithValidSubjectStillMarksPageIncomplete() {
