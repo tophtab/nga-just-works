@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-2.md`
-- **Total Sessions**: 76
-- **Last Active**: 2026-10-02
+- **Total Sessions**: 77
+- **Last Active**: 2026-10-03
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-2.md` | ~55 | Active |
+| `journal-2.md` | ~77 | Active |
 | `journal-1.md` | ~1978 | Archived |
 <!-- @@@/auto:active-documents -->
 
@@ -30,6 +30,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 77 | 2026-10-03 | Restore floor favorites and release 6.2.5 | `090dce71` | `fix/restore-floor-favorite` |
 | 76 | 2026-10-02 | Compatibility reader display parity and 6.2.4 release | `2e2a0a70` | `fix/compat-reader-display-parity` |
 | 75 | 2026-10-01 | 精简非必要测试并准备 6.2.1 发布 | `e5e23287` | `main` |
 | 74 | 2026-10-01 | Simplify tests and integrate 6.2.0; defer push and release | `5abfb1cb`, `b37b4570`, `29f58eb6` | `main` |

@@ -53,3 +53,25 @@ Implemented default-style support count, attachments and nested comments in comp
 ### Status
 
 [OK] **Completed**
+
+
+## Session 77: Restore floor favorites and release 6.2.5
+<!-- trellis-session: v=2 fp=69f6cc222438ce8c -->
+
+**Date**: 2026-10-03
+**Task**: Restore floor favorites and release 6.2.5
+**Branch**: `fix/restore-floor-favorite`
+
+### Summary
+
+Researched issue #10 and original favorite behavior, then restored both original floor favorite menu entries and the existing clicked-row tid/pid call. Preserved navigation and server APIs. Full gate passed 562 JVM tests and 13 lint reports with zero Error/Fatal; Debug packaging passed. User approved commit, archive and stable patch 6.2.5. Release notes and versionCode 60205000/tag verification passed; main/tag push follows bookkeeping without CI polling per project policy.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `090dce71` | fix: restore floor favorite action |
+
+### Status
+
+[OK] **Completed**
