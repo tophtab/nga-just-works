@@ -1,0 +1,4 @@
+{"file":".trellis/tasks/10-03-floor-favorite-restore/design.md","reason":"Check exact restored positions, captured row IDs and narrow approved scope"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Updated floor-menu convention and unchanged unrelated actions"}
+{"file":".trellis/spec/backend/nga-platform-operation-registry.md","reason":"Existing favorite request/result is unchanged"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Offline Debug gate and per-module lint report inspection"}

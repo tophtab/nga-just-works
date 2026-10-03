@@ -1,0 +1,4 @@
+{"file":".trellis/tasks/10-03-floor-favorite-restore/design.md","reason":"Approved three-file restoration; historical navigation suggestions are excluded"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Floor-menu convention: user explicitly supersedes old favorite prohibition; parent will update spec"}
+{"file":".trellis/spec/backend/nga-platform-operation-registry.md","reason":"Preserve existing TOPIC_FAVOR.ADD overload, no endpoint changes"}
+{"file":".trellis/spec/backend/android-quality-guidelines.md","reason":"Compilation and offline Debug test/lint gates; no device tests"}
