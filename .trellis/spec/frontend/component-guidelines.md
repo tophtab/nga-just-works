@@ -448,15 +448,25 @@ reorderableTabRange = 1..tabs.lastIndex
 
 ## Article floor overflow menus
 
-- Neither `article_list_context_menu.xml` nor
-  `article_list_context_menu_with_tid.xml` exposes support, oppose, floor
-  favorite, or signature actions (`支持`, `反对`, `收藏`, `查看签名`). Keep
-  the remaining entries in their current relative order.
+- Both `article_list_context_menu.xml` and
+  `article_list_context_menu_with_tid.xml` expose `menu_favorite` as `收藏`.
+  In the ordinary menu it follows `menu_vote` and precedes
+  `menu_show_this_person_only`; in the PID-context menu it follows
+  `menu_ban_this_one` and precedes `menu_vote`. Keep other entries in their
+  current relative order.
+- The floor favorite handler calls `BookmarkTask.execute(tidStr, pidStr)`
+  using the clicked row's own `tid` and `pid`. Do not substitute the reader's
+  launch IDs: a PID-only entry may not have a launch topic ID. Reuse the
+  existing server operation and response feedback; restoring the floor action
+  does not add favorite-list navigation or preview behavior.
+- Neither floor menu exposes support, oppose, or signature actions
+  (`支持`, `反对`, `查看签名`).
 - The row adapter's standalone support/oppose listeners remain active. The poll
   dialog (`menu_vote`) is a separate action and stays in both menus.
 - Remove a deleted floor action's local handler together with its menu entry,
-  but search for shared IDs first: `menu_favorite` still belongs to the topic
-  list menu, and `menu_add_bookmark` still bookmarks the whole thread.
+  but search for shared IDs first: `menu_favorite` is also used by the topic
+  list menu, and `menu_add_bookmark` bookmarks the whole thread through the
+  separate `BookmarkTask.execute(int tid)` overload.
 
 ## Cached article page tabs and cache action
 
@@ -766,8 +776,9 @@ boolean ArticleRowPresentation.canReply(ThreadRowInfo row)
   not create a badge, profile/filter link or UID-0 quote attribution. A readable
   body can still be quoted with neutral author text when identity is absent.
 - Explicit comments hide `贴条` and `只看此人`; sparse ordinary rows must not
-  become comments merely because they lack an avatar. Keep the previously
-  removed floor menu actions removed. Source-unavailable rows show an explicit
+  become comments merely because they lack an avatar. Keep support, oppose,
+  and signature entries out of floor menus; retain the restored favorite
+  action described above. Source-unavailable rows show an explicit
   incomplete-content message and disable source-dependent actions.
 - Readable standalone comment/unknown-kind rows with a real own PID retain
   reply and quote actions. Those actions depend on source/PID availability,

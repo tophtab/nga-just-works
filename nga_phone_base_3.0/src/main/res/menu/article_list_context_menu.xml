@@ -21,6 +21,10 @@
         android:title="@string/vote_dialog"/>
 
     <item
+        android:id="@+id/menu_favorite"
+        android:title="收藏"/>
+
+    <item
         android:id="@+id/menu_show_this_person_only"
         android:title="@string/show_this_person_only"/>
 

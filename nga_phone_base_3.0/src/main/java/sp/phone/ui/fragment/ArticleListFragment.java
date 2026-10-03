@@ -37,6 +37,7 @@ import sp.phone.mvp.model.thread.*;
 import sp.phone.param.ArticleListParam;
 import sp.phone.param.ParamKey;
 import sp.phone.profile.AuthorLocationService;
+import sp.phone.task.BookmarkTask;
 import sp.phone.ui.adapter.ArticleListAdapter;
 import sp.phone.ui.fragment.dialog.BaseDialogFragment;
 import sp.phone.ui.fragment.dialog.AiSummaryDialog;
@@ -148,6 +149,9 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
                             .withInt(ParamKey.KEY_AUTHOR_ID, row.getAuthorid())
                             .withInt("fromreplyactivity", 1)
                             .navigation();
+                    break;
+                case R.id.menu_favorite:
+                    BookmarkTask.execute(tidStr, pidStr);
                     break;
                 default:
                     break;
