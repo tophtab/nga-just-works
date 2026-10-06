@@ -43,16 +43,11 @@ public class ThreadPageInfo implements JavaBean {
 
     private String mBoard;
     private transient ArticleCacheEntry mCacheEntry;
-    private transient String mCacheSummary;
 
     @JSONField(serialize = false, deserialize = false)
     public ArticleCacheEntry getCacheEntry() { return mCacheEntry; }
     @JSONField(serialize = false, deserialize = false)
     public void setCacheEntry(ArticleCacheEntry entry) { mCacheEntry = entry; }
-    @JSONField(serialize = false, deserialize = false)
-    public String getCacheSummary() { return mCacheSummary; }
-    @JSONField(serialize = false, deserialize = false)
-    public void setCacheSummary(String summary) { mCacheSummary = summary; }
 
     /**
      * 是否是版面镜像

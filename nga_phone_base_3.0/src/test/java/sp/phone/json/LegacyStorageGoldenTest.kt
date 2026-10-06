@@ -55,7 +55,6 @@ class LegacyStorageGoldenTest {
                 content = "合成回复\n\\"; subject = "回复题"; postDate = "1700000001"
             }
             cacheEntry = ArticleCacheEntry(120002, "42", "read_php-20")
-            cacheSummary = "must not persist"
         }
         golden("topic-history", listOf(topic, ThreadPageInfo().apply { tid = 120003 }))
         val restored = JSON.parseArray(fixture("topic-history"), ThreadPageInfo::class.java)
@@ -65,7 +64,8 @@ class LegacyStorageGoldenTest {
         assertNull(restored[1].subject)
         golden("topic-history", restored)
         val injected = JSON.parseObject("""{"tid":120002,"cacheEntry":{"tid":1,"owner":"43","layoutId":"app_api-10"},"cacheSummary":"injected"}""", ThreadPageInfo::class.java)
-        assertNull(injected.cacheEntry); assertNull(injected.cacheSummary)
+        assertNull(injected.cacheEntry)
+        assertFalse(JSON.parseObject(JSON.toJSONString(injected)).containsKey("cacheSummary"))
     }
 
     @Test fun wireAliasesAndEveryAttachmentFieldRemainReadable() {

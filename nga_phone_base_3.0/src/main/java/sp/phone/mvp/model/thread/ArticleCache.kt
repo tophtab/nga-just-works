@@ -85,9 +85,6 @@ class ArticleCacheRecord(
 ) {
     fun asThreadInfo(): ThreadPageInfo = JSON.parseObject(topicInfo, ThreadPageInfo::class.java).apply {
         cacheEntry = entry
-        val mode = when (entry.source()) { null -> "旧格式"; ArticleSource.READ_PHP -> "普通显示"; ArticleSource.APP_API -> "兼容显示" }
-        val size = if (entry.isLegacy()) "" else entry.pageSize()?.let { " · 每页 $it 条" } ?: " · 单次窗口"
-        cacheSummary = "$mode$size · 已存 ${pages.size} 页"
     }
 }
 

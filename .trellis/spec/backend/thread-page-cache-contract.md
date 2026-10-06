@@ -56,8 +56,8 @@ for an independent snapshot, never a merged set of unknown-size pages.
 
 `ArticleListParam.cacheOwner/cacheLayoutId` carry the validated handle through
 navigation. `ArticleCacheRecord.asThreadInfo()` uses the existing Fastjson
-description bean plus transient cache handle/summary fields. Those fields must
-be excluded from JSON serialization and deserialization.
+description bean plus a transient cache handle. The handle must be excluded
+from JSON serialization and deserialization.
 
 ## 3. Contracts
 
@@ -140,8 +140,11 @@ be excluded from JSON serialization and deserialization.
   argument exit. It opens only the selected handle, retains actual sparse page
   labels, and uses `setTabOnScreenLimit(count <= 5 ? count : 0)` before tab
   setup. The number of stored entries controls tab width, not the largest page.
-- List subtitles describe ordinary/compatibility/legacy display and saved-page
-  count. Keep internal layout/schema fields out of user-facing labels.
+- Cache list rows retain the pinned Justwen topic-list presentation: title,
+  author, last poster, and reply count from the saved description. Do not
+  replace the last poster with storage format/page-count summaries or hide
+  replies for cached entries. Owner/layout handles remain internal identity
+  for opening and deleting the selected record.
 - Legacy zip import/export remains limited to `files/cache`. The UI states
   that new-format caches are not included; this batch does not implement their
   zip transport or silently include the new storage root. Export enumerates
