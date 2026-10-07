@@ -21,6 +21,41 @@ class NormalArticleParserTest {
                        "comment":{"0":{"tid":100001,"pid":50121,"authorid":43,"content":"comment source"}}}}}}
     """)
 
+    @Test fun topicTitleReachesMainPostRendererInLegacyAndScopedReads() {
+        for (scoped in listOf(false, true)) {
+            val root = fixture()
+            val row = root.getJSONObject("data").getJSONObject("__R").getJSONObject("0")
+            row["lou"] = 0
+            row["content"] = "Main post body"
+            row.remove("from_client")
+            val titles = mutableListOf<Pair<Int, String?>>()
+            val renderer = ArticleRowRenderer { post, _ -> titles.add(post.pid to post.subject) }
+            val raw = root.toJSONString()
+            val data = if (scoped) NormalArticleParser(renderer, ArticleBlacklist { false }).parse(raw, query, 1)
+                else ArticleConvertFactory.getArticleInfo(raw, renderer, ArticleBlacklist { false })
+            assertEquals(listOf(50121 to null, 50120 to "topic"), titles)
+            assertEquals("Main post body", data.rowList.single().content)
+            assertEquals(raw, data.rawData)
+        }
+    }
+
+    @Test fun topicTitleDoesNotReplaceReplyTitlesOrSubjectOnlyBody() {
+        val root = fixture()
+        val row = root.getJSONObject("data").getJSONObject("__R").getJSONObject("0")
+        val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
+        assertNull(parser.parse(root.toJSONString(), query, 7).rowList.single().subject)
+        row["lou"] = 0
+        row["subject"] = "Original main title"
+        assertEquals("Original main title", parser.parse(root.toJSONString(), query, 1).rowList.single().subject)
+        row.remove("content")
+        val subjectOnly = parser.parse(root.toJSONString(), query, 1).rowList.single()
+        assertEquals("Original main title", subjectOnly.content)
+        assertNull(subjectOnly.subject)
+        row.remove("subject")
+        row.remove("lou")
+        assertNull(parser.parse(root.toJSONString(), query, 1).rowList.single().subject)
+    }
+
     @Test fun mediaRenderingUsesPageContextAndPreservesEditableSource() {
         val source = "前[flash]./视频.mp4?x=1&amp;y=2[/flash]后"
         val mediaParser = NormalArticleParser(ArticleRowRenderer { row, prefix ->

@@ -37,7 +37,16 @@ class AppArticleParser @JvmOverloads constructor(
             }
         }
         val prefix = NgaImageHost.attachmentsPrefix(bean.attachPrefix)
-        val rows = bean.result.map { post(it, bean.tauthorid, tid).also { row -> renderer.render(row, prefix) } }
+        val rows = bean.result.map { result ->
+            post(result, bean.tauthorid, tid).also { row ->
+                // App responses may carry the main-post title only in page-level tsubject.
+                // Keep subject-as-body fallback and source validity owned by post().
+                if (row.lou == 0 && result.subject.isNullOrEmpty() && !bean.tsubject.isNullOrEmpty()) {
+                    row.subject = bean.tsubject
+                }
+                renderer.render(row, prefix)
+            }
+        }
         val current = bean.currentPage?.takeIf { it > 0 }
         val size = bean.perPage?.takeIf { it > 0 }
         val effectivePage = current ?: requestedPage

@@ -23,7 +23,10 @@ internal object ReadThreadLegacyMapper {
     fun map(wire: ReadThreadWire, raw: String, strict: Boolean,
             renderer: ArticleRowRenderer, blacklist: ArticleBlacklist, fallbacks: ReadThreadBeanFallbacks): ThreadData {
         val prefix = NgaImageHost.attachmentsPrefix(wire.attachmentBaseView.value)
-        val rows = wire.rows.value.orEmpty().mapTo(ArrayList()) { post(it, wire.topicAuthorId.value, false, strict, prefix, renderer, blacklist, fallbacks) }
+        val rows = wire.rows.value.orEmpty().mapTo(ArrayList()) {
+            post(it, wire.topicAuthorId.value, false, strict, prefix, renderer, blacklist, fallbacks,
+                wire.topic.value?.subject?.value)
+        }
         return ThreadData().apply {
             rawData = raw
             threadInfo = wire.topic.value?.let(::topic)
@@ -35,14 +38,16 @@ internal object ReadThreadLegacyMapper {
     }
 
     private fun post(wire: ReadPostWire, owner: Int?, comment: Boolean, strict: Boolean,
-                     prefix: String, renderer: ArticleRowRenderer, blacklist: ArticleBlacklist, fallbacks: ReadThreadBeanFallbacks): ThreadRowInfo {
+                     prefix: String, renderer: ArticleRowRenderer, blacklist: ArticleBlacklist,
+                     fallbacks: ReadThreadBeanFallbacks, topicSubject: String? = null): ThreadRowInfo {
+        val sourceSubject = if (strict) wire.scopedSource.subject else wire.subject.value
         val row = fallbacks.row(wire.sourcePath).apply {
             tid = wire.tid.value ?: 0
             fid = wire.fid.value ?: 0
             authorid = wire.authorId.value ?: 0
             pid = wire.pid.value ?: 0
             lou = wire.lou.value ?: 0
-            subject = if (strict) wire.scopedSource.subject else wire.subject.value
+            subject = sourceSubject
             content = if (strict) wire.scopedSource.content else wire.content.value
             alterinfo = if (strict) wire.scopedSource.alterInfo else wire.alterInfo.value
             vote = wire.vote.value
@@ -78,6 +83,11 @@ internal object ReadThreadLegacyMapper {
         if (row.content == null) {
             row.content = row.subject
             row.subject = null
+        }
+        // Only a known main post inherits the topic title; preserve subject-as-body handling.
+        if (!comment && wire.floorPresent && row.lou == 0 && sourceSubject.isNullOrEmpty()
+            && !topicSubject.isNullOrEmpty()) {
+            row.subject = topicSubject
         }
         if (row.fromClient?.startsWith("103 ") == true && !row.content.isNullOrEmpty()) {
             row.content = StringUtils.unescape(row.content)

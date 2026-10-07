@@ -33,6 +33,43 @@ class AppArticleParserTest {
         try { block(); fail("Expected $kind") } catch (e: ArticleFailure) { assertEquals(kind, e.kind) }
     }
 
+    @Test fun pageTitleReachesMainPostRendererWithoutLeakingIntoReplies() {
+        for (subject in listOf(null, "")) {
+            val root = fixture(page = 1, floors = listOf(0, 1))
+            row(root)["subject"] = subject
+            val titles = mutableListOf<String?>()
+            val titleParser = AppArticleParser(ArticleRowRenderer { row, _ -> titles.add(row.subject) },
+                ArticleBlacklist { false })
+            val raw = root.toJSONString()
+            val data = titleParser.parse(raw, full, 1)
+            assertEquals(listOf("Synthetic topic", null), titles)
+            assertEquals(listOf("source 0", "source 1"), data.rowList.map { it.content })
+            assertEquals(raw, data.rawData)
+            assertTrue(data.isContentComplete)
+        }
+    }
+
+    @Test fun explicitSubjectAndSubjectOnlyBodyKeepTheirExistingMeaning() {
+        val root = fixture(page = 1, floors = listOf(0))
+        row(root)["subject"] = "Main post title"
+        assertEquals("Main post title", parse(root, page = 1).rowList.single().subject)
+        row(root)["content"] = ""
+        val post = parse(root, page = 1).rowList.single()
+        assertNull(post.subject)
+        assertEquals("Main post title", post.content)
+    }
+
+    @Test fun pageTitleDoesNotInventMainFloorOrMakeMissingSourceComplete() {
+        val root = fixture(page = 1, floors = listOf(0))
+        row(root).remove("content")
+        val missingBody = parse(root, page = 1)
+        assertEquals("Synthetic topic", missingBody.rowList.single().subject)
+        assertFalse(missingBody.isContentComplete)
+        assertFalse(ArticleRowPresentation.hasSource(missingBody.rowList.single()))
+        row(root).remove("lou")
+        assertNull(parse(root, page = 1).rowList.single().subject)
+    }
+
     @Test fun mediaRenderingUsesPageContextAndPreservesEditableSource() {
         val source = "前[flash]./视频.mp4?x=1&amp;y=2[/flash]后"
         val mediaParser = AppArticleParser(ArticleRowRenderer { row, prefix ->
