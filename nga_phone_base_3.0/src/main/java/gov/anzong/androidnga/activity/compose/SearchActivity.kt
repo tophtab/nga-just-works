@@ -112,19 +112,7 @@ class SearchActivity : BaseComposeActivity() {
                     .focusRequester(focusRequester)
                     .wrapContentHeight(Alignment.CenterVertically),
                 decorationBox = {
-                    if (searchText.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            val searchMode by viewModel.searchMode.observeAsState()
-                            Text(
-                                text = viewModel.getSearchTintText(searchMode!!),
-                                color = fieldSecondaryContent,
-                                style = TextStyle.Default
-                            )
-                        }
-                    } else {
+                    if (searchText.isNotEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.CenterEnd
@@ -206,7 +194,7 @@ class SearchActivity : BaseComposeActivity() {
 
     @Preview
     @Composable
-    fun SearchHistoryItemView(text: String = "强撸灰飞烟灭", deleteMode: Boolean = false) {
+    fun SearchHistoryItemView(text: String = "搜索记录", deleteMode: Boolean = false) {
         val chipContent = MaterialTheme.colors.onSurface
         val chipSecondaryContent = chipContent.copy(alpha = ContentAlpha.medium)
         Box(modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, end = 4.dp)) {

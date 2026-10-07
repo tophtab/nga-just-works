@@ -10,7 +10,6 @@
         android:id="@+id/search_data"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/profile_search_dialog_hint"
         android:imeOptions="actionSearch"
         android:inputType="textNoSuggestions"
         android:maxLines="1" />
@@ -38,4 +37,4 @@
     </RadioGroup>
 
 
-</LinearLayout>   
+</LinearLayout>

@@ -74,15 +74,12 @@ public class SearchDialogFragment extends DialogFragment {
                 switch (checkedId) {
                     case R.id.search_topic://搜索本版面主题
                     case R.id.search_alltopic://搜索全部主题
-                        mEditText.setHint(R.string.search_dialog_hint);
                         mContentCheckBox.setVisibility(View.VISIBLE);
                         break;
                     case R.id.search_user_topic://搜索用户主题
-                        mEditText.setHint(R.string.search_dialog_hint_topic_reply_byself);
                         mContentCheckBox.setVisibility(View.GONE);
                         break;
                     case R.id.search_user_apply://搜索用户回复
-                        mEditText.setHint(R.string.search_dialog_hint_reply_byself);
                         mContentCheckBox.setVisibility(View.GONE);
                         break;
                     default:

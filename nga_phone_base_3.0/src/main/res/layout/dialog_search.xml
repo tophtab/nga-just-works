@@ -17,7 +17,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:cursorVisible="true"
-            android:hint="@string/search_dialog_hint"
             android:imeOptions="actionSearch"
             android:inputType="textNoSuggestions" />
 

@@ -7,7 +7,6 @@ import com.alibaba.android.arouter.launcher.ARouter
 import gov.anzong.androidnga.arouter.ARouterConstants
 import gov.anzong.androidnga.base.util.ToastUtils
 import gov.anzong.androidnga.core.board.data.BoardEntity
-import sp.phone.common.UserManagerImpl
 import sp.phone.mvp.model.entity.Board
 import sp.phone.param.ParamKey
 import sp.phone.task.SearchBoardTask
@@ -75,15 +74,6 @@ class SearchViewModel : ViewModel() {
         keyList.value = searchModel.getSearchHistory(searchMode.value!!)
     }
 
-    fun getSearchTintText(searchMode: Int): String {
-        return when (searchMode) {
-            SEARCH_MODE_USER -> "默认查看自己的用户信息"
-            SEARCH_MODE_BOARD -> "强撸灰飞烟灭"
-            SEARCH_MODE_TOPIC -> "强撸灰飞烟灭"
-            else -> "搜索"
-        }
-    }
-
     fun query(context: Context, query: String) {
         when (searchMode.value) {
             SEARCH_MODE_USER -> queryUser(query)
@@ -116,17 +106,15 @@ class SearchViewModel : ViewModel() {
     }
 
     private fun queryUser(query: String) {
-        var realQuery = query
         if (query.isEmpty()) {
-            val user = UserManagerImpl.getInstance().activeUser ?: return
-            realQuery = if (searchUserMode == SEARCH_MODE_USER_NAME) user.nickName else user.userId
-        } else {
-            putHistory(searchMode.value!!, query)
+            return
         }
+        putHistory(searchMode.value!!, query)
+
         ARouter.getInstance()
             .build(ARouterConstants.ACTIVITY_PROFILE)
             .withString("mode", searchUserMode)
-            .withString(searchUserMode, realQuery)
+            .withString(searchUserMode, query)
             .navigation()
     }
 

@@ -19,12 +19,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.Objects;
-
 import gov.anzong.androidnga.R;
 import sp.phone.common.PhoneConfiguration;
-import sp.phone.common.UserManagerImpl;
-import sp.phone.util.StringUtils;
 
 public class ProfileSearchDialogFragment extends BaseDialogFragment {
 
@@ -89,6 +85,9 @@ public class ProfileSearchDialogFragment extends BaseDialogFragment {
 
     private void handleSearch() {
         final String inputString = mEditText.getText().toString().trim().replaceAll("\\n", "");
+        if (TextUtils.isEmpty(inputString)) {
+            return;
+        }
         if (mSearchRadio.getCheckedRadioButtonId() == mSearchName.getId()) {//用户名
             searchName(inputString);
         } else {
@@ -98,12 +97,6 @@ public class ProfileSearchDialogFragment extends BaseDialogFragment {
 
     private void searchName(String inputString) {
         Intent intent = new Intent(getContext(), PhoneConfiguration.getInstance().topicActivityClass);
-        if (TextUtils.isEmpty(inputString)) {
-            inputString = UserManagerImpl.getInstance().getUserName();
-            if (TextUtils.isEmpty(inputString)) {
-                return;
-            }
-        }
         intent.putExtra("mode", "username");
         intent.putExtra("username", inputString);
         intent.setClass(getContext(), PhoneConfiguration.getInstance().profileActivityClass);
@@ -112,20 +105,10 @@ public class ProfileSearchDialogFragment extends BaseDialogFragment {
 
     private void searchId(String inputString) {
         Intent intent = new Intent(getContext(), PhoneConfiguration.getInstance().topicActivityClass);
-        if (!StringUtils.isEmpty(inputString)) {
-            intent.putExtra("mode", "uid");
-            intent.putExtra("uid", inputString);
-            intent.setClass(getContext(), PhoneConfiguration.getInstance().profileActivityClass);
-            startActivity(intent);
-        } else {
-            String userName = UserManagerImpl.getInstance().getUserName();
-            if (!Objects.equals(userName, "")) {
-                intent.putExtra("mode", "username");
-                intent.putExtra("username", userName);
-                intent.setClass(getContext(), PhoneConfiguration.getInstance().profileActivityClass);
-                startActivity(intent);
-            }
-        }
+        intent.putExtra("mode", "uid");
+        intent.putExtra("uid", inputString);
+        intent.setClass(getContext(), PhoneConfiguration.getInstance().profileActivityClass);
+        startActivity(intent);
     }
 
 
