@@ -40,8 +40,10 @@ class AppArticleParser @JvmOverloads constructor(
         val rows = bean.result.map { result ->
             post(result, bean.tauthorid, tid).also { row ->
                 // App responses may carry the main-post title only in page-level tsubject.
+                // Reply lookup windows may report floor zero for a positive-PID reply.
                 // Keep subject-as-body fallback and source validity owned by post().
-                if (row.lou == 0 && result.subject.isNullOrEmpty() && !bean.tsubject.isNullOrEmpty()) {
+                if (result.pid == 0 && result.lou == 0 && result.subject.isNullOrEmpty()
+                    && !bean.tsubject.isNullOrEmpty()) {
                     row.subject = bean.tsubject
                 }
                 renderer.render(row, prefix)

@@ -1,6 +1,7 @@
 package sp.phone.mvp.model.thread
 
 import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONWriter
 import org.junit.Assert.*
 import org.junit.Test
 import gov.anzong.androidnga.core.data.HtmlData
@@ -25,6 +26,7 @@ class NormalArticleParserTest {
         for (scoped in listOf(false, true)) {
             val root = fixture()
             val row = root.getJSONObject("data").getJSONObject("__R").getJSONObject("0")
+            row["pid"] = 0
             row["lou"] = 0
             row["content"] = "Main post body"
             row.remove("from_client")
@@ -33,9 +35,53 @@ class NormalArticleParserTest {
             val raw = root.toJSONString()
             val data = if (scoped) NormalArticleParser(renderer, ArticleBlacklist { false }).parse(raw, query, 1)
                 else ArticleConvertFactory.getArticleInfo(raw, renderer, ArticleBlacklist { false })
-            assertEquals(listOf(50121 to null, 50120 to "topic"), titles)
+            assertEquals(listOf(50121 to null, 0 to "topic"), titles)
             assertEquals("Main post body", data.rowList.single().content)
+            assertEquals("topic", data.threadInfo.subject)
             assertEquals(raw, data.rawData)
+        }
+    }
+
+    @Test fun replyLookupAtFloorZeroDoesNotInheritTopicTitleBeforeRendering() {
+        for (scoped in listOf(false, true)) {
+            val root = fixture()
+            val row = root.getJSONObject("data").getJSONObject("__R").getJSONObject("0")
+            row["lou"] = 0
+            row["content"] = "Reply body"
+            row.remove("from_client")
+            val titles = mutableListOf<Pair<Int, String?>>()
+            val renderer = ArticleRowRenderer { post, _ -> titles.add(post.pid to post.subject) }
+            val raw = root.toJSONString()
+            val lookup = ArticleQuery(100001, 50120, 42, 1)
+            val data = if (scoped) NormalArticleParser(renderer, ArticleBlacklist { false }).parse(raw, lookup, 1)
+                else ArticleConvertFactory.getArticleInfo(raw, renderer, ArticleBlacklist { false })
+            assertEquals(listOf(50121 to null, 50120 to null), titles)
+            assertEquals("Reply body", data.rowList.single().content)
+            assertEquals("topic", data.threadInfo.subject)
+            assertEquals(raw, data.rawData)
+            assertTrue(data.isContentComplete)
+        }
+    }
+
+    @Test fun missingOrNullMainPostIdentityDoesNotInventTitleBeforeRendering() {
+        for (scoped in listOf(false, true)) {
+            for (field in listOf("pid", "lou")) {
+                for (explicitNull in listOf(false, true)) {
+                    val root = fixture()
+                    val row = root.getJSONObject("data").getJSONObject("__R").getJSONObject("0")
+                    row["pid"] = 0
+                    row["lou"] = 0
+                    row.remove("comment")
+                    if (explicitNull) row[field] = null else row.remove(field)
+                    val titles = mutableListOf<String?>()
+                    val renderer = ArticleRowRenderer { post, _ -> titles.add(post.subject) }
+                    val raw = JSON.toJSONString(root, JSONWriter.Feature.WriteNulls)
+                    val data = if (scoped) NormalArticleParser(renderer, ArticleBlacklist { false }).parse(raw, query, 1)
+                        else ArticleConvertFactory.getArticleInfo(raw, renderer, ArticleBlacklist { false })
+                    assertEquals("scoped=$scoped field=$field null=$explicitNull", listOf<String?>(null), titles)
+                    assertEquals("topic", data.threadInfo.subject)
+                }
+            }
         }
     }
 
@@ -44,6 +90,7 @@ class NormalArticleParserTest {
         val row = root.getJSONObject("data").getJSONObject("__R").getJSONObject("0")
         val parser = NormalArticleParser(ArticleRowRenderer { _, _ -> }, ArticleBlacklist { false })
         assertNull(parser.parse(root.toJSONString(), query, 7).rowList.single().subject)
+        row["pid"] = 0
         row["lou"] = 0
         row["subject"] = "Original main title"
         assertEquals("Original main title", parser.parse(root.toJSONString(), query, 1).rowList.single().subject)

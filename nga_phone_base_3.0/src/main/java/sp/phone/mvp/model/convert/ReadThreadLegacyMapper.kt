@@ -85,8 +85,9 @@ internal object ReadThreadLegacyMapper {
             row.subject = null
         }
         // Only a known main post inherits the topic title; preserve subject-as-body handling.
-        if (!comment && wire.floorPresent && row.lou == 0 && sourceSubject.isNullOrEmpty()
-            && !topicSubject.isNullOrEmpty()) {
+        // A lookup reply can have floor zero; missing wire identity must not use bean defaults.
+        if (!comment && wire.pid.value == 0 && wire.floorPresent && wire.lou.value == 0
+            && sourceSubject.isNullOrEmpty() && !topicSubject.isNullOrEmpty()) {
             row.subject = topicSubject
         }
         if (row.fromClient?.startsWith("103 ") == true && !row.content.isNullOrEmpty()) {

@@ -36,6 +36,7 @@ class AppArticleParserTest {
     @Test fun pageTitleReachesMainPostRendererWithoutLeakingIntoReplies() {
         for (subject in listOf(null, "")) {
             val root = fixture(page = 1, floors = listOf(0, 1))
+            row(root)["pid"] = 0
             row(root)["subject"] = subject
             val titles = mutableListOf<String?>()
             val titleParser = AppArticleParser(ArticleRowRenderer { row, _ -> titles.add(row.subject) },
@@ -44,13 +45,30 @@ class AppArticleParserTest {
             val data = titleParser.parse(raw, full, 1)
             assertEquals(listOf("Synthetic topic", null), titles)
             assertEquals(listOf("source 0", "source 1"), data.rowList.map { it.content })
+            assertEquals("Synthetic topic", data.threadInfo.subject)
             assertEquals(raw, data.rawData)
             assertTrue(data.isContentComplete)
         }
     }
 
+    @Test fun replyLookupAtFloorZeroDoesNotInheritPageTitleBeforeRendering() {
+        val root = fixture(page = 1, floors = listOf(0))
+        val titles = mutableListOf<String?>()
+        val titleParser = AppArticleParser(ArticleRowRenderer { row, _ -> titles.add(row.subject) },
+            ArticleBlacklist { false })
+        val raw = root.toJSONString()
+        val data = titleParser.parse(raw, ArticleQuery(100001, 50000, 42, 1), 1)
+        assertEquals(listOf<String?>(null), titles)
+        assertEquals(50000, data.rowList.single().pid)
+        assertEquals("source 0", data.rowList.single().content)
+        assertEquals("Synthetic topic", data.threadInfo.subject)
+        assertEquals(raw, data.rawData)
+        assertTrue(data.isContentComplete)
+    }
+
     @Test fun explicitSubjectAndSubjectOnlyBodyKeepTheirExistingMeaning() {
         val root = fixture(page = 1, floors = listOf(0))
+        row(root)["pid"] = 0
         row(root)["subject"] = "Main post title"
         assertEquals("Main post title", parse(root, page = 1).rowList.single().subject)
         row(root)["content"] = ""
@@ -61,11 +79,13 @@ class AppArticleParserTest {
 
     @Test fun pageTitleDoesNotInventMainFloorOrMakeMissingSourceComplete() {
         val root = fixture(page = 1, floors = listOf(0))
+        row(root)["pid"] = 0
         row(root).remove("content")
         val missingBody = parse(root, page = 1)
         assertEquals("Synthetic topic", missingBody.rowList.single().subject)
         assertFalse(missingBody.isContentComplete)
         assertFalse(ArticleRowPresentation.hasSource(missingBody.rowList.single()))
+        row(root)["pid"] = 50000
         row(root).remove("lou")
         assertNull(parse(root, page = 1).rowList.single().subject)
     }
