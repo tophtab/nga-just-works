@@ -247,8 +247,16 @@ actions. It is display metadata, not a fabricated server response schema.
 - The byte client limits both declared and streamed body length to 4 MiB,
   checks truncation, and closes responses/streams. A declared UTF-8/UTF8,
   GBK/GB2312/GB18030 charset is decoded strictly; missing charset uses the
-  explicit source-derived GBK compatibility rule. Invalid/duplicate/unsupported
-  declarations fail without trying a succession of encodings.
+  explicit source-derived GBK compatibility rule. If and only if strict GBK
+  decoding fails, decode the same bounded bytes once with strict GB18030.
+  NGA can label GB18030 bytes as GBK: the four-byte sequence `81 30 84 32`
+  represents U+00A0 in a user's `honor` field and otherwise rejects the whole
+  page before JSON parsing. Keep successful GBK decoding unchanged, including
+  mappings that differ from GB18030 (`A6 D9` maps to U+E78D under JDK 17 GBK,
+  versus U+FE10 under GB18030). This local decoding
+  fallback makes no new request and does not change failure/browser policy.
+  Invalid GB18030 still fails as PROTOCOL; explicit UTF-8/GB2312 and invalid,
+  duplicate or unsupported declarations never enter this fallback.
 - Origins are exact HTTPS project hosts on the default port with a root path;
   reject credentials, query/fragment, malformed host preferences or suffix
   lookalikes before constructing an authenticated request. App uses POST form;
@@ -274,6 +282,9 @@ actions. It is display metadata, not a fabricated server response schema.
 | 3xx / unknown HTML | Status / neutral webpage message, no invented challenge |
 | Structured deleted/missing/permission/validation | Finite evidenced reason; no normal-post keyword scan |
 | Auth/challenge/rate limit | Stop; no alternate identity or automatic App fallback |
+| GBK/default charset with valid GB18030 four-byte text | Decode the same bytes strictly as GB18030 after GBK fails; preserve the text without another request |
+| Valid GBK text, including mappings that differ from GB18030 | Preserve the successful GBK result |
+| GBK/default charset with truncated or invalid GB18030 | PROTOCOL; no replacement characters or partial successful page |
 | Missing core content | Visible unavailable state; no incomplete-page cache |
 | Scoped ordinary content is an object/array with a valid subject | Keep the row visibly incomplete; do not enable source actions or owned cache |
 | Known nested comment has unusable source | Keep parent/child readable with a child notice; mark page incomplete and block cache |
@@ -327,6 +338,9 @@ Use synthetic data and fake transport; never send NGA traffic:
   form/headers, source/page changes with one account snapshot, guest requests,
   origin/redirect/retry policy, strict charset/size handling, body closure,
   pre-parse HTTP closure, secret-safe network failure and cancellation.
+  Cover U+00A0's GB18030 bytes under a GBK label or missing charset, unchanged
+  successful GBK decoding, and malformed/truncated GB18030 rejection. Assert
+  exact text, one request, and body closure without retaining live responses.
   `ArticleErrorsTest` owns the status matrix; the byte client keeps a
   representative redirect stop to establish the wire boundary. No socket is opened.
 - `ArticleCacheStoreTest` and existing `ArticlePageCacheTest`: explicit replay,
@@ -354,6 +368,10 @@ Inspect every required lint XML for zero Error/Fatal. These checks establish
 local behavior, not real-service success rate. Device tests remain opt-in.
 
 ## 7. Wrong vs Correct
+
+Wrong: map every GBK label directly to GB18030, or replace malformed bytes and
+accept a damaged page. Correct: retain successful strict GBK output; only its
+decoding failure permits one strict GB18030 pass over the same bytes.
 
 Wrong: classify every App root with `isTieTiao=true` as COMMENT. The observed
 main post then loses floor zero and ordinary actions while its child is ignored.

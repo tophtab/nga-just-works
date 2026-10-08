@@ -147,7 +147,34 @@ class ArticleByteClientTest {
         }
     }
 
-    @Test fun invalidCharsetDeclarationsAndMalformedBytesFailWithoutEncodingGuesses() {
+    @Test fun gbkAndMissingCharsetReadGb18030NonBreakingSpaceWithoutAnotherCall() {
+        val prefix = "{\"honor\":\"合成".toByteArray(Charset.forName("GBK"))
+        val bytes = prefix + byteArrayOf(0x81.toByte(), 0x30, 0x84.toByte(), 0x32) + "头衔\"}".toByteArray(Charset.forName("GBK"))
+        for (header in listOf("text/javascript;charset=GBK", "application/json", null)) {
+            val body = TestBody(bytes)
+            val (observer, factory) = read(body, operation(ArticleSource.READ_PHP), contentType = header)
+            observer.assertResult("{\"honor\":\"合成\u00a0头衔\"}")
+            assertEquals(1, factory.calls.size)
+            assertEquals(bytes.size.toLong(), body.bytesRead)
+            assertTrue(body.closed)
+        }
+    }
+
+    @Test fun validGbkRetainsItsMappingInsteadOfBeingDecodedAsGb18030() {
+        // This valid GBK pair maps to U+FE10 under GB18030 on the JVM.
+        val body = TestBody(byteArrayOf(0xa6.toByte(), 0xd9.toByte()))
+        read(body, operation(ArticleSource.READ_PHP), contentType = "text/plain; charset=GBK")
+            .first.assertResult("\ue78d")
+        assertTrue(body.closed)
+    }
+
+    @Test fun gb18030CompatibilityDoesNotOverrideExplicitGb2312() {
+        val body = TestBody(byteArrayOf(0x81.toByte(), 0x30, 0x84.toByte(), 0x32))
+        failure(read(body, contentType = "text/plain; charset=GB2312").first, ArticleFailureKind.PROTOCOL)
+        assertTrue(body.closed)
+    }
+
+    @Test fun invalidCharsetDeclarationsAndMalformedBytesRemainProtocolFailures() {
         for (header in listOf(
             "text/plain; charset=UTF-16", "text/plain; charset=ISO-8859-1",
             "text/plain; charset=", "text/plain; charset", "text/plain; charset UTF-8",
@@ -162,6 +189,8 @@ class ArticleByteClientTest {
         for ((header, bytes) in listOf(
             "text/plain; charset=UTF-8" to byteArrayOf(0xc3.toByte(), 0x28),
             "text/plain; charset=GBK" to byteArrayOf(0x81.toByte()),
+            "text/plain; charset=GBK" to byteArrayOf(0x81.toByte(), 0x30, 0x84.toByte()),
+            null to byteArrayOf(0x81.toByte(), 0x30, 0x84.toByte(), 0x20),
         )) {
             val body = TestBody(bytes)
             failure(read(body, contentType = header).first, ArticleFailureKind.PROTOCOL)

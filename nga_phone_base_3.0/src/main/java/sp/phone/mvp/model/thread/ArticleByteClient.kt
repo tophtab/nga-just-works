@@ -11,6 +11,7 @@ import okhttp3.Response
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.nio.ByteBuffer
+import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
 import java.util.Locale
@@ -98,11 +99,21 @@ class ArticleByteClient @JvmOverloads constructor(private val calls: Call.Factor
             if (declared >= 0 && declared != bytes.size().toLong()) throw ArticleFailure(ArticleFailureKind.PROTOCOL)
             if (bytes.size() == 0) throw ArticleFailure(ArticleFailureKind.EMPTY)
             val charset = charset(response.header("Content-Type"))
+            val encoded = bytes.toByteArray()
             return try {
-                charset.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes.toByteArray())).toString()
+                try {
+                    decodeStrict(encoded, charset)
+                } catch (error: CharacterCodingException) {
+                    if (charset != Charset.forName("GBK")) throw error
+                    // NGA may label GB18030 content as GBK. Preserve successful GBK mappings.
+                    decodeStrict(encoded, Charset.forName("GB18030"))
+                }
             } catch (_: Exception) { throw ArticleFailure(ArticleFailureKind.PROTOCOL) }
         }
+
+        private fun decodeStrict(bytes: ByteArray, charset: Charset): String =
+            charset.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString()
 
         internal fun charset(contentType: String?): Charset {
             if (contentType == null) return Charset.forName("GBK")
