@@ -68,6 +68,7 @@ public class RecentNotificationFragment extends BaseRxFragment implements OnHttp
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mRefreshLayout = view.findViewById(R.id.swipe_refresh);
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

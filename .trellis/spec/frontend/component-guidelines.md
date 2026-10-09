@@ -31,6 +31,13 @@ Adding the inset to the current padding accumulates space when the system
 redispatches insets. If a resource belongs to a non-transitive library, use the
 library's fully-qualified `R` class.
 
+Legacy fragments must call `super.onViewCreated(view, savedInstanceState)`.
+`BaseFragment` disables root `fitsSystemWindows` because the Activity owns
+system-bar spacing; `BaseRxFragment` also emits `CREATE_VIEW`. Skipping this
+chain, as in the former recent-notification implementation, leaves the XML's
+`fitsSystemWindows="true"` active and can add redundant top spacing below the
+toolbar. Restore the parent callback rather than compensating with margins.
+
 ### Common Mistake: Assuming the shared BaseActivity handles every screen
 
 **Symptom**: A legacy Activity's toolbar is drawn under Android 15 status-bar
