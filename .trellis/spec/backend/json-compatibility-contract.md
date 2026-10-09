@@ -37,6 +37,13 @@ existing source/account/paging/error behavior.
   `AllowUnQuotedFieldNames` only at evidence-backed compatible entrypoints.
   Keep compression selection and callbacks in their existing owners; JSON
   migration does not add retries or reinterpret other business errors.
+- `NOTIFICATION.LIST` uses local `AllowUnQuotedFieldNames` in
+  `ForumNotificationFactory.decodeNotificationData`. Without it, JSON2 stores
+  bare numeric keys such as `0:` differently from quoted `"0":`, so existing
+  string-key lookups lose the envelope or row fields and the legacy catch
+  returns an empty list. Preserve bare keys in offline regression inputs;
+  `ForumNotificationGoldenTest` checks both list entrypoints, reply-before-message
+  order, PID slots `7`/`8`, and read/unread state against the quoted baseline.
 - AI/profile parsers locally allow existing unquoted fields while using
   `DisableReferenceDetect` and `DisableSingleQuote`. Preserve depth/size/
   character/script guards, BigDecimal precision and full-document consumption.

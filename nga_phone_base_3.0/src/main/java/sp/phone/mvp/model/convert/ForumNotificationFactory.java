@@ -1,8 +1,10 @@
 package sp.phone.mvp.model.convert;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,9 @@ public class ForumNotificationFactory {
     }
 
     static JSONObject decodeNotificationData(String payload) {
-        return JSONObject.parseObject(payload).getJSONObject("data").getJSONObject("0");
+        // Legacy JS responses use unquoted numeric keys; keep string-key lookups working.
+        return JSON.parseObject(payload, JSONReader.Feature.AllowUnQuotedFieldNames)
+                .getJSONObject("data").getJSONObject("0");
     }
 
     private static RecentReplyInfo buildRecentReplyInfo(JSONObject obj) {
