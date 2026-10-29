@@ -1,5 +1,7 @@
 package sp.phone.mvp.presenter;
 
+import androidx.annotation.Nullable;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -423,18 +425,40 @@ public class ArticleListPresenter extends BasePresenter<ArticleListFragment, Art
 
     @Override
     public void postSupportTask(int tid, int pid) {
-        if (mLikeTask == null) {
-            mLikeTask = new LikeTask();
-        }
-        mLikeTask.execute(tid, pid, LikeTask.SUPPORT, ToastUtils::success);
+        postVote(tid, pid, LikeTask.SUPPORT, null);
     }
 
     @Override
     public void postOpposeTask(int tid, int pid) {
+        postVote(tid, pid, LikeTask.OPPOSE, null);
+    }
+
+    /**
+     * Votes on [row]'s floor. The icon changes right away to the expected state (voting toggles:
+     * the same vote again cancels), so the change animation plays on the tap; the server's score
+     * change then sets the real score and state, and a failed request restores the old state.
+     * [row] may be null (no visual update).
+     */
+    public void postVote(int tid, int pid, int like, @Nullable ThreadRowInfo row) {
         if (mLikeTask == null) {
             mLikeTask = new LikeTask();
         }
-        mLikeTask.execute(tid, pid, LikeTask.OPPOSE, ToastUtils::success);
+        final int before = row == null ? LikeTask.STATE_NONE : row.getVoteState();
+        if (row != null) {
+            row.setVoteState(LikeTask.expectedState(before, like));
+            if (mBaseView != null) mBaseView.onVoteChanged(row);
+        }
+        mLikeTask.vote(tid, pid, like, (message, delta, state) -> {
+            ToastUtils.success(message);
+            if (row == null) return;
+            if (delta != null) {
+                row.setScore(row.getScore() + delta);
+                row.setVoteState(state);
+            } else {
+                row.setVoteState(before);
+            }
+            if (mBaseView != null) mBaseView.onVoteChanged(row);
+        });
     }
 
     @Override

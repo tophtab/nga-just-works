@@ -104,6 +104,8 @@ fun MiuixPullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         pullToRefreshState = rememberPullToRefreshState(),
+        // Indicator only: no "Pull down to refresh" / "Release to refresh" captions.
+        refreshTexts = emptyList(),
         topAppBarScrollBehavior = page.scrollBehavior,
         contentPadding = PaddingValues(top = page.padding.calculateTopPadding() + 12.dp),
         modifier = modifier.fillMaxSize(),
@@ -140,6 +142,8 @@ fun <T : Any> MiuixPagingList(
             items.refresh()
         },
         pullToRefreshState = rememberPullToRefreshState(),
+        // Indicator only: no "Pull down to refresh" / "Release to refresh" captions.
+        refreshTexts = emptyList(),
         topAppBarScrollBehavior = page.scrollBehavior,
         contentPadding = PaddingValues(top = page.padding.calculateTopPadding() + 12.dp),
         modifier = modifier.fillMaxSize(),

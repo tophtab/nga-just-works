@@ -1,5 +1,6 @@
 package com.justwen.androidnga.ui.compose.miuix
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
@@ -53,7 +54,22 @@ object MiuixToast {
         Toast(app).apply {
             duration = if (longDuration) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
             this.view = view
-            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, (96 * density).toInt())
+            setGravity(Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL, 0, systemToastOffset(app, density))
         }.show()
     }
+
+    /**
+     * The system toast's distance from the bottom: the platform `toast_y_offset` (OEMs tune it, e.g.
+     * 8dp portrait / 24dp landscape on HyperOS Pad, 48dp in AOSP) plus a small gap, so the Miuix
+     * toast sits where system toasts do, just above the navigation bar, instead of a fixed 96dp.
+     */
+    private fun systemToastOffset(context: Context, density: Float): Int {
+        val res = context.resources
+        @SuppressLint("DiscouragedApi", "InternalInsetResource")
+        val id = res.getIdentifier("toast_y_offset", "dimen", "android")
+        val system = if (id != 0) res.getDimensionPixelSize(id) else (48 * density).toInt()
+        return system + (BOTTOM_GAP_DP * density).toInt()
+    }
+
+    private const val BOTTOM_GAP_DP = 16
 }

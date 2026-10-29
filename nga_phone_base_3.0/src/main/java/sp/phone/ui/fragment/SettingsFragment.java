@@ -24,6 +24,7 @@ import gov.anzong.androidnga.activity.compose.TemplateComposeActivity;
 import gov.anzong.androidnga.base.util.ContextUtils;
 import gov.anzong.androidnga.base.util.PreferenceUtils;
 import gov.anzong.androidnga.base.util.ThreadUtils;
+import gov.anzong.androidnga.ui.TabletSplit;
 import gov.anzong.androidnga.base.util.ToastUtils;
 import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.common.util.EmoticonOrderStore;
@@ -143,14 +144,22 @@ public class SettingsFragment extends BasePreferenceFragment
         switch (key) {
             case PreferenceKey.NIGHT_MODE:
                 SettingsActivity.sRecreated = true;
+                // The split divider takes the page background; refresh it for the new mode.
+                ThreadUtils.postOnMainThreadDelay(() -> TabletSplit.apply(ContextUtils.getContext()), 50);
                 break;
             case PreferenceKey.KEY_NIGHT_MODE_FOLLOW_SYSTEM:
                 findPreference(PreferenceKey.NIGHT_MODE).setEnabled(Boolean.FALSE.equals(newValue));
                 SettingsActivity.sRecreated = true;
+                ThreadUtils.postOnMainThreadDelay(() -> TabletSplit.apply(ContextUtils.getContext()), 50);
+                break;
+            case PreferenceKey.KEY_TABLET_SPLIT:
+                // The value is stored after this returns; apply it once it is.
+                ThreadUtils.postOnMainThreadDelay(() -> TabletSplit.apply(ContextUtils.getContext()), 50);
                 break;
             case PreferenceKey.KEY_UI_STYLE:
             case PreferenceKey.MATERIAL_THEME:
                 SettingsActivity.sRecreated = true;
+                ThreadUtils.postOnMainThreadDelay(() -> TabletSplit.apply(ContextUtils.getContext()), 50);
                 ThreadUtils.postOnMainThreadDelay(() -> {
                     if (getActivity() != null) {
                         getActivity().recreate();

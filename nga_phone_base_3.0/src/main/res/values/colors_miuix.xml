@@ -8,4 +8,5 @@
     <color name="miuix_on_surface">#FF000000</color>
     <color name="miuix_divider_line">#FFE0E0E0</color>
     <color name="miuix_dialog_button_secondary">#FFF0F0F0</color>
+    <color name="miuix_secondary">#FFE6E6E6</color>
 </resources>

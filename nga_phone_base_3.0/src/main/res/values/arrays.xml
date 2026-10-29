@@ -63,6 +63,16 @@
         <item>miuix</item>
     </string-array>
 
+    <string-array name="home_layout">
+        <item>@string/setting_home_layout_fill</item>
+        <item>@string/setting_home_layout_compact</item>
+    </string-array>
+
+    <string-array name="home_layout_value" translatable="false">
+        <item>fill</item>
+        <item>compact</item>
+    </string-array>
+
     <string-array name="material_theme">
         <item>棕色</item>
         <item>绿色</item>

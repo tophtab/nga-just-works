@@ -332,7 +332,12 @@
     <string name="setting_title_material_theme">主题风格</string>
     <string name="setting_title_ui_style">外观</string>
     <string name="setting_title_predictive_back">预测返回手势</string>
-    <string name="setting_predictive_back_summary">侧滑返回时由系统预览上一页并跟随手指。部分系统手势（如 HyperOS）下返回动画会不连贯，关闭后松手再播放完整的返回动画</string>
+    <string name="setting_title_tablet_split">平板分栏</string>
+    <string name="setting_title_home_layout">首页布局</string>
+    <string name="setting_home_layout_fill">平铺</string>
+    <string name="setting_home_layout_compact">紧凑</string>
+    <string name="setting_tablet_split_summary">平板横屏时，板块、帖子、发帖在右侧打开，左侧保留上一级页面，拖动中间的分隔条可调整比例</string>
+    <string name="setting_predictive_back_summary">侧滑返回时由系统预览上一页并跟随手指</string>
     <string name="setting_ui_style_classic">经典</string>
     <string name="setting_ui_style_miuix">Miuix</string>
     <string name="miuix_switch_account">切换账号</string>

@@ -144,6 +144,9 @@ dependencies {
     // lifecycle
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    // Activity Embedding for the tablet two-pane layout (already on the classpath through Compose,
+    // declared here because the app now calls it directly).
+    implementation "androidx.window:window:1.5.0"
 
     //butterKnife
     implementation 'com.jakewharton:butterknife:10.2.1'

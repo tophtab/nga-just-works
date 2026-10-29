@@ -1,6 +1,8 @@
 package gov.anzong.androidnga;
 
 import android.app.Application;
+import androidx.annotation.NonNull;
+import android.content.res.Configuration;
 import com.justwen.androidnga.ui.compose.miuix.MiuixMenuIcons;
 import com.justwen.androidnga.ui.compose.miuix.MiuixTransitions;
 import gov.anzong.androidnga.base.util.ToastUtils;
@@ -28,6 +30,7 @@ import gov.anzong.androidnga.common.PreferenceKey;
 import gov.anzong.androidnga.common.util.NLog;
 import gov.anzong.androidnga.common.util.ReflectUtils;
 import gov.anzong.androidnga.db.AppDatabase;
+import gov.anzong.androidnga.ui.TabletSplit;
 import sp.phone.common.UserManagerImpl;
 import sp.phone.common.VersionUpgradeHelper;
 import sp.phone.task.CheckInTask;
@@ -66,6 +69,9 @@ public class NgaClientApp extends Application {
         registerMiuixIcons();
         MiuixTransitions.register(R.anim.miuix_open_enter, R.anim.miuix_open_exit,
                 R.anim.miuix_close_enter, R.anim.miuix_close_exit);
+        // Tablet two-pane layout (Activity Embedding); registered before the first activity starts.
+        TabletSplit.apply(this);
+        mLastUiNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         // Miuix appearance: every ToastUtils message (info/success/error/warn/show) as a Miuix toast.
         ToastUtils.setOverride(text -> {
             if (!NgaUiStyle.isMiuix()) {
@@ -80,6 +86,22 @@ public class NgaClientApp extends Application {
         // fixWebViewMultiProcessException();
         CloudServerManager.init(this);
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerProxy(Thread.getDefaultUncaughtExceptionHandler()));
+    }
+
+    private int mLastUiNightMode = -1;
+
+    /**
+     * The split divider is painted in the page background; follow the system day/night switch
+     * (night mode follows the system by default) by re-registering the rules with the new colour.
+     */
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        int night = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (mLastUiNightMode != -1 && night != mLastUiNightMode) {
+            TabletSplit.apply(this, newConfig);
+        }
+        mLastUiNightMode = night;
     }
 
     private void initLogger() {

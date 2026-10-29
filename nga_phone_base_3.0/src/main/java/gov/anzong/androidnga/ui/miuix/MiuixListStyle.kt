@@ -84,6 +84,7 @@ object MiuixListStyle {
         )
         forEach(row) { view ->
             when (view) {
+                is android.widget.Switch -> styleSwitch(view)
                 is CompoundButton -> {
                     view.buttonTintList = ColorStateList.valueOf(primary)
                 }
@@ -96,6 +97,21 @@ object MiuixListStyle {
                 )
             }
         }
+    }
+
+    /**
+     * Miuix Switch look for a framework Switch: 49x28dp capsule track (primary / secondary) and a
+     * white 20dp thumb, no ripple halo; the platform still animates the thumb between the sides.
+     */
+    @JvmStatic
+    fun styleSwitch(switch: android.widget.Switch) {
+        switch.trackDrawable = ContextCompat.getDrawable(switch.context, R.drawable.miuix_switch_track)
+        switch.thumbDrawable = ContextCompat.getDrawable(switch.context, R.drawable.miuix_switch_thumb)
+        switch.trackTintList = null
+        switch.thumbTintList = null
+        switch.showText = false
+        switch.switchMinWidth = (49 * switch.resources.displayMetrics.density).toInt()
+        switch.background = null
     }
 
     private fun forEach(view: View, action: (View) -> Unit) {

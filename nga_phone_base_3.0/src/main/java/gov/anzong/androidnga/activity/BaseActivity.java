@@ -188,8 +188,14 @@ public abstract class BaseActivity extends AppCompatActivity implements MiuixChr
         setContentView(MiuixViewShellKt.miuixViewShell(this, classic, content != null ? content : classic));
     }
 
+    /**
+     * The window background. In the Miuix appearance every page, including those whose content
+     * is not a Miuix page (the Compose home screen), takes the Miuix surface: the system paints
+     * the tablet split's drag veils and transitions with each pane's window background, which
+     * was the classic beige on the home pane.
+     */
     private int pageBackgroundColor() {
-        return isMiuixPage() ? R.color.miuix_surface : R.color.background_color;
+        return isMiuixPage() || isMiuixStyle() ? R.color.miuix_surface : R.color.background_color;
     }
 
     public void setComposeEnabled(boolean composeEnabled) {

@@ -1,5 +1,7 @@
 package sp.phone.http.bean;
 
+import com.alibaba.fastjson2.annotation.JSONField;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,9 @@ public class ThreadRowInfo implements JavaBean {
 
     public int score;
 
+    /** The current user's vote on this floor in this session (LikeTask.STATE_*); read.php does not report it. */
+    private transient int mVoteState;
+
     private ArticleRowPresentation presentation;
 
     public ArticleRowPresentation getPresentation() { return presentation; }
@@ -72,6 +77,17 @@ public class ThreadRowInfo implements JavaBean {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    // Session-only UI state: kept out of JSON like ThreadData's derived fields.
+    @JSONField(serialize = false, deserialize = false)
+    public int getVoteState() {
+        return mVoteState;
+    }
+
+    @JSONField(serialize = false, deserialize = false)
+    public void setVoteState(int voteState) {
+        mVoteState = voteState;
     }
 
 

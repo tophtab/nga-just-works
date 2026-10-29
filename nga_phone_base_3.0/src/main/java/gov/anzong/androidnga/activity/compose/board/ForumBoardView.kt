@@ -1,10 +1,13 @@
 package gov.anzong.androidnga.activity.compose.board
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -38,14 +42,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.window.layout.WindowMetricsCalculator
 import coil.compose.rememberAsyncImagePainter
 import com.justwen.androidnga.ui.compose.miuix.isMiuixComposition
 import top.yukonga.miuix.kmp.basic.SmallTitle
@@ -54,6 +61,8 @@ import com.justwen.androidnga.ui.compose.widget.TabLayoutWithPager
 import com.justwent.androidnga.bu.UserManager
 import gov.anzong.androidnga.R
 import gov.anzong.androidnga.base.util.ContextUtils
+import gov.anzong.androidnga.base.util.PreferenceUtils
+import gov.anzong.androidnga.common.PreferenceKey
 import gov.anzong.androidnga.core.board.data.BoardEntity
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -69,6 +78,9 @@ fun ForumBoardView(
     onFavoriteReorderActiveChanged: (Boolean) -> Unit = {},
 ) {
     val boardData by forumBoardViewModel.boardLiveData.observeAsState()
+    val compactSetting = rememberHomeLayoutCompact()
+    val fillsScreen = homeFillsScreen()
+    val compact = compactSetting && fillsScreen
     var favoriteReorderActive by remember { mutableStateOf(false) }
     var tabReorderActive by remember { mutableStateOf(false) }
     var homeOrderSnapshot by remember { mutableStateOf<List<String>?>(null) }
@@ -120,11 +132,73 @@ fun ForumBoardView(
             },
             onTabReorderActiveChanged = { tabReorderActive = it },
         ) { pageIndex ->
-            ForumBoardContent(pageIndex, forumBoardViewModel) { active ->
-                favoriteReorderActive = active
-                currentOnFavoriteReorderActiveChanged(active)
+            HomePage(compact) {
+                ForumBoardContent(pageIndex, forumBoardViewModel) { active ->
+                    favoriteReorderActive = active
+                    currentOnFavoriteReorderActiveChanged(active)
+                }
             }
         }
+    }
+}
+
+/**
+ * One home page (a board group's grid) at its layout width: the compact home layout keeps the
+ * grid at phone width and centred (three columns), the tab row above it stays full width. The
+ * composition is the same either way, so switching (e.g. when the home becomes a split pane)
+ * keeps the grid's scroll position.
+ */
+@Composable
+private fun HomePage(compact: Boolean, content: @Composable () -> Unit) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Box(
+            Modifier
+                .then(if (compact) Modifier.widthIn(max = COMPACT_HOME_MAX_WIDTH) else Modifier)
+                .fillMaxSize(),
+        ) {
+            content()
+        }
+    }
+}
+
+/** 首页布局「紧凑」时板块宫格的最大宽度：手机宽度，3 列。 */
+private val COMPACT_HOME_MAX_WIDTH = 480.dp
+
+/** 设置里的「首页布局」，在设置页修改后回到首页即生效。 */
+@Composable
+private fun rememberHomeLayoutCompact(): Boolean {
+    var compact by remember { mutableStateOf(readHomeLayoutCompact()) }
+    DisposableEffect(Unit) {
+        val preferences = PreferenceUtils.getDefaultPreferences()
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == PreferenceKey.KEY_HOME_LAYOUT) compact = readHomeLayoutCompact()
+        }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+    return compact
+}
+
+private fun readHomeLayoutCompact(): Boolean =
+    PreferenceUtils.getData(PreferenceKey.KEY_HOME_LAYOUT, HOME_LAYOUT_FILL) == HOME_LAYOUT_COMPACT
+
+private const val HOME_LAYOUT_FILL = "fill"
+private const val HOME_LAYOUT_COMPACT = "compact"
+
+/**
+ * Whether the home page has the whole screen to itself rather than one pane of a split (the
+ * tablet split or system split screen): the compact layout only narrows a full-screen home, a
+ * split pane looks the same in both layouts. Entering or leaving a split resizes the window,
+ * which arrives here as a configuration change (MainActivity handles size changes itself).
+ */
+@Composable
+private fun homeFillsScreen(): Boolean {
+    val activity = LocalActivity.current ?: return true
+    val configuration = LocalConfiguration.current
+    return remember(activity, configuration) {
+        val metrics = WindowMetricsCalculator.getOrCreate()
+        metrics.computeCurrentWindowMetrics(activity).bounds.width() >=
+            metrics.computeMaximumWindowMetrics(activity).bounds.width()
     }
 }
 
@@ -232,7 +306,6 @@ fun ForumBoardBookmarkContent(
     val bookmarks by forumBoardViewModel.bookmarkBoardsLiveData.observeAsState(
         bookmark.children?.toList().orEmpty()
     )
-    val maxColumn = 3
     val gridState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -285,7 +358,7 @@ fun ForumBoardBookmarkContent(
         }
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(maxColumn),
+            columns = boardGridColumns(),
             state = gridState,
             modifier = Modifier
                 .fillMaxSize()
@@ -405,7 +478,7 @@ fun ForumBoardBookmarkContent(
                         },
                 )
             }
-            item(span = { GridItemSpan(maxColumn) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 val paddingValues = WindowInsets.navigationBars.asPaddingValues()
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
@@ -429,9 +502,8 @@ fun ForumBoardContent(
     } else {
         val revision = forumBoardViewModel.boardContentRevision
         val boardList = remember(boardData.id, revision) { boardRenderSnapshot(boardData) }
-        val maxColumn = 3
         LazyVerticalGrid(
-            columns = GridCells.Fixed(maxColumn),
+            columns = boardGridColumns(),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 8.dp, end = 8.dp)
@@ -439,7 +511,7 @@ fun ForumBoardContent(
             boardList.forEach { group ->
                 val it = group.board
                 if (it.type == BoardEntity.BoardType.GROUP) {
-                    item(span = { GridItemSpan(maxColumn) }) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
                         ForumBoardGroupView(it)
                     }
                     group.children.let { data ->
@@ -453,7 +525,7 @@ fun ForumBoardContent(
                     }
                 }
             }
-            item(span = { GridItemSpan(maxColumn) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 val paddingValues = WindowInsets.navigationBars.asPaddingValues()
                 Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
             }
@@ -472,4 +544,18 @@ private fun moveBookmarkWithPersistence(
     }
     forumBoardViewModel.commitBookmarkReorder(snapshot)
     return true
+}
+
+/**
+ * Board grid columns: three on phones as before, more on wide windows (seven on a landscape
+ * tablet) instead of stretching three tiles across the screen. Tiles stay at least 160dp wide.
+ */
+private fun boardGridColumns(): GridCells = object : GridCells {
+    override fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List<Int> {
+        val minTile = 160.dp.roundToPx()
+        val count = (availableSize / minTile).coerceIn(3, 8)
+        val base = availableSize / count
+        val remainder = availableSize % count
+        return List(count) { base + if (it < remainder) 1 else 0 }
+    }
 }

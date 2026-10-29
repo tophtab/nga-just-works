@@ -92,6 +92,12 @@ public class PreferenceKey {
     /** Predictive back gesture; off by default (see PredictiveBack in lib_base_ui_compose). */
     public static final String KEY_PREDICTIVE_BACK = "key_predictive_back";
 
+    /** Tablet two-pane layout (Activity Embedding, landscape tablets only); on by default. */
+    public static final String KEY_TABLET_SPLIT = "key_tablet_split";
+
+    /** 首页布局："fill" 平铺（默认，宫格随宽度加列），"compact" 紧凑（首页全屏时宫格保持手机宽度居中）。 */
+    public static final String KEY_HOME_LAYOUT = "key_home_layout";
+
     public static final String VERSION_MAJOR_CODE = "version_major_code";
 
     public static final String VERSION_MIRROR_CODE = "version_mirror_code";

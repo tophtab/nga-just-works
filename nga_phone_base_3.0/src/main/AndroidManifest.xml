@@ -30,6 +30,16 @@
         tools:ignore="AllowBackup"
         tools:replace="android:label">
         <meta-data android:name="EasyGoClient" android:value="true" />
+        <!-- Activity Embedding with the app's own split rules (TabletSplit): splits are enabled
+             (required from Android 15 / WindowManager extensions 5, otherwise SplitController
+             reports ERROR_SPLIT_PROPERTY_NOT_DECLARED), and the system or vendor reverse
+             adaptation may not add rules of its own. -->
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
+            android:value="true" />
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
+            android:value="false" />
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|locale|screenLayout|smallestScreenSize"

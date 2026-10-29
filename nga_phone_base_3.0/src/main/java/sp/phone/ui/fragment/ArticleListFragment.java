@@ -29,6 +29,7 @@ import gov.anzong.androidnga.activity.BaseActivity;
 import gov.anzong.androidnga.arouter.ARouterConstants;
 import gov.anzong.androidnga.common.PreferenceKey;
 import sp.phone.theme.ThemeManager;
+import sp.phone.task.LikeTask;
 import sp.phone.ai.summary.FloorSummaryInput;
 import sp.phone.common.PhoneConfiguration;
 import sp.phone.common.User;
@@ -234,7 +235,7 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         @Override
         public void onClick(View view) {
             ThreadRowInfo row = ((ThreadRowInfo) view.getTag());
-            mPresenter.postSupportTask(row.getTid(), row.getPid());
+            mPresenter.postVote(row.getTid(), row.getPid(), LikeTask.SUPPORT, row);
         }
     };
 
@@ -242,9 +243,17 @@ public class ArticleListFragment extends BaseMvpFragment<ArticleListPresenter> i
         @Override
         public void onClick(View view) {
             ThreadRowInfo row = ((ThreadRowInfo) view.getTag());
-            mPresenter.postOpposeTask(row.getTid(), row.getPid());
+            mPresenter.postVote(row.getTid(), row.getPid(), LikeTask.OPPOSE, row);
         }
     };
+
+    @Override
+    public void onVoteChanged(ThreadRowInfo row) {
+        if (mDisplayedData == null || mArticleAdapter == null) return;
+        int position = mDisplayedData.getRowList().indexOf(row);
+        // Payload: rebind only the score and thumbs, so the WebView content does not reload.
+        if (position >= 0) mArticleAdapter.notifyItemChanged(position, ArticleListAdapter.PAYLOAD_VOTE);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

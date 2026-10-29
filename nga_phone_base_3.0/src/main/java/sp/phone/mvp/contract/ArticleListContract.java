@@ -53,6 +53,10 @@ public interface ArticleListContract {
 
         void showPostCommentDialog(String prefix, Bundle bundle);
 
+        /** A vote changed [row]'s score and vote state; rebind that floor. */
+        default void onVoteChanged(ThreadRowInfo row) {
+        }
+
     }
 
     interface Model {

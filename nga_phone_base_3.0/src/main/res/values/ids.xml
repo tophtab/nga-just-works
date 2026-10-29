@@ -8,4 +8,7 @@
     <item name="menu_article_selection_select_all" type="id" />
     <item name="menu_article_selection_search" type="id" />
     <item name="miuix_menu_switch_account" type="id" />
+    <item name="miuix_vote_state" type="id" />
+    <item name="miuix_score_roll" type="id" />
+    <item name="miuix_vote_fade" type="id" />
 </resources>
