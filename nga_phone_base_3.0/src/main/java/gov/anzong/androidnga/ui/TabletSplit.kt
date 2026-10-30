@@ -66,10 +66,19 @@ object TabletSplit {
             screenWidthDp >= MIN_WIDTH_DP &&
             minOf(screenWidthDp, screenHeightDp) >= MIN_SMALLEST_WIDTH_DP
 
+    /**
+     * Whether a smallest screen width belongs to a tablet: the `sw600dp` resource-qualifier
+     * threshold, the platform convention for tablet-class devices.
+     */
+    internal fun isTabletSmallestWidth(smallestScreenWidthDp: Int): Boolean =
+        smallestScreenWidthDp >= MIN_SMALLEST_WIDTH_DP
+
     /** Whether the device itself is tablet-sized (the sw600dp resource qualifier). */
     @JvmStatic
     fun isTabletDevice(context: Context): Boolean =
-        context.applicationContext.resources.configuration.smallestScreenWidthDp >= MIN_SMALLEST_WIDTH_DP
+        isTabletSmallestWidth(
+            context.applicationContext.resources.configuration.smallestScreenWidthDp,
+        )
 
     /**
      * As [apply], with the configuration to take the day/night state from. From

@@ -64,6 +64,9 @@ These are the same bounds the framework checks at launch. The comment at
   `configuration.smallestScreenWidthDp >= 600` (`isTabletDevice`); hide it on
   phones. Re-evaluate in `SettingsFragment.onResume` so a fold/unfold on the
   settings screen is reflected.
+- Show 「首页布局」(平铺 / 紧凑) by the same tablet check. On phones the home
+  grid always uses the regular full-width code path; `ForumBoardView` ignores
+  the stored value there, so the preference never has an effect on a phone.
 - The preference stays default-on. On a phone the gate clears the rules even
   when the stored value is true.
 

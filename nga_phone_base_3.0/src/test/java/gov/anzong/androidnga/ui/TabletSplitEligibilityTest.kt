@@ -58,4 +58,13 @@ class TabletSplitEligibilityTest {
     fun unfoldedFoldableLandscapeIsEligible() {
         assertTrue(TabletSplit.canSplit(1000, 700))
     }
+
+    @Test
+    fun tabletClassStartsAtSw600dp() {
+        // The sw600dp resource-qualifier threshold also gates the tablet-only settings.
+        assertFalse(TabletSplit.isTabletSmallestWidth(599))
+        assertTrue(TabletSplit.isTabletSmallestWidth(600))
+        assertFalse(TabletSplit.isTabletSmallestWidth(411))
+        assertTrue(TabletSplit.isTabletSmallestWidth(800))
+    }
 }
