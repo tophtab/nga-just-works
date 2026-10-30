@@ -4,17 +4,17 @@
     <application >
 
         <activity
-            android:name="com.justwen.androidnga.module.message.compose.MessageListActivity"
+            android:name="com.justwen.androidnga.module.message.list.MessageListActivity"
             android:exported="false"
             android:label="@string/label_activity_message_list" />
 
         <activity
-            android:name="com.justwen.androidnga.module.message.compose.detail.MessageDetailActivity"
+            android:name="com.justwen.androidnga.module.message.detail.MessageDetailActivity"
             android:exported="false"
             android:label="@string/label_activity_message_detail" />
 
         <activity
-            android:name="com.justwen.androidnga.module.message.compose.post.MessagePostActivity"
+            android:name="com.justwen.androidnga.module.message.post.MessagePostActivity"
             android:exported="false" />
 
     </application>

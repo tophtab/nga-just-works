@@ -72,8 +72,9 @@ module/message/
 
 ## 4. State Ownership Changes
 
-- 详情页标题与收件人：由 `MessageDetailRepository` 的可变 object 字段改为**导航参数**。列表点击详情时通过 ARouter 传入 `mid`、`subject`、`recipient`，详情 ViewModel 从 `SavedStateHandle` 读取。
+- 详情页标题与收件人：由 `MessageDetailRepository` 的可变 object 字段改为**导航参数**。列表点击详情时通过 ARouter 传入 `mid`、`subject`、`recipient`，详情 ViewModel 从 `SavedStateHandle` 读取。收件人取列表行的 `from_username`，与上游一致；不再使用解析出的 `_Alluser` 参与者列表（用户确认 2026-10-30）。
   - 兼容：缺少 `subject`/`recipient`（深链或其他入口）时为空串，回复 FAB 仍然可用，与当前首屏数据到达前的状态一致。
+  - 行为差异：单人会话回复对象不变；多人会话由「全部参与者」变为「会话发起人」。这是有意接受的差异。
   - 收益：删除全局可变状态；回复 FAB 不必等第一页解析完成。
 - 发送页草稿与 `isRunning` 归 ViewModel；Repository 每次调用新建请求 map，不再共享可变 `queryParamMap`（registry `MESSAGE.SEND` 已要求 “do not share mutable request map”）。
 

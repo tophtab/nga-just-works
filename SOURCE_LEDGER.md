@@ -36,6 +36,13 @@ endorsed by NGA or the upstream author.
   `com.justwen.androidnga.base.network` package with a sealed result/error
   model instead of upstream's nullable data/error pair, and it changes no
   transport, Cookie, converter, or retry behavior.
+- `lib_bu_message` splits its private-message list, detail and send pages into
+  Activity / Compose Screen / ViewModel / Repository / Parser layers. The layer
+  structure is borrowed from upstream work in the `ddb31bcb`, `c83bde29` and
+  `44ea2d65` commits; only the structure is reused. Parsers, models, Miuix
+  screens, request parameters and pagination are rewritten against this fork's
+  existing `lib_core_data` models and ARouter routes, and both the default
+  Compose and Miuix appearances share one ViewModel.
 - An optional Miuix appearance is built on
   [compose-miuix-ui](https://github.com/compose-miuix-ui/miuix) `0.8.8`
   (Apache License 2.0), declared as Maven dependencies. Vector drawables named

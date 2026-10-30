@@ -1,4 +1,4 @@
-package com.justwen.androidnga.module.message.compose
+package com.justwen.androidnga.module.message.detail
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
