@@ -198,3 +198,43 @@ Diagnosed via decompiled ViewPager 1.0.0 / RecyclerTabLayout 1.5.0: a foreground
 ### Next Steps
 
 - 开始子任务 10-30-message-module-layering：消息三页分层重构
+
+
+## Session 82: 消息模块分层重构
+<!-- trellis-session: v=2 fp=ca7e508cd081e47f -->
+
+**Date**: 2026-10-30
+**Task**: 消息模块分层重构
+**Branch**: `feat/api-result-and-message-layering`
+
+### Summary
+
+把私信列表/详情/发送三页拆成 Activity/Screen/ViewModel/Repository/Parser 五层，删除 285 行 MessageConvertFactory，默认与 Miuix 两套外观保持不变。
+
+### Main Changes
+
+- 三页分层，解析器纯函数化并返回 ApiResult
+- 详情标题/收件人改为导航参数，收件人按上游取会话发起人
+- 发送请求每次重建 query/form map，移除共享可变 map
+- 迁移 golden 断言并补充 R9 Repository 透传测试
+- 删除 MessageConvertFactory 与旧 compose 目录，更新 manifest、路由常量、spec 与 SOURCE_LEDGER
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4595709e` | refactor(message): layer the three message pages under ApiResult |
+
+### Testing
+
+- [OK] lib_bu_message 29 tests；app 模块 549 tests；assembleDebug 通过
+- [OK] lintDebug：13 个模块 0 Error/Fatal
+- [OK] 真机两套外观走查未运行（无当次 ADB 授权）
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 如需合并，开 PR；父任务 10-30-api-result-and-message-layering 已 2/2 待归档
