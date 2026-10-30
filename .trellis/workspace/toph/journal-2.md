@@ -119,3 +119,44 @@ Diagnosed via decompiled ViewPager 1.0.0 / RecyclerTabLayout 1.5.0: a foreground
 ### Status
 
 [OK] **Completed**
+
+
+## Session 80: 修复手机误触发平板分栏并精简设置项说明
+<!-- trellis-session: v=2 fp=98b65ecd2400f2bf -->
+
+**Date**: 2026-10-30
+**Task**: 修复手机误触发平板分栏并精简设置项说明
+**Branch**: `fix/tablet-split-phone-trigger`
+
+### Summary
+
+手机开启「平板分栏」后点板块会先按 Activity Embedding 分栏启动（右侧滑入、首页停留）再回退全屏并闪一下。根因是规则在所有设备无条件注册，而规则尺寸条件只在启动分栏后校验。改为注册前按当前 Configuration 判断（≥840dp 宽、≥600dp 短边、横屏；AndroidX 把 height>=width 视为竖屏），不满足就 clearRules；配置变化时重评估并用状态签名去重。手机上隐藏开关，并按反馈移除预测返回手势/平板分栏/重置表情顺序/AI 测试连接的副标题，首页布局保留平铺/紧凑回显。
+
+### Main Changes
+
+- TabletSplit 增加 canSplit/isTabletDevice 注册前门槛与签名去重
+- NgaClientApp 任意配置变化重新评估分栏规则
+- 手机上隐藏「平板分栏」，清理四处设置副标题
+- 新增 TabletSplitEligibilityTest 与 Activity Embedding 分栏 spec
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e6308b9a` | fix: 手机不再误触发平板分栏过渡 |
+| `cc6943c7` | fix: 恢复首页布局的当前选项文字 |
+
+### Testing
+
+- [OK] testDebugUnitTest + lintDebug 全量通过（JDK 17，lint 0 Error/0 Fatal）
+- [OK] 小米 15 实机 6.3.2-debug.3：不再分栏滑入/闪回，开关隐藏，设置项符合预期
+- [OK] 平板端未实机验证（按项目策略无设备授权）
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 合并 PR #16 后发布 6.3.3
+- 平板端补一次横屏分栏回归（含旋转与折叠）
