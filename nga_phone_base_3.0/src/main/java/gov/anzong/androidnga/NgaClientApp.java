@@ -71,7 +71,6 @@ public class NgaClientApp extends Application {
                 R.anim.miuix_close_enter, R.anim.miuix_close_exit);
         // Tablet two-pane layout (Activity Embedding); registered before the first activity starts.
         TabletSplit.apply(this);
-        mLastUiNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         // Miuix appearance: every ToastUtils message (info/success/error/warn/show) as a Miuix toast.
         ToastUtils.setOverride(text -> {
             if (!NgaUiStyle.isMiuix()) {
@@ -88,20 +87,15 @@ public class NgaClientApp extends Application {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandlerProxy(Thread.getDefaultUncaughtExceptionHandler()));
     }
 
-    private int mLastUiNightMode = -1;
-
     /**
-     * The split divider is painted in the page background; follow the system day/night switch
-     * (night mode follows the system by default) by re-registering the rules with the new colour.
+     * Split eligibility follows orientation and window size, and the divider colour follows the
+     * day/night mode; {@link TabletSplit#apply(Context, Configuration)} is a no-op when neither
+     * changed.
      */
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        int night = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (mLastUiNightMode != -1 && night != mLastUiNightMode) {
-            TabletSplit.apply(this, newConfig);
-        }
-        mLastUiNightMode = night;
+        TabletSplit.apply(this, newConfig);
     }
 
     private void initLogger() {

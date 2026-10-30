@@ -649,7 +649,7 @@ public class SettingsAiFragment extends BasePreferenceFragment {
         }
         if (mTestPreference != null) {
             mTestPreference.setEnabled(true);
-            mTestPreference.setSummary(R.string.ai_settings_test_summary);
+            mTestPreference.setSummary(null);
         }
     }
 

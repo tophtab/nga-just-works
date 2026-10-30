@@ -30,7 +30,6 @@
     <Preference
         android:key="ai_settings_test"
         android:persistent="false"
-        android:summary="@string/ai_settings_test_summary"
         android:title="@string/ai_settings_test_title" />
 
 </PreferenceScreen>
