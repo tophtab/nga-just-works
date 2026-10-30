@@ -29,6 +29,13 @@ endorsed by NGA or the upstream author.
 - The pinned upstream commit declares `minSdk 30`. This fork restores the
   installation floor to `minSdk 29` while keeping `compileSdk 35`,
   `targetSdk 35`, and the existing single `arm64-v8a` APK strategy.
+- `lib_base_network` gains a shared client-side failure model
+  (`ApiResult`, `ApiError`, `BusinessException`, `apiSafeCall`) whose structure
+  is borrowed from upstream work in the `0b536408..36823f74` range. Only the
+  structure is reused: the code is rewritten under this fork's
+  `com.justwen.androidnga.base.network` package with a sealed result/error
+  model instead of upstream's nullable data/error pair, and it changes no
+  transport, Cookie, converter, or retry behavior.
 - An optional Miuix appearance is built on
   [compose-miuix-ui](https://github.com/compose-miuix-ui/miuix) `0.8.8`
   (Apache License 2.0), declared as Maven dependencies. Vector drawables named
