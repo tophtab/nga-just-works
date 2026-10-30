@@ -160,3 +160,41 @@ Diagnosed via decompiled ViewPager 1.0.0 / RecyclerTabLayout 1.5.0: a foreground
 
 - 合并 PR #16 后发布 6.3.3
 - 平板端补一次横屏分栏回归（含旋转与折叠）
+
+
+## Session 81: ApiResult 错误模型落地
+<!-- trellis-session: v=2 fp=4931e46ae4ddf828 -->
+
+**Date**: 2026-10-30
+**Task**: ApiResult 错误模型落地
+**Branch**: `feat/api-result-error-model`
+
+### Summary
+
+借鉴上游 5.1.x 的失败分类结构，在 lib_base_network 引入 sealed ApiResult/ApiError 与 apiSafeCall，并让消息 PagingSource 携带可读错误原因。
+
+### Main Changes
+
+- 新增 ApiResult/ApiError/BusinessException/apiSafeCall 与 20 个单测
+- 消息列表/详情 Repository 接入 apiSafeCall，空列表仍按分页错误处理
+- 更新网络契约、操作登记表与 SOURCE_LEDGER
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1b7c14a8` | docs(task): plan ApiResult error model and message layering |
+| `0056e3e7` | feat(network): add shared ApiResult failure model |
+
+### Testing
+
+- [OK] lib_base_network 20 tests / lib_bu_message 5 tests / MessageParserGoldenTest 3 tests 全部通过
+- [OK] 全量 testDebugUnitTest + lintDebug：648 tests，lint 0 error
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 开始子任务 10-30-message-module-layering：消息三页分层重构
