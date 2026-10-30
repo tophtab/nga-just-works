@@ -238,3 +238,41 @@ Diagnosed via decompiled ViewPager 1.0.0 / RecyclerTabLayout 1.5.0: a foreground
 ### Next Steps
 
 - 如需合并，开 PR；父任务 10-30-api-result-and-message-layering 已 2/2 待归档
+
+
+## Session 83: 发布 6.3.4
+<!-- trellis-session: v=2 fp=43fc2bdd6adf1be2 -->
+
+**Date**: 2026-10-30
+**Task**: 发布 6.3.4
+**Branch**: `main`
+
+### Summary
+
+合并 ApiResult 错误模型与消息模块分层到 main，打 6.3.4 标签并完成签名发布。
+
+### Main Changes
+
+- PR #19 squash 合并，删除远端与本地分支
+- 新增 release-notes/6.3.4.md 并通过发布说明校验
+- 推送 6.3.4 标签，GitHub Release 产出 2 个 APK 与 2 个 SHA256
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `acd46ccd` | feat: 引入 ApiResult 错误模型并重构消息模块分层 (#19) |
+
+### Testing
+
+- [OK] 分支预览构建成功；发布工作流成功
+- [OK] JVM 单测 29 + 549 + 20 通过；lint 0 Error/Fatal
+- [OK] 真机两套外观走查未完成，未得出设备侧结论
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 如需要，在真机上补消息页两套外观走查

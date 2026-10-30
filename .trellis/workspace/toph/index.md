@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-2.md`
-- **Total Sessions**: 82
+- **Total Sessions**: 83
 - **Last Active**: 2026-10-30
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-2.md` | ~240 | Active |
+| `journal-2.md` | ~278 | Active |
 | `journal-1.md` | ~1978 | Archived |
 <!-- @@@/auto:active-documents -->
 
@@ -30,6 +30,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 83 | 2026-10-30 | 发布 6.3.4 | `acd46ccd` | `main` |
 | 82 | 2026-10-30 | 消息模块分层重构 | `4595709e` | `feat/api-result-and-message-layering` |
 | 81 | 2026-10-30 | ApiResult 错误模型落地 | `1b7c14a8`, `0056e3e7` | `feat/api-result-error-model` |
 | 80 | 2026-10-30 | 修复手机误触发平板分栏并精简设置项说明 | `e6308b9a`, `cc6943c7` | `fix/tablet-split-phone-trigger` |
