@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/network-foundation-contract.md", "reason": "Transport, Cookie, UA and GBK converter behavior that this task must not change; shared error-handling boundary."}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "Current MESSAGE.LIST/READ/SEND error-handling and code anchors that the repository adoption must preserve."}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Logging and privacy rules for private response bodies captured in HTTP error bodies."}
+{"file": ".trellis/spec/backend/json-compatibility-contract.md", "reason": "fastjson2 runtime behavior and dependency compatibility when mapping JSONException."}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Validation gate: JVM unit tests, lint, and the no-ADB-without-authorization policy."}
