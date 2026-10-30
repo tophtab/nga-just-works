@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-2.md`
-- **Total Sessions**: 79
-- **Last Active**: 2026-10-27
+- **Total Sessions**: 80
+- **Last Active**: 2026-10-30
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-2.md` | ~121 | Active |
+| `journal-2.md` | ~162 | Active |
 | `journal-1.md` | ~1978 | Archived |
 <!-- @@@/auto:active-documents -->
 
@@ -30,6 +30,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 80 | 2026-10-30 | 修复手机误触发平板分栏并精简设置项说明 | `e6308b9a`, `cc6943c7` | `fix/tablet-split-phone-trigger` |
 | 79 | 2026-10-27 | 修复列表页页码泄漏为帖子页坐标 (#14) | `b0fdf46c` | `main` |
 | 78 | 2026-10-24 | Reader tab desync when leaving the last page | `d6f90812` | `fix/reader-tab-desync` |
 | 77 | 2026-10-03 | Restore floor favorites and release 6.2.5 | `090dce71` | `fix/restore-floor-favorite` |

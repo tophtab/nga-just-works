@@ -336,8 +336,6 @@
     <string name="setting_title_home_layout">首页布局</string>
     <string name="setting_home_layout_fill">平铺</string>
     <string name="setting_home_layout_compact">紧凑</string>
-    <string name="setting_tablet_split_summary">平板横屏时，板块、帖子、发帖在右侧打开，左侧保留上一级页面，拖动中间的分隔条可调整比例</string>
-    <string name="setting_predictive_back_summary">侧滑返回时由系统预览上一页并跟随手指</string>
     <string name="setting_ui_style_classic">经典</string>
     <string name="setting_ui_style_miuix">Miuix</string>
     <string name="miuix_switch_account">切换账号</string>

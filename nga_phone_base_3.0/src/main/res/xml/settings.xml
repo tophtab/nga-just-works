@@ -39,13 +39,11 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="key_predictive_back"
-            android:summary="@string/setting_predictive_back_summary"
             android:title="@string/setting_title_predictive_back" />
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="key_tablet_split"
-            android:summary="@string/setting_tablet_split_summary"
             android:title="@string/setting_title_tablet_split" />
 
         <ListSummaryPreference
@@ -114,7 +112,6 @@
 
         <Preference
             android:key="key_reset_emoticon_order"
-            android:summary="恢复所有表情分类的默认排列"
             android:title="重置表情顺序"/>
 
     </PreferenceCategory>

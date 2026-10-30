@@ -23,7 +23,6 @@
     <string name="ai_settings_save_title">保存</string>
     <string name="ai_settings_saved">AI 配置已保存</string>
     <string name="ai_settings_test_title">测试连接</string>
-    <string name="ai_settings_test_summary">测试当前配置</string>
     <string name="ai_settings_testing">正在测试连接…</string>
     <string name="ai_settings_test_success">连接成功</string>
     <string name="ai_settings_test_success_unsaved">连接成功，配置未保存</string>

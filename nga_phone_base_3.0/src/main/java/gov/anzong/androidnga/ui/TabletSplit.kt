@@ -37,6 +37,10 @@ import sp.phone.theme.ThemeManager
  * portrait), so phones and portrait tablets keep the stacked pages. The manifest opts out of the
  * system's own reverse adaptation (PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE=false), so
  * these rules are the only ones.
+ *
+ * The rules are only handed to the system when the current configuration could actually split.
+ * Registering them on a phone makes the system start the embedding transition before it rejects
+ * the rule, which shows as panes sliding in and then flashing back to full screen.
  */
 object TabletSplit {
 
@@ -44,9 +48,28 @@ object TabletSplit {
     private const val MIN_SMALLEST_WIDTH_DP = 600
     private const val SPLIT_RATIO = 0.5f
 
+    /** The last rules state given to the system, so repeated calls stay side-effect free. */
+    private var lastAppliedSignature: String? = null
+
     /** Registers the rules when supported and enabled; clears them when turned off. Idempotent. */
     @JvmStatic
     fun apply(context: Context) = apply(context, context.applicationContext.resources.configuration)
+
+    /**
+     * Whether a window with these dimensions can split. These are the three launch-time bounds
+     * the split rule evaluates: the 840dp width, the 600dp short side, and the portrait aspect
+     * ratio, which the rule disallows — and which the library treats as `height >= width`, so a
+     * square window is portrait too.
+     */
+    internal fun canSplit(screenWidthDp: Int, screenHeightDp: Int): Boolean =
+        screenWidthDp > screenHeightDp &&
+            screenWidthDp >= MIN_WIDTH_DP &&
+            minOf(screenWidthDp, screenHeightDp) >= MIN_SMALLEST_WIDTH_DP
+
+    /** Whether the device itself is tablet-sized (the sw600dp resource qualifier). */
+    @JvmStatic
+    fun isTabletDevice(context: Context): Boolean =
+        context.applicationContext.resources.configuration.smallestScreenWidthDp >= MIN_SMALLEST_WIDTH_DP
 
     /**
      * As [apply], with the configuration to take the day/night state from. From
@@ -59,12 +82,19 @@ object TabletSplit {
         if (SplitController.getInstance(app).splitSupportStatus != SplitController.SplitSupportStatus.SPLIT_AVAILABLE) {
             return
         }
+        val active = isEnabled() &&
+            canSplit(configuration.screenWidthDp, configuration.screenHeightDp)
+        val color = if (active) pageBackground(app, configuration) else 0
+        val signature = if (active) "on:$color" else "off"
+        if (signature == lastAppliedSignature) {
+            return
+        }
+        lastAppliedSignature = signature
         val rules = RuleController.getInstance(app)
-        if (!isEnabled()) {
+        if (!active) {
             rules.clearRules()
             return
         }
-        val color = pageBackground(app, configuration)
         val attributes = splitAttributes(color)
         rules.setRules(
             setOf(
