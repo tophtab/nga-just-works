@@ -53,7 +53,7 @@ public class SettingsFragment extends BasePreferenceFragment
         findPreference(PreferenceKey.MATERIAL_THEME).setVisible(!ThemeManager.getInstance().isMiuixStyle());
         // 图片域名的选择页带输入框，Miuix 外观下也沿用它，而不是普通下拉。
         findPreference(PreferenceKey.KEY_IMAGE_DOMAIN).getExtras().putBoolean(MiuixPreferencesKt.EXTRA_CUSTOM_DIALOG, true);
-        updateTabletSplitVisibility();
+        updateTabletOnlyPreferences();
 
         findPreference(PreferenceKey.KEY_CLEAR_CACHE).setOnPreferenceClickListener(preference -> {
             showClearCacheDialog();
@@ -68,12 +68,18 @@ public class SettingsFragment extends BasePreferenceFragment
     }
 
     /**
-     * 「平板分栏」只在能真正分栏的设备上出现；手机上隐藏，避免打开后触发系统的分栏过渡。
+     * 只在平板类设备上出现的设置项：「平板分栏」和「首页布局」。手机上没有分栏，也不存在
+     * 铺满窗口的布局，隐藏这两项，首页仍走原来的常规宫格代码。
      */
-    private void updateTabletSplitVisibility() {
-        Preference preference = findPreference(PreferenceKey.KEY_TABLET_SPLIT);
-        if (preference != null) {
-            preference.setVisible(TabletSplit.isTabletDevice(requireContext()));
+    private void updateTabletOnlyPreferences() {
+        boolean tablet = TabletSplit.isTabletDevice(requireContext());
+        Preference split = findPreference(PreferenceKey.KEY_TABLET_SPLIT);
+        if (split != null) {
+            split.setVisible(tablet);
+        }
+        Preference homeLayout = findPreference(PreferenceKey.KEY_HOME_LAYOUT);
+        if (homeLayout != null) {
+            homeLayout.setVisible(tablet);
         }
     }
 
@@ -143,7 +149,7 @@ public class SettingsFragment extends BasePreferenceFragment
         getActivity().setTitle(R.string.menu_setting);
         super.onResume();
         // 折叠屏开合会改变设备尺寸，回到设置页时重新决定「平板分栏」是否出现。
-        updateTabletSplitVisibility();
+        updateTabletOnlyPreferences();
     }
 
     @Override

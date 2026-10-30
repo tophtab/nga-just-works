@@ -64,6 +64,7 @@ import gov.anzong.androidnga.base.util.ContextUtils
 import gov.anzong.androidnga.base.util.PreferenceUtils
 import gov.anzong.androidnga.common.PreferenceKey
 import gov.anzong.androidnga.core.board.data.BoardEntity
+import gov.anzong.androidnga.ui.TabletSplit
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -80,7 +81,9 @@ fun ForumBoardView(
     val boardData by forumBoardViewModel.boardLiveData.observeAsState()
     val compactSetting = rememberHomeLayoutCompact()
     val fillsScreen = homeFillsScreen()
-    val compact = compactSetting && fillsScreen
+    // Tablets only: on phones the home grid keeps the regular full-width code path.
+    val tablet = TabletSplit.isTabletSmallestWidth(LocalConfiguration.current.smallestScreenWidthDp)
+    val compact = compactSetting && fillsScreen && tablet
     var favoriteReorderActive by remember { mutableStateOf(false) }
     var tabReorderActive by remember { mutableStateOf(false) }
     var homeOrderSnapshot by remember { mutableStateOf<List<String>?>(null) }
