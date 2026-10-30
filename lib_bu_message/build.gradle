@@ -44,11 +44,12 @@ android {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    testImplementation libs.kotlinx.coroutines.core
 
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
 
     //compose
     implementation "androidx.activity:activity-compose:$compose_activity_version"

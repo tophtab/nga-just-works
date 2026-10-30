@@ -1,0 +1,116 @@
+package com.justwen.androidnga.module.message.detail
+
+import android.text.TextUtils
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.paging.compose.LazyPagingItems
+import com.justwen.androidnga.core.data.MessageArticlePageInfo
+import com.justwen.androidnga.ui.compose.widget.PullRefreshColumn
+
+/** Default (classic Compose) private-message thread. Rendering only. */
+@Composable
+internal fun MessageDetailScreen(
+    items: LazyPagingItems<MessageArticlePageInfo>,
+    onOpenLink: (String) -> Unit,
+) {
+    PullRefreshColumn(
+        columnItem = { MessageDetailItem(messageInfo = it, onOpenLink = onOpenLink) },
+        lazyPagingItems = items,
+        onRefresh = { items.refresh() },
+    )
+}
+
+@Preview
+@Composable
+internal fun MessageDetailItem(
+    messageInfo: MessageArticlePageInfo = MessageArticlePageInfo(),
+    onOpenLink: (String) -> Unit = {},
+) {
+    val metadataColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
+
+    val annotatedText = buildAnnotatedString {
+        messageInfo.contentSections.forEach(action = {
+            if (!it.second) {
+                withStyle(style = SpanStyle(fontSize = 16.sp)) {
+                    append(it.first)
+                }
+            } else {
+                pushStringAnnotation(tag = "URL", annotation = it.first)
+                withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
+                    append(it.first)
+                }
+                //代表结束
+                pop()
+            }
+        })
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .padding(16.dp)
+    ) {
+
+        if (!messageInfo.subject.isNullOrEmpty()) {
+            Text(
+                text = messageInfo.subject,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+
+        ClickableText(
+            text = annotatedText,
+            onClick = {
+                val annotationList =
+                    annotatedText.getStringAnnotations(tag = "URL", start = it, end = it)
+                annotationList.firstOrNull()?.let { annotation ->
+                    onOpenLink(annotation.item)
+                }
+            },
+        )
+
+        var userName = messageInfo.author
+        if (TextUtils.isEmpty(userName)) {
+            userName = "#SYSTEM#"
+        }
+
+        Box(
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                modifier = Modifier.align(alignment = Alignment.CenterStart),
+                text = userName, fontSize = 14.sp, color = metadataColor,
+            )
+            Text(
+                modifier = Modifier.align(alignment = Alignment.CenterEnd),
+                text = messageInfo.time,
+                fontSize = 14.sp,
+                color = metadataColor
+            )
+        }
+    }
+}

@@ -2,6 +2,7 @@
 gradle = "8.10.1"
 kotlin = "2.2.21"
 fastjson2 = "2.0.59.android8"
+coroutines = "1.10.2"
 
 [plugins]
 # kotlin
@@ -19,3 +20,6 @@ gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 
 # fastJson
 fastjson2 = { group = "com.alibaba.fastjson2", name = "fastjson2", version.ref = "fastjson2" }
+
+# kotlinx-coroutines (test-only for now; no product runtime dependency is added)
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

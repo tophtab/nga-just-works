@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/frontend/android-migration-architecture.md", "reason": "Target Activity/Route/Screen/ViewModel/Repository ownership, StateFlow, and preserved navigation contracts."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Existing Compose and Miuix component conventions that message screens must keep."}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "MESSAGE.LIST/READ/SEND request shapes, repairs, success tags, and mutable-state warnings."}
+{"file": ".trellis/spec/backend/network-foundation-contract.md", "reason": "Transport signatures, encoding, and parser wrapper facts used by the new repositories."}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Private message content, logging, and host/encoding safety rules for list/detail parsers."}
+{"file": ".trellis/spec/backend/json-compatibility-contract.md", "reason": "fastjson2 token repair rules and parser dependency constraints."}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Validation gate and device-test authorization policy for the final walkthrough."}

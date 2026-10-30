@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/android-migration-architecture.md", "reason": "Verify layer ownership, no ARouter/Toast/Context in ViewModels, and preserved routes/extras."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Verify both classic Compose and Miuix appearances still follow project component conventions."}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "Verify request parameters, repairs, success tags, and error rows match the registry."}
+{"file": ".trellis/spec/backend/network-foundation-contract.md", "reason": "Verify no transport-level behavior drift while splitting repositories and parsers."}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Run the device-independent gate and record any device walkthrough as authorized or not run."}

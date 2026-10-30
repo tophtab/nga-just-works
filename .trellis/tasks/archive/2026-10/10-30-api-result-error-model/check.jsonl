@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/network-foundation-contract.md", "reason": "Check that transport signatures and converter behavior are unchanged."}
+{"file": ".trellis/spec/backend/nga-platform-operation-registry.md", "reason": "Check that message error semantics and request shapes still match the registry."}
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Check that error objects do not persist or log private response content beyond policy."}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Run the device-independent validation gate and report unauthorized device tests correctly."}

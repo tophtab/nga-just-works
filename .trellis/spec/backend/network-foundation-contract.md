@@ -273,6 +273,70 @@ No state-changing request is automatically retried without proven idempotency.
 Original checks for `成功`, `操作成功`, `发贴完毕`, or HTML titles are legacy
 parser evidence, not stable success definitions.
 
+## Shared Failure Classification
+
+`lib_base_network` exposes a client-side result model in
+`com.justwen.androidnga.base.network`:
+
+```kotlin
+sealed interface ApiResult<out T> {
+    data class Success<T>(val data: T) : ApiResult<T>
+    data class Failure(val error: ApiError) : ApiResult<Nothing>
+}
+
+sealed interface ApiError {
+    data class NetworkUnavailable(override val cause: Throwable) : ApiError
+    data class Timeout(override val cause: Throwable) : ApiError
+    data class HttpStatus(
+        val code: Int, val message: String?, val errorBody: String?,
+        override val cause: Throwable,
+    ) : ApiError
+    data class JsonParse(val message: String?, override val cause: Throwable) : ApiError
+    data class Business(val code: String?, val message: String, override val cause: Throwable) : ApiError
+    data class Unexpected(override val cause: Throwable) : ApiError
+}
+
+class BusinessException(val code: String? = null, override val message: String) : Exception(message)
+
+suspend fun <T : Any> apiSafeCall(
+    request: suspend () -> String,
+    parse: (String) -> ApiResult<T>,
+): ApiResult<T>
+```
+
+Contract:
+
+- The model is a **client** classification of why a response was unusable. It
+  does not redefine NGA's wrapper, site messages, or success text; parsers still
+  own the data/error union and the operation still decides what received data
+  means.
+- `ApiResult` is sealed, so success and failure are mutually exclusive: there is
+  no both-null or both-populated instance. It exposes `success`/`failure`
+  factories plus `isSuccess`, `isFailure`, `dataOrNull`, and `errorOrNull`
+  queries; call sites use an exhaustive `when` on the two subtypes.
+- Mapping is checked most-specific first: `BusinessException` → `Business`,
+  `SocketTimeoutException` → `Timeout` (it is an `IOException`, so it must be
+  tested first), `retrofit2.HttpException` → `HttpStatus`,
+  `com.alibaba.fastjson2.JSONException` → `JsonParse`, `IOException` →
+  `NetworkUnavailable`, everything else → `Unexpected`. Every subtype keeps the
+  original throwable in `cause`.
+- `apiSafeCall` rethrows `kotlin.coroutines.cancellation.CancellationException`
+  before any other catch. Cancellation is never converted into
+  `ApiResult.Failure`, and no operation may reintroduce a broad
+  `catch (e: Exception)` around a suspend network call.
+- `ApiError.HttpStatus.errorBody` is read once, in memory, length-bounded, and
+  must never be logged or persisted; the privacy rules above still apply.
+  `HttpStatus` also omits `errorBody` from its `toString()` so an accidental log
+  of the error object cannot echo response content.
+- The transport itself is unchanged: Retrofit signatures, Cookie/UA
+  interception, the GBK/empty-string converter, retry behavior, and request
+  construction stay exactly as pinned. `ApiResult` adds no retry, backoff,
+  caching, telemetry, or account rotation, and an `ApiResult.Failure` is never
+  grounds for retrying a write.
+- Adoption is incremental. Converted operations map failures at their repository
+  boundary; unconverted operations keep their existing parsing and error
+  handling.
+
 ## JavaScript Bridge Contract
 
 Original vote HTML calls exactly:

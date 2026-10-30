@@ -1,0 +1,29 @@
+{
+  "id": "api-result-and-message-layering",
+  "name": "api-result-and-message-layering",
+  "title": "引入 ApiResult 错误模型并重构消息模块分层",
+  "description": "参照上游 5.1.x 的网络错误建模与消息模块分层，在 fork 内引入 ApiResult/ApiError/apiSafeCall，并以此重写消息列表/详情/发送三页（保持 Miuix 外观）。父任务负责需求、任务映射与集成验收。",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "toph",
+  "assignee": "toph",
+  "createdAt": "2026-10-30",
+  "completedAt": "2026-10-30",
+  "branch": "feat/api-result-and-message-layering",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "10-30-api-result-error-model",
+    "10-30-message-module-layering"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
