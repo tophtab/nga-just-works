@@ -1,0 +1,66 @@
+{
+  "utc_started": "2026-10-02T13:48:33Z",
+  "target_tid": "47660355",
+  "page": 1,
+  "credential_source": ".temp/cookies.txt",
+  "max_requests": 3,
+  "gap_seconds": 5,
+  "automatic_retries": 0,
+  "follow_redirects": false,
+  "default_ua_note": "Source-compatible Android browser UA, not captured installed preference",
+  "results": [
+    {
+      "kind": "lnga_signed_html",
+      "origin": "https://ngabbs.com",
+      "utc": "2026-10-02T13:48:33Z",
+      "http_status": 200,
+      "content_type": "text/json;charset=UTF-8",
+      "body_bytes": 60145,
+      "decode": "ok",
+      "charset": "UTF-8",
+      "strict_json": true,
+      "envelope_code": 521,
+      "template": "read",
+      "recognized_stop": false,
+      "has_html": true,
+      "html_parser": {
+        "parsed": true,
+        "tid_matches": true,
+        "page": 1,
+        "row_count": 19,
+        "declared_rows": 19,
+        "total_rows": 19,
+        "nonempty_bodies": 19,
+        "main_row_present": true,
+        "all_pid_numeric": true
+      },
+      "stop": false
+    },
+    {
+      "kind": "ordinary_same_host",
+      "origin": "https://ngabbs.com",
+      "utc": "2026-10-02T13:48:38Z",
+      "http_status": 200,
+      "content_type": "text/javascript; charset=GBK",
+      "body_bytes": 16163,
+      "decode": "ok",
+      "charset": "GBK",
+      "strict_json": false,
+      "starts_html": false,
+      "stop": false
+    },
+    {
+      "kind": "ordinary_user_link_host",
+      "origin": "https://bbs.nga.cn",
+      "utc": "2026-10-02T13:48:43Z",
+      "http_status": 200,
+      "content_type": "text/javascript; charset=GBK",
+      "body_bytes": 16163,
+      "decode": "ok",
+      "charset": "GBK",
+      "strict_json": false,
+      "starts_html": false,
+      "stop": false
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "utc_started": "2026-10-02T13:54:29Z",
+  "target_tid": "47659652",
+  "page": 1,
+  "credential_source": ".temp/cookies.txt",
+  "max_requests": 1,
+  "gap_seconds": 5,
+  "automatic_retries": 0,
+  "follow_redirects": false,
+  "default_ua_note": "Source-compatible Android browser UA, not captured installed preference",
+  "results": [
+    {
+      "kind": "ordinary_user_link_host",
+      "origin": "https://bbs.nga.cn",
+      "utc": "2026-10-02T13:54:29Z",
+      "http_status": 200,
+      "content_type": "text/javascript; charset=GBK",
+      "body_bytes": 12556,
+      "decode": "ok",
+      "charset": "GBK",
+      "production_json_stage": {
+        "app_json_stage_passed": false,
+        "error_class": "JSONException"
+      },
+      "strict_json": false,
+      "starts_html": false,
+      "json_error_kind": "Invalid control character at",
+      "json_error_position": 2050,
+      "ends_closing_brace": false,
+      "has_data_marker": true,
+      "has_rows_marker": true,
+      "has_topic_marker": false,
+      "script_assignment_prefix": false,
+      "stop": false
+    }
+  ]
+}

@@ -1,0 +1,311 @@
+{
+  "utc_started": "2026-10-02T14:35:13Z",
+  "target_tid": "47659652",
+  "page": 1,
+  "credential_source": ".temp/cookies.txt",
+  "max_requests": 1,
+  "gap_seconds": 5,
+  "automatic_retries": 0,
+  "follow_redirects": false,
+  "default_ua_note": "Source-compatible Android browser UA, not captured installed preference",
+  "results": [
+    {
+      "kind": "njw_unsigned_app",
+      "origin": "https://ngabbs.com",
+      "utc": "2026-10-02T14:35:13Z",
+      "cookie_header_sent": true,
+      "http_status": 200,
+      "content_type": "text/json; charset=UTF-8",
+      "body_bytes": 25500,
+      "decode": "ok",
+      "charset": "UTF-8",
+      "strict_json": true,
+      "envelope_code": 0,
+      "template": "other_or_missing",
+      "recognized_stop": false,
+      "app_structure": {
+        "row_count": 19,
+        "all_rows_expected_tid": true,
+        "nonempty_bodies": 19,
+        "all_pid_numeric": true,
+        "current_page": 1,
+        "per_page": 20,
+        "total_pages": 2
+      },
+      "root_fields": {
+        "code": {
+          "type": "int"
+        },
+        "msg": {
+          "type": "str",
+          "length": 4
+        },
+        "totalPage": {
+          "type": "int"
+        },
+        "currentPage": {
+          "type": "int"
+        },
+        "perPage": {
+          "type": "int"
+        },
+        "vrows": {
+          "type": "int"
+        },
+        "attachPrefix": {
+          "type": "str",
+          "length": 31
+        },
+        "tsubject": {
+          "type": "str",
+          "length": 15
+        },
+        "tauthorid": {
+          "type": "int"
+        },
+        "tauthor": {
+          "type": "str",
+          "length": 9
+        },
+        "fid": {
+          "type": "int"
+        },
+        "forum_name": {
+          "type": "str",
+          "length": 4
+        },
+        "forum_bit": {
+          "type": "int"
+        },
+        "tmisc_bit1": {
+          "type": "int"
+        },
+        "hot_post": {
+          "type": "NoneType"
+        },
+        "is_forum_admin": {
+          "type": "int"
+        },
+        "html_body_extra": {
+          "type": "str",
+          "length": 0
+        },
+        "html_head_extra": {
+          "type": "str",
+          "length": 91
+        }
+      },
+      "row_fields": {
+        "address": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 0,
+          "types": [
+            "dict"
+          ]
+        },
+        "alterinfo": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 0,
+          "types": [
+            "str"
+          ]
+        },
+        "attches": {
+          "present": 19,
+          "nonnull": 2,
+          "nonempty": 2,
+          "types": [
+            "NoneType",
+            "list"
+          ]
+        },
+        "author": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "dict"
+          ]
+        },
+        "comment_to_id": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 0,
+          "types": [
+            "str"
+          ]
+        },
+        "content": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "str"
+          ]
+        },
+        "fid": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "follow": {
+          "present": 1,
+          "nonnull": 1,
+          "nonempty": 1,
+          "types": [
+            "int"
+          ]
+        },
+        "from_client": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "str"
+          ]
+        },
+        "isTieTiao": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "bool"
+          ]
+        },
+        "is_user_quote": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "lou": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "pid": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "postdate": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "str"
+          ]
+        },
+        "postdatetimestamp": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "subject": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 0,
+          "types": [
+            "str"
+          ]
+        },
+        "tid": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "type": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "vote": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 0,
+          "types": [
+            "str"
+          ]
+        },
+        "vote_bad": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        },
+        "vote_good": {
+          "present": 19,
+          "nonnull": 19,
+          "nonempty": 19,
+          "types": [
+            "int"
+          ]
+        }
+      },
+      "detail_shapes": {
+        "comment_to_id": [],
+        "isTieTiao": [
+          {
+            "type": "bool"
+          },
+          {
+            "type": "bool"
+          },
+          {
+            "type": "bool"
+          }
+        ],
+        "vote": [],
+        "vote_bad": [
+          {
+            "type": "int"
+          },
+          {
+            "type": "int"
+          },
+          {
+            "type": "int"
+          }
+        ],
+        "vote_good": [
+          {
+            "type": "int"
+          },
+          {
+            "type": "int"
+          },
+          {
+            "type": "int"
+          }
+        ]
+      },
+      "inline_media_rows": 2,
+      "business_success": true,
+      "stop": false
+    }
+  ]
+}

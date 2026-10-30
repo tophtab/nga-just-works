@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/backend/nga-platform-access-rules.md", "reason": "Source evidence, transport and no-live-validation boundaries"}
+{"file": ".trellis/spec/backend/network-foundation-contract.md", "reason": "Preserve current session and compatibility constraints"}
+{"file": ".trellis/tasks/10-02-nga-client-api-comparison/research/comparison.md", "reason": "Pinned source evidence and comparison findings"}
+{"file": ".trellis/tasks/10-02-nga-client-api-comparison/research/current-project.md", "reason": "Pinned source evidence and comparison findings"}
+{"file": ".trellis/tasks/10-02-nga-client-api-comparison/research/nga-client.md", "reason": "Pinned source evidence and comparison findings"}
+{"file": ".trellis/tasks/10-02-nga-client-api-comparison/research/read-reliability.md", "reason": "User priority: read failures, upstream fixes, evidence limits and candidate mechanism"}
+{"file": ".trellis/tasks/10-02-nga-client-api-comparison/research/lnga-signed-html-feasibility.md", "reason": "Focused signed HTML feasibility, links to deep studies and offline acceptance gates"}

@@ -1,0 +1,88 @@
+{
+  "utc_started": "2026-10-02T14:24:31Z",
+  "target_tid": "47659652",
+  "page": 1,
+  "credential_source": ".temp/cookies.txt",
+  "max_requests": 1,
+  "gap_seconds": 5,
+  "automatic_retries": 0,
+  "follow_redirects": false,
+  "default_ua_note": "Source-compatible Android browser UA, not captured installed preference",
+  "results": [
+    {
+      "kind": "njw_unsigned_app",
+      "origin": "https://ngabbs.com",
+      "utc": "2026-10-02T14:24:31Z",
+      "cookie_header_sent": true,
+      "http_status": 200,
+      "content_type": "text/json; charset=UTF-8",
+      "body_bytes": 25500,
+      "decode": "ok",
+      "charset": "UTF-8",
+      "strict_json": true,
+      "envelope_code": 0,
+      "template": "other_or_missing",
+      "recognized_stop": false,
+      "app_structure": {
+        "row_count": 19,
+        "all_rows_expected_tid": true,
+        "nonempty_bodies": 19,
+        "all_pid_numeric": true,
+        "current_page": 1,
+        "per_page": 20,
+        "total_pages": 2
+      },
+      "score_field_summary": {
+        "vote": {
+          "present": 19,
+          "types": [
+            "str"
+          ],
+          "numeric_nonzero": 0
+        },
+        "vote_bad": {
+          "present": 19,
+          "types": [
+            "int"
+          ],
+          "numeric_nonzero": 0
+        },
+        "vote_good": {
+          "present": 19,
+          "types": [
+            "int"
+          ],
+          "numeric_nonzero": 11
+        }
+      },
+      "numeric_score_samples": [
+        {
+          "vote_bad": 0,
+          "vote_good": 0
+        },
+        {
+          "vote_bad": 0,
+          "vote_good": 30
+        },
+        {
+          "vote_bad": 0,
+          "vote_good": 29
+        },
+        {
+          "vote_bad": 0,
+          "vote_good": 7
+        },
+        {
+          "vote_bad": 0,
+          "vote_good": 10
+        },
+        {
+          "vote_bad": 0,
+          "vote_good": 7
+        }
+      ],
+      "business_success": true,
+      "stop": false
+    }
+  ]
+}
