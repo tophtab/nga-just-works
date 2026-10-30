@@ -12,7 +12,7 @@
   "assignee": "toph",
   "createdAt": "2026-10-30",
   "completedAt": null,
-  "branch": "main",
+  "branch": "fix/tablet-split-phone-trigger",
   "base_branch": "main",
   "worktree_path": null,
   "commit": null,
