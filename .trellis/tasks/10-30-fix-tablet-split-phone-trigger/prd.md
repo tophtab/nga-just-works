@@ -59,10 +59,11 @@ two-pane behaviour and can still turn it off.
   visibility when the settings screen resumes so a fold/unfold is reflected.
 - R4: Remove the subtitle text under these settings entries:
   - 预测返回手势
-  - 首页布局 (the current-entry text)
   - 平板分栏
   - 重置表情顺序
   - AI 设置 › 测试连接's idle description ("测试当前配置")
+  首页布局 keeps its current-entry text (平铺 / 紧凑); the maintainer asked for
+  it to stay visible after the first install confirmed the other removals.
 - R5: No regression for tablets: on a landscape tablet that meets the
   thresholds, the existing split pairs and draggable divider still work, and
   the switch still turns them off.
@@ -80,8 +81,9 @@ two-pane behaviour and can still turn it off.
   ineligible configuration) clears the rules; rotating back restores them.
 - [ ] AC3 (R3): 「平板分栏」 is absent from 外观设置 on a phone and present on a
   tablet.
-- [ ] AC4 (R4, R6): The five listed entries show no summary subtitle; the AI
-  test still shows progress and result text while running and after it ends.
+- [ ] AC4 (R4, R6): The four listed entries show no summary subtitle; 首页布局
+  still shows 平铺/紧凑 as its current value; the AI test still shows progress
+  and result text while running and after it ends.
 - [ ] AC5: A JVM unit test covers the eligibility predicate (phone portrait,
   phone landscape, tablet portrait, tablet landscape, 840/600 boundaries).
   `./gradlew testDebugUnitTest lintDebug --continue --console=plain` passes.

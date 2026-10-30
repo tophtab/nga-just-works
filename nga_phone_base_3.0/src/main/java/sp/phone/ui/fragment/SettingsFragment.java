@@ -149,9 +149,7 @@ public class SettingsFragment extends BasePreferenceFragment
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
 
-        // 「首页布局」不显示当前选项文字，其余列表项保留回显。
-        if (preference instanceof ListPreference
-                && !PreferenceKey.KEY_HOME_LAYOUT.equals(preference.getKey())) {
+        if (preference instanceof ListPreference) {
             preference.setSummary(((ListPreference) preference).getEntry());
         }
 

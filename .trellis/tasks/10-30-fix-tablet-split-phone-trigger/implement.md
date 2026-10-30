@@ -27,10 +27,8 @@
    - Call it from `configPreference()` and `onResume()`.
 5. **Remove summaries** — settings XML
    - `settings.xml`: drop `android:summary` from 预测返回手势, 平板分栏, and
-     重置表情顺序; change 首页布局 from `ListSummaryPreference` to
-     `ListPreference`.
-   - `SettingsFragment.onPreferenceChange`: skip the
-     `setSummary(getEntry())` update for `KEY_HOME_LAYOUT`.
+     重置表情顺序. 首页布局 keeps `ListSummaryPreference` and its 平铺/紧凑
+     current-entry text (maintainer feedback after the first install).
    - `settings_ai.xml`: drop `android:summary` from the test entry;
      `SettingsAiFragment.invalidateConnectionTest` sets the summary to `null`
      instead of the idle string.

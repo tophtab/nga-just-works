@@ -46,7 +46,7 @@
             android:key="key_tablet_split"
             android:title="@string/setting_title_tablet_split" />
 
-        <ListPreference
+        <ListSummaryPreference
             android:defaultValue="fill"
             android:dialogTitle="@string/setting_title_home_layout"
             android:entries="@array/home_layout"
