@@ -850,56 +850,57 @@ if (index >= 0) list.scrollToPosition(index);
 
 ## Article WebView text selection
 
-- WebView has no `setCustomSelectionActionModeCallback`. The only
-  application-level hook is `startActionMode`, which Chromium calls on its
-  container view. Override **both** overloads on `LocalWebView` and wrap the
-  incoming callback. `View.startActionMode(callback)` dispatches to the
-  two-argument overload, so guard against double wrapping with an `instanceof`
-  check on the wrapper type.
-- The wrapper must extend `ActionMode.Callback2` and forward `onGetContentRect`
-  to the wrapped callback. Skipping it breaks floating toolbar positioning.
-- `onPrepareActionMode` must rebuild unconditionally and always return `true`.
-  Chromium repopulates the menu on every `invalidate()`, and vendor-injected
-  entries arrive through the same `Menu`, so a single build at create time is
-  not enough.
-- Rebuild the menu with exactly Copy, Select all, and Search, in that order,
-  using ids declared in `res/values/ids.xml`. Do **not** reuse
-  `android.R.id.copy` / `android.R.id.selectAll`: Chromium binds its own
-  handlers to ids inside the WebView APK that the app cannot reference, so a
-  rebuilt menu owns all three actions. Mark all three as
-  `SHOW_AS_ACTION_ALWAYS` and keep the `AlwaysShowAction` lint suppression
-  scoped to the menu-building method.
-- Read the selection with `evaluateJavascript`; this couples the toolbar to
-  `LocalWebView` keeping JavaScript enabled. Copy writes to `ClipboardManager`,
-  Select all runs `selectAllChildren(document.body)` without ending the mode,
-  and Search passes the nonblank selection as `SearchManager.QUERY` in an
-  `Intent.ACTION_WEB_SEARCH`, catching `ActivityNotFoundException`.
-- Vendor-injected entries arrive through the same `Menu`, so the rebuild clears
-  them too. Confirmed on HyperOS / Xiaomi 15 with 4.11.0: no share entry and no
-  vendor overlay survives. Xiaomi patches the framework more heavily than the
-  other major OEMs, so a clean result there is good evidence the takeover holds
-  broadly — WebView itself is a Mainline module and is not vendor-modified.
-- Do not push these overrides down into `lib_base_common`'s `WebViewEx`. It is a
-  shared base class and future subclasses would inherit the behavior silently.
-- Keep the focused source guard against share/`ACTION_PROCESS_TEXT` export.
-  Review the override pair, double-wrap guard, `Callback2` conformance, menu
-  membership and per-action guards when modifying the adapter; literal method
-  spelling is not a substitute for exercising the selection behavior.
+Article body selection is owned by Chromium. `LocalWebView` only configures the
+official settings switch and must not intercept the selection callback.
 
-`String.trim()` only removes characters up to U+0020 and is not a valid blank
-check for selected forum text. Iterate by code point and combine both Unicode
-predicates so no-break and ideographic spaces are rejected as blank:
+- In `LocalWebView.setLocalMode()`, configure the menu through
+  `WebSettings`:
+  ```java
+  settings.setDisabledActionModeMenuItems(
+          WebSettings.MENU_ITEM_SHARE | WebSettings.MENU_ITEM_PROCESS_TEXT);
+  ```
+  Do not disable `MENU_ITEM_WEB_SEARCH`. The resulting menu is
+  Copy / Select all / Web search, provided and localized by Chromium and the
+  system (`setDisabledActionModeMenuItems` is API 24+, so `minSdk 29` covers
+  it).
+- Do not override `startActionMode` on `LocalWebView` or a shared WebView base
+  class, and never call `menu.clear()` to rebuild Chromium's selection menu.
+  The sole exception is the separately reviewed remove-only fallback described
+  below.
+  Chromium owns the item ids and handlers; a rebuilt menu must reimplement
+  copy, select-all, and search through `evaluateJavascript`, clipboard writes,
+  or `ACTION_WEB_SEARCH`, which is the crash-prone path this contract retires.
+  Do not add a custom selection callback, wrapper, or `menu_article_selection_*`
+  resource ids.
+- Menu label wording, item order, and the presence of Web search are decided by
+  Chromium and the system. Web search hides itself when the device has no
+  `ACTION_WEB_SEARCH` handler. Accept the system-localized “网页搜索” label
+  rather than hard-coding copy.
+- Scope is `LocalWebView` only: the article body and the settings font-size
+  preview. Other screens keep their existing behavior: the profile screen uses
+  the app's own `sp.phone.view.webview.WebViewEx` (not `LocalWebView`), while
+  the in-app web page, login, about, and dialog web views use a plain
+  `WebView`. None of them sets this switch.
+- The behavior cannot be exercised by a JVM unit test: `WebSettings` is a
+  framework class and the module has no Robolectric. Do not add a source
+  spelling test as a substitute; verify by long-pressing body text on a
+  physical device and confirming that Copy, Select all, and Web search appear
+  and work.
 
-```java
-if (!Character.isWhitespace(codePoint) && !Character.isSpaceChar(codePoint)) {
-    return false;
-}
-```
+### Vendor-injected entries
 
-Keep this logic, and the decoding of `evaluateJavascript` JSON results, in a
-class free of `android.*` imports. The module has JUnit only — no Robolectric
-and no `returnDefaultValues` — so anything touching framework classes cannot be
-covered by an executing unit test.
+If a device re-injects vendor entries (for example MIUI screen recognition or
+portal) and the product rejects them, the only permitted fallback is a
+**remove-only** `ActionMode.Callback2` wrapper: call the delegate from
+`onCreateActionMode` / `onPrepareActionMode`, then `menu.removeItem(...)` the
+unwanted entries. Smart-selection entries use `android.R.id.textAssist`, which
+the `MENU_ITEM_*` switch does not control, so remove that framework id rather
+than matching labels.
+
+The fallback must not call `menu.clear()`, must not add its own items or ids,
+and must not return `true` unconditionally from `onPrepareActionMode`. It
+requires a separate review before landing; the default contract is no
+application-level callback at all.
 
 ## Emoticon picker order
 
