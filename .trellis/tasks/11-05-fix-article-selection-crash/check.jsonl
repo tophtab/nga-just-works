@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Verify the selection section now documents the official WebSettings contract and forbids menu.clear()/startActionMode takeover"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Verify Debug gate, lint report inspection and obsolete test retirement follow the quality contract"}

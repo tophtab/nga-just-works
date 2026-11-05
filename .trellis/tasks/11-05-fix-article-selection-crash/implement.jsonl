@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Article WebView text selection contract to replace; records the old startActionMode takeover being retired"}
+{"file": ".trellis/spec/backend/android-quality-guidelines.md", "reason": "Debug gate commands, JDK 17 requirement, lint report interpretation and test-deletion policy"}
