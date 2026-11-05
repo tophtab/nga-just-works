@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.webkit.DownloadListener;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
@@ -60,6 +59,8 @@ public class LocalWebView extends WebViewEx implements DownloadListener {
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
+        settings.setDisabledActionModeMenuItems(
+                WebSettings.MENU_ITEM_SHARE | WebSettings.MENU_ITEM_PROCESS_TEXT);
         addJavascriptInterface(this, "action");
         settings.setTextZoom(PhoneConfiguration.getInstance().getWebViewTextZoom());
         settings.setBlockNetworkImage(true);
@@ -72,30 +73,6 @@ public class LocalWebView extends WebViewEx implements DownloadListener {
 
     public WebViewClientEx getWebViewClientEx() {
         return mWebViewClientEx;
-    }
-
-    @Override
-    public ActionMode startActionMode(ActionMode.Callback callback) {
-        return super.startActionMode(wrapSelectionCallback(callback));
-    }
-
-    @Override
-    public ActionMode startActionMode(ActionMode.Callback callback, int type) {
-        return super.startActionMode(wrapSelectionCallback(callback), type);
-    }
-
-    /**
-     * Chromium starts the selection toolbar through the container view, so wrapping the callback
-     * here is the only application-level way to control the article body selection menu.
-     *
-     * <p>{@code View.startActionMode(callback)} dispatches to the two-argument overload, which
-     * re-enters this method, hence the already-wrapped guard.
-     */
-    private ActionMode.Callback wrapSelectionCallback(ActionMode.Callback callback) {
-        if (callback == null || callback instanceof ArticleSelectionActionModeCallback) {
-            return callback;
-        }
-        return new ArticleSelectionActionModeCallback(this, callback);
     }
 
     @Override
