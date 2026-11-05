@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-2.md`
-- **Total Sessions**: 83
-- **Last Active**: 2026-10-30
+- **Total Sessions**: 84
+- **Last Active**: 2026-11-05
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-2.md` | ~278 | Active |
+| `journal-2.md` | ~302 | Active |
 | `journal-1.md` | ~1978 | Archived |
 <!-- @@@/auto:active-documents -->
 
@@ -30,6 +30,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 84 | 2026-11-05 | 修复正文选词在 MIUI 13 上的崩溃 | `fc96af97`, `82891870`, `bf38ebae` | `main` |
 | 83 | 2026-10-30 | 发布 6.3.4 | `acd46ccd` | `main` |
 | 82 | 2026-10-30 | 消息模块分层重构 | `4595709e` | `feat/api-result-and-message-layering` |
 | 81 | 2026-10-30 | ApiResult 错误模型落地 | `1b7c14a8`, `0056e3e7` | `feat/api-result-error-model` |

@@ -276,3 +276,27 @@ Diagnosed via decompiled ViewPager 1.0.0 / RecyclerTabLayout 1.5.0: a foreground
 ### Next Steps
 
 - 如需要，在真机上补消息页两套外观走查
+
+
+## Session 84: 修复正文选词在 MIUI 13 上的崩溃
+<!-- trellis-session: v=2 fp=e47ac858bc1bdef9 -->
+
+**Date**: 2026-11-05
+**Task**: 修复正文选词在 MIUI 13 上的崩溃
+**Branch**: `main`
+
+### Summary
+
+Removed the article-body selection toolbar takeover. LocalWebView now calls WebSettings.setDisabledActionModeMenuItems(SHARE | PROCESS_TEXT), leaving Chromium's Copy / Select all / Web search; the custom callback, text helper, their tests and the unused selection ids are deleted. Debug gate: 663 tests, 0 failures; 13 modules lint 0 Error / 0 Fatal; assembleDebug OK. Xiaomi 12X / MIUI 13 device acceptance is deferred to the issue reporter.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `fc96af97` | fix: use WebView's official selection menu switch |
+| `82891870` | docs(spec): replace selection takeover contract with official WebSettings switch |
+| `bf38ebae` | chore(task): add fix-article-selection-crash artifacts |
+
+### Status
+
+[OK] **Completed**
