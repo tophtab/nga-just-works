@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -176,19 +177,33 @@ class SearchActivity : BaseComposeActivity() {
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun SearchHistoryView() {
+        val keyList by viewModel.keyList.observeAsState(emptyList())
         Column(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)) {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     text = "搜索历史",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.SemiBold
                 )
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.weight(1f))
+                if (keyList.isNotEmpty()) {
+                    Text(
+                        text = "全部清除",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colors.primary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { viewModel.clearHistory() }
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                }
             }
 
-            val keyList by viewModel.keyList.observeAsState(emptyList())
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
