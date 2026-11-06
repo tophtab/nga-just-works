@@ -37,6 +37,7 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TabRowWithContour
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.extra.SuperCheckbox
 import top.yukonga.miuix.kmp.extra.SuperRadioButton
 import top.yukonga.miuix.kmp.icon.MiuixIcons
@@ -154,7 +155,17 @@ private fun SearchOptions(viewModel: SearchViewModel, mode: Int) {
 private fun SearchHistory(viewModel: SearchViewModel, onSearch: (String) -> Unit) {
     val history by viewModel.keyList.observeAsState(emptyList())
     if (history.isEmpty()) return
-    SmallTitle(text = "搜索历史")
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SmallTitle(text = "搜索历史", modifier = Modifier.weight(1f))
+        TextButton(
+            text = "全部清除",
+            onClick = { viewModel.clearHistory() },
+            modifier = Modifier.padding(end = 16.dp),
+        )
+    }
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()

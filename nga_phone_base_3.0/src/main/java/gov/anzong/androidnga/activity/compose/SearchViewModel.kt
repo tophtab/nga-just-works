@@ -149,4 +149,8 @@ class SearchViewModel : ViewModel() {
         }
     }
 
+    fun clearHistory() {
+        keyList.value = searchModel.clearHistory(searchMode.value!!)
+    }
+
 }

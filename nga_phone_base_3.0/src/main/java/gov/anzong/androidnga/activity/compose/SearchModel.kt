@@ -98,6 +98,11 @@ class SearchModel {
         }
     }
 
+    fun clearHistory(searchMode: Int): List<String> {
+        saveHistory(searchMode, emptyList())
+        return emptyList()
+    }
+
     private fun saveHistory(searchMode: Int, keyList: List<String>) {
         PreferenceUtils.putData(getPreferenceKey(searchMode), JSON.toJSONString(keyList))
     }
